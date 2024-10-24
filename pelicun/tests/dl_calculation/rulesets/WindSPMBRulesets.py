@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # Copyright (c) 2018 Leland Stanford Junior University
 # Copyright (c) 2018 The Regents of the University of California
@@ -42,13 +43,14 @@
 # Meredith Lockhead
 # Tracy Kijewski-Correa
 
-import datetime
 import random
+import numpy as np
+import datetime
 
 
-def SPMB_config(bim: dict) -> str:
+def SPMB_config(BIM):
     """
-    Rules to identify a HAZUS SPMB configuration based on BIM data.
+    Rules to identify a HAZUS SPMB configuration based on BIM data
 
     Parameters
     ----------
@@ -58,23 +60,21 @@ def SPMB_config(bim: dict) -> str:
     Returns
     -------
     config: str
-        A string that identifies a specific configuration within this
-        building class.
-
+        A string that identifies a specific configration within this buidling
+        class.
     """
-    year = bim['YearBuilt']  # just for the sake of brevity
+
+    year = BIM['YearBuilt'] # just for the sake of brevity
 
     # Roof Deck Age (~ Roof Quality)
-    if bim['YearBuilt'] >= (
-        datetime.datetime.now(tz=datetime.timezone.utc).year - 50
-    ):
+    if BIM['YearBuilt'] >= (datetime.datetime.now().year - 50):
         roof_quality = 'god'
     else:
         roof_quality = 'por'
 
     # shutters
     if year >= 2000:
-        shutters = bim['WindBorneDebris']
+        shutters = BIM['WindBorneDebris']
     # BOCA 1996 and earlier:
     # Shutters were not required by code until the 2000 IBC. Before 2000, the
     # percentage of commercial buildings that have shutters is assumed to be
@@ -84,43 +84,43 @@ def SPMB_config(bim: dict) -> str:
     # facilities. In addition to that, 46% of business owners reported boarding
     # up their businesses before Hurricane Katrina. In addition, compliance
     # rates based on the Homeowners Survey data hover between 43 and 50 percent.
-    elif bim['WindBorneDebris']:
-        shutters = random.random() < 0.46
     else:
-        shutters = False
+        if BIM['WindBorneDebris']:
+            shutters = random.random() < 0.46
+        else:
+            shutters = False
 
     # Metal RDA
     # 1507.2.8.1 High Wind Attachment.
     # Underlayment applied in areas subject to high winds (Vasd greater
     # than 110 mph as determined in accordance with Section 1609.3.1) shall
     #  be applied with corrosion-resistant fasteners in accordance with
-    # the manufacturer's instructions. Fasteners are to be applied along
+    # the manufacturer’s instructions. Fasteners are to be applied along
     # the overlap not more than 36 inches on center.
-    if bim['V_ult'] > 142:
-        mrda = 'std'  # standard
+    if BIM['V_ult'] > 142:
+        MRDA = 'std'  # standard
     else:
-        mrda = 'sup'  # superior
+        MRDA = 'sup'  # superior
 
-    if bim['PlanArea'] <= 4000:
+    if BIM['PlanArea'] <= 4000:
         bldg_tag = 'S.PMB.S'
-    elif bim['PlanArea'] <= 50000:
+    elif BIM['PlanArea'] <= 50000:
         bldg_tag = 'S.PMB.M'
     else:
         bldg_tag = 'S.PMB.L'
 
     # extend the BIM dictionary
-    bim.update(
-        {
-            'RoofQuality': roof_quality,
-            'RoofDeckAttachmentM': mrda,
-            'Shutters': shutters,
-        }
-    )
+    BIM.update(dict(
+        RoofQuality = roof_quality,
+        RoofDeckAttachmentM = MRDA,
+        Shutters = shutters
+        ))
 
-    return (
-        f"{bldg_tag}."
-        f"{int(shutters)}."
-        f"{roof_quality}."
-        f"{mrda}."
-        f"{int(bim['TerrainRoughness'])}"
-    )
+    bldg_config = f"{bldg_tag}." \
+                  f"{int(shutters)}." \
+                  f"{roof_quality}." \
+                  f"{MRDA}." \
+                  f"{int(BIM['TerrainRoughness'])}"
+
+    return bldg_config
+

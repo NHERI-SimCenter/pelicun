@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # Copyright (c) 2018 Leland Stanford Junior University
 # Copyright (c) 2018 The Regents of the University of California
@@ -44,10 +45,9 @@
 
 import random
 
-
-def SERB_config(bim: dict) -> str:  # noqa: C901
+def SERB_config(BIM):
     """
-    Rules to identify a HAZUS SERB configuration based on BIM data.
+    Rules to identify a HAZUS SERB configuration based on BIM data
 
     Parameters
     ----------
@@ -57,25 +57,26 @@ def SERB_config(bim: dict) -> str:  # noqa: C901
     Returns
     -------
     config: str
-        A string that identifies a specific configuration within this building
+        A string that identifies a specific configration within this buidling
         class.
-
     """
-    year = bim['YearBuilt']  # just for the sake of brevity
+
+    year = BIM['YearBuilt'] # just for the sake of brevity
 
     # Roof cover
-    if bim['RoofShape'] in {'gab', 'hip'}:
+    if BIM['RoofShape'] in ['gab', 'hip']:
         roof_cover = 'bur'
         # Warning: HAZUS does not have N/A option for CECB, so here we use bur
-    elif year >= 1975:
-        roof_cover = 'spm'
     else:
-        # year < 1975
-        roof_cover = 'bur'
+        if year >= 1975:
+            roof_cover = 'spm'
+        else:
+            # year < 1975
+            roof_cover = 'bur'
 
     # shutters
     if year >= 2000:
-        shutters = bim['WindBorneDebris']
+        shutters = BIM['WindBorneDebris']
     # BOCA 1996 and earlier:
     # Shutters were not required by code until the 2000 IBC. Before 2000, the
     # percentage of commercial buildings that have shutters is assumed to be
@@ -85,65 +86,65 @@ def SERB_config(bim: dict) -> str:  # noqa: C901
     # facilities. In addition to that, 46% of business owners reported boarding
     # up their businesses before Hurricane Katrina. In addition, compliance
     # rates based on the Homeowners Survey data hover between 43 and 50 percent.
-    elif bim['WindBorneDebris']:
-        shutters = random.random() < 0.46
     else:
-        shutters = False
+        if BIM['WindBorneDebris']:
+            shutters = random.random() < 0.46
+        else:
+            shutters = False
 
     # Wind Debris (widd in HAZSU)
     # HAZUS A: Res/Comm, B: Varies by direction, C: Residential, D: None
-    widd = 'C'  # residential (default)
-    if bim['OccupancyClass'] in {'RES1', 'RES2', 'RES3A', 'RES3B', 'RES3C', 'RES3D'}:
-        widd = 'C'  # residential
-    elif bim['OccupancyClass'] == 'AGR1':
-        widd = 'D'  # None
+    WIDD = 'C' # residential (default)
+    if BIM['OccupancyClass'] in ['RES1', 'RES2', 'RES3A', 'RES3B', 'RES3C',
+                                  'RES3D']:
+        WIDD = 'C' # residential
+    elif BIM['OccupancyClass'] == 'AGR1':
+        WIDD = 'D' # None
     else:
-        widd = 'A'  # Res/Comm
+        WIDD = 'A' # Res/Comm
 
     # Window area ratio
-    if bim['WindowArea'] < 0.33:
-        wwr = 'low'
-    elif bim['WindowArea'] < 0.5:
-        wwr = 'med'
+    if BIM['WindowArea'] < 0.33:
+        WWR = 'low'
+    elif BIM['WindowArea'] < 0.5:
+        WWR = 'med'
     else:
-        wwr = 'hig'
+        WWR = 'hig'
 
     # Metal RDA
     # 1507.2.8.1 High Wind Attachment.
     # Underlayment applied in areas subject to high winds (Vasd greater
     # than 110 mph as determined in accordance with Section 1609.3.1) shall
     #  be applied with corrosion-resistant fasteners in accordance with
-    # the manufacturer's instructions. Fasteners are to be applied along
+    # the manufacturer’s instructions. Fasteners are to be applied along
     # the overlap not more than 36 inches on center.
-    if bim['V_ult'] > 142:
-        mrda = 'std'  # standard
+    if BIM['V_ult'] > 142:
+        MRDA = 'std'  # standard
     else:
-        mrda = 'sup'  # superior
+        MRDA = 'sup'  # superior
 
-    if bim['NumberOfStories'] <= 2:
+    if BIM['NumberOfStories'] <= 2:
         bldg_tag = 'S.ERB.L'
-    elif bim['NumberOfStories'] <= 5:
+    elif BIM['NumberOfStories'] <= 5:
         bldg_tag = 'S.ERB.M'
     else:
         bldg_tag = 'S.ERB.H'
 
     # extend the BIM dictionary
-    bim.update(
-        {
-            'RoofCover': roof_cover,
-            'WindowAreaRatio': wwr,
-            'RoofDeckAttachmentM': mrda,
-            'Shutters': shutters,
-            'WindDebrisClass': widd,
-        }
-    )
+    BIM.update(dict(
+        RoofCover = roof_cover,
+        WindowAreaRatio = WWR,
+        RoofDeckAttachmentM = MRDA,
+        Shutters = shutters,
+        WindDebrisClass=WIDD
+        ))
 
-    return (
-        f"{bldg_tag}."
-        f"{roof_cover}."
-        f"{int(shutters)}."
-        f"{widd}."
-        f"{mrda}."
-        f"{wwr}."
-        f"{int(bim['TerrainRoughness'])}"
-    )
+    bldg_config = f"{bldg_tag}." \
+                  f"{roof_cover}." \
+                  f"{int(shutters)}." \
+                  f"{WIDD}." \
+                  f"{MRDA}." \
+                  f"{WWR}." \
+                  f"{int(BIM['TerrainRoughness'])}"
+
+    return bldg_config

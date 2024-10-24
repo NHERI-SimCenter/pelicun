@@ -1,5 +1,6 @@
 [tool.ruff]
 line-length = 85
+exclude = ["rulesets"]
 
 [tool.ruff.lint]
 # Enable all known categories
@@ -22,14 +23,13 @@ max-bool-expr=5
 "pelicun/tests/*" = ["D", "N802", "SLF001", "PLR2004", "PLR6301"]
 "pelicun/resources/auto/*" = ["ALL"]
 "pelicun/tools/HDF_to_CSV.py" = ["ALL"]
-"pelicun/tests/dl_calculation/rulesets/*" = ["N999"]
 
 [tool.ruff.format]
 quote-style = "single"
 
 [tool.codespell]
 ignore-words = ["ignore_words.txt"]
-skip = ["*.html", "./htmlcov/*", "./doc_src/build/*", "./pelicun.egg-info/*", "./doc_src/*", "./doc/build/*"]
+skip = ["*.html", "./htmlcov/*", "./doc_src/build/*", "./pelicun.egg-info/*", "./doc_src/*", "./doc/build/*", "*/rulesets/*"]
 
 [tool.mypy]
 ignore_missing_imports = true

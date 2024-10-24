@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # Copyright (c) 2018 Leland Stanford Junior University
 # Copyright (c) 2018 The Regents of the University of California
@@ -42,13 +43,12 @@
 # Meredith Lockhead
 # Tracy Kijewski-Correa
 
-import datetime
 import random
+import datetime
 
-
-def MMUH_config(bim: dict) -> str:  # noqa: C901
+def MMUH_config(BIM):
     """
-    Rules to identify a HAZUS MMUH configuration based on BIM data.
+    Rules to identify a HAZUS MMUH configuration based on BIM data
 
     Parameters
     ----------
@@ -58,25 +58,25 @@ def MMUH_config(bim: dict) -> str:  # noqa: C901
     Returns
     -------
     config: str
-        A string that identifies a specific configuration within this
-        building class.
-
+        A string that identifies a specific configration within this buidling
+        class.
     """
-    year = bim['YearBuilt']  # just for the sake of brevity
+
+    year = BIM['YearBuilt'] # just for the sake of brevity
 
     # Secondary Water Resistance (SWR)
     # Minimum drainage recommendations are in place in NJ (See below).
     # However, SWR indicates a code-plus practice.
 
-    swr: int | str = 'null'  # Default
-    if bim['RoofShape'] == 'flt':
-        swr = 'null'
-    elif bim['RoofShape'] in {'hip', 'gab'}:
-        swr = int(random.random() < 0.6)
+    SWR = "null" # Default
+    if BIM['RoofShape'] == 'flt':
+        SWR = 'null'
+    elif BIM['RoofShape'] in ['hip', 'gab']:
+        SWR = int(random.random() < 0.6)
 
     # Roof cover & Roof quality
     # Roof cover and quality do not apply to gable and hip roofs
-    if bim['RoofShape'] in {'gab', 'hip'}:
+    if BIM['RoofShape'] in ['gab', 'hip']:
         roof_cover = 'null'
         roof_quality = 'null'
 
@@ -93,29 +93,26 @@ def MMUH_config(bim: dict) -> str:  # noqa: C901
     # We assume that all flat roofs built before 1975 are BURs and all roofs
     # built after 1975 are SPMs.
     # Nothing in NJ Building Code or in the Hazus manual specifies what
-    # constitutes “good” and “poor” roof conditions, so ruleset is dependent
+    # constitutes “good” and “poor” roof conditions, so ruleset is dependant
     # on the age of the roof and average lifespan of BUR and SPM roofs.
     # We assume that the average lifespan of a BUR roof is 30 years and the
     # average lifespan of a SPM is 35 years. Therefore, BURs installed before
     # 1990 are in poor condition, and SPMs installed before 1985 are in poor
     # condition.
-    elif year >= 1975:
-        roof_cover = 'spm'
-        if bim['YearBuilt'] >= (
-            datetime.datetime.now(tz=datetime.timezone.utc).year - 35
-        ):
-            roof_quality = 'god'
-        else:
-            roof_quality = 'por'
     else:
-        # year < 1975
-        roof_cover = 'bur'
-        if bim['YearBuilt'] >= (
-            datetime.datetime.now(tz=datetime.timezone.utc).year - 30
-        ):
-            roof_quality = 'god'
+        if year >= 1975:
+            roof_cover = 'spm'
+            if BIM['YearBuilt'] >= (datetime.datetime.now().year - 35):
+                roof_quality = 'god'
+            else:
+                roof_quality = 'por'
         else:
-            roof_quality = 'por'
+            # year < 1975
+            roof_cover = 'bur'
+            if BIM['YearBuilt'] >= (datetime.datetime.now().year - 30):
+                roof_quality = 'god'
+            else:
+                roof_quality = 'por'
 
     # Roof Deck Attachment (RDA)
     # IRC 2009-2015:
@@ -130,35 +127,35 @@ def MMUH_config(bim: dict) -> str:  # noqa: C901
     # roughness length in the ruleset herein.
     # The base rule was then extended to the exposures closest to suburban and
     # light suburban, even though these are not considered by the code.
-    if bim['TerrainRoughness'] >= 35:  # suburban or light trees
-        if bim['V_ult'] > 130.0:
-            rda = '8s'  # 8d @ 6"/6" 'D'
+    if BIM['TerrainRoughness'] >= 35: # suburban or light trees
+        if BIM['V_ult'] > 130.0:
+            RDA = '8s'  # 8d @ 6"/6" 'D'
         else:
-            rda = '8d'  # 8d @ 6"/12" 'B'
-    elif bim['V_ult'] > 110.0:
-        rda = '8s'  # 8d @ 6"/6" 'D'
-    else:
-        rda = '8d'  # 8d @ 6"/12" 'B'
+            RDA = '8d'  # 8d @ 6"/12" 'B'
+    else:  # light suburban or open
+        if BIM['V_ult'] > 110.0:
+            RDA = '8s'  # 8d @ 6"/6" 'D'
+        else:
+            RDA = '8d'  # 8d @ 6"/12" 'B'
 
     # Roof-Wall Connection (RWC)
-    if bim['V_ult'] > 110.0:
-        rwc = 'strap'  # Strap
+    if BIM['V_ult'] > 110.0:
+        RWC = 'strap'  # Strap
     else:
-        rwc = 'tnail'  # Toe-nail
+        RWC = 'tnail'  # Toe-nail
 
     # Shutters
     # IRC 2000-2015:
-    # R301.2.1.2 in NJ IRC 2015 says protection of openings required
-    # for buildings located in WindBorneDebris regions, mentions
-    # impact-rated protection for glazing, impact-resistance for
-    # garage door glazed openings, and finally states that wood
-    # structural panels with a thickness > 7/16" and a span <8' can be
-    # used, as long as they are precut, attached to the framing
-    # surrounding the opening, and the attachments are resistant to
-    # corrosion and are able to resist component and cladding loads;
+    # R301.2.1.2 in NJ IRC 2015 says protection of openings required for
+    # buildings located in WindBorneDebris regions, mentions impact-rated protection for
+    # glazing, impact-resistance for garage door glazed openings, and finally
+    # states that wood structural panels with a thickness > 7/16" and a
+    # span <8' can be used, as long as they are precut, attached to the framing
+    # surrounding the opening, and the attachments are resistant to corrosion
+    # and are able to resist component and cladding loads;
     # Earlier IRC editions provide similar rules.
     if year >= 2000:
-        shutters = bim['WindBorneDebris']
+        shutters = BIM['WindBorneDebris']
     # BOCA 1996 and earlier:
     # Shutters were not required by code until the 2000 IBC. Before 2000, the
     # percentage of commercial buildings that have shutters is assumed to be
@@ -168,46 +165,45 @@ def MMUH_config(bim: dict) -> str:  # noqa: C901
     # facilities. In addition to that, 46% of business owners reported boarding
     # up their businesses before Hurricane Katrina. In addition, compliance
     # rates based on the Homeowners Survey data hover between 43 and 50 percent.
-    elif bim['WindBorneDebris']:
-        shutters = random.random() < 0.46
     else:
-        shutters = False
+        if BIM['WindBorneDebris']:
+            shutters = random.random() < 0.46
+        else:
+            shutters = False
 
     # Masonry Reinforcing (MR)
     # R606.6.4.1.2 Metal Reinforcement states that walls other than interior
     # non-load-bearing walls shall be anchored at vertical intervals of not
-    # more than 8 inches with joint reinforcement of not less than 9-gage.
+    # more than 8 inches with joint reinforcement of not less than 9 gage.
     # Therefore this ruleset assumes that all exterior or load-bearing masonry
     # walls will have reinforcement. Since our considerations deal with wind
     # speed, I made the assumption that only exterior walls are being taken
     # into consideration.
-    mr = True
+    MR = True
 
-    stories = min(bim['NumberOfStories'], 3)
+    stories = min(BIM['NumberOfStories'], 3)
 
     # extend the BIM dictionary
-    bim.update(
-        {
-            'SecondaryWaterResistance': swr,
-            'RoofCover': roof_cover,
-            'RoofQuality': roof_quality,
-            'RoofDeckAttachmentW': rda,
-            'RoofToWallConnection': rwc,
-            'Shutters': shutters,
-            'MasonryReinforcing': mr,
-        }
-    )
+    BIM.update(dict(
+        SecondaryWaterResistance = SWR,
+        RoofCover = roof_cover,
+        RoofQuality = roof_quality,
+        RoofDeckAttachmentW = RDA,
+        RoofToWallConnection = RWC,
+        Shutters = shutters,
+        MasonryReinforcing = MR,
+        ))
 
-    return (
-        f"M.MUH."
-        f"{int(stories)}."
-        f"{bim['RoofShape']}."
-        f"{int(swr)}."
-        f"{roof_cover}."
-        f"{roof_quality}."
-        f"{rda}."
-        f"{rwc}."
-        f"{int(shutters)}."
-        f"{int(mr)}."
-        f"{int(bim['TerrainRoughness'])}"
-    )
+    bldg_config = f"M.MUH." \
+                  f"{int(stories)}." \
+                  f"{BIM['RoofShape']}." \
+                  f"{int(SWR)}." \
+                  f"{roof_cover}." \
+                  f"{roof_quality}." \
+                  f"{RDA}." \
+                  f"{RWC}." \
+                  f"{int(shutters)}." \
+                  f"{int(MR)}." \
+                  f"{int(BIM['TerrainRoughness'])}"
+
+    return bldg_config

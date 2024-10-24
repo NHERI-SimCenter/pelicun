@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # Copyright (c) 2018 Leland Stanford Junior University
 # Copyright (c) 2018 The Regents of the University of California
@@ -42,10 +43,14 @@
 # Meredith Lockhead
 # Tracy Kijewski-Correa
 
+import random
+import numpy as np
+import datetime
 
-def building_class(bim: dict, hazard: str) -> str:  # noqa: C901
+
+def building_class(BIM, hazard):
     """
-    Short description.
+    Short description
 
     Long description
 
@@ -58,192 +63,108 @@ def building_class(bim: dict, hazard: str) -> str:  # noqa: C901
     -------
     bldg_class: str
         One of the standard building class labels from HAZUS
-
     """
+
     # check hazard
-    if hazard not in {'wind', 'inundation'}:
-        print(f'WARNING: The provided hazard is not recognized: {hazard}')  # noqa: T201
+    if hazard not in ['wind', 'inundation']:
+        print(f'WARNING: The provided hazard is not recognized: {hazard}')
 
     if hazard == 'wind':
-        if bim['BuildingType'] == 'Wood':
-            if (bim['OccupancyClass'] == 'RES1') or (
-                (bim['RoofShape'] != 'flt') and (bim['OccupancyClass'] == '')  # noqa: PLC1901
-            ):
+
+        if BIM['BuildingType'] == 'Wood':
+            if ((BIM['OccupancyClass'] == 'RES1') or
+                ((BIM['RoofShape'] != 'flt') and (BIM['OccupancyClass'] == ''))):
                 # BuildingType = 3001
                 # OccupancyClass = RES1
                 # Wood Single-Family Homes (WSF1 or WSF2)
                 # OR roof type = flat (HAZUS can only map flat to WSF1)
                 # OR default (by '')
-                if (
-                    bim['RoofShape'] == 'flt'
-                ):  # checking if there is a misclassication
-                    bim['RoofShape'] = (
-                        # ensure the WSF has gab (by default, note gab
-                        # is more vulnerable than hip)
-                        'gab'
-                    )
+                if BIM['RoofShape'] == 'flt': # checking if there is a misclassication
+                    BIM['RoofShape'] = 'gab' # ensure the WSF has gab (by default, note gab is more vulneable than hip)
                 bldg_class = 'WSF'
             else:
                 # BuildingType = 3001
                 # OccupancyClass = RES3, RES5, RES6, or COM8
                 # Wood Multi-Unit Hotel (WMUH1, WMUH2, or WMUH3)
                 bldg_class = 'WMUH'
-        elif bim['BuildingType'] == 'Steel':
-            if (bim['DesignLevel'] == 'E') and (
-                bim['OccupancyClass']
-                in {'RES3A', 'RES3B', 'RES3C', 'RES3D', 'RES3E', 'RES3F'}
-            ):
+        elif BIM['BuildingType'] == 'Steel':
+            if ((BIM['DesignLevel'] == 'E') and
+                (BIM['OccupancyClass'] in ['RES3A', 'RES3B', 'RES3C', 'RES3D',
+                                                'RES3E', 'RES3F'])):
                 # BuildingType = 3002
                 # Steel Engineered Residential Building (SERBL, SERBM, SERBH)
                 bldg_class = 'SERB'
-            elif (bim['DesignLevel'] == 'E') and (
-                bim['OccupancyClass']
-                in {
-                    'COM1',
-                    'COM2',
-                    'COM3',
-                    'COM4',
-                    'COM5',
-                    'COM6',
-                    'COM7',
-                    'COM8',
-                    'COM9',
-                    'COM10',
-                }
-            ):
+            elif ((BIM['DesignLevel'] == 'E') and
+                (BIM['OccupancyClass'] in ['COM1', 'COM2', 'COM3', 'COM4', 'COM5',
+                                            'COM6', 'COM7', 'COM8', 'COM9','COM10'])):
                 # BuildingType = 3002
                 # Steel Engineered Commercial Building (SECBL, SECBM, SECBH)
                 bldg_class = 'SECB'
-            elif (bim['DesignLevel'] == 'PE') and (
-                bim['OccupancyClass']
-                not in {'RES3A', 'RES3B', 'RES3C', 'RES3D', 'RES3E', 'RES3F'}
-            ):
+            elif ((BIM['DesignLevel'] == 'PE') and
+                (BIM['OccupancyClass'] not in ['RES3A', 'RES3B', 'RES3C', 'RES3D',
+                                            'RES3E', 'RES3F'])):
                 # BuildingType = 3002
                 # Steel Pre-Engineered Metal Building (SPMBS, SPMBM, SPMBL)
                 bldg_class = 'SPMB'
             else:
                 bldg_class = 'SECB'
-        elif bim['BuildingType'] == 'Concrete':
-            if (bim['DesignLevel'] == 'E') and (
-                bim['OccupancyClass']
-                in {
-                    'RES3A',
-                    'RES3B',
-                    'RES3C',
-                    'RES3D',
-                    'RES3E',
-                    'RES3F',
-                    'RES5',
-                    'RES6',
-                }
-            ):
+        elif BIM['BuildingType'] == 'Concrete':
+            if ((BIM['DesignLevel'] == 'E') and
+                (BIM['OccupancyClass'] in ['RES3A', 'RES3B', 'RES3C', 'RES3D',
+                                            'RES3E', 'RES3F', 'RES5', 'RES6'])):
                 # BuildingType = 3003
                 # Concrete Engineered Residential Building (CERBL, CERBM, CERBH)
                 bldg_class = 'CERB'
-            elif (bim['DesignLevel'] == 'E') and (
-                bim['OccupancyClass']
-                in {
-                    'COM1',
-                    'COM2',
-                    'COM3',
-                    'COM4',
-                    'COM5',
-                    'COM6',
-                    'COM7',
-                    'COM8',
-                    'COM9',
-                    'COM10',
-                }
-            ):
+            elif ((BIM['DesignLevel'] == 'E') and
+                (BIM['OccupancyClass'] in ['COM1', 'COM2', 'COM3', 'COM4', 'COM5',
+                                            'COM6', 'COM7', 'COM8', 'COM9','COM10'])):
                 # BuildingType = 3003
                 # Concrete Engineered Commercial Building (CECBL, CECBM, CECBH)
                 bldg_class = 'CECB'
             else:
                 bldg_class = 'CECB'
-        elif bim['BuildingType'] == 'Masonry':
-            if bim['OccupancyClass'] == 'RES1':
+        elif BIM['BuildingType'] == 'Masonry':
+            if BIM['OccupancyClass'] == 'RES1':
                 # BuildingType = 3004
                 # OccupancyClass = RES1
                 # Masonry Single-Family Homes (MSF1 or MSF2)
                 bldg_class = 'MSF'
-            elif (
-                bim['OccupancyClass']
-                in {'RES3A', 'RES3B', 'RES3C', 'RES3D', 'RES3E', 'RES3F'}
-            ) and (bim['DesignLevel'] == 'E'):
+            elif ((BIM['OccupancyClass'] in ['RES3A', 'RES3B', 'RES3C', 'RES3D',
+                                            'RES3E', 'RES3F']) and (BIM['DesignLevel'] == 'E')):
                 # BuildingType = 3004
                 # Masonry Engineered Residential Building (MERBL, MERBM, MERBH)
                 bldg_class = 'MERB'
-            elif (
-                bim['OccupancyClass']
-                in {
-                    'COM1',
-                    'COM2',
-                    'COM3',
-                    'COM4',
-                    'COM5',
-                    'COM6',
-                    'COM7',
-                    'COM8',
-                    'COM9',
-                    'COM10',
-                }
-            ) and (bim['DesignLevel'] == 'E'):
+            elif ((BIM['OccupancyClass'] in ['COM1', 'COM2', 'COM3', 'COM4',
+                                            'COM5', 'COM6', 'COM7', 'COM8', 'COM9',
+                                            'COM10']) and (BIM['DesignLevel'] == 'E')):
                 # BuildingType = 3004
                 # Masonry Engineered Commercial Building (MECBL, MECBM, MECBH)
                 bldg_class = 'MECB'
-            elif bim['OccupancyClass'] in {
-                'IND1',
-                'IND2',
-                'IND3',
-                'IND4',
-                'IND5',
-                'IND6',
-            }:
+            elif BIM['OccupancyClass'] in ['IND1', 'IND2', 'IND3', 'IND4', 'IND5', 'IND6']:
                 # BuildingType = 3004
                 # Masonry Low-Rise Masonry Warehouse/Factory (MLRI)
                 bldg_class = 'MLRI'
-            elif bim['OccupancyClass'] in {
-                'RES3A',
-                'RES3B',
-                'RES3C',
-                'RES3D',
-                'RES3E',
-                'RES3F',
-                'RES5',
-                'RES6',
-                'COM8',
-            }:
+            elif BIM['OccupancyClass'] in ['RES3A', 'RES3B', 'RES3C', 'RES3D',
+                                            'RES3E', 'RES3F', 'RES5', 'RES6', 'COM8']:
                 # BuildingType = 3004
                 # OccupancyClass = RES3X or COM8
                 # Masonry Multi-Unit Hotel/Motel (MMUH1, MMUH2, or MMUH3)
                 bldg_class = 'MMUH'
-            elif (bim['NumberOfStories'] == 1) and (
-                bim['OccupancyClass'] in {'COM1', 'COM2'}
-            ):
+            elif ((BIM['NumberOfStories'] == 1) and
+                    (BIM['OccupancyClass'] in ['COM1', 'COM2'])):
                 # BuildingType = 3004
                 # Low-Rise Masonry Strip Mall (MLRM1 or MLRM2)
                 bldg_class = 'MLRM'
-            # elif (
-            #     BIM['OccupancyClass']
-            #     in [
-            #         'RES3A',
-            #         'RES3B',
-            #         'RES3C',
-            #         'RES3D',
-            #         'RES3E',
-            #         'RES3F',
-            #         'RES5',
-            #         'RES6',
-            #         'COM8',
-            #     ]
-            # ) and (BIM['DesignLevel'] in ['NE', 'ME']):
-            #     # BuildingType = 3004
-            #     # Masonry Multi-Unit Hotel/Motel Non-Engineered
-            #     # (MMUH1NE, MMUH2NE, or MMUH3NE)
-            #     return 'MMUHNE'
             else:
-                bldg_class = 'MECB'  # for others not covered by the above
-        elif bim['BuildingType'] == 'Manufactured':
+                bldg_class = 'MECB' # for others not covered by the above
+            #elif ((BIM['OccupancyClass'] in ['RES3A', 'RES3B', 'RES3C', 'RES3D',
+            #                                'RES3E', 'RES3F', 'RES5', 'RES6',
+            #                                'COM8']) and (BIM['DesignLevel'] in ['NE', 'ME'])):
+            #    # BuildingType = 3004
+            #    # Masonry Multi-Unit Hotel/Motel Non-Engineered
+            #    # (MMUH1NE, MMUH2NE, or MMUH3NE)
+            #    return 'MMUHNE'
+        elif BIM['BuildingType'] == 'Manufactured':
             bldg_class = 'MH'
 
         else:
