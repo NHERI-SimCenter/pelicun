@@ -36,7 +36,6 @@
 """
 With this code we verify that scipy's `RegularGridInterpolator` does
 what we expect.
-Created: `Sat Jun  1 03:07:28 PM PDT 2024`.
 
 """
 
