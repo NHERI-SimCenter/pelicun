@@ -351,10 +351,12 @@ def auto_populate(aim):  # noqa: C901
         else:
             lf = f'LF.{bt}.{dl}'
 
-        comp = pd.DataFrame(
-            {f'{lf}': ['ea', 1, 1, 1, 'N/A']},
-            index=['Units', 'Location', 'Direction', 'Theta_0', 'Family'],
-        ).T
+        # fmt: off
+        comp = pd.DataFrame(                                                # noqa
+            {f'{lf}': ['ea',         1,          1,        1,   'N/A']},    # noqa
+            index = ['Units','Location','Direction','Theta_0','Family']     # noqa
+        ).T                                                                 # noqa
+        # fmt: on
 
         # if needed, add components to simulate damage from ground failure
         if ground_failure:
@@ -363,15 +365,15 @@ def auto_populate(aim):  # noqa: C901
             fg_gf_h = f'GF.H.{foundation_type}'
             fg_gf_v = f'GF.V.{foundation_type}'
 
-            CMP_GF = pd.DataFrame(
-                {
-                    f'{fg_gf_h}': ['ea', 1, 1, 1, 'N/A'],
-                    f'{fg_gf_v}': ['ea', 1, 3, 1, 'N/A'],
-                },
-                index=['Units', 'Location', 'Direction', 'Theta_0', 'Family'],
-            ).T
+            # fmt: off
+            comp_gf = pd.DataFrame(                                                # noqa
+                {f'{fg_gf_h}':[  'ea',         1,          1,        1,   'N/A'],  # noqa
+                 f'{fg_gf_v}':[  'ea',         1,          3,        1,   'N/A']}, # noqa
+                index = [     'Units','Location','Direction','Theta_0','Family']   # noqa
+            ).T                                                                    # noqa
+            # fmt: on
 
-            comp = pd.concat([comp, CMP_GF], axis=0)
+            comp = pd.concat([comp, comp_gf], axis=0)
 
         # set the number of stories to 1
         # there is only one component in a building-level resolution
@@ -412,13 +414,13 @@ def auto_populate(aim):  # noqa: C901
             bt = convertBridgeToHAZUSclass(gi)
             gi_ap['BridgeHazusClass'] = bt
 
-            comp = pd.DataFrame(
-                {
-                    f'HWB.GS.{bt[3:]}': ['ea', 1, 1, 1, 'N/A'],
-                    'HWB.GF': ['ea', 1, 1, 1, 'N/A'],
-                },
-                index=['Units', 'Location', 'Direction', 'Theta_0', 'Family'],
-            ).T
+            # fmt: off
+            comp = pd.DataFrame(                                                           # noqa
+                {f'HWB.GS.{bt[3:]}': [  'ea',         1,          1,        1,   'N/A'],  # noqa
+                 f'HWB.GF':          [  'ea',         1,          1,        1,   'N/A']}, # noqa
+                index = [            'Units','Location','Direction','Theta_0','Family']   # noqa
+            ).T                                                                           # noqa
+            # fmt: on
 
             dl_ap = {
                 'Asset': {
@@ -445,13 +447,13 @@ def auto_populate(aim):  # noqa: C901
             tt = convertTunnelToHAZUSclass(gi)
             gi_ap['TunnelHazusClass'] = tt
 
-            comp = pd.DataFrame(
-                {
-                    f'HTU.GS.{tt[3:]}': ['ea', 1, 1, 1, 'N/A'],
-                    'HTU.GF': ['ea', 1, 1, 1, 'N/A'],
-                },
-                index=['Units', 'Location', 'Direction', 'Theta_0', 'Family'],
-            ).T
+            # fmt: off
+            comp = pd.DataFrame(                                                          # noqa
+                {f'HTU.GS.{tt[3:]}': [  'ea',         1,          1,        1,   'N/A'],  # noqa
+                 f'HTU.GF':          [  'ea',         1,          1,        1,   'N/A']}, # noqa
+                index = [            'Units','Location','Direction','Theta_0','Family']   # noqa
+            ).T                                                                           # noqa
+            # fmt: on
 
             dl_ap = {
                 'Asset': {
@@ -477,10 +479,12 @@ def auto_populate(aim):  # noqa: C901
             rt = convertRoadToHAZUSclass(gi)
             gi_ap['RoadHazusClass'] = rt
 
-            comp = pd.DataFrame(
-                {f'HRD.GF.{rt[3:]}': ['ea', 1, 1, 1, 'N/A']},
-                index=['Units', 'Location', 'Direction', 'Theta_0', 'Family'],
-            ).T
+            # fmt: off
+            comp = pd.DataFrame(                                                           # noqa
+                {f'HRD.GF.{rt[3:]}':[  'ea',         1,          1,        1,   'N/A']},   # noqa
+                index = [           'Units','Location','Direction','Theta_0','Family']     # noqa
+            ).T                                                                            # noqa
+            # fmt: on
 
             dl_ap = {
                 'Asset': {
@@ -602,26 +606,14 @@ def auto_populate(aim):  # noqa: C901
             location_string = f'1--{num_segments}' if num_segments > 1 else '1'
 
             # Define performance model
-            comp = pd.DataFrame(
-                {
-                    f'PWP.{pipe_flexibility}.GS': [
-                        'ea',
-                        location_string,
-                        '0',
-                        1,
-                        'N/A',
-                    ],
-                    f'PWP.{pipe_flexibility}.GF': [
-                        'ea',
-                        location_string,
-                        '0',
-                        1,
-                        'N/A',
-                    ],
-                    'aggregate': ['ea', location_string, '0', 1, 'N/A'],
-                },
-                index=['Units', 'Location', 'Direction', 'Theta_0', 'Family'],
-            ).T
+            # fmt: off
+            comp = pd.DataFrame(                                                         # noqa
+                {f'PWP.{pipe_flexibility}.GS': ['ea', location_string, '0', 1, 'N/A'],  # noqa
+                 f'PWP.{pipe_flexibility}.GF': ['ea', location_string, '0', 1, 'N/A'],  # noqa
+                 'aggregate':                  ['ea', location_string, '0', 1, 'N/A']}, # noqa
+                index = ['Units','Location','Direction','Theta_0','Family']             # noqa
+            ).T                                                                         # noqa
+            # fmt: on
 
             # Set up the demand cloning configuration for the pipe
             # segments, if required.
