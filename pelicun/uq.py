@@ -1289,7 +1289,7 @@ class RandomVariable(BaseRandomVariable):
         """
         Evaluate the inverse CDF.
 
-        Usses inverse probability integral transformation on the
+        Uses inverse probability integral transformation on the
         provided values.
 
         """
@@ -1350,7 +1350,7 @@ class UtilityRandomVariable(BaseRandomVariable):
         """
         Evaluate the inverse CDF.
 
-        Usses inverse probability integral transformation on the
+        Uses inverse probability integral transformation on the
         provided values.
 
         """
@@ -1624,7 +1624,7 @@ class LogNormalRandomVariable(RandomVariable):
         """
         Evaluate the inverse CDF.
 
-        Usses inverse probability integral transformation on the
+        Uses inverse probability integral transformation on the
         provided values.
 
         Parameters
@@ -1723,7 +1723,7 @@ class UniformRandomVariable(RandomVariable):
         """
         Evaluate the inverse CDF.
 
-        Usses inverse probability integral transformation on the
+        Uses inverse probability integral transformation on the
         provided values.
 
         Parameters
@@ -1827,7 +1827,7 @@ class WeibullRandomVariable(RandomVariable):
         """
         Evaluate the inverse CDF.
 
-        Usses inverse probability integral transformation on the
+        Uses inverse probability integral transformation on the
         provided values.
 
         Parameters
@@ -1977,7 +1977,7 @@ class MultilinearCDFRandomVariable(RandomVariable):
         """
         Evaluate the inverse CDF.
 
-        Usses inverse probability integral transformation on the
+        Uses inverse probability integral transformation on the
         provided values.
 
         Parameters
