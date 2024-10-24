@@ -125,32 +125,54 @@ def convertBridgeToHAZUSclass(aim):  # noqa: C901, N802
     bridge_class = 'HWB28'
 
     if len_max_span > 150:
-        bridge_class = 'HWB1' if not seismic else 'HWB2'
+        if not seismic:
+            bridge_class = 'HWB1'
+        else:
+            bridge_class = 'HWB2'
 
     elif num_span == 1:
-        bridge_class = 'HWB3' if not seismic else 'HWB4'
+        if not seismic:
+            bridge_class = 'HWB3'
+        else:
+            bridge_class = 'HWB4'
 
-    elif structure_type in list(range(101, 107)):
-        bridge_class = ('HWB5' if state != 6 else 'HWB6') if not seismic else 'HWB7'
+    elif structureType in list(range(101, 107)):
+        if not seismic:
+            if state != 6:
+                bridge_class = 'HWB5'
+            else:
+                bridge_class = 'HWB6'
+        else:
+            bridge_class = 'HWB7'
 
-    elif structure_type in [205, 206]:
-        bridge_class = 'HWB8' if not seismic else 'HWB9'
+    elif structureType in [205, 206]:
+        if not seismic:
+            bridge_class = 'HWB8'
+        else:
+            bridge_class = 'HWB9'
 
-    elif structure_type in list(range(201, 207)):
-        bridge_class = 'HWB10' if not seismic else 'HWB11'
+    elif structureType in list(range(201, 207)):
+        if not seismic:
+            bridge_class = 'HWB10'
+        else:
+            bridge_class = 'HWB11'
 
-    elif structure_type in list(range(301, 307)):
+    elif structureType in list(range(301, 307)):
         if not seismic:
             if len_max_span >= 20:
-                bridge_class = 'HWB12' if state != 6 else 'HWB13'
-            elif state != 6:
-                bridge_class = 'HWB24'
+                if state != 6:
+                    bridge_class = 'HWB12'
+                else:
+                    bridge_class = 'HWB13'
             else:
-                bridge_class = 'HWB25'
+                if state != 6:
+                    bridge_class = 'HWB24'
+                else:
+                    bridge_class = 'HWB25'
         else:
             bridge_class = 'HWB14'
 
-    elif structure_type in list(range(402, 411)):
+    elif structureType in list(range(402, 411)):
         if not seismic:
             if len_max_span >= 20:
                 bridge_class = 'HWB15'
@@ -161,17 +183,26 @@ def convertBridgeToHAZUSclass(aim):  # noqa: C901, N802
         else:
             bridge_class = 'HWB16'
 
-    elif structure_type in list(range(501, 507)):
+    elif structureType in list(range(501, 507)):
         if not seismic:
-            bridge_class = 'HWB17' if state != 6 else 'HWB18'
+            if state != 6:
+                bridge_class = 'HWB17'
+            else:
+                bridge_class = 'HWB18'
         else:
             bridge_class = 'HWB19'
 
-    elif structure_type in [605, 606]:
-        bridge_class = 'HWB20' if not seismic else 'HWB21'
+    elif structureType in [605, 606]:
+        if not seismic:
+            bridge_class = 'HWB20'
+        else:
+            bridge_class = 'HWB21'
 
-    elif structure_type in list(range(601, 608)):
-        bridge_class = 'HWB22' if not seismic else 'HWB23'
+    elif structureType in list(range(601, 608)):
+        if not seismic:
+            bridge_class = 'HWB22'
+        else:
+            bridge_class = 'HWB23'
 
     # TODO: review and add HWB24-27 rules
     # TODO: also double check rules for HWB10-11 and HWB22-23
