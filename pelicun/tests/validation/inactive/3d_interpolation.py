@@ -66,12 +66,13 @@ interp_func = RegularGridInterpolator((dom1, dom2, dom3), values)
 interpolated_value = interp_func(test_values)
 
 # Compare output with the exact value.
-data = pd.DataFrame(
+df = pd.DataFrame(
     {
         'exact': x1 + np.sqrt(x2) + np.sin(x3),
         'interpolated': interpolated_value,
     }
 )
+print(df)
 
 # Note: This does work with a 2D case, and it could scale to more than
 # 3 dimensions.
