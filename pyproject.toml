@@ -1,6 +1,9 @@
 [tool.ruff]
 line-length = 85
-exclude = ["rulesets"]
+exclude = [
+  "rulesets", 
+  "pelicun/tests/dl_calculation/e9/custom_pop.py"
+]
 
 [tool.ruff.lint]
 # Enable all known categories
