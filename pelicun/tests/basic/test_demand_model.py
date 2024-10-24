@@ -597,6 +597,7 @@ class TestDemandModel(TestModelModule):  # noqa: PLR0904
     def test__assemble_required_demand_data(
         self, assessment_instance: Assessment
     ) -> None:
+        # Utility demand case: two demands are required
         damage_model = assessment_instance.damage
         cmp_set = {'testing.component'}
         damage_model.load_model_parameters(
