@@ -2,6 +2,8 @@
 line-length = 85
 exclude = [
   "rulesets", 
+  "pelicun/tests/dl_calculation/e7/auto_HU_NJ.py",
+  "pelicun/tests/dl_calculation/e8/auto_HU_LA.py",
   "pelicun/tests/dl_calculation/e9/custom_pop.py"
 ]
 
@@ -27,9 +29,6 @@ max-bool-expr=5
 "pelicun/resources/auto/*" = ['PLR', 'T', 'N', 'ANN', 'D', 'PTH', 'INP', 'DOC', 'RET', 'TD']
 "pelicun/tools/HDF_to_CSV.py" = ["ALL"]
 "pelicun/tests/validation/inactive/*" = ["T201", "B018", "ANN", "PD"]
-"pelicun/tests/dl_calculation/e7/auto_HU_NJ.py" = ["ALL"]
-"pelicun/tests/dl_calculation/e8/auto_HU_LA.py" = ["ALL"]
-"pelicun/tests/dl_calculation/e9/custom_pop.py" = ["ALL"]
 
 [tool.ruff.format]
 quote-style = "single"
