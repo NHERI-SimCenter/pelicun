@@ -74,7 +74,7 @@ ap_occupancy = {
 
 
 # Convert common length units
-def convertUnits(value, unit_in, unit_out):  # noqa: N802
+def convertUnits(value, unit_in, unit_out):
     """
     Convert units.
     """
@@ -96,19 +96,23 @@ def convertUnits(value, unit_in, unit_out):  # noqa: N802
         'mile': mile,
     }
     if (unit_in not in aval_types) or (unit_out not in aval_types):
+        print(
+            f'The unit {unit_in} or {unit_out} '
+            f'are used in auto_population but not supported'
+        )
         return None
     return value * scale_map[unit_in] / scale_map[unit_out]
 
 
-def convertBridgeToHAZUSclass(aim):  # noqa: C901, N802
+def convertBridgeToHAZUSclass(aim):  # noqa: C901
     # TODO: replace labels in AIM with standard CamelCase versions
     structure_type = aim['BridgeClass']
     # if (
-    #     type(structureType) == str
-    #     and len(structureType) > 3
-    #     and structureType[:3] == "HWB"
-    #     and 0 < int(structureType[3:])
-    #     and 29 > int(structureType[3:])
+    #     type(structure_type) == str
+    #     and len(structure_type) > 3
+    #     and structure_type[:3] == "HWB"
+    #     and 0 < int(structure_type[3:])
+    #     and 29 > int(structure_type[3:])
     # ):
     #     return AIM["bridge_class"]
     state = aim['StateCode']
@@ -136,7 +140,7 @@ def convertBridgeToHAZUSclass(aim):  # noqa: C901, N802
         else:
             bridge_class = 'HWB4'
 
-    elif structureType in list(range(101, 107)):
+    elif structure_type in list(range(101, 107)):
         if not seismic:
             if state != 6:
                 bridge_class = 'HWB5'
@@ -145,19 +149,19 @@ def convertBridgeToHAZUSclass(aim):  # noqa: C901, N802
         else:
             bridge_class = 'HWB7'
 
-    elif structureType in [205, 206]:
+    elif structure_type in [205, 206]:
         if not seismic:
             bridge_class = 'HWB8'
         else:
             bridge_class = 'HWB9'
 
-    elif structureType in list(range(201, 207)):
+    elif structure_type in list(range(201, 207)):
         if not seismic:
             bridge_class = 'HWB10'
         else:
             bridge_class = 'HWB11'
 
-    elif structureType in list(range(301, 307)):
+    elif structure_type in list(range(301, 307)):
         if not seismic:
             if len_max_span >= 20:
                 if state != 6:
@@ -172,7 +176,7 @@ def convertBridgeToHAZUSclass(aim):  # noqa: C901, N802
         else:
             bridge_class = 'HWB14'
 
-    elif structureType in list(range(402, 411)):
+    elif structure_type in list(range(402, 411)):
         if not seismic:
             if len_max_span >= 20:
                 bridge_class = 'HWB15'
@@ -183,7 +187,7 @@ def convertBridgeToHAZUSclass(aim):  # noqa: C901, N802
         else:
             bridge_class = 'HWB16'
 
-    elif structureType in list(range(501, 507)):
+    elif structure_type in list(range(501, 507)):
         if not seismic:
             if state != 6:
                 bridge_class = 'HWB17'
@@ -192,13 +196,13 @@ def convertBridgeToHAZUSclass(aim):  # noqa: C901, N802
         else:
             bridge_class = 'HWB19'
 
-    elif structureType in [605, 606]:
+    elif structure_type in [605, 606]:
         if not seismic:
             bridge_class = 'HWB20'
         else:
             bridge_class = 'HWB21'
 
-    elif structureType in list(range(601, 608)):
+    elif structure_type in list(range(601, 608)):
         if not seismic:
             bridge_class = 'HWB22'
         else:
@@ -210,7 +214,7 @@ def convertBridgeToHAZUSclass(aim):  # noqa: C901, N802
     return bridge_class
 
 
-def convertTunnelToHAZUSclass(aim) -> str:  # noqa: N802
+def convertTunnelToHAZUSclass(aim) -> str:
     if ('Bored' in aim['ConstructType']) or ('Drilled' in aim['ConstructType']):
         return 'HTU1'
     elif ('Cut' in aim['ConstructType']) or ('Cover' in aim['ConstructType']):
@@ -220,7 +224,7 @@ def convertTunnelToHAZUSclass(aim) -> str:  # noqa: N802
         return 'HTU2'
 
 
-def convertRoadToHAZUSclass(aim) -> str:  # noqa: N802
+def convertRoadToHAZUSclass(aim) -> str:
     if aim['RoadType'] in ['Primary', 'Secondary']:
         return 'HRD1'
 
@@ -247,7 +251,7 @@ def convert_story_rise(structure_type, stories):
                 'Missing "NumberOfStories" information, '
                 'cannot infer `rise` attribute of archetype'
             )
-            raise ValueError(msg)
+            raise ValueError(msg)  # noqa: B904
 
         if structure_type == 'RM1':
             rise = 'L' if stories <= 3 else 'M'
@@ -352,10 +356,10 @@ def auto_populate(aim):  # noqa: C901
             lf = f'LF.{bt}.{dl}'
 
         # fmt: off
-        comp = pd.DataFrame(                                                # noqa
-            {f'{lf}': ['ea',         1,          1,        1,   'N/A']},    # noqa
-            index = ['Units','Location','Direction','Theta_0','Family']     # noqa
-        ).T                                                                 # noqa
+        comp = pd.DataFrame(
+            {f'{lf}': ['ea',         1,          1,        1,   'N/A']},  # noqa: E241
+            index = ['Units','Location','Direction','Theta_0','Family']  # noqa: E231, E251
+        ).T
         # fmt: on
 
         # if needed, add components to simulate damage from ground failure
@@ -366,11 +370,11 @@ def auto_populate(aim):  # noqa: C901
             fg_gf_v = f'GF.V.{foundation_type}'
 
             # fmt: off
-            comp_gf = pd.DataFrame(                                                # noqa
-                {f'{fg_gf_h}':[  'ea',         1,          1,        1,   'N/A'],  # noqa
-                 f'{fg_gf_v}':[  'ea',         1,          3,        1,   'N/A']}, # noqa
-                index = [     'Units','Location','Direction','Theta_0','Family']   # noqa
-            ).T                                                                    # noqa
+            comp_gf = pd.DataFrame(
+                {f'{fg_gf_h}':[  'ea',         1,          1,        1,   'N/A'],  # noqa: E201, E231, E241
+                 f'{fg_gf_v}':[  'ea',         1,          3,        1,   'N/A']},  # noqa: E201, E231, E241
+                index = [     'Units','Location','Direction','Theta_0','Family']  # noqa: E201, E231, E251
+            ).T
             # fmt: on
 
             comp = pd.concat([comp, comp_gf], axis=0)
@@ -415,11 +419,11 @@ def auto_populate(aim):  # noqa: C901
             gi_ap['BridgeHazusClass'] = bt
 
             # fmt: off
-            comp = pd.DataFrame(                                                           # noqa
-                {f'HWB.GS.{bt[3:]}': [  'ea',         1,          1,        1,   'N/A'],  # noqa
-                 f'HWB.GF':          [  'ea',         1,          1,        1,   'N/A']}, # noqa
-                index = [            'Units','Location','Direction','Theta_0','Family']   # noqa
-            ).T                                                                           # noqa
+            comp = pd.DataFrame(
+                {f'HWB.GS.{bt[3:]}': [  'ea',         1,          1,        1,   'N/A'],  # noqa: E201, E241
+                 f'HWB.GF':          [  'ea',         1,          1,        1,   'N/A']},  # noqa: E201, E241, F541
+                index = [            'Units','Location','Direction','Theta_0','Family']  # noqa: E201, E231, E251
+            ).T
             # fmt: on
 
             dl_ap = {
@@ -448,11 +452,11 @@ def auto_populate(aim):  # noqa: C901
             gi_ap['TunnelHazusClass'] = tt
 
             # fmt: off
-            comp = pd.DataFrame(                                                          # noqa
-                {f'HTU.GS.{tt[3:]}': [  'ea',         1,          1,        1,   'N/A'],  # noqa
-                 f'HTU.GF':          [  'ea',         1,          1,        1,   'N/A']}, # noqa
-                index = [            'Units','Location','Direction','Theta_0','Family']   # noqa
-            ).T                                                                           # noqa
+            comp = pd.DataFrame(
+                {f'HTU.GS.{tt[3:]}': [  'ea',         1,          1,        1,   'N/A'],  # noqa: E201, E241
+                 f'HTU.GF':          [  'ea',         1,          1,        1,   'N/A']},  # noqa: E201, E241, F541
+                index = [            'Units','Location','Direction','Theta_0','Family']  # noqa: E201, E231, E251
+            ).T
             # fmt: on
 
             dl_ap = {
@@ -480,10 +484,10 @@ def auto_populate(aim):  # noqa: C901
             gi_ap['RoadHazusClass'] = rt
 
             # fmt: off
-            comp = pd.DataFrame(                                                           # noqa
-                {f'HRD.GF.{rt[3:]}':[  'ea',         1,          1,        1,   'N/A']},   # noqa
-                index = [           'Units','Location','Direction','Theta_0','Family']     # noqa
-            ).T                                                                            # noqa
+            comp = pd.DataFrame(
+                {f'HRD.GF.{rt[3:]}':[  'ea',         1,          1,        1,   'N/A']},  # noqa: E201, E231, E241
+                index = [           'Units','Location','Direction','Theta_0','Family']  # noqa: E201, E231, E251
+            ).T
             # fmt: on
 
             dl_ap = {
@@ -555,26 +559,44 @@ def auto_populate(aim):  # noqa: C901
             missing, if the pipe is smaller than or equal to 20
             inches, the material is Cast Iron (CI) otherwise the pipe
             material is steel.
-                If the material is steel (ST), either based on user specified
-            input or the assumption due to the lack of the user-input, the year
-            that the pipe is constructed define the flexibility status per HAZUS
-            instructions. If the pipe is built in 1935 or after, it is, the pipe
-            is Ductile Steel (DS), and otherwise it is Brittle Steel (BS).
-                If the pipe is missing construction year and is built by steel,
-            we assume consevatively that the pipe is brittle (i.e., BS)
+                If the material is steel (ST), either based on user
+            specified input or the assumption due to the lack of the
+            user-input, the year that the pipe is constructed define
+            the flexibility status per HAZUS instructions. If the pipe
+            is built in 1935 or after, it is, the pipe is Ductile
+            Steel (DS), and otherwise it is Brittle Steel (BS).
+                If the pipe is missing construction year and is built
+            by steel, we assume consevatively that the pipe is brittle
+            (i.e., BS)
             """
             if pipe_material is None:
                 if pipe_diameter > 20 * 0.0254:  # 20 inches in meter
+                    print(
+                        f'Asset {asset_name} is missing material. Material is\
+                          assumed to be Cast Iron'
+                    )
                     pipe_material = 'CI'
                 else:
+                    print(
+                        f'Asset {asset_name} is missing material. Material is '
+                        f'assumed to be Steel (ST)'
+                    )
                     pipe_material = 'ST'
 
             if pipe_material == 'ST':
                 if (pipe_construction_year is not None) and (
                     pipe_construction_year >= 1935
                 ):
+                    print(
+                        f'Asset {asset_name} has material of "ST" is assumed to be\
+                          Ductile Steel'
+                    )
                     pipe_material = 'DS'
                 else:
+                    print(
+                        f'Asset {asset_name} has material of "ST" is assumed to be '
+                        f'Brittle Steel'
+                    )
                     pipe_material = 'BS'
 
             pipe_flexibility = pipe_material_map.get(pipe_material, 'missing')
@@ -607,12 +629,12 @@ def auto_populate(aim):  # noqa: C901
 
             # Define performance model
             # fmt: off
-            comp = pd.DataFrame(                                                         # noqa
-                {f'PWP.{pipe_flexibility}.GS': ['ea', location_string, '0', 1, 'N/A'],  # noqa
-                 f'PWP.{pipe_flexibility}.GF': ['ea', location_string, '0', 1, 'N/A'],  # noqa
-                 'aggregate':                  ['ea', location_string, '0', 1, 'N/A']}, # noqa
-                index = ['Units','Location','Direction','Theta_0','Family']             # noqa
-            ).T                                                                         # noqa
+            comp = pd.DataFrame(
+                {f'PWP.{pipe_flexibility}.GS': ['ea', location_string, '0', 1, 'N/A'],
+                 f'PWP.{pipe_flexibility}.GF': ['ea', location_string, '0', 1, 'N/A'],
+                 'aggregate':                  ['ea', location_string, '0', 1, 'N/A']},
+                index = ['Units','Location','Direction','Theta_0','Family']  # noqa: E231, E251
+            ).T
             # fmt: on
 
             # Set up the demand cloning configuration for the pipe
@@ -629,7 +651,7 @@ def auto_populate(aim):  # noqa: C901
                     )
                 demand_cloning_config = {}
                 for edp in response_data.columns:
-                    tag, location, direction = edp
+                    tag, location, direction = edp  # noqa: F841
 
                     demand_cloning_config['-'.join(edp)] = [
                         f'{tag}-{x}-{direction}'
@@ -711,15 +733,36 @@ def auto_populate(aim):  # noqa: C901
                 raise ValueError(msg)
 
             if tank_location == 'AG' and tank_material == 'C':
+                print(
+                    f'The tank {asset_name} is Above Ground (i.e., AG), but \
+                     the material type is Concrete ("C"). Tank type "C" is not \
+                     defined for AG tanks. The tank is assumed to be Steel ("S")'
+                )
                 tank_material = 'S'
 
             if tank_location == 'AG' and tank_material == 'W':
+                print(
+                    f'The tank {asset_name} is Above Ground (i.e., AG), but \
+                     the material type is Wood ("W"). Tank type "W" is not \
+                     defined for AG tanks. The tank is assumed to be Steel ("S")'
+                )
                 tank_material = 'S'
 
             if tank_location == 'B' and tank_material == 'S':
+                print(
+                    f'The tank {asset_name} is buried (i.e., B), but the\
+                     material type is Steel ("S"). \
+                     Tank type "S" is not defined for\
+                     B tanks. The tank is assumed to be Concrete ("C")'
+                )
                 tank_material = 'C'
 
             if tank_location == 'B' and tank_material == 'W':
+                print(
+                    f'The tank {asset_name} is buried (i.e., B), but the\
+                     material type is Wood ("W"). Tank type "W" is not defined \
+                     for B tanks. The tank is assumed to be Concrete ("C")'
+                )
                 tank_material = 'C'
 
             if tank_anchored == 1:
@@ -728,7 +771,7 @@ def auto_populate(aim):  # noqa: C901
                 tank_anchored = 0
 
             cur_tank_cmp_line = tank_cmp_lines[
-                (tank_location, tank_material, tank_anchored)
+                tank_location, tank_material, tank_anchored
             ]
 
             comp = pd.DataFrame(
