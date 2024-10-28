@@ -841,8 +841,8 @@ def fit_distribution_to_sample(  # noqa: C901
 
     # There is nothing to gain from a time-consuming optimization if..
     #     the number of samples is too small
-    small_n_samples = 3
-    if (n_samples < small_n_samples) or (
+    min_sample_size_for_optimization = 3
+    if (n_samples < min_sample_size_for_optimization) or (
         # there are no truncation or detection limits involved
         np.all(np.isnan(tr_limits)) and np.all(np.isnan(det_limits))
     ):
