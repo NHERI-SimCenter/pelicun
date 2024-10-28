@@ -748,7 +748,7 @@ class DemandModel(PelicunModel):
         )
 
         demand_theta, demand_rho = uq.fit_distribution_to_sample(
-            raw_samples=demand_sample.to_numpy().T,
+            raw_sample=demand_sample.to_numpy().T,
             distribution=cal_df.loc[:, 'Family'].values,  # type: ignore
             censored_count=censored_count,
             detection_limits=cal_df.loc[  # type: ignore

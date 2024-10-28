@@ -695,7 +695,7 @@ def _neg_log_likelihood(  # noqa: C901
 
 
 def fit_distribution_to_sample(  # noqa: C901
-    raw_samples: np.ndarray,
+    raw_sample: np.ndarray,
     distribution: str | list[str],
     truncation_limits: tuple[float, float] = (np.nan, np.nan),
     censored_count: int = 0,
@@ -715,7 +715,7 @@ def fit_distribution_to_sample(  # noqa: C901
 
     Parameters
     ----------
-    raw_samples: float ndarray
+    raw_sample: float ndarray
         Raw data that serves as the basis of estimation. The number of samples
         equals the number of columns and each row introduces a new feature. In
         other words: a list of sample lists is expected where each sample list
@@ -724,7 +724,7 @@ def fit_distribution_to_sample(  # noqa: C901
         Defines the target probability distribution type. Different types of
         distributions can be mixed by providing a list rather than a single
         value. Each element of the list corresponds to one of the features in
-        the raw_samples.
+        the raw_sample.
     truncation_limits: float ndarray, optional, default: [None, None]
         Lower and/or upper truncation limits for the specified distributions.
         A two-element vector can be used for a univariate case, while two lists
@@ -775,7 +775,7 @@ def fit_distribution_to_sample(  # noqa: C901
         If NaN values are produced during standard normal space transformation
 
     """
-    samples = np.atleast_2d(raw_samples)
+    samples = np.atleast_2d(raw_sample)
     tr_limits = np.atleast_2d(truncation_limits)
     det_limits = np.atleast_2d(detection_limits)
     dist_list = np.atleast_1d(distribution)
@@ -2007,7 +2007,7 @@ class MultilinearCDFRandomVariable(RandomVariable):
 class EmpiricalRandomVariable(RandomVariable):
     """Empirical random variable."""
 
-    __slots__: list[str] = ['_raw_samples']
+    __slots__: list[str] = ['_raw_sample']
 
     def __init__(
         self,
@@ -2032,7 +2032,7 @@ class EmpiricalRandomVariable(RandomVariable):
             msg = f'{self.distribution} RVs do not support truncation'
             raise NotImplementedError(msg)
 
-        self._raw_samples = np.atleast_1d(theta)
+        self._raw_sample = np.atleast_1d(theta)
 
     def inverse_transform(self, values: np.ndarray) -> np.ndarray:
         """
@@ -2057,14 +2057,14 @@ class EmpiricalRandomVariable(RandomVariable):
           normalized positions.
 
         """
-        s_ids = (values * len(self._raw_samples)).astype(int)
-        return self._raw_samples[s_ids]
+        s_ids = (values * len(self._raw_sample)).astype(int)
+        return self._raw_sample[s_ids]
 
 
 class CoupledEmpiricalRandomVariable(UtilityRandomVariable):
     """Coupled empirical random variable."""
 
-    __slots__: list[str] = ['_raw_samples']
+    __slots__: list[str] = ['_raw_sample']
 
     def __init__(
         self,
@@ -2113,7 +2113,7 @@ class CoupledEmpiricalRandomVariable(UtilityRandomVariable):
             msg = f'{self.distribution} RVs do not support truncation'
             raise NotImplementedError(msg)
 
-        self._raw_samples = np.atleast_1d(theta)
+        self._raw_sample = np.atleast_1d(theta)
 
     def inverse_transform(self, sample_size: int) -> np.ndarray:
         """
@@ -2138,9 +2138,9 @@ class CoupledEmpiricalRandomVariable(UtilityRandomVariable):
           dataset.
 
         """
-        raw_sample_count = len(self._raw_samples)
+        raw_sample_count = len(self._raw_sample)
         new_sample = np.tile(
-            self._raw_samples, int(sample_size / raw_sample_count) + 1
+            self._raw_sample, int(sample_size / raw_sample_count) + 1
         )
         return new_sample[:sample_size]
 
