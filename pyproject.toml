@@ -27,13 +27,16 @@ max-bool-expr=5
 "pelicun/resources/auto/*" = ['PLR', 'T', 'N', 'ANN', 'D', 'PTH', 'INP', 'DOC', 'RET', 'TD']
 "pelicun/tools/HDF_to_CSV.py" = ["ALL"]
 "pelicun/tests/validation/inactive/*" = ["T201", "B018", "ANN", "PD"]
+"pelicun/tests/dl_calculation/e7/auto_HU_NJ.py" = ["ALL"]
+"pelicun/tests/dl_calculation/e8/auto_HU_LA.py" = ["ALL"]
+"pelicun/tests/dl_calculation/e9/custom_pop.py" = ["ALL"]
 
 [tool.ruff.format]
 quote-style = "single"
 
 [tool.codespell]
 ignore-words = ["ignore_words.txt"]
-skip = ["*.html", "./htmlcov/*", "./doc_src/build/*", "./pelicun.egg-info/*", "./doc_src/*", "./doc/build/*", "*/rulesets/*", "custom_pop.py", "*/SimCenterDBDL/*"]
+skip = ["*.html", "./htmlcov/*", "./doc_src/build/*", "./pelicun.egg-info/*", "./doc_src/*", "./doc/build/*", "*/rulesets/*", "custom_pop.py", "*/SimCenterDBDL/*", "auto_HU_NJ.py", "auto_HU_LA.py", "custom_pop.py"]
 
 [tool.mypy]
 ignore_missing_imports = true
