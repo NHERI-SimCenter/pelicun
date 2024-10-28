@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # Copyright (c) 2018 Leland Stanford Junior University
 # Copyright (c) 2018 The Regents of the University of California
@@ -38,24 +37,22 @@
 # Adam Zsarnóczay
 # John Vouvakis Manousakis
 
-"""
-This file defines a class used by the model unit tests.
-"""
+"""This file defines a class used by the model unit tests."""
 
 from __future__ import annotations
-from copy import deepcopy
-import pytest
-from pelicun import assessment
 
-# pylint: disable=missing-function-docstring
-# pylint: disable=missing-class-docstring
-# pylint: disable=missing-return-doc,missing-return-type-doc
+from copy import deepcopy
+from typing import Callable
+
+import pytest
+
+from pelicun import assessment
 
 
 class TestModelModule:
     @pytest.fixture
-    def assessment_factory(self):
-        def create_instance(verbose):
+    def assessment_factory(self) -> Callable:
+        def create_instance(*, verbose: bool) -> assessment.Assessment:
             x = assessment.Assessment()
             x.log.verbose = verbose
             return x
@@ -63,5 +60,5 @@ class TestModelModule:
         return create_instance
 
     @pytest.fixture(params=[True, False])
-    def assessment_instance(self, request, assessment_factory):
-        return deepcopy(assessment_factory(request.param))
+    def assessment_instance(self, request, assessment_factory) -> None:  # noqa: ANN001
+        return deepcopy(assessment_factory(verbose=request.param))

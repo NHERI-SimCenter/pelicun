@@ -46,7 +46,6 @@
 import random
 import datetime
 
-
 def WSF_config(BIM):
     """
     Rules to identify a HAZUS WSF configuration based on BIM data
@@ -63,12 +62,12 @@ def WSF_config(BIM):
         class.
     """
 
-    year = BIM['YearBuilt']  # just for the sake of brevity
+    year = BIM['YearBuilt'] # just for the sake of brevity
 
     # Secondary Water Resistance (SWR)
     # Minimum drainage recommendations are in place in NJ (See below).
     # However, SWR indicates a code-plus practice.
-    SWR = False  # Default in Reorganzied Rulesets - WIND
+    SWR = False # Default in Reorganzied Rulesets - WIND
     if year > 2000:
         # For buildings built after 2000, SWR is based on homeowner compliance
         # data from NC Coastal Homeowner Survey (2017) to capture potential
@@ -92,13 +91,13 @@ def WSF_config(BIM):
         # Almost all other roof types require underlayment of some sort, but
         # the ruleset is based on asphalt shingles because it is most
         # conservative.
-        if BIM['RoofShape'] == 'flt':  # note there is actually no 'flt'
+        if BIM['RoofShape'] == 'flt': # note there is actually no 'flt'
             SWR = True
-        elif BIM['RoofShape'] in ['gab', 'hip']:
+        elif BIM['RoofShape'] in ['gab','hip']:
             if BIM['RoofSlope'] <= 0.17:
                 SWR = True
             elif BIM['RoofSlope'] < 0.33:
-                SWR = BIM['AvgJanTemp'] == 'below'
+                SWR = (BIM['AvgJanTemp'] == 'below')
 
     # Roof Deck Attachment (RDA)
     # IRC codes:
@@ -108,46 +107,34 @@ def WSF_config(BIM):
     # codes. Commentary for Table R602.3(1) indicates 8d nails with 6”/6”
     # spacing (enhanced roof spacing) for ultimate wind speeds greater than
     # a speed_lim. speed_lim depends on the year of construction
-    RDA = '6d'  # Default (aka A) in Reorganized Rulesets - WIND
+    RDA = '6d' # Default (aka A) in Reorganized Rulesets - WIND
     if year > 2000:
         if year >= 2016:
             # IRC 2015
-            speed_lim = 130.0  # mph
+            speed_lim = 130.0 # mph
         else:
             # IRC 2000 - 2009
-            speed_lim = 100.0  # mph
+            speed_lim = 100.0 # mph
         if BIM['V_ult'] > speed_lim:
             RDA = '8s'  # 8d @ 6"/6" ('D' in the Reorganized Rulesets - WIND)
         else:
             RDA = '8d'  # 8d @ 6"/12" ('B' in the Reorganized Rulesets - WIND)
     elif year > 1995:
-        if (BIM['SheathingThickness'] >= 0.3125) and (
-            BIM['SheathingThickness'] <= 0.5
-        ):
-            RDA = '6d'  # 6d @ 6"/12" ('A' in the Reorganized Rulesets - WIND)
-        elif (BIM['SheathingThickness'] >= 0.59375) and (
-            BIM['SheathingThickness'] <= 1.125
-        ):
-            RDA = '8d'  # 8d @ 6"/12" ('B' in the Reorganized Rulesets - WIND)
+        if ((BIM['SheathingThickness'] >= 0.3125) and (BIM['SheathingThickness'] <= 0.5)):
+            RDA = '6d' # 6d @ 6"/12" ('A' in the Reorganized Rulesets - WIND)
+        elif ((BIM['SheathingThickness'] >= 0.59375) and (BIM['SheathingThickness'] <= 1.125)):
+            RDA = '8d' # 8d @ 6"/12" ('B' in the Reorganized Rulesets - WIND)
     elif year > 1986:
-        if (BIM['SheathingThickness'] >= 0.3125) and (
-            BIM['SheathingThickness'] <= 0.5
-        ):
-            RDA = '6d'  # 6d @ 6"/12" ('A' in the Reorganized Rulesets - WIND)
-        elif (BIM['SheathingThickness'] >= 0.59375) and (
-            BIM['SheathingThickness'] <= 1.0
-        ):
-            RDA = '8d'  # 8d @ 6"/12" ('B' in the Reorganized Rulesets - WIND)
+        if ((BIM['SheathingThickness'] >= 0.3125) and (BIM['SheathingThickness'] <= 0.5)):
+            RDA = '6d' # 6d @ 6"/12" ('A' in the Reorganized Rulesets - WIND)
+        elif ((BIM['SheathingThickness'] >= 0.59375) and (BIM['SheathingThickness'] <= 1.0)):
+            RDA = '8d' # 8d @ 6"/12" ('B' in the Reorganized Rulesets - WIND)
     else:
         # year <= 1986
-        if (BIM['SheathingThickness'] >= 0.3125) and (
-            BIM['SheathingThickness'] <= 0.5
-        ):
-            RDA = '6d'  # 6d @ 6"/12" ('A' in the Reorganized Rulesets - WIND)
-        elif (BIM['SheathingThickness'] >= 0.625) and (
-            BIM['SheathingThickness'] <= 1.0
-        ):
-            RDA = '8d'  # 8d @ 6"/12" ('B' in the Reorganized Rulesets - WIND)
+        if ((BIM['SheathingThickness'] >= 0.3125) and (BIM['SheathingThickness'] <= 0.5)):
+            RDA = '6d' # 6d @ 6"/12" ('A' in the Reorganized Rulesets - WIND)
+        elif ((BIM['SheathingThickness'] >= 0.625) and (BIM['SheathingThickness'] <= 1.0)):
+            RDA = '8d' # 8d @ 6"/12" ('B' in the Reorganized Rulesets - WIND)
 
     # Roof-Wall Connection (RWC)
     # IRC 2015
@@ -196,7 +183,7 @@ def WSF_config(BIM):
     # buildings are toe nails before 1992.
     else:
         # year <= 1992
-        RWC = 'tnail'  # Toe-nail
+        RWC = 'tnail' # Toe-nail
 
     # Shutters
     # IRC 2000-2015:
@@ -244,57 +231,54 @@ def WSF_config(BIM):
     if BIM['Garage'] == -1:
         # no garage data, using the default "standard"
         garage = 'std'
-        shutters = 0  # HAZUS ties standard garage to w/o shutters
+        shutters = 0 # HAZUS ties standard garage to w/o shutters
     else:
         if year > 2000:
             if shutters:
                 if BIM['Garage'] < 1:
                     garage = 'no'
                 else:
-                    garage = 'sup'  # SFBC 1994
-                    shutters = 1  # HAZUS ties SFBC 1994 to with shutters
+                    garage = 'sup' # SFBC 1994
+                    shutters = 1 # HAZUS ties SFBC 1994 to with shutters
             else:
                 if BIM['Garage'] < 1:
-                    garage = 'no'  # None
+                    garage = 'no' # None
                 else:
-                    garage = 'std'  # Standard
-                    shutters = 0  # HAZUS ties standard garage to w/o shutters
+                    garage = 'std' # Standard
+                    shutters = 0 # HAZUS ties standard garage to w/o shutters
         elif year > (datetime.datetime.now().year - 30):
             if BIM['Garage'] < 1:
-                garage = 'no'  # None
+                garage = 'no' # None
             else:
-                garage = 'std'  # Standard
-                shutters = 0  # HAZUS ties standard garage to w/o shutters
+                garage = 'std' # Standard
+                shutters = 0 # HAZUS ties standard garage to w/o shutters
         else:
             # year <= current year - 30
             if BIM['Garage'] < 1:
-                garage = 'no'  # None
+                garage = 'no' # None
             else:
-                garage = 'wkd'  # Weak
-                shutters = 0  # HAZUS ties weak garage to w/o shutters
+                garage = 'wkd' # Weak
+                shutters = 0 # HAZUS ties weak garage to w/o shutters
 
     # extend the BIM dictionary
-    BIM.update(
-        dict(
-            SecondaryWaterResistance=SWR,
-            RoofDeckAttachmentW=RDA,
-            RoofToWallConnection=RWC,
-            Shutters=shutters,
-            Garage=garage,
-        )
-    )
+    BIM.update(dict(
+        SecondaryWaterResistance = SWR,
+        RoofDeckAttachmentW = RDA,
+        RoofToWallConnection = RWC,
+        Shutters = shutters,
+        Garage = garage
+        ))
 
     # building configuration tag
-    bldg_config = (
-        f"W.SF."
-        f"{int(min(BIM['NumberOfStories'],2))}."
-        f"{BIM['RoofShape']}."
-        f"{int(SWR)}."
-        f"{RDA}."
-        f"{RWC}."
-        f"{garage}."
-        f"{int(shutters)}."
-        f"{int(BIM['TerrainRoughness'])}"
-    )
-
+    bldg_config = f"W.SF." \
+                  f"{int(min(BIM['NumberOfStories'],2))}." \
+                  f"{BIM['RoofShape']}." \
+                  f"{int(SWR)}." \
+                  f"{RDA}." \
+                  f"{RWC}." \
+                  f"{garage}." \
+                  f"{int(shutters)}." \
+                  f"{int(BIM['TerrainRoughness'])}"
+                  
     return bldg_config
+

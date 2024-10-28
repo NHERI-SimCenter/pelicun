@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # Copyright (c) 2018 Leland Stanford Junior University
 # Copyright (c) 2018 The Regents of the University of California
@@ -38,58 +37,57 @@
 # Adam Zsarnóczay
 # John Vouvakis Manousakis
 
-"""
-These are unit and integration tests on the file_io module of pelicun.
-"""
+"""These are unit and integration tests on the file_io module of pelicun."""
 
 from __future__ import annotations
+
 import tempfile
-import os
-import pytest
+from pathlib import Path
+
 import numpy as np
 import pandas as pd
-from pelicun import file_io
-from pelicun import base
-from pelicun.warnings import PelicunWarning
+import pytest
 
+from pelicun import base, file_io
+from pelicun.pelicun_warnings import PelicunWarning
 
 # The tests maintain the order of definitions of the `file_io.py` file.
 
 
-def test_save_to_csv():
+def test_save_to_csv() -> None:
     # Test saving with orientation 0
-    data = pd.DataFrame({"A": [1e-3, 2e-3, 3e-3], "B": [4e-3, 5e-3, 6e-3]})
-    units = pd.Series(["meters", "meters"], index=["A", "B"])
-    unit_conversion_factors = {"meters": 0.001}
+    data = pd.DataFrame({'A': [1e-3, 2e-3, 3e-3], 'B': [4e-3, 5e-3, 6e-3]})
+    units = pd.Series(['meters', 'meters'], index=['A', 'B'])
+    unit_conversion_factors = {'meters': 0.001}
 
     # Save to a temporary file
     with tempfile.TemporaryDirectory() as tmpdir:
-        filepath = os.path.join(tmpdir, 'foo.csv')
+        filepath = Path(tmpdir) / 'foo.csv'
         file_io.save_to_csv(
             data, filepath, units, unit_conversion_factors, orientation=0
         )
-        assert os.path.isfile(filepath)
+        assert Path(filepath).is_file()
         # Check that the file contains the expected data
-        with open(filepath, 'r', encoding='utf-8') as f:
+        with Path(filepath).open(encoding='utf-8') as f:
             contents = f.read()
             assert contents == (
                 ',A,B\n0,meters,meters\n0,1.0,4.0' '\n1,2.0,5.0\n2,3.0,6.0\n'
             )
 
     # Test saving with orientation 1
-    data = pd.DataFrame({"A": [1e-3, 2e-3, 3e-3], "B": [4e-3, 5e-3, 6e-3]})
-    units = pd.Series(["meters", "meters"], index=["A", "B"])
-    unit_conversion_factors = {"meters": 0.001}
+    data = pd.DataFrame({'A': [1e-3, 2e-3, 3e-3], 'B': [4e-3, 5e-3, 6e-3]})
+    units = pd.Series(['meters', 'meters'], index=['A', 'B'])
+    unit_conversion_factors = {'meters': 0.001}
 
     # Save to a temporary file
     with tempfile.TemporaryDirectory() as tmpdir:
-        filepath = os.path.join(tmpdir, 'bar.csv')
+        filepath = Path(tmpdir) / 'bar.csv'
         file_io.save_to_csv(
             data, filepath, units, unit_conversion_factors, orientation=1
         )
-        assert os.path.isfile(filepath)
+        assert Path(filepath).is_file()
         # Check that the file contains the expected data
-        with open(filepath, 'r', encoding='utf-8') as f:
+        with Path(filepath).open(encoding='utf-8') as f:
             contents = f.read()
             assert contents == (
                 ',0,A,B\n0,,0.001,0.004\n1,,0.002,' '0.005\n2,,0.003,0.006\n'
@@ -99,38 +97,40 @@ def test_save_to_csv():
     # edge cases
     #
 
-    data = pd.DataFrame({"A": [1e-3, 2e-3, 3e-3], "B": [4e-3, 5e-3, 6e-3]})
-    units = pd.Series(["meters", "meters"], index=["A", "B"])
+    data = pd.DataFrame({'A': [1e-3, 2e-3, 3e-3], 'B': [4e-3, 5e-3, 6e-3]})
+    units = pd.Series(['meters', 'meters'], index=['A', 'B'])
 
     # units given, without unit conversion factors
-    unit_conversion_factors = None
-    with pytest.raises(ValueError):
-        with tempfile.TemporaryDirectory() as tmpdir:
-            filepath = os.path.join(tmpdir, 'foo.csv')
-            file_io.save_to_csv(
-                data, filepath, units, unit_conversion_factors, orientation=0
-            )
+    filepath = Path(tmpdir) / 'foo.csv'
+    with pytest.raises(
+        ValueError,
+        match='When `units` is not None, `unit_conversion_factors` must be provided.',
+    ), tempfile.TemporaryDirectory() as tmpdir:
+        file_io.save_to_csv(
+            data, filepath, units, unit_conversion_factors=None, orientation=0
+        )
 
-    unit_conversion_factors = {"meters": 0.001}
+    unit_conversion_factors = {'meters': 0.001}
 
     # not csv extension
-    with pytest.raises(ValueError):
-        with tempfile.TemporaryDirectory() as tmpdir:
-            filepath = os.path.join(tmpdir, 'foo.xyz')
-            file_io.save_to_csv(
-                data, filepath, units, unit_conversion_factors, orientation=0
-            )
+    filepath = Path(tmpdir) / 'foo.xyz'
+    with pytest.raises(
+        ValueError,
+        match=('Please use the `.csv` file extension. Received file name is '),
+    ), tempfile.TemporaryDirectory() as tmpdir:
+        file_io.save_to_csv(
+            data, filepath, units, unit_conversion_factors, orientation=0
+        )
 
     # no data, log a complaint
     mylogger = base.Logger(
-        verbose=True, log_show_ms=False, log_file=None, print_log=True
+        log_file=None, verbose=True, log_show_ms=False, print_log=True
     )
-    data = None
     with tempfile.TemporaryDirectory() as tmpdir:
-        filepath = os.path.join(tmpdir, 'foo.csv')
+        filepath = Path(tmpdir) / 'foo.csv'
         with pytest.warns(PelicunWarning) as record:
             file_io.save_to_csv(
-                data,
+                None,
                 filepath,
                 units,
                 unit_conversion_factors,
@@ -140,10 +140,13 @@ def test_save_to_csv():
     assert 'Data was empty, no file saved.' in str(record.list[0].message)
 
 
-def test_substitute_default_path():
+def test_substitute_default_path() -> None:
     prior_path = file_io.base.pelicun_path
-    file_io.base.pelicun_path = 'some_path'
-    input_paths = ['PelicunDefault/data/file1.txt', '/data/file2.txt']
+    file_io.base.pelicun_path = Path('some_path')
+    input_paths: list[str | pd.DataFrame] = [
+        'PelicunDefault/data/file1.txt',
+        '/data/file2.txt',
+    ]
     expected_paths = [
         'some_path/resources/SimCenterDBDL/data/file1.txt',
         '/data/file2.txt',
@@ -153,24 +156,24 @@ def test_substitute_default_path():
     file_io.base.pelicun_path = prior_path
 
 
-def test_load_data():
+def test_load_data() -> None:
     # test loading data with orientation 0
 
     filepath = 'pelicun/tests/basic/data/file_io/test_load_data/units.csv'
-    unit_conversion_factors = {"inps2": 0.0254, "rad": 1.00}
+    unit_conversion_factors = {'inps2': 0.0254, 'rad': 1.00}
 
     data = file_io.load_data(filepath, unit_conversion_factors)
-    assert np.array_equal(data.index.values, np.array(range(6)))
-    assert data.shape == (6, 19)
-    assert isinstance(data.columns, pd.core.indexes.multi.MultiIndex)
-    assert data.columns.nlevels == 4
+    assert np.array_equal(data.index.values, np.array(range(6)))  # type: ignore
+    assert data.shape == (6, 19)  # type: ignore
+    assert isinstance(data.columns, pd.core.indexes.multi.MultiIndex)  # type: ignore
+    assert data.columns.nlevels == 4  # type: ignore
 
     _, units = file_io.load_data(
         filepath, unit_conversion_factors, return_units=True
     )
 
     for item in unit_conversion_factors:
-        assert item in units.unique()
+        assert item in units.unique()  # type: ignore
 
     filepath = 'pelicun/tests/basic/data/file_io/test_load_data/no_units.csv'
     data_nounits = file_io.load_data(filepath, {})
@@ -187,7 +190,7 @@ def test_load_data():
 
     # with convert=None
     filepath = 'pelicun/tests/basic/data/file_io/test_load_data/orient_1_units.csv'
-    unit_conversion_factors = {"g": 1.00, "rad": 1.00}
+    unit_conversion_factors = {'g': 1.00, 'rad': 1.00}
     data = file_io.load_data(
         filepath, unit_conversion_factors, orientation=1, reindex=False
     )
@@ -199,7 +202,7 @@ def test_load_data():
     data = file_io.load_data(
         filepath, unit_conversion_factors, orientation=1, reindex=True
     )
-    assert np.array_equal(data.index.values, np.array(range(10)))
+    assert np.array_equal(data.index.values, np.array(range(10)))  # type: ignore
 
     #
     # edge cases
@@ -209,7 +212,10 @@ def test_load_data():
     with pytest.raises(FileNotFoundError):
         file_io.load_from_file('/')
     # exception: not a .csv file
-    with pytest.raises(ValueError):
+    with pytest.raises(
+        ValueError,
+        match='Unexpected file type received when trying to load from csv',
+    ):
         file_io.load_from_file('pelicun/base.py')
 
 

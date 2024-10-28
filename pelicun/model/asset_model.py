@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # Copyright (c) 2018 Leland Stanford Junior University
 # Copyright (c) 2018 The Regents of the University of California
@@ -38,21 +37,20 @@
 # Adam Zsarnóczay
 # John Vouvakis Manousakis
 
-"""
-This file defines the AssetModel object and its methods.
 
-"""
+"""AssetModel object and methods."""
 
 from __future__ import annotations
-from typing import TYPE_CHECKING
-from typing import Any
+
 from itertools import product
+from pathlib import Path
+from typing import TYPE_CHECKING, Any, Callable
+
 import numpy as np
 import pandas as pd
+
+from pelicun import base, file_io, uq
 from pelicun.model.pelicun_model import PelicunModel
-from pelicun import base
-from pelicun import uq
-from pelicun import file_io
 
 if TYPE_CHECKING:
     from pelicun.assessment import AssessmentBase
@@ -61,17 +59,20 @@ idx = base.idx
 
 
 class AssetModel(PelicunModel):
-    """
-    Manages asset information used in assessments.
+    """Asset information used in assessments."""
 
-    Parameters
-    ----------
+    __slots__ = ['_cmp_RVs', 'cmp_marginal_params', 'cmp_sample', 'cmp_units']
 
-    """
+    def __init__(self, assessment: AssessmentBase) -> None:
+        """
+        Initialize an Asset model.
 
-    __slots__ = ['cmp_marginal_params', 'cmp_units', 'cmp_sample', '_cmp_RVs']
+        Parameters
+        ----------
+        assessment: AssessmentBase
+            Parent assessment object.
 
-    def __init__(self, assessment: AssessmentBase):
+        """
         super().__init__(assessment)
 
         self.cmp_marginal_params: pd.DataFrame | None = None
@@ -81,27 +82,28 @@ class AssetModel(PelicunModel):
         self._cmp_RVs: uq.RandomVariableRegistry | None = None
 
     def save_cmp_sample(
-        self, filepath: str | None = None, save_units: bool = False
+        self, filepath: str | None = None, *, save_units: bool = False
     ) -> pd.DataFrame | tuple[pd.DataFrame, pd.Series] | None:
         """
-        Saves the component quantity sample to a CSV file or returns
-        it as a DataFrame with optional units.
+        Save or retrieve component quantity sample.
 
-        This method handles the storage of a sample of component
-        quantities, which can either be saved directly to a file or
-        returned as a DataFrame for further manipulation. When saving
-        to a file, additional information such as unit conversion
-        factors and column units can be included. If the data is not
-        being saved to a file, the method can return the DataFrame
-        with or without units as specified.
+        Saves the component quantity sample to a CSV file or returns
+        it as a DataFrame with optional units.  This method handles
+        the storage of a sample of component quantities, which can
+        either be saved directly to a file or returned as a DataFrame
+        for further manipulation. When saving to a file, additional
+        information such as unit conversion factors and column units
+        can be included. If the data is not being saved to a file, the
+        method can return the DataFrame with or without units as
+        specified.
 
         Parameters
         ----------
-        filepath : str, optional
+        filepath: str, optional
             The path to the file where the component quantity sample
             should be saved. If not provided, the sample is not saved
             to disk but returned.
-        save_units : bool, default: False
+        save_units: bool, default: False
             Indicates whether to include a row with unit information
             in the returned DataFrame. This parameter is ignored if a
             file path is provided.
@@ -116,17 +118,12 @@ class AssetModel(PelicunModel):
             * Optionally, a Series containing the units for each
             column if `save_units` is True.
 
-        Raises
-        ------
-        IOError
-            Raises an IOError if there is an issue saving the file to
-            the specified `filepath`.
-
         Notes
         -----
         The function utilizes internal logging to notify the start and
         completion of the saving process. It adjusts index types and
         handles unit conversions based on assessment configurations.
+
         """
         self.log.div()
         if filepath is not None:
@@ -144,7 +141,7 @@ class AssetModel(PelicunModel):
 
         res = file_io.save_to_csv(
             sample,
-            filepath,
+            Path(filepath) if filepath is not None else None,
             units=units,
             unit_conversion_factors=self._asmnt.unit_conversion_factors,
             use_simpleindex=(filepath is not None),
@@ -160,11 +157,11 @@ class AssetModel(PelicunModel):
 
         assert isinstance(res, pd.DataFrame)
 
-        units_part = res.loc["Units"]
+        units_part = res.loc['Units']
         assert isinstance(units_part, pd.Series)
         units = units_part
 
-        res.drop("Units", inplace=True)
+        res = res.drop('Units')
 
         if save_units:
             return res.astype(float), units
@@ -173,8 +170,7 @@ class AssetModel(PelicunModel):
 
     def load_cmp_sample(self, filepath: str) -> None:
         """
-        Loads a component quantity sample from a specified CSV file
-        into the system.
+        Load a component quantity sample from a specified CSV file.
 
         This method reads a CSV file that contains component quantity
         samples, setting up the necessary DataFrame structures within
@@ -184,7 +180,7 @@ class AssetModel(PelicunModel):
 
         Parameters
         ----------
-        filepath : str
+        filepath: str
             The path to the CSV file from which to load the component
             quantity sample.
 
@@ -210,6 +206,7 @@ class AssetModel(PelicunModel):
         >>> model.load_cmp_sample('path/to/component_sample.csv')
         # This will load the component quantity sample into the model
         # from the specified file.
+
         """
         self.log.div()
         self.log.msg('Loading asset components sample...')
@@ -225,17 +222,20 @@ class AssetModel(PelicunModel):
 
         # Check if a `uid` level was passed
         num_levels = len(sample.columns.names)
-        if num_levels == 3:
+        num_levels_without_uid = 3
+        num_levels_with_uid = num_levels_without_uid + 1
+        if num_levels == num_levels_without_uid:
             # No `uid`, add one.
             sample.columns.names = ['cmp', 'loc', 'dir']
             sample = base.dedupe_index(sample.T).T
-        elif num_levels == 4:
+        elif num_levels == num_levels_with_uid:
             sample.columns.names = ['cmp', 'loc', 'dir', 'uid']
         else:
-            raise ValueError(
+            msg = (
                 f'Invalid component sample: Column MultiIndex '
                 f'has an unexpected length: {num_levels}'
             )
+            raise ValueError(msg)
 
         self.cmp_sample = sample
 
@@ -260,8 +260,7 @@ class AssetModel(PelicunModel):
 
     def load_cmp_model(self, data_source: str | dict[str, pd.DataFrame]) -> None:
         """
-        Loads the model describing component quantities in an asset
-        from specified data sources.
+        Load the asset model from a specified data source.
 
         This function is responsible for loading data related to the
         component model of an asset. It supports loading from multiple
@@ -272,7 +271,7 @@ class AssetModel(PelicunModel):
 
         Parameters
         ----------
-        data_source : str or dict
+        data_source: str or dict
             The source from where to load the component model data. If
             it's a string, it should be the prefix for three files:
             one for marginal distributions (`<prefix>_marginals.csv`),
@@ -307,14 +306,6 @@ class AssetModel(PelicunModel):
         >>> model.load_cmp_model(data_dict)
 
         """
-
-        def get_attribute(attribute_str, dtype=float, default=np.nan):
-            # pylint: disable=missing-return-doc
-            # pylint: disable=missing-return-type-doc
-            if pd.isnull(attribute_str):
-                return default
-            return dtype(attribute_str)
-
         self.log.div()
         self.log.msg('Loading component model...')
 
@@ -364,11 +355,9 @@ class AssetModel(PelicunModel):
                 if col == 'Blocks':
                     cmp_marginal_param.extend(
                         [
-                            get_attribute(
-                                getattr(row, 'Blocks', np.nan),
-                                dtype=int,
-                                default=1.0,
-                            )
+                            int(row.Blocks)  # type: ignore
+                            if ('Blocks' in dir(row) and not pd.isna(row.Blocks))
+                            else 1,
                         ]
                         * num_vals
                     )
@@ -378,7 +367,7 @@ class AssetModel(PelicunModel):
                     cmp_marginal_param.extend([getattr(row, col, np.nan)] * num_vals)
                 else:
                     cmp_marginal_param.extend(
-                        [get_attribute(getattr(row, col, np.nan))] * num_vals
+                        [str(getattr(row, col, np.nan))] * num_vals
                     )
             index_list.extend(indices)
         index = pd.MultiIndex.from_tuples(index_list, names=['cmp', 'loc', 'dir'])
@@ -403,20 +392,20 @@ class AssetModel(PelicunModel):
         cmp_marginal_params = pd.concat(cmp_marginal_param_series, axis=1)
 
         assert not (
-            cmp_marginal_params['Theta_0'].isnull().values.any()  # type: ignore
+            cmp_marginal_params['Theta_0'].isna().to_numpy().any()  # type: ignore
         )
 
-        cmp_marginal_params.dropna(axis=1, how='all', inplace=True)
+        cmp_marginal_params = cmp_marginal_params.dropna(axis=1, how='all')
 
         self.log.msg(
-            "Model parameters successfully parsed. "
-            f"{cmp_marginal_params.shape[0]} performance groups identified",
+            'Model parameters successfully parsed. '
+            f'{cmp_marginal_params.shape[0]} performance groups identified',
             prepend_timestamp=False,
         )
 
         # Now we can take care of converting the values to base units
         self.log.msg(
-            "Converting model parameters to internal units...",
+            'Converting model parameters to internal units...',
             prepend_timestamp=False,
         )
 
@@ -431,11 +420,11 @@ class AssetModel(PelicunModel):
         self.cmp_marginal_params = cmp_marginal_params.drop('Units', axis=1)
 
         self.log.msg(
-            "Model parameters successfully loaded.", prepend_timestamp=False
+            'Model parameters successfully loaded.', prepend_timestamp=False
         )
 
         self.log.msg(
-            "\nComponent model marginal distributions:\n" + str(cmp_marginal_params),
+            '\nComponent model marginal distributions:\n' + str(cmp_marginal_params),
             prepend_timestamp=False,
         )
 
@@ -443,7 +432,7 @@ class AssetModel(PelicunModel):
 
     def list_unique_component_ids(self) -> list[str]:
         """
-        Returns unique component IDs.
+        Obtain unique component IDs.
 
         Returns
         -------
@@ -452,11 +441,12 @@ class AssetModel(PelicunModel):
 
         """
         assert self.cmp_marginal_params is not None
-        cmp_list = self.cmp_marginal_params.index.unique(level=0).to_list()
-        return cmp_list
+        return self.cmp_marginal_params.index.unique(level=0).to_list()
 
     def generate_cmp_sample(self, sample_size: int | None = None) -> None:
         """
+        Generate a component sample.
+
         Generates a sample of component quantity realizations based on
         predefined model parameters and optionally specified sample
         size.  If no sample size is provided, the function attempts to
@@ -475,25 +465,27 @@ class AssetModel(PelicunModel):
             If the model parameters are not loaded before sample
             generation, or if neither sample size is specified nor can
             be determined from the demand model.
-        """
 
+        """
         if self.cmp_marginal_params is None:
-            raise ValueError(
-                'Model parameters have not been specified. Load'
+            msg = (
+                'Model parameters have not been specified. Load '
                 'parameters from a file before generating a '
                 'sample.'
             )
+            raise ValueError(msg)
 
         self.log.div()
         self.log.msg('Generating sample from component quantity variables...')
 
         if sample_size is None:
             if self._asmnt.demand.sample is None:
-                raise ValueError(
+                msg = (
                     'Sample size was not specified, '
                     'and it cannot be determined from '
                     'the demand model.'
                 )
+                raise ValueError(msg)
             sample_size = self._asmnt.demand.sample.shape[0]
 
         self._create_cmp_RVs()
@@ -505,8 +497,8 @@ class AssetModel(PelicunModel):
         )
 
         cmp_sample = pd.DataFrame(self._cmp_RVs.RV_sample)
-        cmp_sample.sort_index(axis=0, inplace=True)
-        cmp_sample.sort_index(axis=1, inplace=True)
+        cmp_sample = cmp_sample.sort_index(axis=0)
+        cmp_sample = cmp_sample.sort_index(axis=1)
         cmp_sample_mi = base.convert_to_MultiIndex(cmp_sample, axis=1)['CMP']
         assert isinstance(cmp_sample_mi, pd.DataFrame)
         cmp_sample = cmp_sample_mi
@@ -514,17 +506,14 @@ class AssetModel(PelicunModel):
         self.cmp_sample = cmp_sample
 
         self.log.msg(
-            f"\nSuccessfully generated {sample_size} realizations.",
+            f'\nSuccessfully generated {sample_size} realizations.',
             prepend_timestamp=False,
         )
 
-    def _create_cmp_RVs(self) -> None:
-        """
-        Defines the RVs used for sampling component quantities.
-        """
-
+    def _create_cmp_RVs(self) -> None:  # noqa: N802
+        """Define the RVs used for sampling component quantities."""
         # initialize the registry
-        RV_reg = uq.RandomVariableRegistry(self._asmnt.options.rng)
+        rv_reg = uq.RandomVariableRegistry(self._asmnt.options.rng)
 
         # add a random variable for each component quantity variable
         assert self.cmp_marginal_params is not None
@@ -532,24 +521,24 @@ class AssetModel(PelicunModel):
             cmp = rv_params.Index
 
             # create a random variable and add it to the registry
-            family = getattr(rv_params, "Family", 'deterministic')
-            RV_reg.add_RV(
+            family = getattr(rv_params, 'Family', 'deterministic')
+            rv_reg.add_RV(
                 uq.rv_class_map(family)(
                     name=f'CMP-{cmp[0]}-{cmp[1]}-{cmp[2]}-{cmp[3]}',  # type: ignore
                     theta=[  # type: ignore
-                        getattr(rv_params, f"Theta_{t_i}", np.nan)
+                        getattr(rv_params, f'Theta_{t_i}', np.nan)
                         for t_i in range(3)
                     ],
                     truncation_limits=[
-                        getattr(rv_params, f"Truncate{side}", np.nan)
-                        for side in ("Lower", "Upper")
+                        getattr(rv_params, f'Truncate{side}', np.nan)
+                        for side in ('Lower', 'Upper')
                     ],
                 )
             )
 
         self.log.msg(
-            f"\n{self.cmp_marginal_params.shape[0]} random variables created.",
+            f'\n{self.cmp_marginal_params.shape[0]} random variables created.',
             prepend_timestamp=False,
         )
 
-        self._cmp_RVs = RV_reg
+        self._cmp_RVs = rv_reg

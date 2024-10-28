@@ -8,7 +8,7 @@
 import pandas as pd
 
 
-def auto_populate(AIM):
+def auto_populate(aim):
     """
     Populates the DL model for tsunami example using custom fragility functions
 
@@ -21,7 +21,7 @@ def auto_populate(AIM):
 
     Parameters
     ----------
-    AIM: dictionary
+    aim: dictionary
         Contains the information that is available about the asset and will be
         used to auto-populate the damage and loss model.
 
@@ -34,10 +34,10 @@ def auto_populate(AIM):
     """
 
     # parse the AIM data
-    # print(AIM) # Look in the AIM.json file to see what you can access here
+    # print(aim) # Look in the AIM.json file to see what you can access here
 
     # extract the General Information
-    GI = AIM.get('GeneralInformation', None)
+    GI = aim.get('GeneralInformation', None)
 
     # GI_ap is the 'extended AIM data - this case no extended AIM data
     GI_ap = GI.copy()

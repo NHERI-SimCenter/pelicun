@@ -44,8 +44,8 @@
 # Tracy Kijewski-Correa
 
 import random
+import numpy as np
 import datetime
-
 
 def MLRM_config(BIM):
     """
@@ -63,7 +63,7 @@ def MLRM_config(BIM):
         class.
     """
 
-    year = BIM['YearBuilt']  # just for the sake of brevity
+    year = BIM['YearBuilt'] # just for the sake of brevity
 
     # Note the only roof option for commercial masonry in NJ appraisers manual
     # is OSWJ, so this suggests they do not even see alternate roof system
@@ -81,41 +81,40 @@ def MLRM_config(BIM):
 
     # Shutters
     # IRC 2000-2015:
-    # R301.2.1.2 in NJ IRC 2015 says protection of openings required
-    # for buildings located in WindBorneDebris regions, mentions
-    # impact-rated protection for glazing, impact-resistance for
-    # garage door glazed openings, and finally states that wood
-    # structural panels with a thickness > 7/16" and a span <8' can be
-    # used, as long as they are precut, attached to the framing
-    # surrounding the opening, and the attachments are resistant to
-    # corrosion and are able to resist component and cladding loads;
+    # R301.2.1.2 in NJ IRC 2015 says protection of openings required for
+    # buildings located in WindBorneDebris regions, mentions impact-rated protection for
+    # glazing, impact-resistance for garage door glazed openings, and finally
+    # states that wood structural panels with a thickness > 7/16" and a
+    # span <8' can be used, as long as they are precut, attached to the framing
+    # surrounding the opening, and the attachments are resistant to corrosion
+    # and are able to resist component and cladding loads;
     # Earlier IRC editions provide similar rules.
     shutters = BIM['WindBorneDebris']
 
     # Masonry Reinforcing (MR)
-    # R606.6.4.1.2 Metal Reinforcement states that walls other than
-    # interior non-load-bearing walls shall be anchored at vertical
-    # intervals of not more than 8 inches with joint reinforcement of
-    # not less than 9 gage.  Therefore this ruleset assumes that all
-    # exterior or load-bearing masonry walls will have
-    # reinforcement. Since our considerations deal with wind speed, I
-    # made the assumption that only exterior walls are being taken
+    # R606.6.4.1.2 Metal Reinforcement states that walls other than interior
+    # non-load-bearing walls shall be anchored at vertical intervals of not
+    # more than 8 inches with joint reinforcement of not less than 9 gage.
+    # Therefore this ruleset assumes that all exterior or load-bearing masonry
+    # walls will have reinforcement. Since our considerations deal with wind
+    # speed, I made the assumption that only exterior walls are being taken
     # into consideration.
     MR = True
 
     # Wind Debris (widd in HAZSU)
     # HAZUS A: Res/Comm, B: Varies by direction, C: Residential, D: None
-    WIDD = 'C'  # residential (default)
-    if BIM['OccupancyClass'] in ['RES1', 'RES2', 'RES3A', 'RES3B', 'RES3C', 'RES3D']:
-        WIDD = 'C'  # residential
+    WIDD = 'C' # residential (default)
+    if BIM['OccupancyClass'] in ['RES1', 'RES2', 'RES3A', 'RES3B', 'RES3C',
+                                 'RES3D']:
+        WIDD = 'C' # residential
     elif BIM['OccupancyClass'] == 'AGR1':
-        WIDD = 'D'  # None
+        WIDD = 'D' # None
     else:
-        WIDD = 'A'  # Res/Comm
+        WIDD = 'A' # Res/Comm
 
     if BIM['RoofSystem'] == 'ows':
         # RDA
-        RDA = 'null'  # Doesn't apply to OWSJ
+        RDA = 'null' # Doesn't apply to OWSJ
 
         # Roof deck age (DQ)
         # Average lifespan of a steel joist roof is roughly 50 years according
@@ -123,9 +122,9 @@ def MLRM_config(BIM):
         # current year, the roof deck should be considered old.
         # https://www.metalroofing.systems/metal-roofing-pros-cons/
         if year >= (datetime.datetime.now().year - 50):
-            DQ = 'god'  # new or average
+            DQ = 'god' # new or average
         else:
-            DQ = 'por'  # old
+            DQ = 'por' # old
 
         # RWC
         RWC = 'null'  # Doesn't apply to OWSJ
@@ -145,7 +144,7 @@ def MLRM_config(BIM):
     elif BIM['RoofSystem'] == 'trs':
         # This clause should not be activated for NJ
         # RDA
-        if BIM['TerrainRoughness'] >= 35:  # suburban or light trees
+        if BIM['TerrainRoughness'] >= 35: # suburban or light trees
             if BIM['V_ult'] > 130.0:
                 RDA = '8s'  # 8d @ 6"/6" 'D'
             else:
@@ -157,10 +156,10 @@ def MLRM_config(BIM):
                 RDA = '8d'  # 8d @ 6"/12" 'B'
 
         #  Metal RDA
-        MRDA = 'null'  # Doesn't apply to Wood Truss
+        MRDA = 'null' # Doesn't apply to Wood Truss
 
         # Roof deck agea (DQ)
-        DQ = 'null'  # Doesn't apply to Wood Truss
+        DQ = 'null' # Doesn't apply to Wood Truss
 
         # RWC
         if BIM['V_ult'] > 110:
@@ -179,33 +178,29 @@ def MLRM_config(BIM):
 
     if BIM['MeanRoofHt'] < 15.0:
         # extend the BIM dictionary
-        BIM.update(
-            dict(
-                RoofCover=roof_cover,
-                RoofDeckAttachmentW=RDA,
-                RoofDeckAttachmentM=MRDA,
-                RoofDeckAge=DQ,
-                RoofToWallConnection=RWC,
-                Shutters=shutters,
-                MasonryReinforcing=MR,
-                WindowAreaRatio=WIDD,
-            )
-        )
+        BIM.update(dict(
+            RoofCover = roof_cover,
+            RoofDeckAttachmentW = RDA,
+            RoofDeckAttachmentM = MRDA,
+            RoofDeckAge = DQ,
+            RoofToWallConnection = RWC,
+            Shutters = shutters,
+            MasonryReinforcing = MR,
+            WindowAreaRatio = WIDD
+            ))
 
         # if it's MLRM1, configure outputs
-        bldg_config = (
-            f"M.LRM.1."
-            f"{roof_cover}."
-            f"{int(shutters)}."
-            f"{int(MR)}."
-            f"{WIDD}."
-            f"{BIM['RoofSystem']}."
-            f"{RDA}."
-            f"{RWC}."
-            f"{DQ}."
-            f"{MRDA}."
-            f"{int(BIM['TerrainRoughness'])}"
-        )
+        bldg_config = f"M.LRM.1." \
+                      f"{roof_cover}." \
+                      f"{int(shutters)}." \
+                      f"{int(MR)}." \
+                      f"{WIDD}." \
+                      f"{BIM['RoofSystem']}." \
+                      f"{RDA}." \
+                      f"{RWC}." \
+                      f"{DQ}." \
+                      f"{MRDA}." \
+                      f"{int(BIM['TerrainRoughness'])}"
 
     else:
         unit_tag = 'null'
@@ -222,34 +217,30 @@ def MLRM_config(BIM):
                 unit_tag = 'mlt'
 
         # extend the BIM dictionary
-        BIM.update(
-            dict(
-                RoofCover=roof_cover,
-                RoofDeckAttachmentW=RDA,
-                RoofDeckAttachmentM=MRDA,
-                RoofDeckAge=DQ,
-                RoofToWallConnection=RWC,
-                Shutters=shutters,
-                MasonryReinforcing=MR,
-                WindDebrisClass=WIDD,
-                UnitType=unit_tag,
-            )
-        )
+        BIM.update(dict(
+            RoofCover = roof_cover,
+            RoofDeckAttachmentW = RDA,
+            RoofDeckAttachmentM = MRDA,
+            RoofDeckAge = DQ,
+            RoofToWallConnection = RWC,
+            Shutters = shutters,
+            MasonryReinforcing = MR,
+            WindDebrisClass = WIDD,
+            UnitType=unit_tag
+            ))
 
-        bldg_config = (
-            f"M.LRM.2."
-            f"{roof_cover}."
-            f"{int(shutters)}."
-            f"{int(MR)}."
-            f"{WIDD}."
-            f"{BIM['RoofSystem']}."
-            f"{RDA}."
-            f"{RWC}."
-            f"{DQ}."
-            f"{MRDA}."
-            f"{unit_tag}."
-            f"{joist_spacing}."
-            f"{int(BIM['TerrainRoughness'])}"
-        )
-
+        bldg_config = f"M.LRM.2." \
+                      f"{roof_cover}." \
+                      f"{int(shutters)}." \
+                      f"{int(MR)}." \
+                      f"{WIDD}." \
+                      f"{BIM['RoofSystem']}." \
+                      f"{RDA}." \
+                      f"{RWC}." \
+                      f"{DQ}." \
+                      f"{MRDA}." \
+                      f"{unit_tag}." \
+                      f"{joist_spacing}." \
+                      f"{int(BIM['TerrainRoughness'])}"
+        
     return bldg_config

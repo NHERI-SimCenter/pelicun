@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # Copyright (c) 2018 Leland Stanford Junior University
 # Copyright (c) 2018 The Regents of the University of California
@@ -33,10 +32,6 @@
 #
 # You should have received a copy of the BSD 3-Clause License along with
 # pelicun. If not, see <http://www.opensource.org/licenses/>.
-#
-# Contributors:
-# Adam Zsarnóczay
-# John Vouvakis Manousakis
 
 """
 Validation test for the probability of each damage state of a
@@ -45,19 +40,20 @@ component.
 """
 
 from __future__ import annotations
+
 import tempfile
+
 import numpy as np
 import pandas as pd
-import pelicun
-from pelicun import assessment
 from scipy.stats import norm  # type: ignore
 
+from pelicun import assessment, file_io
 
-def test_validation_ds_probabilities():
 
+def test_validation_ds_probabilities() -> None:
     sample_size = 1000000
 
-    asmnt = assessment.Assessment({"PrintLog": False, "Seed": 42})
+    asmnt = assessment.Assessment({'PrintLog': False, 'Seed': 42})
 
     #
     # Demands
@@ -81,7 +77,7 @@ def test_validation_ds_probabilities():
     asmnt.demand.load_model({'marginals': demands})
 
     # generate samples
-    asmnt.demand.generate_sample({"SampleSize": sample_size})
+    asmnt.demand.generate_sample({'SampleSize': sample_size})
 
     #
     # Asset
@@ -92,7 +88,7 @@ def test_validation_ds_probabilities():
 
     # load component definitions
     cmp_marginals = pd.read_csv(
-        'pelicun/tests/validation/1/data/CMP_marginals.csv', index_col=0
+        'pelicun/tests/validation/v1/data/CMP_marginals.csv', index_col=0
     )
     cmp_marginals['Blocks'] = cmp_marginals['Blocks']
     asmnt.asset.load_cmp_model({'marginals': cmp_marginals})
@@ -104,11 +100,12 @@ def test_validation_ds_probabilities():
     # Damage
     #
 
-    damage_db = pelicun.file_io.load_data(
-        'pelicun/tests/validation/1/data/damage_db.csv',
+    damage_db = file_io.load_data(
+        'pelicun/tests/validation/v1/data/damage_db.csv',
         reindex=False,
         unit_conversion_factors=asmnt.unit_conversion_factors,
     )
+    assert isinstance(damage_db, pd.DataFrame)
 
     cmp_set = set(asmnt.asset.list_unique_component_ids())
 
@@ -150,14 +147,15 @@ def test_validation_ds_probabilities():
         (demand_mean - capacity_2_mean) / np.sqrt(demand_std**2 + capacity_std**2)
     )
 
-    assert np.allclose((probs[0]).values, p0, atol=1e-2)
-    assert np.allclose((probs[1]).values, p1, atol=1e-2)
-    assert np.allclose((probs[2]).values, p2, atol=1e-2)
+    assert np.allclose(probs.iloc[0, 0], p0, atol=1e-2)  # type: ignore
+    assert np.allclose(probs.iloc[0, 1], p1, atol=1e-2)  # type: ignore
+    assert np.allclose(probs.iloc[0, 2], p2, atol=1e-2)  # type: ignore
 
     #
     # Also test load/save sample
     #
 
+    assert asmnt.damage.ds_model.sample is not None
     asmnt.damage.ds_model.sample = asmnt.damage.ds_model.sample.iloc[0:100, :]
     # (we reduce the number of realizations to conserve resources)
     before = asmnt.damage.ds_model.sample.copy()

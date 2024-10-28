@@ -44,6 +44,7 @@
 # Tracy Kijewski-Correa
 
 import random
+import numpy as np
 import datetime
 
 
@@ -63,7 +64,7 @@ def SPMB_config(BIM):
         class.
     """
 
-    year = BIM['YearBuilt']  # just for the sake of brevity
+    year = BIM['YearBuilt'] # just for the sake of brevity
 
     # Roof Deck Age (~ Roof Quality)
     if BIM['YearBuilt'] >= (datetime.datetime.now().year - 50):
@@ -109,16 +110,17 @@ def SPMB_config(BIM):
         bldg_tag = 'S.PMB.L'
 
     # extend the BIM dictionary
-    BIM.update(
-        dict(RoofQuality=roof_quality, RoofDeckAttachmentM=MRDA, Shutters=shutters)
-    )
+    BIM.update(dict(
+        RoofQuality = roof_quality,
+        RoofDeckAttachmentM = MRDA,
+        Shutters = shutters
+        ))
 
-    bldg_config = (
-        f"{bldg_tag}."
-        f"{int(shutters)}."
-        f"{roof_quality}."
-        f"{MRDA}."
-        f"{int(BIM['TerrainRoughness'])}"
-    )
+    bldg_config = f"{bldg_tag}." \
+                  f"{int(shutters)}." \
+                  f"{roof_quality}." \
+                  f"{MRDA}." \
+                  f"{int(BIM['TerrainRoughness'])}"
 
     return bldg_config
+

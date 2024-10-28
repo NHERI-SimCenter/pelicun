@@ -44,6 +44,7 @@
 # Tracy Kijewski-Correa
 
 import random
+import numpy as np
 import datetime
 
 
@@ -77,9 +78,9 @@ def HUEFFS_config(BIM):
 
     # Roof deck age
     if year >= (datetime.datetime.now().year - 50):
-        DQ = 'god'  # new or average
+        DQ = 'god' # new or average
     else:
-        DQ = 'por'  # old
+        DQ = 'por' # old
 
     # Metal-RDA
     if year > 2000:
@@ -94,29 +95,24 @@ def HUEFFS_config(BIM):
     shutters = int(BIM['WBD'])
 
     # extend the BIM dictionary
-    BIM.update(
-        dict(
-            RoofCover=roof_cover,
-            RoofDeckAttachmentM=MRDA,
-            RoofDeckAge=DQ,
-            WindDebrisClass=WIDD,
-            Shutters=shutters,
-        )
-    )
+    BIM.update(dict(
+        RoofCover = roof_cover,
+        RoofDeckAttachmentM = MRDA,
+        RoofDeckAge=DQ,
+        WindDebrisClass = WIDD,
+        Shutters = shutters
+        ))
 
     bldg_tag = 'HUEF.FS'
-    bldg_config = (
-        f"{bldg_tag}."
-        f"{roof_cover}."
-        f"{shutters}."
-        f"{WIDD}."
-        f"{DQ}."
-        f"{MRDA}."
-        f"{int(BIM['TerrainRoughness'])}"
-    )
+    bldg_config = f"{bldg_tag}." \
+                  f"{roof_cover}." \
+                  f"{shutters}." \
+                  f"{WIDD}." \
+                  f"{DQ}." \
+                  f"{MRDA}." \
+                  f"{int(BIM['TerrainRoughness'])}"
 
     return bldg_config
-
 
 def HUEFSS_config(BIM):
     """
@@ -148,9 +144,9 @@ def HUEFSS_config(BIM):
 
     # Roof deck age
     if year >= (datetime.datetime.now().year - 50):
-        DQ = 'god'  # new or average
+        DQ = 'god' # new or average
     else:
-        DQ = 'por'  # old
+        DQ = 'por' # old
 
     # Metal-RDA
     if year > 2000:
@@ -165,26 +161,22 @@ def HUEFSS_config(BIM):
     shutters = BIM['WindBorneDebris']
 
     # extend the BIM dictionary
-    BIM.update(
-        dict(
-            RoofCover=roof_cover,
-            RoofDeckAttachmentM=MRDA,
-            RoofDeckAge=DQ,
-            WindDebrisClass=WIDD,
-            Shutters=shutters,
-        )
-    )
+    BIM.update(dict(
+        RoofCover = roof_cover,
+        RoofDeckAttachmentM = MRDA,
+        RoofDeckAge=DQ,
+        WindDebrisClass = WIDD,
+        Shutters=shutters
+        ))
 
     bldg_tag = 'HUEF.S.S'
-    bldg_config = (
-        f"{bldg_tag}."
-        f"{roof_cover}."
-        f"{int(shutters)}."
-        f"{WIDD}."
-        f"{DQ}."
-        f"{MRDA}."
-        f"{int(BIM['TerrainRoughness'])}"
-    )
+    bldg_config = f"{bldg_tag}." \
+                  f"{roof_cover}." \
+                  f"{int(shutters)}." \
+                  f"{WIDD}." \
+                  f"{DQ}." \
+                  f"{MRDA}." \
+                  f"{int(BIM['TerrainRoughness'])}"
 
     return bldg_config
 
@@ -229,7 +221,7 @@ def HUEFH_config(BIM):
     else:
         MRDA = 'std'  # standard
 
-    if BIM['NumberOfStories'] <= 2:
+    if BIM['NumberOfStories'] <=2:
         bldg_tag = 'HUEF.H.S'
     elif BIM['NumberOfStories'] <= 5:
         bldg_tag = 'HUEF.H.M'
@@ -237,26 +229,21 @@ def HUEFH_config(BIM):
         bldg_tag = 'HUEF.H.L'
 
     # extend the BIM dictionary
-    BIM.update(
-        dict(
-            RoofCover=roof_cover,
-            RoofDeckAttachmentM=MRDA,
-            WindDebrisClass=WIDD,
-            Shutters=shutters,
-        )
-    )
+    BIM.update(dict(
+        RoofCover = roof_cover,
+        RoofDeckAttachmentM = MRDA,
+        WindDebrisClass = WIDD,
+        Shutters=shutters
+        ))
 
-    bldg_config = (
-        f"{bldg_tag}."
-        f"{roof_cover}."
-        f"{WIDD}."
-        f"{MRDA}."
-        f"{int(shutters)}."
-        f"{int(BIM['TerrainRoughness'])}"
-    )
+    bldg_config = f"{bldg_tag}." \
+                  f"{roof_cover}." \
+                  f"{WIDD}." \
+                  f"{MRDA}." \
+                  f"{int(shutters)}." \
+                  f"{int(BIM['TerrainRoughness'])}"
 
     return bldg_config
-
 
 def HUEFS_config(BIM):
     """
@@ -305,29 +292,25 @@ def HUEFS_config(BIM):
     else:
         MRDA = 'std'  # standard
 
-    if BIM['NumberOfStories'] <= 2:
+    if BIM['NumberOfStories'] <=2:
         bldg_tag = 'HUEF.S.M'
     else:
         bldg_tag = 'HUEF.S.L'
 
     # extend the BIM dictionary
-    BIM.update(
-        dict(
-            RoofCover=roof_cover,
-            RoofDeckAttachmentM=MRDA,
-            WindDebrisClass=WIDD,
-            Shutters=shutters,
-        )
-    )
+    BIM.update(dict(
+        RoofCover = roof_cover,
+        RoofDeckAttachmentM = MRDA,
+        WindDebrisClass = WIDD,
+        Shutters=shutters
+        ))
 
-    bldg_config = (
-        f"{bldg_tag}."
-        f"{roof_cover}."
-        f"{int(shutters)}."
-        f"{WIDD}."
-        f"null."
-        f"{MRDA}."
-        f"{int(BIM['TerrainRoughness'])}"
-    )
+    bldg_config = f"{bldg_tag}." \
+                  f"{roof_cover}." \
+                  f"{int(shutters)}." \
+                  f"{WIDD}." \
+                  f"null." \
+                  f"{MRDA}." \
+                  f"{int(BIM['TerrainRoughness'])}"
 
     return bldg_config

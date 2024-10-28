@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # Copyright (c) 2018 Leland Stanford Junior University
 # Copyright (c) 2018 The Regents of the University of California
@@ -33,16 +32,8 @@
 #
 # You should have received a copy of the BSD 3-Clause License along with
 # pelicun. If not, see <http://www.opensource.org/licenses/>.
-#
-# Contributors:
-# Adam Zsarnóczay
-# John Vouvakis Manousakis
 
-"""
-This module defines pelicun warning classes and relevant methods.
-It also defines pelicun errors.
-
-"""
+"""Pelicun warning and error classes."""
 
 from __future__ import annotations
 
@@ -57,11 +48,15 @@ class PelicunInvalidConfigError(Exception):
 
     Attributes
     ----------
-    message : str
+    message: str
         Explanation of the error.
+
     """
 
-    def __init__(self, message="Invalid options in configuration file."):
+    def __init__(
+        self, message: str = 'Invalid options in configuration file.'
+    ) -> None:
+        """Instantiate the error."""
         self.message = message
         super().__init__(self.message)
 
@@ -76,7 +71,11 @@ class InconsistentUnitsError(Exception):
         Explanation of the error.
     """
 
-    def __init__(self, message="Inconsistent units.", file=None):
+    def __init__(
+        self, message: str = 'Inconsistent units.', file: str | None = None
+    ) -> None:
+        self.message: str
+
         if file:
             self.message = f'{self.message}\n' f'File: {file}'
         else:

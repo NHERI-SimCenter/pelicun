@@ -1,32 +1,44 @@
 #!/bin/bash
 
-# # Run ruff for linting
-# ruff check pelicun
-# if [ $? -ne 0 ]; then
-#     echo "ruff failed."
-# fi
-
-# Run flake8 for linting
-flake8 pelicun
+# Spell-check
+echo "Spell-checking."
+echo
+codespell .
 if [ $? -ne 0 ]; then
-    echo "flake8 failed."
+    echo "Spell-checking failed."
+    exit 1
 fi
 
-# # Run pylint for additional linting
-# pylint -j0 pelicun
-# if [ $? -ne 0 ]; then
-#     echo "pylint failed. Exiting."
-#     exit 1
-# fi
+# Check formatting with ruff
+echo "Checking formatting with 'ruff format --diff'."
+echo
+ruff format --diff
+if [ $? -ne 0 ]; then
+    echo "ruff format failed."
+    exit 1
+fi
 
-# # Run mypy for type checking
-# mypy pelicun --no-namespace-packages
-# if [ $? -ne 0 ]; then
-#     echo "mypy failed. Exiting."
-#     exit 1
-# fi
+# Run ruff for linting
+echo "Linting with 'ruff check --fix'."
+echo
+ruff check --fix --output-format concise
+if [ $? -ne 0 ]; then
+    echo "ruff check failed."
+    exit 1
+fi
+
+# Run mypy for type checking
+echo "Type checking with mypy."
+echo
+mypy pelicun
+if [ $? -ne 0 ]; then
+    echo "mypy failed. Exiting."
+    exit 1
+fi
 
 # Run pytest for testing and generate coverage report
+echo "Running unit-tests."
+echo
 python -m pytest pelicun/tests --cov=pelicun --cov-report html -n auto
 if [ $? -ne 0 ]; then
     echo "pytest failed. Exiting."
@@ -34,3 +46,4 @@ if [ $? -ne 0 ]; then
 fi
 
 echo "All checks passed successfully."
+echo

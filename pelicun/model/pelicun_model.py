@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # Copyright (c) 2018 Leland Stanford Junior University
 # Copyright (c) 2018 The Regents of the University of California
@@ -38,18 +37,17 @@
 # Adam Zsarnóczay
 # John Vouvakis Manousakis
 
-"""
-This file defines the PelicunModel object and its methods.
 
-"""
+"""PelicunModel object and associated methods."""
 
 from __future__ import annotations
-from typing import TYPE_CHECKING
-from typing import Any
+
+from typing import TYPE_CHECKING, Any
+
 import numpy as np
 import pandas as pd
-from pelicun import base
-from pelicun import uq
+
+from pelicun import base, uq
 
 if TYPE_CHECKING:
     from pelicun.assessment import AssessmentBase
@@ -58,14 +56,20 @@ idx = base.idx
 
 
 class PelicunModel:
-    """
-    Generic model class to manage methods shared between all models in Pelicun.
-
-    """
+    """Generic model class to manage methods shared between all models in Pelicun."""
 
     __slots__ = ['_asmnt', 'log']
 
-    def __init__(self, assessment: AssessmentBase):
+    def __init__(self, assessment: AssessmentBase) -> None:
+        """
+        Instantiate PelicunModel objects.
+
+        Parameters
+        ----------
+        assessment: Assessment
+            Parent assessment object.
+
+        """
         # link the PelicunModel object to its AssessmentBase object
         self._asmnt: AssessmentBase = assessment
 
@@ -73,16 +77,17 @@ class PelicunModel:
         # concise syntax
         self.log = self._asmnt.log
 
-    def _convert_marginal_params(
+    def _convert_marginal_params(  # noqa: C901
         self,
         marginal_params: pd.DataFrame,
         units: pd.Series,
         arg_units: pd.Series | None = None,
+        *,
         divide_units: bool = True,
         inverse_conversion: bool = False,
     ) -> pd.DataFrame:
         """
-        Converts the parameters of marginal distributions in a model to SI units.
+        Convert the parameters of marginal distributions in a model to SI units.
 
         Parameters
         ----------
@@ -143,10 +148,10 @@ class PelicunModel:
                 marginal_params[col_name] = np.nan
 
         # get a list of unique units
-        unique_units = units.unique()
+        unique_units = units.dropna().unique()
 
         # for each unit
-        for unit_name in unique_units:
+        for unit_name in unique_units:  # noqa: PLR1702
             # get the scale factor for converting from the source unit
             unit_factor = self._asmnt.calc_unit_scale_factor(unit_name)
 
@@ -156,7 +161,7 @@ class PelicunModel:
             # for each variable
             for row_id in unit_ids:
                 # pull the parameters of the marginal distribution
-                family = marginal_params.at[row_id, 'Family']
+                family = marginal_params.loc[row_id, 'Family']
 
                 if family == 'empirical':
                     continue
@@ -164,7 +169,7 @@ class PelicunModel:
                 # load the theta values
                 theta = marginal_params.loc[
                     row_id, ['Theta_0', 'Theta_1', 'Theta_2']
-                ].values
+                ].to_numpy()
 
                 # for each theta
                 args: list[Any] = []
@@ -225,7 +230,10 @@ class PelicunModel:
                 if inverse_conversion:
                     conversion_factor = 1.00 / conversion_factor
                 theta, tr_limits = uq.scale_distribution(  # type: ignore
-                    conversion_factor, family, theta, tr_limits  # type: ignore
+                    conversion_factor,
+                    family,
+                    theta,
+                    tr_limits,  # type: ignore
                 )
 
                 # convert multilinear function parameters back into strings
@@ -234,7 +242,7 @@ class PelicunModel:
                         theta[a_i] = '|'.join(
                             [
                                 ','.join([f'{val:g}' for val in vals])
-                                for vals in (theta[a_i], args[a_i])
+                                for vals in (theta[a_i], arg)
                             ]
                         )
 
@@ -248,14 +256,14 @@ class PelicunModel:
                 )
 
         # remove the added columns
-        marginal_params = marginal_params[original_cols]
-
-        return marginal_params
+        return marginal_params[original_cols]
 
     def _get_locations(self, loc_str: str) -> np.ndarray:
         """
-        Parses a location string to determine specific sections of
-        an asset to be processed.
+        Parse a location string.
+
+        Parses a location string to determine specific sections of an
+        asset to be processed.
 
         This function interprets various string formats to output
         a list of strings representing sections or parts of the
@@ -265,7 +273,7 @@ class PelicunModel:
 
         Parameters
         ----------
-        loc_str : str
+        loc_str: str
             A string that describes the location or range of
             sections in the asset.  It can be a single number, a
             range, a comma-separated list, 'all', 'top', or
@@ -307,6 +315,7 @@ class PelicunModel:
 
         >>> _get_locations('roof')
         array(['11'])
+
         """
         try:
             res = str(int(float(loc_str)))
@@ -315,33 +324,36 @@ class PelicunModel:
         except ValueError as exc:
             stories = self._asmnt.stories
 
-            if "--" in loc_str:
+            if '--' in loc_str:
                 s_low, s_high = loc_str.split('--')
                 s_low = self._get_locations(s_low)[0]
                 s_high = self._get_locations(s_high)[0]
                 return np.arange(int(s_low), int(s_high) + 1).astype(str)
 
-            if "," in loc_str:
+            if ',' in loc_str:
                 return np.array(loc_str.split(','), dtype=int).astype(str)
 
-            if loc_str == "all":
+            if loc_str == 'all':
                 assert stories is not None
                 return np.arange(1, stories + 1).astype(str)
 
-            if loc_str == "top":
+            if loc_str == 'top':
                 assert stories is not None
                 return np.array([stories]).astype(str)
 
-            if loc_str == "roof":
+            if loc_str == 'roof':
                 assert stories is not None
                 return np.array([stories + 1]).astype(str)
 
-            raise ValueError(f"Cannot parse location string: " f"{loc_str}") from exc
+            msg = f'Cannot parse location string: ' f'{loc_str}'
+            raise ValueError(msg) from exc
 
     def _get_directions(self, dir_str: str | None) -> np.ndarray:
         """
-        Parses a direction string to determine specific
-        orientations or directions applicable within an asset.
+        Parse a direction string.
+
+        Parses a direction string to determine specific orientations
+        or directions applicable within an asset.
 
         This function processes direction descriptions to output
         an array of strings, each representing a specific
@@ -351,7 +363,7 @@ class PelicunModel:
 
         Parameters
         ----------
-        dir_str : str or None
+        dir_str: str or None
             A string that describes the direction or range of
             directions in the asset. It can be a single number, a
             range, a comma-separated list, or it can be null,
@@ -388,8 +400,9 @@ class PelicunModel:
 
         >>> get_directions('1,2,5')
         array(['1', '2', '5'])
+
         """
-        if pd.isnull(dir_str):
+        if pd.isna(dir_str):
             return np.ones(1).astype(str)
 
         try:
@@ -397,24 +410,21 @@ class PelicunModel:
             return np.array([res])
 
         except ValueError as exc:
-            if "," in dir_str:  # type: ignore
+            if ',' in dir_str:  # type: ignore
                 return np.array(
                     dir_str.split(','),  # type: ignore
                     dtype=int,
-                ).astype(
-                    str
-                )  # type: ignore
+                ).astype(str)  # type: ignore
 
-            if "--" in dir_str:  # type: ignore
+            if '--' in dir_str:  # type: ignore
                 d_low, d_high = dir_str.split('--')  # type: ignore
                 d_low = self._get_directions(d_low)[0]
                 d_high = self._get_directions(d_high)[0]
                 return np.arange(int(d_low), int(d_high) + 1).astype(str)
 
             # else:
-            raise ValueError(
-                f"Cannot parse direction string: " f"{dir_str}"
-            ) from exc
+            msg = f'Cannot parse direction string: ' f'{dir_str}'
+            raise ValueError(msg) from exc
 
     def query_error_setup(self, path: str) -> str | bool:
         """

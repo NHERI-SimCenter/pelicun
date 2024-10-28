@@ -44,7 +44,8 @@
 # Tracy Kijewski-Correa
 
 import random
-
+import numpy as np
+import datetime
 
 def MERB_config(BIM):
     """
@@ -62,7 +63,7 @@ def MERB_config(BIM):
         class.
     """
 
-    year = BIM['YearBuilt']  # just for the sake of brevity
+    year = BIM['YearBuilt'] # just for the sake of brevity
 
     # Roof cover
     if BIM['RoofShape'] in ['gab', 'hip']:
@@ -86,13 +87,14 @@ def MERB_config(BIM):
 
     # Wind Debris (widd in HAZSU)
     # HAZUS A: Res/Comm, B: Varies by direction, C: Residential, D: None
-    WIDD = 'C'  # residential (default)
-    if BIM['OccupancyClass'] in ['RES1', 'RES2', 'RES3A', 'RES3B', 'RES3C', 'RES3D']:
-        WIDD = 'C'  # residential
+    WIDD = 'C' # residential (default)
+    if BIM['OccupancyClass'] in ['RES1', 'RES2', 'RES3A', 'RES3B', 'RES3C',
+                                 'RES3D']:
+        WIDD = 'C' # residential
     elif BIM['OccupancyClass'] == 'AGR1':
-        WIDD = 'D'  # None
+        WIDD = 'D' # None
     else:
-        WIDD = 'A'  # Res/Comm
+        WIDD = 'A' # Res/Comm
 
     # Metal RDA
     # 1507.2.8.1 High Wind Attachment.
@@ -122,24 +124,20 @@ def MERB_config(BIM):
         bldg_tag = 'M.ERB.H'
 
     # extend the BIM dictionary
-    BIM.update(
-        dict(
-            RoofCover=roof_cover,
-            RoofDeckAttachmentM=MRDA,
-            Shutters=shutters,
-            WindowAreaRatio=WWR,
-            WindDebrisClass=WIDD,
-        )
-    )
+    BIM.update(dict(
+        RoofCover = roof_cover,
+        RoofDeckAttachmentM = MRDA,
+        Shutters = shutters,
+        WindowAreaRatio = WWR,
+        WindDebrisClass = WIDD
+        ))
 
-    bldg_config = (
-        f"{bldg_tag}."
-        f"{roof_cover}."
-        f"{int(shutters)}."
-        f"{WIDD}."
-        f"{MRDA}."
-        f"{WWR}."
-        f"{int(BIM['TerrainRoughness'])}"
-    )
+    bldg_config = f"{bldg_tag}." \
+                  f"{roof_cover}." \
+                  f"{int(shutters)}." \
+                  f"{WIDD}." \
+                  f"{MRDA}." \
+                  f"{WWR}." \
+                  f"{int(BIM['TerrainRoughness'])}"
 
     return bldg_config

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # Copyright (c) 2018 Leland Stanford Junior University
 # Copyright (c) 2018 The Regents of the University of California
@@ -38,47 +37,47 @@
 # Adam Zsarnóczay
 # John Vouvakis Manousakis
 
-"""
-These are unit and integration tests on the base module of pelicun.
-"""
+"""These are unit and integration tests on the base module of pelicun."""
 
 from __future__ import annotations
-import os
+
+import argparse
 import io
 import re
 import tempfile
 from contextlib import redirect_stdout
-import argparse
-import pytest
-import pandas as pd
-import numpy as np
-from pelicun import base
+from pathlib import Path
 
+import numpy as np
+import pandas as pd
+import pytest
+
+from pelicun import base
+from pelicun.base import ensure_value
 
 # The tests maintain the order of definitions of the `base.py` file.
 
 
-def test_options_init():
-
+def test_options_init() -> None:
     temp_dir = tempfile.mkdtemp()
 
     # Create a sample user_config_options dictionary
     user_config_options = {
-        "Verbose": False,
-        "Seed": None,
-        "LogShowMS": False,
-        "LogFile": f'{temp_dir}/test_log_file',
-        "PrintLog": False,
-        "DemandOffset": {"PFA": -1, "PFV": -1},
-        "Sampling": {
-            "SamplingMethod": "MonteCarlo",
-            "SampleSize": 1000,
-            "PreserveRawOrder": False,
+        'Verbose': False,
+        'Seed': None,
+        'LogShowMS': False,
+        'LogFile': f'{temp_dir}/test_log_file',
+        'PrintLog': False,
+        'DemandOffset': {'PFA': -1, 'PFV': -1},
+        'Sampling': {
+            'SamplingMethod': 'MonteCarlo',
+            'SampleSize': 1000,
+            'PreserveRawOrder': False,
         },
-        "SamplingMethod": "MonteCarlo",
-        "NonDirectionalMultipliers": {"ALL": 1.2},
-        "EconomiesOfScale": {"AcrossFloors": True, "AcrossDamageStates": True},
-        "RepairCostAndTimeCorrelation": 0.7,
+        'SamplingMethod': 'MonteCarlo',
+        'NonDirectionalMultipliers': {'ALL': 1.2},
+        'EconomiesOfScale': {'AcrossFloors': True, 'AcrossDamageStates': True},
+        'RepairCostAndTimeCorrelation': 0.7,
     }
 
     # Create an Options object using the user_config_options
@@ -95,13 +94,13 @@ def test_options_init():
     assert options.demand_offset == {'PFA': -1, 'PFV': -1}
     assert options.nondir_multi_dict == {'ALL': 1.2}
     assert options.rho_cost_time == 0.7
-    assert options.eco_scale == {"AcrossFloors": True, "AcrossDamageStates": True}
+    assert options.eco_scale == {'AcrossFloors': True, 'AcrossDamageStates': True}
 
     # Check that the Logger object attribute of the Options object is
     # initialized with the correct parameters
     assert options.log.verbose is False
     assert options.log.log_show_ms is False
-    assert os.path.basename(options.log.log_file) == 'test_log_file'
+    assert Path(ensure_value(options.log.log_file)).name == 'test_log_file'
     assert options.log.print_log is False
 
     # test seed property and setter
@@ -109,16 +108,15 @@ def test_options_init():
     assert options.seed == 42
 
     # test rng
-    # pylint: disable=c-extension-no-member
     assert isinstance(options.rng, np.random._generator.Generator)
 
 
-def test_nondir_multi():
+def test_nondir_multi() -> None:
     options = base.Options({'NonDirectionalMultipliers': {'PFA': 1.5, 'PFV': 1.00}})
     assert options.nondir_multi_dict == {'PFA': 1.5, 'PFV': 1.0, 'ALL': 1.2}
 
 
-def test_logger_init():
+def test_logger_init() -> None:
     # Test that the Logger object is initialized with the correct
     # attributes based on the input configuration
 
@@ -130,10 +128,10 @@ def test_logger_init():
         'log_file': f'{temp_dir}/log.txt',
         'print_log': True,
     }
-    log = base.Logger(**log_config)
+    log = base.Logger(**log_config)  # type: ignore
     assert log.verbose is True
     assert log.log_show_ms is False
-    assert os.path.basename(log.log_file) == 'log.txt'
+    assert Path(ensure_value(log.log_file)).name == 'log.txt'
     assert log.print_log is True
 
     # test exceptions
@@ -144,11 +142,10 @@ def test_logger_init():
         'print_log': True,
     }
     with pytest.raises((IsADirectoryError, FileExistsError, FileNotFoundError)):
-        log = base.Logger(**log_config)
+        log = base.Logger(**log_config)  # type: ignore
 
 
-def test_logger_msg():
-
+def test_logger_msg() -> None:
     temp_dir = tempfile.mkdtemp()
 
     # Test that the msg method prints the correct message to the
@@ -159,20 +156,20 @@ def test_logger_msg():
         'log_file': f'{temp_dir}/log.txt',
         'print_log': True,
     }
-    log = base.Logger(**log_config)
+    log = base.Logger(**log_config)  # type: ignore
     # Check that the message is printed to the console
     with io.StringIO() as buf, redirect_stdout(buf):
         log.msg('This is a message')
         output = buf.getvalue()
     assert 'This is a message' in output
     # Check that the message is written to the log file
-    with open(f'{temp_dir}/log.txt', 'r', encoding='utf-8') as f:
+    with Path(f'{temp_dir}/log.txt').open(encoding='utf-8') as f:
         assert 'This is a message' in f.read()
 
     # Check if timestamp is printed
     with io.StringIO() as buf, redirect_stdout(buf):
         log.msg(
-            ('This is a message\nSecond line'),  # noqa
+            ('This is a message\nSecond line'),
             prepend_timestamp=True,
         )
         output = buf.getvalue()
@@ -180,8 +177,7 @@ def test_logger_msg():
         assert re.search(pattern, output) is not None
 
 
-def test_logger_div():
-
+def test_logger_div() -> None:
     temp_dir = tempfile.mkdtemp()
 
     # We test the divider with and without the timestamp
@@ -199,7 +195,7 @@ def test_logger_div():
             'log_file': f'{temp_dir}/log.txt',
             'print_log': True,
         }
-        log = base.Logger(**log_config)
+        log = base.Logger(**log_config)  # type: ignore
 
         # check console output
         with io.StringIO() as buf, redirect_stdout(buf):
@@ -207,25 +203,24 @@ def test_logger_div():
             output = buf.getvalue()
         assert pattern.match(output)
         # check log file
-        with open(f'{temp_dir}/log.txt', 'r', encoding='utf-8') as f:
+        with Path(f'{temp_dir}/log.txt').open(encoding='utf-8') as f:
             # simply check that it is not empty
             assert f.read()
 
 
-def test_split_file_name():
-    file_path = "example.file.name.txt"
+def test_split_file_name() -> None:
+    file_path = 'example.file.name.txt'
     name, extension = base.split_file_name(file_path)
     assert name == 'example.file.name'
     assert extension == '.txt'
 
-    file_path = "example"
+    file_path = 'example'
     name, extension = base.split_file_name(file_path)
     assert name == 'example'
-    assert extension == ''
+    assert extension == ''  # noqa: PLC1901
 
 
-def test_print_system_info():
-
+def test_print_system_info() -> None:
     temp_dir = tempfile.mkdtemp()
 
     # create a logger object
@@ -235,7 +230,7 @@ def test_print_system_info():
         'log_file': f'{temp_dir}/log.txt',
         'print_log': True,
     }
-    log = base.Logger(**log_config)
+    log = base.Logger(**log_config)  # type: ignore
 
     # run print_system_info and get the console output
     with io.StringIO() as buf, redirect_stdout(buf):
@@ -246,7 +241,7 @@ def test_print_system_info():
     assert 'System Information:\n' in output
 
 
-def test_update_vals():
+def test_update_vals() -> None:
     primary = {'b': {'c': 4, 'd': 5}, 'g': 7}
     update = {'a': 1, 'b': {'c': 3, 'd': 5}, 'f': 6}
     base.update_vals(update, primary, 'update', 'primary')
@@ -262,18 +257,18 @@ def test_update_vals():
 
     primary = {'a': {'b': 4}}
     update = {'a': {'b': {'c': 3}}}
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match='should not map to a dictionary'):
         base.update_vals(update, primary, 'update', 'primary')
 
     primary = {'a': {'b': 3}}
     update = {'a': 1, 'b': 2}
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match='should map to a dictionary'):
         base.update_vals(update, primary, 'update', 'primary')
 
 
-def test_merge_default_config():
+def test_merge_default_config() -> None:
     # Test merging an empty user config with the default config
-    user_config = {}
+    user_config: dict[str, object] | None = {}
     merged_config = base.merge_default_config(user_config)
     assert merged_config == base.load_default_options()
 
@@ -302,7 +297,7 @@ def test_merge_default_config():
     assert merged_config == {**base.load_default_options(), **user_config}
 
 
-def test_convert_dtypes():
+def test_convert_dtypes() -> None:
     # All columns able to be converted
 
     # Input DataFrame
@@ -368,45 +363,45 @@ def test_convert_dtypes():
     )
 
 
-def test_convert_to_SimpleIndex():
+def test_convert_to_SimpleIndex() -> None:
     # Test conversion of a multiindex to a simple index following the
     # SimCenter dash convention
     index = pd.MultiIndex.from_tuples((('a', 'b'), ('c', 'd')))
-    df = pd.DataFrame([[1, 2], [3, 4]], index=index)
-    df.index.names = ['name_1', 'name_2']
-    df_simple = base.convert_to_SimpleIndex(df, axis=0)
-    assert df_simple.index.tolist() == ['a-b', 'c-d']
-    assert df_simple.index.name == '-'.join(df.index.names)
+    data = pd.DataFrame([[1, 2], [3, 4]], index=index)
+    data.index.names = ['name_1', 'name_2']
+    data_simple = base.convert_to_SimpleIndex(data, axis=0)
+    assert data_simple.index.tolist() == ['a-b', 'c-d']
+    assert data_simple.index.name == '-'.join(data.index.names)
 
     # Test inplace modification
-    df_inplace = df.copy()
+    df_inplace = data.copy()
     base.convert_to_SimpleIndex(df_inplace, axis=0, inplace=True)
     assert df_inplace.index.tolist() == ['a-b', 'c-d']
-    assert df_inplace.index.name == '-'.join(df.index.names)
+    assert df_inplace.index.name == '-'.join(data.index.names)
 
     # Test conversion of columns
     index = pd.MultiIndex.from_tuples((('a', 'b'), ('c', 'd')))
-    df = pd.DataFrame([[1, 2], [3, 4]], columns=index)
-    df.columns.names = ['name_1', 'name_2']
-    df_simple = base.convert_to_SimpleIndex(df, axis=1)
-    assert df_simple.columns.tolist() == ['a-b', 'c-d']
-    assert df_simple.columns.name == '-'.join(df.columns.names)
+    data = pd.DataFrame([[1, 2], [3, 4]], columns=index)
+    data.columns.names = ['name_1', 'name_2']
+    data_simple = base.convert_to_SimpleIndex(data, axis=1)
+    assert data_simple.columns.tolist() == ['a-b', 'c-d']
+    assert data_simple.columns.name == '-'.join(data.columns.names)
 
     # Test inplace modification
-    df_inplace = df.copy()
+    df_inplace = data.copy()
     base.convert_to_SimpleIndex(df_inplace, axis=1, inplace=True)
     assert df_inplace.columns.tolist() == ['a-b', 'c-d']
-    assert df_inplace.columns.name == '-'.join(df.columns.names)
+    assert df_inplace.columns.name == '-'.join(data.columns.names)
 
     # Test invalid axis parameter
-    with pytest.raises(ValueError):
-        base.convert_to_SimpleIndex(df, axis=2)
+    with pytest.raises(ValueError, match='Invalid axis parameter: 2'):
+        base.convert_to_SimpleIndex(data, axis=2)
 
 
-def test_convert_to_MultiIndex():
+def test_convert_to_MultiIndex() -> None:
     # Test a case where the index needs to be converted to a MultiIndex
     data = pd.DataFrame({'A': (1, 2, 3), 'B': (4, 5, 6)})
-    data.index = ('A-1', 'B-1', 'C-1')
+    data.index = pd.Index(['A-1', 'B-1', 'C-1'])
     data_converted = base.convert_to_MultiIndex(data, axis=0, inplace=False)
     expected_index = pd.MultiIndex.from_arrays((('A', 'B', 'C'), ('1', '1', '1')))
     assert data_converted.index.equals(expected_index)
@@ -414,8 +409,8 @@ def test_convert_to_MultiIndex():
     assert data.index.equals(pd.Index(('A-1', 'B-1', 'C-1')))
 
     # Test a case where the index is already a MultiIndex
-    data_converted = base.convert_to_MultiIndex(
-        data_converted, axis=0, inplace=False
+    data_converted = pd.DataFrame(
+        base.convert_to_MultiIndex(data_converted, axis=0, inplace=False)
     )
     assert data_converted.index.equals(expected_index)
 
@@ -428,42 +423,39 @@ def test_convert_to_MultiIndex():
     assert data.columns.equals(pd.Index(('A-1', 'B-1')))
 
     # Test a case where the columns are already a MultiIndex
-    data_converted = base.convert_to_MultiIndex(
-        data_converted, axis=1, inplace=False
+    data_converted = pd.DataFrame(
+        base.convert_to_MultiIndex(data_converted, axis=1, inplace=False)
     )
     assert data_converted.columns.equals(expected_columns)
 
     # Test an invalid axis parameter
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match='Invalid axis parameter: 2'):
         base.convert_to_MultiIndex(data_converted, axis=2, inplace=False)
 
     # inplace=True
     data = pd.DataFrame({'A': (1, 2, 3), 'B': (4, 5, 6)})
-    data.index = ('A-1', 'B-1', 'C-1')
+    data.index = pd.Index(['A-1', 'B-1', 'C-1'])
     base.convert_to_MultiIndex(data, axis=0, inplace=True)
     expected_index = pd.MultiIndex.from_arrays((('A', 'B', 'C'), ('1', '1', '1')))
     assert data.index.equals(expected_index)
 
 
-def test_show_matrix():
+def test_show_matrix() -> None:
     # Test with a simple 2D array
-    arr = ((1, 2, 3), (4, 5, 6))
+    arr = np.array(((1, 2, 3), (4, 5, 6)))
     base.show_matrix(arr)
-    assert True  # if no AssertionError is thrown, then the test passes
 
     # Test with a DataFrame
-    df = pd.DataFrame(((1, 2, 3), (4, 5, 6)), columns=('a', 'b', 'c'))
-    base.show_matrix(df)
-    assert True  # if no AssertionError is thrown, then the test passes
+    data = pd.DataFrame(((1, 2, 3), (4, 5, 6)), columns=('a', 'b', 'c'))
+    base.show_matrix(data)
 
     # Test with use_describe=True
     base.show_matrix(arr, use_describe=True)
-    assert True  # if no AssertionError is thrown, then the test passes
 
 
-def test_multiply_factor_multiple_levels():
+def test_multiply_factor_multiple_levels() -> None:
     # Original DataFrame definition
-    df = pd.DataFrame(
+    data = pd.DataFrame(
         np.full((5, 3), 1.00),
         index=pd.MultiIndex.from_tuples(
             [
@@ -501,7 +493,7 @@ def test_multiply_factor_multiple_levels():
         ),
         columns=['col1', 'col2', 'col3'],
     )
-    test_df = df.copy()
+    test_df = data.copy()
     base.multiply_factor_multiple_levels(test_df, {'lv1': 'A', 'lv2': 'X'}, 2)
     pd.testing.assert_frame_equal(
         test_df,
@@ -523,7 +515,7 @@ def test_multiply_factor_multiple_levels():
         ),
         columns=['col1', 'col2', 'col3'],
     )
-    test_df = df.copy()
+    test_df = data.copy()
     base.multiply_factor_multiple_levels(test_df, {}, 3)
     pd.testing.assert_frame_equal(test_df, result_df_all)
 
@@ -572,16 +564,14 @@ def test_multiply_factor_multiple_levels():
     )
 
     # Test 4: Multiplication with no matching conditions
-    with pytest.raises(ValueError) as excinfo:
-        base.multiply_factor_multiple_levels(df.copy(), {'lv1': 'C'}, 2)
-    assert (
-        str(excinfo.value) == "No rows found matching the conditions: `{'lv1': 'C'}`"
-    )
+    with pytest.raises(
+        ValueError, match="No rows found matching the conditions: `{'lv1': 'C'}`"
+    ):
+        base.multiply_factor_multiple_levels(data.copy(), {'lv1': 'C'}, 2)
 
     # Test 5: Invalid axis
-    with pytest.raises(ValueError) as excinfo:
-        base.multiply_factor_multiple_levels(df.copy(), {'lv1': 'A'}, 2, axis=2)
-    assert str(excinfo.value) == "Invalid axis: `2`"
+    with pytest.raises(ValueError, match='Invalid axis: `2`'):
+        base.multiply_factor_multiple_levels(data.copy(), {'lv1': 'A'}, 2, axis=2)
 
     # Test 6: Empty conditions affecting all rows
     result_df_empty = pd.DataFrame(
@@ -598,13 +588,13 @@ def test_multiply_factor_multiple_levels():
         ),
         columns=['col1', 'col2', 'col3'],
     )
-    testing_df = df.copy()
+    testing_df = data.copy()
     base.multiply_factor_multiple_levels(testing_df, {}, 4)
     pd.testing.assert_frame_equal(testing_df, result_df_empty)
 
 
-def test_describe():
-    expected_idx = pd.Index(
+def test_describe() -> None:
+    expected_idx: pd.Index = pd.Index(
         (
             'count',
             'mean',
@@ -628,10 +618,10 @@ def test_describe():
     # case 1:
     # passing a DataFrame
 
-    df = pd.DataFrame(
+    data = pd.DataFrame(
         ((1.00, 2.00, 3.00), (4.00, 5.00, 6.00)), columns=['A', 'B', 'C']
     )
-    desc = base.describe(df)
+    desc = base.describe(data)
     assert np.all(desc.index == expected_idx)
     assert np.all(desc.columns == pd.Index(('A', 'B', 'C'), dtype='object'))
 
@@ -658,7 +648,7 @@ def test_describe():
     assert np.all(desc.columns == pd.Index((0,), dtype='object'))
 
 
-def test_str2bool():
+def test_str2bool() -> None:
     assert base.str2bool('True') is True
     assert base.str2bool('False') is False
     assert base.str2bool('yes') is True
@@ -667,21 +657,21 @@ def test_str2bool():
     assert base.str2bool('f') is False
     assert base.str2bool('1') is True
     assert base.str2bool('0') is False
-    assert base.str2bool(True) is True
-    assert base.str2bool(False) is False
+    assert base.str2bool(v=True) is True
+    assert base.str2bool(v=False) is False
     with pytest.raises(argparse.ArgumentTypeError):
         base.str2bool('In most cases, it depends..')
 
 
-def test_float_or_None():
+def test_float_or_None() -> None:
     # Test with a string that can be converted to a float
-    assert base.float_or_None('3.14') == 3.14
+    assert base.float_or_None('123.00') == 123.00
 
     # Test with a string that represents an integer
     assert base.float_or_None('42') == 42.0
 
     # Test with a string that represents a negative number
-    assert base.float_or_None('-3.14') == -3.14
+    assert base.float_or_None('-123.00') == -123.00
 
     # Test with a string that can't be converted to a float
     assert base.float_or_None('hello') is None
@@ -690,7 +680,7 @@ def test_float_or_None():
     assert base.float_or_None('') is None
 
 
-def test_int_or_None():
+def test_int_or_None() -> None:
     # Test the case when the string can be converted to int
     assert base.int_or_None('123') == 123
     assert base.int_or_None('-456') == -456
@@ -704,8 +694,8 @@ def test_int_or_None():
     assert base.int_or_None('') is None
 
 
-def test_with_parsed_str_na_values():
-    df = pd.DataFrame(
+def test_with_parsed_str_na_values() -> None:
+    data = pd.DataFrame(
         {
             'A': [1.00, 2.00, 'N/A', 4.00, 5.00],
             'B': ['foo', 'bar', 'NA', 'baz', 'qux'],
@@ -713,7 +703,7 @@ def test_with_parsed_str_na_values():
         }
     )
 
-    res = base.with_parsed_str_na_values(df)
+    res = base.with_parsed_str_na_values(data)
     pd.testing.assert_frame_equal(
         res,
         pd.DataFrame(
@@ -726,17 +716,17 @@ def test_with_parsed_str_na_values():
     )
 
 
-def test_run_input_specs():
-    assert os.path.basename(base.pelicun_path) == 'pelicun'
+def test_run_input_specs() -> None:
+    assert Path(base.pelicun_path).name == 'pelicun'
 
 
-def test_dedupe_index():
+def test_dedupe_index() -> None:
     tuples = [('A', '1'), ('A', '1'), ('B', '2'), ('B', '3')]
     index = pd.MultiIndex.from_tuples(tuples, names=['L1', 'L2'])
     data = np.full((4, 1), 0.00)
-    df = pd.DataFrame(data, index=index)
-    df = base.dedupe_index(df)
-    assert df.to_dict() == {
+    data_pd = pd.DataFrame(data, index=index)
+    data_pd = base.dedupe_index(data_pd)
+    assert data_pd.to_dict() == {
         0: {
             ('A', '1', '0'): 0.0,
             ('A', '1', '1'): 0.0,
@@ -746,90 +736,90 @@ def test_dedupe_index():
     }
 
 
-def test_dict_raise_on_duplicates():
+def test_dict_raise_on_duplicates() -> None:
     res = base.dict_raise_on_duplicates([('A', '1'), ('B', '2')])
     assert res == {'A': '1', 'B': '2'}
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match='duplicate key: A'):
         base.dict_raise_on_duplicates([('A', '1'), ('A', '2')])
 
 
-def test_parse_units():
+def test_parse_units() -> None:
     # Test the default units are parsed correctly
     units = base.parse_units()
     assert isinstance(units, dict)
     expect = {
-        "sec": 1.0,
-        "minute": 60.0,
-        "hour": 3600.0,
-        "day": 86400.0,
-        "m": 1.0,
-        "mm": 0.001,
-        "cm": 0.01,
-        "km": 1000.0,
-        "in": 0.0254,
-        "inch": 0.0254,
-        "ft": 0.3048,
-        "mile": 1609.344,
-        "m2": 1.0,
-        "mm2": 1e-06,
-        "cm2": 0.0001,
-        "km2": 1000000.0,
-        "in2": 0.00064516,
-        "inch2": 0.00064516,
-        "ft2": 0.09290304,
-        "mile2": 2589988.110336,
-        "m3": 1.0,
-        "in3": 1.6387064e-05,
-        "inch3": 1.6387064e-05,
-        "ft3": 0.028316846592,
-        "cmps": 0.01,
-        "mps": 1.0,
-        "mph": 0.44704,
-        "inps": 0.0254,
-        "inchps": 0.0254,
-        "ftps": 0.3048,
-        "mps2": 1.0,
-        "inps2": 0.0254,
-        "inchps2": 0.0254,
-        "ftps2": 0.3048,
-        "g": 9.80665,
-        "kg": 1.0,
-        "ton": 1000.0,
-        "lb": 0.453592,
-        "N": 1.0,
-        "kN": 1000.0,
-        "lbf": 4.4482179868,
-        "kip": 4448.2179868,
-        "kips": 4448.2179868,
-        "Pa": 1.0,
-        "kPa": 1000.0,
-        "MPa": 1000000.0,
-        "GPa": 1000000000.0,
-        "psi": 6894.751669043338,
-        "ksi": 6894751.669043338,
-        "Mpsi": 6894751669.043338,
-        "A": 1.0,
-        "V": 1.0,
-        "kV": 1000.0,
-        "ea": 1.0,
-        "unitless": 1.0,
-        "rad": 1.0,
-        "C": 1.0,
-        "USD_2011": 1.0,
-        "USD": 1.0,
-        "loss_ratio": 1.0,
-        "worker_day": 1.0,
-        "EA": 1.0,
-        "SF": 0.09290304,
-        "LF": 0.3048,
-        "TN": 1000.0,
-        "AP": 1.0,
-        "CF": 0.0004719474432,
-        "KV": 1000.0,
-        "J": 1.0,
-        "MJ": 1000000.0,
-        "test_two": 2.00,
-        "test_three": 3.00,
+        'sec': 1.0,
+        'minute': 60.0,
+        'hour': 3600.0,
+        'day': 86400.0,
+        'm': 1.0,
+        'mm': 0.001,
+        'cm': 0.01,
+        'km': 1000.0,
+        'in': 0.0254,
+        'inch': 0.0254,
+        'ft': 0.3048,
+        'mile': 1609.344,
+        'm2': 1.0,
+        'mm2': 1e-06,
+        'cm2': 0.0001,
+        'km2': 1000000.0,
+        'in2': 0.00064516,
+        'inch2': 0.00064516,
+        'ft2': 0.09290304,
+        'mile2': 2589988.110336,
+        'm3': 1.0,
+        'in3': 1.6387064e-05,
+        'inch3': 1.6387064e-05,
+        'ft3': 0.028316846592,
+        'cmps': 0.01,
+        'mps': 1.0,
+        'mph': 0.44704,
+        'inps': 0.0254,
+        'inchps': 0.0254,
+        'ftps': 0.3048,
+        'mps2': 1.0,
+        'inps2': 0.0254,
+        'inchps2': 0.0254,
+        'ftps2': 0.3048,
+        'g': 9.80665,
+        'kg': 1.0,
+        'ton': 1000.0,
+        'lb': 0.453592,
+        'N': 1.0,
+        'kN': 1000.0,
+        'lbf': 4.4482179868,
+        'kip': 4448.2179868,
+        'kips': 4448.2179868,
+        'Pa': 1.0,
+        'kPa': 1000.0,
+        'MPa': 1000000.0,
+        'GPa': 1000000000.0,
+        'psi': 6894.751669043338,
+        'ksi': 6894751.669043338,
+        'Mpsi': 6894751669.043338,
+        'A': 1.0,
+        'V': 1.0,
+        'kV': 1000.0,
+        'ea': 1.0,
+        'unitless': 1.0,
+        'rad': 1.0,
+        'C': 1.0,
+        'USD_2011': 1.0,
+        'USD': 1.0,
+        'loss_ratio': 1.0,
+        'worker_day': 1.0,
+        'EA': 1.0,
+        'SF': 0.09290304,
+        'LF': 0.3048,
+        'TN': 1000.0,
+        'AP': 1.0,
+        'CF': 0.0004719474432,
+        'KV': 1000.0,
+        'J': 1.0,
+        'MJ': 1000000.0,
+        'test_two': 2.00,
+        'test_three': 3.00,
     }
     for thing, value in units.items():
         assert thing in expect
@@ -851,7 +841,10 @@ def test_parse_units():
     # Test that an exception is raised if the additional units file is
     # not a valid JSON file
     invalid_json_file = 'pelicun/tests/basic/data/base/test_parse_units/invalid.json'
-    with pytest.raises(ValueError):
+    with pytest.raises(
+        ValueError,
+        match='not a valid JSON file.',
+    ):
         units = base.parse_units(invalid_json_file)
 
     # Test that an exception is raised if a unit is defined twice in
@@ -859,7 +852,10 @@ def test_parse_units():
     duplicate_units_file = (
         'pelicun/tests/basic/data/base/test_parse_units/duplicate2.json'
     )
-    with pytest.raises(ValueError):
+    with pytest.raises(
+        ValueError,
+        match='sec defined twice',
+    ):
         units = base.parse_units(duplicate_units_file)
 
     # Test that an exception is raised if a unit conversion factor is not a float
@@ -874,11 +870,14 @@ def test_parse_units():
     invalid_units_file = (
         'pelicun/tests/basic/data/base/test_parse_units/not_dict.json'
     )
-    with pytest.raises(ValueError):
+    with pytest.raises(
+        (ValueError, TypeError),
+        match="contains first-level keys that don't point to a dictionary",
+    ):
         units = base.parse_units(invalid_units_file)
 
 
-def test_unit_conversion():
+def test_unit_conversion() -> None:
     # Test scalar conversion from feet to meters
     assert base.convert_units(1.00, 'ft', 'm') == 0.3048
 
@@ -901,46 +900,44 @@ def test_unit_conversion():
 
     # Test error handling for invalid input type
     with pytest.raises(TypeError) as excinfo:
-        base.convert_units("one", 'ft', 'm')
+        base.convert_units('one', 'ft', 'm')  # type: ignore
     assert str(excinfo.value) == 'Invalid input type for `values`'
 
     # Test error handling for unknown unit
-    with pytest.raises(ValueError) as excinfo:
+    with pytest.raises(ValueError, match='Unknown unit `xyz`'):
         base.convert_units(1.00, 'xyz', 'm')
-    assert str(excinfo.value) == 'Unknown unit `xyz`'
 
     # Test error handling for mismatched category
-    with pytest.raises(ValueError) as excinfo:
+    with pytest.raises(ValueError, match='Unknown unit: `ft`'):
         base.convert_units(1.00, 'ft', 'm', category='volume')
-    assert str(excinfo.value) == 'Unknown unit: `ft`'
 
     # Test error handling unknown category
-    with pytest.raises(ValueError) as excinfo:
+    with pytest.raises(ValueError, match='Unknown category: `unknown_category`'):
         base.convert_units(1.00, 'ft', 'm', category='unknown_category')
-    assert str(excinfo.value) == 'Unknown category: `unknown_category`'
 
     # Test error handling different categories
-    with pytest.raises(ValueError) as excinfo:
+    with pytest.raises(
+        ValueError,
+        match='`lb` is a `mass` unit, but `m` is not specified in that category.',
+    ):
         base.convert_units(1.00, 'lb', 'm')
-    assert (
-        str(excinfo.value)
-        == '`lb` is a `mass` unit, but `m` is not specified in that category.'
-    )
 
 
-def test_stringterpolation():
+def test_stringterpolation() -> None:
     func = base.stringterpolation('1,2,3|4,5,6')
     x_new = np.array([4, 4.5, 5])
     expected = np.array([1, 1.5, 2])
     np.testing.assert_array_almost_equal(func(x_new), expected)
 
 
-def test_invert_mapping():
+def test_invert_mapping() -> None:
     original_dict = {'a': [1, 2], 'b': [3]}
     expected = {1: 'a', 2: 'a', 3: 'b'}
     assert base.invert_mapping(original_dict) == expected
 
     # with duplicates, raises an error
     original_dict = {'a': [1, 2], 'b': [2]}
-    with pytest.raises(ValueError):
+    with pytest.raises(
+        ValueError, match='Cannot invert mapping with duplicate values.'
+    ):
         base.invert_mapping(original_dict)

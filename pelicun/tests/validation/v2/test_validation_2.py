@@ -1,3 +1,37 @@
+# Copyright (c) 2018 Leland Stanford Junior University
+# Copyright (c) 2018 The Regents of the University of California
+#
+# This file is part of pelicun.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+#
+# 1. Redistributions of source code must retain the above copyright notice,
+# this list of conditions and the following disclaimer.
+#
+# 2. Redistributions in binary form must reproduce the above copyright notice,
+# this list of conditions and the following disclaimer in the documentation
+# and/or other materials provided with the distribution.
+#
+# 3. Neither the name of the copyright holder nor the names of its contributors
+# may be used to endorse or promote products derived from this software without
+# specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+# ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+# LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+# CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+# SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+# INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+# CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+# ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+#
+# You should have received a copy of the BSD 3-Clause License along with
+# pelicun. If not, see <http://www.opensource.org/licenses/>.
+
 """
 Tests a complete loss estimation workflow combining damage state and
 loss function driven components.
@@ -6,24 +40,24 @@ The code is based on PRJ-3411v5 hosted on DesignSafe.
 """
 
 import tempfile
+
 import numpy as np
 import pandas as pd
 import pytest
+
 import pelicun
-from pelicun.warnings import PelicunWarning
-from pelicun import file_io
-from pelicun import assessment
+from pelicun import assessment, file_io
+from pelicun.pelicun_warnings import PelicunWarning
 
 
-def test_combined_workflow():
-
+def test_combined_workflow() -> None:
     temp_dir = tempfile.mkdtemp()
 
     sample_size = 10000
 
     # Initialize a pelicun assessment
     asmnt = assessment.Assessment(
-        {"PrintLog": True, "Seed": 415, "LogFile": f'{temp_dir}/log_file.txt'}
+        {'PrintLog': True, 'Seed': 415, 'LogFile': f'{temp_dir}/log_file.txt'}
     )
 
     asmnt.options.list_all_ds = True
@@ -31,13 +65,15 @@ def test_combined_workflow():
     asmnt.options.eco_scale['AcrossDamageStates'] = True
 
     demand_data = file_io.load_data(
-        'pelicun/tests/validation/2/data/demand_data.csv',
+        'pelicun/tests/validation/v2/data/demand_data.csv',
         unit_conversion_factors=None,
         reindex=False,
     )
     ndims = len(demand_data)
     perfect_correlation = pd.DataFrame(
-        np.ones((ndims, ndims)), columns=demand_data.index, index=demand_data.index
+        np.ones((ndims, ndims)),
+        columns=demand_data.index,  # type: ignore
+        index=demand_data.index,  # type: ignore
     )
 
     #
@@ -45,12 +81,12 @@ def test_combined_workflow():
     #
 
     damage_db = pelicun.file_io.load_data(
-        'pelicun/tests/validation/2/data/additional_damage_db.csv',
+        'pelicun/tests/validation/v2/data/additional_damage_db.csv',
         reindex=False,
         unit_conversion_factors=asmnt.unit_conversion_factors,
     )
     consequences = pelicun.file_io.load_data(
-        'pelicun/tests/validation/2/data/additional_consequences.csv',
+        'pelicun/tests/validation/v2/data/additional_consequences.csv',
         reindex=False,
         unit_conversion_factors=asmnt.unit_conversion_factors,
     )
@@ -60,7 +96,7 @@ def test_combined_workflow():
     #
 
     loss_functions = pelicun.file_io.load_data(
-        'pelicun/tests/validation/2/data/additional_loss_functions.csv',
+        'pelicun/tests/validation/v2/data/additional_loss_functions.csv',
         reindex=False,
         unit_conversion_factors=asmnt.unit_conversion_factors,
     )
@@ -75,34 +111,31 @@ def test_combined_workflow():
     )
 
     # Generate samples
-    asmnt.demand.generate_sample({"SampleSize": sample_size})
+    asmnt.demand.generate_sample({'SampleSize': sample_size})
 
-    def add_more_edps():
-        """
-        Adds SA_1.13 and residual drift to the demand sample.
-
-        """
+    def add_more_edps() -> None:
+        """Adds SA_1.13 and residual drift to the demand sample."""
         # Add residual drift and Sa
-        demand_sample, demand_units = asmnt.demand.save_sample(save_units=True)
+        demand_sample = asmnt.demand.save_sample()
 
         # RIDs are all fixed for testing.
-        RID = pd.concat(
+        rid = pd.concat(
             [
                 pd.DataFrame(
-                    np.full(demand_sample['PID'].shape, 0.0050),
-                    index=demand_sample['PID'].index,
-                    columns=demand_sample['PID'].columns,
+                    np.full(demand_sample['PID'].shape, 0.0050),  # type: ignore
+                    index=demand_sample['PID'].index,  # type: ignore
+                    columns=demand_sample['PID'].columns,  # type: ignore
                 )
             ],
             axis=1,
             keys=['RID'],
         )
-        demand_sample_ext = pd.concat([demand_sample, RID], axis=1)
+        demand_sample_ext = pd.concat([demand_sample, rid], axis=1)  # type: ignore
 
-        demand_sample_ext[('SA_1.13', 0, 1)] = 1.50
+        demand_sample_ext['SA_1.13', 0, 1] = 1.50
 
         # Add units to the data
-        demand_sample_ext.T.insert(0, 'Units', "")
+        demand_sample_ext.T.insert(0, 'Units', '')
 
         # PFA and SA are in "g" in this example, while PID and RID are "rad"
         demand_sample_ext.loc['Units', ['PFA', 'SA_1.13']] = 'g'
@@ -121,7 +154,7 @@ def test_combined_workflow():
 
     # Load component definitions
     cmp_marginals = pd.read_csv(
-        'pelicun/tests/validation/2/data/CMP_marginals.csv', index_col=0
+        'pelicun/tests/validation/v2/data/CMP_marginals.csv', index_col=0
     )
     cmp_marginals['Blocks'] = cmp_marginals['Blocks']
     asmnt.asset.load_cmp_model({'marginals': cmp_marginals})
@@ -145,7 +178,7 @@ def test_combined_workflow():
     # Load the models into pelicun
     asmnt.damage.load_model_parameters(
         [
-            damage_db,
+            damage_db,  # type: ignore
             'PelicunDefault/damage_DB_FEMA_P58_2nd.csv',
         ],
         cmp_set,
@@ -153,8 +186,8 @@ def test_combined_workflow():
 
     # Prescribe the damage process
     dmg_process = {
-        "1_collapse": {"DS1": "ALL_NA"},
-        "2_excessiveRID": {"DS1": "irreparable_DS1"},
+        '1_collapse': {'DS1': 'ALL_NA'},
+        '2_excessiveRID': {'DS1': 'irreparable_DS1'},
     }
 
     # Calculate damages
@@ -165,6 +198,7 @@ def test_combined_workflow():
     asmnt.damage.save_sample(f'{temp_dir}/out.csv')
     asmnt.damage.load_sample(f'{temp_dir}/out.csv')
 
+    assert asmnt.damage.ds_model.sample is not None
     asmnt.damage.ds_model.sample.mean()
 
     #
@@ -184,9 +218,9 @@ def test_combined_workflow():
     with pytest.warns(PelicunWarning):
         asmnt.loss.load_model_parameters(
             [
-                consequences,
-                loss_functions,
-                "PelicunDefault/loss_repair_DB_FEMA_P58_2nd.csv",
+                consequences,  # type: ignore
+                loss_functions,  # type: ignore
+                'PelicunDefault/loss_repair_DB_FEMA_P58_2nd.csv',
             ]
         )
 

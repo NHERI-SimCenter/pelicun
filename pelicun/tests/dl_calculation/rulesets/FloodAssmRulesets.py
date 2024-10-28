@@ -44,6 +44,10 @@
 # Meredith Lockhead
 # Tracy Kijewski-Correa
 
+import random
+import numpy as np
+import datetime
+import math
 
 def Assm_config(BIM):
     """
@@ -60,84 +64,42 @@ def Assm_config(BIM):
         A string that identifies a specific configration within this buidling
         class.
     """
-    year = BIM['YearBuilt']  # just for the sake of brevity
+    year = BIM['YearBuilt'] # just for the sake of brevity
 
     # Flood Type
     if BIM['FloodZone'] in ['AO']:
-        flood_type = 'raz'  # Riverline/A-Zone
+        flood_type = 'raz' # Riverline/A-Zone
     elif BIM['FloodZone'] in ['AE', 'AH', 'A']:
-        flood_type = 'caz'  # Costal/A-Zone
+        flood_type = 'caz' # Costal/A-Zone
     elif BIM['FloodZone'] in ['VE']:
-        flood_type = 'cvz'  # Costal/V-Zone
+        flood_type = 'cvz' # Costal/V-Zone
     else:
-        flood_type = 'caz'  # Default
+        flood_type = 'caz' # Default
 
     # PostFIRM
-    PostFIRM = False  # Default
-    city_list = [
-        'Absecon',
-        'Atlantic',
-        'Brigantine',
-        'Buena',
-        'Buena Vista',
-        'Corbin City',
-        'Egg Harbor City',
-        'Egg Harbor',
-        'Estell Manor',
-        'Folsom',
-        'Galloway',
-        'Hamilton',
-        'Hammonton',
-        'Linwood',
-        'Longport',
-        'Margate City',
-        'Mullica',
-        'Northfield',
-        'Pleasantville',
-        'Port Republic',
-        'Somers Point',
-        'Ventnor City',
-        'Weymouth',
-    ]
-    year_list = [
-        1976,
-        1971,
-        1971,
-        1983,
-        1979,
-        1981,
-        1982,
-        1983,
-        1978,
-        1982,
-        1983,
-        1977,
-        1982,
-        1983,
-        1974,
-        1974,
-        1982,
-        1979,
-        1983,
-        1983,
-        1982,
-        1971,
-        1979,
-    ]
-    for i in range(0, 22):
-        PostFIRM = (
-            (BIM['City'] == city_list[i]) and (year > year_list[i])
-        ) or PostFIRM
+    PostFIRM = False # Default
+    city_list = ['Absecon', 'Atlantic', 'Brigantine', 'Buena', 'Buena Vista',
+                 'Corbin City', 'Egg Harbor City', 'Egg Harbor', 'Estell Manor',
+                 'Folsom', 'Galloway', 'Hamilton', 'Hammonton', 'Linwood',
+                 'Longport', 'Margate City', 'Mullica', 'Northfield',
+                 'Pleasantville', 'Port Republic', 'Somers Point',
+                 'Ventnor City', 'Weymouth']
+    year_list = [1976, 1971, 1971, 1983, 1979, 1981, 1982, 1983, 1978, 1982,
+                 1983, 1977, 1982, 1983, 1974, 1974, 1982, 1979, 1983, 1983,
+                 1982, 1971, 1979]
+    for i in range(0,22):
+        PostFIRM = (((BIM['City'] == city_list[i]) and (year > year_list[i])) or \
+                    PostFIRM)
 
     # fl_assm
-    fl_assm = (
-        f"{'fl_surge_assm'}_"
-        f"{BIM['OccupancyClass']}_"
-        f"{int(PostFIRM)}_"
-        f"{flood_type}"
-    )
+    fl_assm = f"{'fl_surge_assm'}_" \
+              f"{BIM['OccupancyClass']}_" \
+              f"{int(PostFIRM)}_" \
+              f"{flood_type}"
 
     # hu_assm
-    hu_assm = f"{'hu_surge_assm'}_" f"{BIM['OccupancyClass']}_" f"{int(PostFIRM)}"
+    hu_assm = f"{'hu_surge_assm'}_" \
+              f"{BIM['OccupancyClass']}_" \
+              f"{int(PostFIRM)}"
 
     return hu_assm, fl_assm
