@@ -912,6 +912,7 @@ class DLCalculationAssessment(AssessmentBase):
         damage_process_approach: str | None = None,
         damage_process_file_path: str | None = None,
         custom_model_dir: str | None = None,
+        scaling_specification: dict | None = None,
         *,
         is_for_water_network_assessment: bool = False,
     ) -> None:
@@ -929,8 +930,6 @@ class DLCalculationAssessment(AssessmentBase):
             Optional path to a component database file.
         collapse_fragility: dict or None
             Collapse fragility information.
-        is_for_water_network_assessment: bool
-            Whether the assessment is for a water network.
         irreparable_damage: dict or None
             Information for irreparable damage.
         damage_process_approach: str or None
@@ -939,6 +938,16 @@ class DLCalculationAssessment(AssessmentBase):
             Optional path to a damage process file.
         custom_model_dir: str or None
             Optional directory for custom models.
+        scaling_specification: dict, optional
+            A dictionary defining the shift in median.
+            Example: {'CMP-1-1': '*1.2', 'CMP-1-2': '/1.4'}
+            The keys are individual components that should be present
+            in the `capacity_sample`.  The values should be strings
+            containing an operation followed by the value formatted as
+            a float.  The operation can be '+' for addition, '-' for
+            subtraction, '*' for multiplication, and '/' for division.
+        is_for_water_network_assessment: bool
+            Whether the assessment is for a water network.
 
         Raises
         ------
@@ -1210,7 +1219,10 @@ class DLCalculationAssessment(AssessmentBase):
                 )
 
         # calculate damages
-        self.damage.calculate(dmg_process=dmg_process)
+        self.damage.calculate(
+            dmg_process=dmg_process,
+            scaling_specification=scaling_specification,
+        )
 
     def calculate_loss(
         self,
