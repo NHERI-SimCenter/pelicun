@@ -43,6 +43,7 @@ from __future__ import annotations
 
 import argparse
 import io
+import platform
 import re
 import subprocess  # noqa: S404
 import tempfile
@@ -209,6 +210,10 @@ def test_logger_div() -> None:
             assert f.read()
 
 
+@pytest.mark.skipif(
+    platform.system() == 'Windows',
+    reason='Skipping test on Windows due to path handling issues.',
+)
 def test_logger_exception() -> None:
     # Create a temporary directory for log files
     temp_dir = tempfile.mkdtemp()
@@ -218,9 +223,10 @@ def test_logger_exception() -> None:
     test_script_content = f"""
 import sys
 import traceback
+from pathlib import Path
 from pelicun.base import Logger
 
-log_file = "{temp_dir}/log.txt"
+log_file = "{Path(temp_dir) / 'log.txt'}"
 
 log = Logger(log_file=log_file, verbose=True, log_show_ms=True, print_log=True)
 
