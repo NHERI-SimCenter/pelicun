@@ -221,16 +221,26 @@ def test_logger_exception() -> None:
     # Create a sample Python script that will raise an exception
     test_script = Path(temp_dir) / 'test_script.py'
     test_script_content = f"""
-import sys
-import traceback
 from pathlib import Path
 from pelicun.base import Logger
 
-log_file = "{Path(temp_dir) / 'log.txt'}"
+log_file_A = Path("{temp_dir}") / 'log_A.txt'
+log_file_B = Path("{temp_dir}") / 'log_B.txt'
 
-log = Logger(log_file=log_file, verbose=True, log_show_ms=True, print_log=True)
+log_A = Logger(
+    log_file=log_file_A,
+    verbose=True,
+    log_show_ms=True,
+    print_log=True,
+)
+log_B = Logger(
+    log_file=log_file_B,
+    verbose=True,
+    log_show_ms=True,
+    print_log=True,
+)
 
-raise ValueError("Test exception in subprocess")
+raise ValueError('Test exception in subprocess')
 """
 
     # Write the test script to the file
@@ -248,15 +258,19 @@ raise ValueError("Test exception in subprocess")
     assert process.returncode == 1
 
     # Check the stdout/stderr for the expected output
-    assert 'Test exception in subprocess' in process.stderr
+    assert 'Test exception in subprocess' in process.stdout
 
     # Check that the exception was logged in the log file
-    log_file = Path(temp_dir) / 'log.txt'
-    assert log_file.exists(), 'Log file was not created'
-    log_content = log_file.read_text()
-    assert 'Test exception in subprocess' in log_content
-    assert 'Traceback' in log_content
-    assert 'ValueError' in log_content
+    log_files = (
+        Path(temp_dir) / 'log_A_warnings.txt',
+        Path(temp_dir) / 'log_B_warnings.txt',
+    )
+    for log_file in log_files:
+        assert log_file.exists(), 'Log file was not created'
+        log_content = log_file.read_text()
+        assert 'Test exception in subprocess' in log_content
+        assert 'Traceback' in log_content
+        assert 'ValueError' in log_content
 
 
 def test_split_file_name() -> None:

@@ -50,7 +50,7 @@ import sys
 import traceback
 import warnings
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Optional, TypeVar, overload
+from typing import TYPE_CHECKING, Any, ClassVar, Optional, TypeVar, overload
 
 import colorama
 import numpy as np
@@ -253,6 +253,44 @@ class Options:
         return self._rng
 
 
+# Define a module-level LoggerRegistry
+class LoggerRegistry:
+    """Registry to manage all logger instances."""
+
+    _loggers: ClassVar[list[Logger]] = []
+
+    # The @classmethod decorator allows this method to be called on
+    # the class itself, rather than on instances. It interacts with
+    # class-level data (like _loggers), enabling a single registry for
+    # all Logger instances without needing an object of LoggerRegistry
+    # itself.
+    @classmethod
+    def register(cls, logger: Logger) -> None:
+        """Register a logger instance."""
+        cls._loggers.append(logger)
+
+    @classmethod
+    def log_exception(
+        cls,
+        exc_type: type[BaseException],
+        exc_value: BaseException,
+        exc_traceback: TracebackType | None,
+    ) -> None:
+        """Log exceptions to all registered loggers."""
+        message = (
+            f"Unhandled exception occurred:"
+            f"\n"
+            f"{''.join(traceback.format_exception(exc_type, exc_value, exc_traceback))}"
+        )
+        for logger in cls._loggers:
+            logger.warning(message)
+
+
+# Update sys.excepthook to log exceptions in all loggers
+# https://docs.python.org/3/library/sys.html#sys.excepthook
+sys.excepthook = LoggerRegistry.log_exception
+
+
 class Logger:
     """Generate log files documenting execution events."""
 
@@ -330,9 +368,9 @@ class Logger:
         self.reset_log_strings()
         control_warnings()
 
-        # Set sys.excepthook to handle uncaught exceptions
-        # https://docs.python.org/3/library/sys.html#sys.excepthook
-        sys.excepthook = self.log_exception
+        # Register the logger to the LoggerRegistry in order to
+        # capture raised exceptions.
+        LoggerRegistry.register(self)
 
     def reset_log_strings(self) -> None:
         """Populate the string-related attributes of the logger."""
