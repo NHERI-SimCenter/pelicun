@@ -1139,7 +1139,8 @@ def run_pelicun(
                 )
 
         # calculate damages
-        PAL.damage.calculate(sample_size, dmg_process=dmg_process)
+        scaling_specification = config['DL']['Damage'].get('scaling_specification', None)
+        PAL.damage.calculate(sample_size, dmg_process=dmg_process, scaling_specification=scaling_specification)
 
         # if requested, save results
         if 'Damage' in config['DL']['Outputs']:

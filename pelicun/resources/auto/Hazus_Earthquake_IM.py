@@ -39,6 +39,7 @@
 import json
 import pandas as pd
 import pelicun
+import numpy as np
 
 ap_DesignLevel = {1940: 'LC', 1975: 'MC', 2100: 'HC'}
 # original:
@@ -96,6 +97,24 @@ def convertUnits(value, unit_in, unit_out):
     value = value * scale_map[unit_in] / scale_map[unit_out]
     return value
 
+def getHAZUSBridgeK3DModifier(hazus_class, AIM):
+    # In HAZUS, the K_3D for HWB28 is undefined, so we return 1, i.e., no scaling
+    # The K-3D factors for HWB3 and HWB4 are defined as EQ1, which leads to division by zero
+    # This is an error in the HAZUS documentation, and we assume that the factors are 1 for these classes
+    mapping = {'HWB1':1, 'HWB2':1, 'HWB3':1, 'HWB4':1, 'HWB5':1, 'HWB6':1,\
+               'HWB7':1, 'HWB8':2, 'HWB9':3, 'HWB10':2, 'HWB11':3, 'HWB12':4,\
+               'HWB13':4, 'HWB14':1, 'HWB15':5, 'HWB16':3, 'HWB17':1, 'HWB18':1,\
+               'HWB19':1, 'HWB20':2, 'HWB21':3, 'HWB22':2, 'HWB23':3, 'HWB24':6,\
+               'HWB25':6, 'HWB26':7, 'HWB27':7, 'HWB28':8}
+    factors = {1:(0.25, 1), 2:(0.33, 0), 3:(0.33, 1), 4:(0.09, 1), 5:(0.05, 0),\
+               6:(0.2, 1), 7:(0.1, 0)}
+    if hazus_class in ['HWB3', 'HWB4', 'HWB28']:
+        return 1
+    else:
+        N = AIM['NumOfSpans']
+        A = factors[mapping[hazus_class]][0]
+        B = factors[mapping[hazus_class]][1]
+        return 1 + A/(N-B) # This is the original form in Mander and Basoz (1999)
 
 def convertBridgeToHAZUSclass(AIM):
     # TODO: replace labels in AIM with standard CamelCase versions
@@ -205,6 +224,43 @@ def convertBridgeToHAZUSclass(AIM):
     # TODO: also double check rules for HWB10-11 and HWB22-23
 
     return bridge_class
+
+def getHAZUSBridgePGDModifier(hazus_class, AIM):
+    # This is the original modifier in HAZUS, which gives inf if Skew is 0
+    # modifier1 = 0.5*AIM['Length']/(AIM['DeckWidth']*AIM['NumOfSpans']*np.sin(AIM['Skew']/180.0*np.pi))
+    # Use the modifier that is corrected from HAZUS manual to achive the asymptotic behavior
+    # Where longer bridges, narrower bridges, less span and higher skew leads to lower modifier (i.e., more fragile bridges)
+    modifier1 = AIM['DeckWidth'] * AIM['NumOfSpans'] * np.sin((90-AIM['Skew'])/180.0*np.pi) / (AIM['Length']*0.5)
+    modifier2 = np.sin((90-AIM['Skew'])/180.0*np.pi)
+    mapping = {'HWB1':(1,1),
+               'HWB2':(1,1),
+               'HWB3':(1,1),
+               'HWB4':(1,1),
+               'HWB5':(modifier1,modifier1),
+               'HWB6':(modifier1,modifier1),
+               'HWB7':(modifier1,modifier1),
+               'HWB8':(1,modifier2),
+               'HWB9':(1,modifier2),
+               'HWB10':(1,modifier2),
+               'HWB11':(1,modifier2),
+               'HWB12':(modifier1,modifier1),
+               'HWB13':(modifier1,modifier1),
+               'HWB14':(modifier1,modifier1),
+               'HWB15':(1,modifier2),
+               'HWB16':(1,modifier2),
+               'HWB17':(modifier1,modifier1),
+               'HWB18':(modifier1,modifier1),
+               'HWB19':(modifier1,modifier1),
+               'HWB20':(1,modifier2),
+               'HWB21':(1,modifier2),
+               'HWB22':(modifier1,modifier1),
+               'HWB23':(modifier1,modifier1),
+               'HWB24':(modifier1,modifier1),
+               'HWB25':(modifier1,modifier1),
+               'HWB26':(1,modifier2),
+               'HWB27':(1,modifier2),
+               'HWB28':(1,1)}
+    return mapping[hazus_class][0], mapping[hazus_class][1]
 
 
 def convertTunnelToHAZUSclass(AIM):
@@ -417,6 +473,11 @@ def auto_populate(AIM):
         inf_type = GI["assetSubtype"]
 
         if inf_type == "HwyBridge":
+            # If Skew is labeled as 99, it means there is a major variation in skews of substructure units. (Per NBI coding guide)
+            # Assume a number of 45 as the "average" skew for the bridge.
+            if GI["Skew"] == 99:
+                GI["Skew"] = 45
+
             # get the bridge class
             bt = convertBridgeToHAZUSclass(GI)
             GI_ap['BridgeHazusClass'] = bt
@@ -427,6 +488,19 @@ def auto_populate(AIM):
                 index = [            'Units','Location','Direction','Theta_0','Family']   # noqa
             ).T                                                                           # noqa
             # fmt: on
+
+            # scaling_specification
+            k_skew = np.sqrt(np.sin((90 - GI['Skew']) * np.pi / 180.0))
+            k_3d = getHAZUSBridgeK3DModifier(bt, GI)
+
+            scaling_specification = {
+                f'HWB.GS.{bt[3:]}-1-1': {
+                    'LS1': '*1.0',
+                    'LS2': f'*{k_skew*k_3d}',
+                    'LS3': f'*{k_skew*k_3d}',
+                    'LS4': f'*{k_skew*k_3d}'
+                }
+            }
             # if needed, add components to simulate damage from ground failure
             if ground_failure:
 
@@ -439,14 +513,26 @@ def auto_populate(AIM):
 
                 CMP = pd.concat([CMP, CMP_GF], axis=0)
 
+                f1, f2 = getHAZUSBridgePGDModifier(bt, GI)
+
+                scaling_specification.update({
+                    "HWB.GF-1-1": {
+                                    "LS2": f'*{f1}',
+                                    "LS3": f'*{f1}',
+                                    "LS4": f'*{f2}',
+                                }
+                })
+
             DL_ap = {
                 "Asset": {
                     "ComponentAssignmentFile": "CMP_QNT.csv",
                     "ComponentDatabase": "Hazus Earthquake - Transportation",
                     "BridgeHazusClass": bt,
-                    "PlanArea": "1",
+                    "PlanArea": "1"
                 },
-                "Damage": {"DamageProcess": "Hazus Earthquake"},
+                "Damage": {"DamageProcess": "Hazus Earthquake",
+                           "scaling_specification": scaling_specification
+                },
                 "Demands": {},
                 "Losses": {
                     "Repair": {
@@ -456,7 +542,7 @@ def auto_populate(AIM):
                 },
                 "Options": {
                     "NonDirectionalMultipliers": {"ALL": 1.0},
-                },
+                }
             }
 
         elif inf_type == "HwyTunnel":
