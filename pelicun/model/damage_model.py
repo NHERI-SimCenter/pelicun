@@ -1313,30 +1313,38 @@ class DamageModel_DS(DamageModel_Base):
             parsed_scaling_specification = {}
             # validate contents
             for key, value in scaling_specification.items():
-                css = 'capacity adjustment specification'
-                if not isinstance(value, str):
-                    msg = (
-                        f'Invalid entry in {css}: {value}. It has to be a string. '
-                        f'See docstring of DamageModel._create_dmg_RVs.'
-                    )
-                    raise TypeError(msg)
-                capacity_adjustment_operation = value[0]
-                number = value[1::]
-                if capacity_adjustment_operation not in {'+', '-', '*', '/'}:
-                    msg = (
-                        f'Invalid operation in {css}: '
-                        f'{capacity_adjustment_operation}'
-                    )
-                    raise ValueError(msg)
-                fnumber = base.float_or_None(number)
-                if fnumber is None:
-                    msg = f'Invalid number in {css}: {number}'
-                    raise ValueError(msg)
-                parsed_scaling_specification[key] = (
-                    capacity_adjustment_operation,
-                    fnumber,
-                )
-                scaling_specification = parsed_scaling_specification
+                # loop through limit states
+                if key not in parsed_scaling_specification:
+                    parsed_scaling_specification[key] = {}
+                if 'ALL' in value:
+                    if len(value) > 1:
+                        raise ValueError(
+                            f'Invalid entry in scaling_specification: '
+                            f'{value}. It should only have one entry for `ALL`.'
+                        )
+                    value = value['ALL']
+                for LS, specifics in value.items():
+                    css = 'capacity adjustment specification'
+                    if not isinstance(specifics, str):
+                        raise ValueError(
+                            f'Invalud entry in {css}: {specifics}. It has to be a string. '
+                            f'See docstring of DamageModel._create_dmg_RVs.'
+                        )
+                    capacity_adjustment_operation = specifics[0]
+                    number = specifics[1::]
+                    if capacity_adjustment_operation not in ('+', '-', '*', '/'):
+                        raise ValueError(
+                            f'Invalid operation in {css}: '
+                            f'{capacity_adjustment_operation}'
+                        )
+                    fnumber = base.float_or_None(number)
+                    if fnumber is None:
+                        raise ValueError(f'Invalid number in {css}: {number}')
+                    parsed_scaling_specification[key].update({
+                        LS: (capacity_adjustment_operation, fnumber)
+                        })
+                    
+            scaling_specification = parsed_scaling_specification
 
         # get the component sample and blocks from the asset model
         for pg in pgb.index:
@@ -1395,12 +1403,21 @@ class DamageModel_DS(DamageModel_Base):
                     )
 
                     if capacity_adjustment_operation:
-                        if family in {'normal', 'lognormal', 'deterministic'}:
-                            theta[0] = self._handle_operation(
-                                theta[0],
-                                capacity_adjustment_operation[0],
-                                float(capacity_adjustment_operation[1]),
-                            )
+                        if family in {'normal', 'lognormal'}:
+                            # Only scale the median value if ls_id is defined in capacity_adjustment_operation
+                            # Otherwise, use the original value
+                            if 'ALL' in capacity_adjustment_operation:
+                                theta[0] = self._handle_operation(
+                                    theta[0],
+                                    capacity_adjustment_operation['ALL'][0],
+                                    capacity_adjustment_operation['ALL'][1],
+                                )
+                            elif f'LS{ls_id}' in capacity_adjustment_operation:
+                                theta[0] = self._handle_operation(
+                                    theta[0],
+                                    capacity_adjustment_operation[f'LS{ls_id}'][0],
+                                    capacity_adjustment_operation[f'LS{ls_id}'][1],
+                                )
                         else:
                             self.log.warning(
                                 f'Capacity adjustment is only supported '

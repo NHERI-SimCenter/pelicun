@@ -938,39 +938,798 @@ def _create_json_files_if_requested(
                 }
             )
 
-        else:
-            out_dict = convert_df_to_dict(data)
+            adf.loc[coll_CMP_name, 'Incomplete'] = 0
 
-        with Path(output_path / filename_json).open('w', encoding='utf-8') as f:
-            json.dump(out_dict, f, indent=2)
+            if coll_CMP_name != 'collapse':
+                # for story-specific evaluation, we need to add a placeholder
+                # fragility that will never trigger, but helps us aggregate
+                # results in the end
+                adf.loc['collapse', ('Demand', 'Directional')] = 1
+                adf.loc['collapse', ('Demand', 'Offset')] = 0
+                adf.loc['collapse', ('Demand', 'Type')] = 'One'
+                adf.loc['collapse', ('Demand', 'Unit')] = 'unitless'
+                adf.loc['collapse', ('LS1', 'Theta_0')] = 1e10
+                adf.loc['collapse', 'Incomplete'] = 0
 
+        elif "Water" not in config['DL']['Asset']['ComponentDatabase']:
+            # add a placeholder collapse fragility that will never trigger
+            # collapse, but allow damage processes to work with collapse
 
-def _result_summary(
-    assessment: DLCalculationAssessment, agg_repair: pd.DataFrame | None
-) -> tuple[pd.DataFrame, pd.DataFrame]:
-    """
-    Generate a summary of the results.
+            adf.loc['collapse', ('Demand', 'Directional')] = 1
+            adf.loc['collapse', ('Demand', 'Offset')] = 0
+            adf.loc['collapse', ('Demand', 'Type')] = 'One'
+            adf.loc['collapse', ('Demand', 'Unit')] = 'unitless'
+            adf.loc['collapse', ('LS1', 'Theta_0')] = 1e10
+            adf.loc['collapse', 'Incomplete'] = 0
 
-    Parameters
-    ----------
-    assessment : AssessmentBase
-        The assessment object.
-    agg_repair : pd.DataFrame
-        Aggregate repair data.
+        if 'IrreparableDamage' in config['DL']['Damage'].keys():
+            irrep_config = config['DL']['Damage']['IrreparableDamage']
 
-    Returns
-    -------
-    tuple
-        Summary DataFrame and summary statistics DataFrame.
+            # add excessive RID fragility according to settings provided in the
+            # input file
+            adf.loc['excessiveRID', ('Demand', 'Directional')] = 1
+            adf.loc['excessiveRID', ('Demand', 'Offset')] = 0
+            adf.loc['excessiveRID', ('Demand', 'Type')] = (
+                'Residual Interstory Drift Ratio'
+            )
 
-    """
-    damage_sample = assessment.damage.save_sample()
-    if damage_sample is None or agg_repair is None:
-        return pd.DataFrame(), pd.DataFrame()
+            adf.loc['excessiveRID', ('Demand', 'Unit')] = 'unitless'
+            adf.loc['excessiveRID', ('LS1', 'Theta_0')] = irrep_config[
+                'DriftCapacityMedian'
+            ]
 
-    assert isinstance(damage_sample, pd.DataFrame)
-    damage_sample = damage_sample.groupby(level=['cmp', 'ds'], axis=1).sum()  # type: ignore
-    assert isinstance(damage_sample, pd.DataFrame)
+            adf.loc['excessiveRID', ('LS1', 'Family')] = "lognormal"
+
+            adf.loc['excessiveRID', ('LS1', 'Theta_1')] = irrep_config[
+                'DriftCapacityLogStd'
+            ]
+
+            adf.loc['excessiveRID', 'Incomplete'] = 0
+
+            # add a placeholder irreparable fragility that will never trigger
+            # damage, but allow damage processes to aggregate excessiveRID here
+            adf.loc['irreparable', ('Demand', 'Directional')] = 1
+            adf.loc['irreparable', ('Demand', 'Offset')] = 0
+            adf.loc['irreparable', ('Demand', 'Type')] = 'One'
+            adf.loc['irreparable', ('Demand', 'Unit')] = 'unitless'
+            adf.loc['irreparable', ('LS1', 'Theta_0')] = 1e10
+            adf.loc['irreparable', 'Incomplete'] = 0
+
+        # TODO: we can improve this by creating a water
+        # network-specific assessment class
+        if "Water" in config['DL']['Asset']['ComponentDatabase']:
+            # add a placeholder aggregate fragility that will never trigger
+            # damage, but allow damage processes to aggregate the
+            # various pipeline damages
+            adf.loc['aggregate', ('Demand', 'Directional')] = 1
+            adf.loc['aggregate', ('Demand', 'Offset')] = 0
+            adf.loc['aggregate', ('Demand', 'Type')] = 'Peak Ground Velocity'
+            adf.loc['aggregate', ('Demand', 'Unit')] = 'mps'
+            adf.loc['aggregate', ('LS1', 'Theta_0')] = 1e10
+            adf.loc['aggregate', ('LS2', 'Theta_0')] = 1e10
+            adf.loc['aggregate', 'Incomplete'] = 0
+
+        PAL.damage.load_damage_model(component_db + [adf])
+
+        # load the damage process if needed
+        dmg_process = None
+        if config['DL']['Damage'].get('DamageProcess', False) is not False:
+            dp_approach = config['DL']['Damage']['DamageProcess']
+
+            if dp_approach in damage_processes:
+                dmg_process = damage_processes[dp_approach]
+
+                # For Hazus Earthquake, we need to specify the component ids
+                if dp_approach == 'Hazus Earthquake':
+                    cmp_sample = PAL.asset.save_cmp_sample()
+
+                    cmp_list = cmp_sample.columns.unique(level=0)
+
+                    cmp_map = {'STR': '', 'LF': '', 'NSA': ''}
+
+                    for cmp in cmp_list:
+                        for cmp_type in cmp_map:
+                            if cmp_type + '.' in cmp:
+                                cmp_map[cmp_type] = cmp
+
+                    new_dmg_process = dmg_process.copy()
+                    for source_cmp, action in dmg_process.items():
+                        # first, look at the source component id
+                        new_source = None
+                        for cmp_type, cmp_id in cmp_map.items():
+                            if (cmp_type in source_cmp) and (cmp_id != ''):
+                                new_source = source_cmp.replace(cmp_type, cmp_id)
+                                break
+
+                        if new_source is not None:
+                            new_dmg_process[new_source] = action
+                            del new_dmg_process[source_cmp]
+                        else:
+                            new_source = source_cmp
+
+                        # then, look at the target component ids
+                        for ds_i, target_vals in action.items():
+                            if isinstance(target_vals, str):
+                                for cmp_type, cmp_id in cmp_map.items():
+                                    if (cmp_type in target_vals) and (cmp_id != ''):
+                                        target_vals = target_vals.replace(
+                                            cmp_type, cmp_id
+                                        )
+
+                                new_target_vals = target_vals
+
+                            else:
+                                # we assume that target_vals is a list of str
+                                new_target_vals = []
+
+                                for target_val in target_vals:
+                                    for cmp_type, cmp_id in cmp_map.items():
+                                        if (cmp_type in target_val) and (
+                                            cmp_id != ''
+                                        ):
+                                            target_val = target_val.replace(
+                                                cmp_type, cmp_id
+                                            )
+
+                                    new_target_vals.append(target_val)
+
+                            new_dmg_process[new_source][ds_i] = new_target_vals
+
+                    dmg_process = new_dmg_process
+
+            elif dp_approach == "User Defined":
+                # load the damage process from a file
+                with open(
+                    config['DL']['Damage']['DamageProcessFilePath'],
+                    'r',
+                    encoding='utf-8',
+                ) as f:
+                    dmg_process = json.load(f)
+
+            elif dp_approach == "None":
+                # no damage process applied for the calculation
+                dmg_process = None
+
+            else:
+                log_msg(
+                    f"Prescribed Damage Process not recognized: " f"{dp_approach}"
+                )
+
+        # calculate damages
+        scaling_specification = config['DL']['Damage'].get('scaling_specification', None)
+        PAL.damage.calculate(sample_size, dmg_process=dmg_process, scaling_specification=scaling_specification)
+
+        # if requested, save results
+        if 'Damage' in config['DL']['Outputs']:
+            damage_sample, damage_units = PAL.damage.save_sample(save_units=True)
+            damage_units = damage_units.to_frame().T
+
+            if (
+                config['DL']['Outputs']['Settings'].get(
+                    'AggregateColocatedComponentResults', False
+                )
+                is True
+            ):
+                damage_units = damage_units.groupby(
+                    level=[0, 1, 2, 4], axis=1
+                ).first()
+
+                damage_groupby_uid = damage_sample.groupby(
+                    level=[0, 1, 2, 4], axis=1
+                )
+
+                damage_sample = damage_groupby_uid.sum().mask(
+                    damage_groupby_uid.count() == 0, np.nan
+                )
+
+            out_reqs = [
+                out if val else ""
+                for out, val in config['DL']['Outputs']['Damage'].items()
+            ]
+
+            if np.any(
+                np.isin(
+                    ['Sample', 'Statistics', 'GroupedSample', 'GroupedStatistics'],
+                    out_reqs,
+                )
+            ):
+                if 'Sample' in out_reqs:
+                    damage_sample_s = pd.concat([damage_sample, damage_units])
+
+                    damage_sample_s = convert_to_SimpleIndex(damage_sample_s, axis=1)
+                    damage_sample_s.to_csv(
+                        output_path / "DMG_sample.zip",
+                        index_label=damage_sample_s.columns.name,
+                        compression=dict(
+                            method='zip', archive_name='DMG_sample.csv'
+                        ),
+                    )
+                    output_files.append('DMG_sample.zip')
+
+                if 'Statistics' in out_reqs:
+                    damage_stats = describe(damage_sample)
+                    damage_stats = pd.concat([damage_stats, damage_units])
+
+                    damage_stats = convert_to_SimpleIndex(damage_stats, axis=1)
+                    damage_stats.to_csv(
+                        output_path / "DMG_stats.csv",
+                        index_label=damage_stats.columns.name,
+                    )
+                    output_files.append('DMG_stats.csv')
+
+                if np.any(np.isin(['GroupedSample', 'GroupedStatistics'], out_reqs)):
+                    if (
+                        config['DL']['Outputs']['Settings'].get(
+                            'AggregateColocatedComponentResults', False
+                        )
+                        is True
+                    ):
+                        damage_groupby = damage_sample.groupby(
+                            level=[0, 1, 3], axis=1
+                        )
+
+                        damage_units = damage_units.groupby(
+                            level=[0, 1, 3], axis=1
+                        ).first()
+
+                    else:
+                        damage_groupby = damage_sample.groupby(
+                            level=[0, 1, 4], axis=1
+                        )
+
+                        damage_units = damage_units.groupby(
+                            level=[0, 1, 4], axis=1
+                        ).first()
+
+                    grp_damage = damage_groupby.sum().mask(
+                        damage_groupby.count() == 0, np.nan
+                    )
+
+                    # if requested, condense DS output
+                    if (
+                        config['DL']['Outputs']['Settings'].get('CondenseDS', False)
+                        is True
+                    ):
+                        # replace non-zero values with 1
+                        grp_damage = grp_damage.mask(
+                            grp_damage.astype(np.float64).values > 0, 1
+                        )
+
+                        # get the corresponding DS for each column
+                        ds_list = grp_damage.columns.get_level_values(2).astype(int)
+
+                        # replace ones with the corresponding DS in each cell
+                        grp_damage = grp_damage.mul(ds_list, axis=1)
+
+                        # aggregate across damage state indices
+                        damage_groupby_2 = grp_damage.groupby(level=[0, 1], axis=1)
+
+                        # choose the max value
+                        # i.e., the governing DS for each comp-loc pair
+                        grp_damage = damage_groupby_2.max().mask(
+                            damage_groupby_2.count() == 0, np.nan
+                        )
+
+                        # aggregate units to the same format
+                        # assume identical units across locations for each comp
+                        damage_units = damage_units.groupby(
+                            level=[0, 1], axis=1
+                        ).first()
+
+                    else:
+                        # otherwise, aggregate damage quantities for each comp
+                        damage_groupby_2 = grp_damage.groupby(level=0, axis=1)
+
+                        # preserve NaNs
+                        grp_damage = damage_groupby_2.sum().mask(
+                            damage_groupby_2.count() == 0, np.nan
+                        )
+
+                        # and aggregate units to the same format
+                        damage_units = damage_units.groupby(level=0, axis=1).first()
+
+                    if 'GroupedSample' in out_reqs:
+                        grp_damage_s = pd.concat([grp_damage, damage_units])
+
+                        grp_damage_s = convert_to_SimpleIndex(grp_damage_s, axis=1)
+                        grp_damage_s.to_csv(
+                            output_path / "DMG_grp.zip",
+                            index_label=grp_damage_s.columns.name,
+                            compression=dict(
+                                method='zip', archive_name='DMG_grp.csv'
+                            ),
+                        )
+                        output_files.append('DMG_grp.zip')
+
+                    if 'GroupedStatistics' in out_reqs:
+                        grp_stats = describe(grp_damage)
+                        grp_stats = pd.concat([grp_stats, damage_units])
+
+                        grp_stats = convert_to_SimpleIndex(grp_stats, axis=1)
+                        grp_stats.to_csv(
+                            output_path / "DMG_grp_stats.csv",
+                            index_label=grp_stats.columns.name,
+                        )
+                        output_files.append('DMG_grp_stats.csv')
+
+            # - - - - -
+            # This is almost surely not needed any more
+            """
+            if regional == True:
+
+                damage_sample = PAL.damage.save_sample()
+
+                # first, get the collapse probability
+                df_res_c = pd.DataFrame([0,],
+                    columns=pd.MultiIndex.from_tuples([('probability',' '),]),
+                    index=[0, ])
+
+                if ("collapse", 0, 1, 1) in damage_sample.columns:
+                    df_res_c['probability'] = (
+                        damage_sample[("collapse", 0, 1, 1)].mean())
+
+                else:
+                    df_res_c['probability'] = 0.0
+
+                df_res = pd.concat([df_res_c,], axis=1, keys=['collapse',])
+
+                df_res.to_csv(output_path/'DM.csv')
+                output_files.append('DM.csv')
+            """
+            # - - - - -
+
+    # Loss Assessment -----------------------------------------------------------
+
+    # if a loss assessment is requested
+    if 'Losses' in config['DL']:
+        out_config_loss = config['DL']['Outputs'].get('Loss', {})
+
+        # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        # backwards-compatibility for v3.2 and earlier | remove after v4.0
+        if config['DL']['Losses'].get('BldgRepair', False):
+            config['DL']['Losses']['Repair'] = config['DL']['Losses']['BldgRepair']
+
+        if out_config_loss.get('BldgRepair', False):
+            out_config_loss['Repair'] = out_config_loss['BldgRepair']
+        # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        # if requested, calculate repair consequences
+        if config['DL']['Losses'].get('Repair', False):
+            repair_config = config['DL']['Losses']['Repair']
+
+            # load the fragility information
+            if repair_config['ConsequenceDatabase'] in default_DBs['repair'].keys():
+                consequence_db = [
+                    'PelicunDefault/'
+                    + default_DBs['repair'][repair_config['ConsequenceDatabase']],
+                ]
+
+                conseq_df = PAL.get_default_data(
+                    default_DBs['repair'][repair_config['ConsequenceDatabase']][:-4]
+                )
+            else:
+                consequence_db = []
+
+                conseq_df = pd.DataFrame()
+
+            if repair_config.get('ConsequenceDatabasePath', False) is not False:
+                extra_comps = repair_config['ConsequenceDatabasePath']
+
+                if 'CustomDLDataFolder' in extra_comps:
+                    extra_comps = extra_comps.replace(
+                        'CustomDLDataFolder', custom_dl_file_path
+                    )
+
+                consequence_db += [
+                    extra_comps,
+                ]
+
+                extra_conseq_df = load_data(
+                    extra_comps,
+                    unit_conversion_factors=None,
+                    orientation=1,
+                    reindex=False,
+                )
+
+                if isinstance(conseq_df, pd.DataFrame):
+                    conseq_df = pd.concat([conseq_df, extra_conseq_df])
+                else:
+                    conseq_df = extra_conseq_df
+
+            consequence_db = consequence_db[::-1]
+
+            # remove duplicates from conseq_df
+            conseq_df = conseq_df.loc[conseq_df.index.unique(), :]
+
+            # add the replacement consequence to the data
+            adf = pd.DataFrame(
+                columns=conseq_df.columns,
+                index=pd.MultiIndex.from_tuples(
+                    [
+                        ('replacement', 'Cost'),
+                        ('replacement', 'Time'),
+                        ('replacement', 'Carbon'),
+                        ('replacement', 'Energy'),
+                    ]
+                ),
+            )
+
+            # DL_method = repair_config['ConsequenceDatabase']
+            DL_method = config['DL']['Damage'].get('DamageProcess', 'User Defined')
+
+            rc = ('replacement', 'Cost')
+            if 'ReplacementCost' in repair_config.keys():
+                rCost_config = repair_config['ReplacementCost']
+
+                adf.loc[rc, ('Quantity', 'Unit')] = "1 EA"
+
+                adf.loc[rc, ('DV', 'Unit')] = rCost_config["Unit"]
+
+                adf.loc[rc, ('DS1', 'Theta_0')] = rCost_config["Median"]
+
+                if pd.isna(rCost_config.get('Distribution', np.nan)) is False:
+                    adf.loc[rc, ('DS1', 'Family')] = rCost_config["Distribution"]
+                    adf.loc[rc, ('DS1', 'Theta_1')] = rCost_config["Theta_1"]
+
+            else:
+                # add a default replacement cost value as a placeholder
+                # the default value depends on the consequence database
+
+                # for FEMA P-58, use 0 USD
+                if DL_method == 'FEMA P-58':
+                    adf.loc[rc, ('Quantity', 'Unit')] = '1 EA'
+                    adf.loc[rc, ('DV', 'Unit')] = 'USD_2011'
+                    adf.loc[rc, ('DS1', 'Theta_0')] = 0
+
+                # for Hazus EQ and HU, use 1.0 as a loss_ratio
+                elif DL_method in ['Hazus Earthquake', 'Hazus Hurricane']:
+                    adf.loc[rc, ('Quantity', 'Unit')] = '1 EA'
+                    adf.loc[rc, ('DV', 'Unit')] = 'loss_ratio'
+
+                    # store the replacement cost that corresponds to total loss
+                    adf.loc[rc, ('DS1', 'Theta_0')] = 100.0
+
+                # otherwise, use 1 (and expect to have it defined by the user)
+                else:
+                    adf.loc[rc, ('Quantity', 'Unit')] = '1 EA'
+                    adf.loc[rc, ('DV', 'Unit')] = 'loss_ratio'
+                    adf.loc[rc, ('DS1', 'Theta_0')] = 1
+
+            rt = ('replacement', 'Time')
+            if 'ReplacementTime' in repair_config.keys():
+                rTime_config = repair_config['ReplacementTime']
+                rt = ('replacement', 'Time')
+
+                adf.loc[rt, ('Quantity', 'Unit')] = "1 EA"
+
+                adf.loc[rt, ('DV', 'Unit')] = rTime_config["Unit"]
+
+                adf.loc[rt, ('DS1', 'Theta_0')] = rTime_config["Median"]
+
+                if pd.isna(rTime_config.get('Distribution', np.nan)) is False:
+                    adf.loc[rt, ('DS1', 'Family')] = rTime_config["Distribution"]
+                    adf.loc[rt, ('DS1', 'Theta_1')] = rTime_config["Theta_1"]
+            else:
+                # add a default replacement time value as a placeholder
+                # the default value depends on the consequence database
+
+                # for FEMA P-58, use 0 worker_days
+                if DL_method == 'FEMA P-58':
+                    adf.loc[rt, ('Quantity', 'Unit')] = '1 EA'
+                    adf.loc[rt, ('DV', 'Unit')] = 'worker_day'
+                    adf.loc[rt, ('DS1', 'Theta_0')] = 0
+
+                # for Hazus EQ, use 1.0 as a loss_ratio
+                elif DL_method == 'Hazus Earthquake - Buildings':
+                    adf.loc[rt, ('Quantity', 'Unit')] = '1 EA'
+                    adf.loc[rt, ('DV', 'Unit')] = 'day'
+
+                    # load the replacement time that corresponds to total loss
+                    occ_type = config['DL']['Asset']['OccupancyType']
+                    adf.loc[rt, ('DS1', 'Theta_0')] = conseq_df.loc[
+                        (f"STR.{occ_type}", 'Time'), ('DS5', 'Theta_0')
+                    ]
+
+                # otherwise, use 1 (and expect to have it defined by the user)
+                else:
+                    adf.loc[rt, ('Quantity', 'Unit')] = '1 EA'
+                    adf.loc[rt, ('DV', 'Unit')] = 'loss_ratio'
+                    adf.loc[rt, ('DS1', 'Theta_0')] = 1
+
+            rcarb = ('replacement', 'Carbon')
+            if 'ReplacementCarbon' in repair_config.keys():
+                rCarbon_config = repair_config['ReplacementCarbon']
+                rcarb = ('replacement', 'Carbon')
+
+                adf.loc[rcarb, ('Quantity', 'Unit')] = "1 EA"
+
+                adf.loc[rcarb, ('DV', 'Unit')] = rCarbon_config["Unit"]
+
+                adf.loc[rcarb, ('DS1', 'Theta_0')] = rCarbon_config["Median"]
+
+                if pd.isna(rCarbon_config.get('Distribution', np.nan)) is False:
+                    adf.loc[rcarb, ('DS1', 'Family')] = rCarbon_config[
+                        "Distribution"
+                    ]
+                    adf.loc[rcarb, ('DS1', 'Theta_1')] = rCarbon_config["Theta_1"]
+            else:
+                # add a default replacement carbon value as a placeholder
+                # the default value depends on the consequence database
+
+                # for FEMA P-58, use 0 kg
+                if DL_method == 'FEMA P-58':
+                    adf.loc[rcarb, ('Quantity', 'Unit')] = '1 EA'
+                    adf.loc[rcarb, ('DV', 'Unit')] = 'kg'
+                    adf.loc[rcarb, ('DS1', 'Theta_0')] = 0
+
+                else:
+                    # for everything else, remove this consequence
+                    adf.drop(rcarb, inplace=True)
+
+            ren = ('replacement', 'Energy')
+            if 'ReplacementEnergy' in repair_config.keys():
+                rEnergy_config = repair_config['ReplacementEnergy']
+                ren = ('replacement', 'Energy')
+
+                adf.loc[ren, ('Quantity', 'Unit')] = "1 EA"
+
+                adf.loc[ren, ('DV', 'Unit')] = rEnergy_config["Unit"]
+
+                adf.loc[ren, ('DS1', 'Theta_0')] = rEnergy_config["Median"]
+
+                if pd.isna(rEnergy_config.get('Distribution', np.nan)) is False:
+                    adf.loc[ren, ('DS1', 'Family')] = rEnergy_config["Distribution"]
+                    adf.loc[ren, ('DS1', 'Theta_1')] = rEnergy_config["Theta_1"]
+            else:
+                # add a default replacement energy value as a placeholder
+                # the default value depends on the consequence database
+
+                # for FEMA P-58, use 0 kg
+                if DL_method == 'FEMA P-58':
+                    adf.loc[ren, ('Quantity', 'Unit')] = '1 EA'
+                    adf.loc[ren, ('DV', 'Unit')] = 'MJ'
+                    adf.loc[ren, ('DS1', 'Theta_0')] = 0
+
+                else:
+                    # for everything else, remove this consequence
+                    adf.drop(ren, inplace=True)
+
+            # prepare the loss map
+            loss_map = None
+            if repair_config['MapApproach'] == "Automatic":
+                # get the damage sample
+                dmg_sample = PAL.damage.save_sample()
+
+                # create a mapping for all components that are also in
+                # the prescribed consequence database
+                dmg_cmps = dmg_sample.columns.unique(level='cmp')
+                loss_cmps = conseq_df.index.unique(level=0)
+
+                drivers = []
+                loss_models = []
+
+                if DL_method in ['FEMA P-58', 'Hazus Hurricane']:
+                    # with these methods, we assume fragility and consequence data
+                    # have the same IDs
+
+                    for dmg_cmp in dmg_cmps:
+                        if dmg_cmp == 'collapse':
+                            continue
+
+                        if dmg_cmp in loss_cmps:
+                            drivers.append(f'DMG-{dmg_cmp}')
+                            loss_models.append(dmg_cmp)
+
+                elif DL_method in [
+                    'Hazus Earthquake',
+                    'Hazus Earthquake Transportation',
+                ]:
+                    # with Hazus Earthquake we assume that consequence
+                    # archetypes are only differentiated by occupancy type
+                    occ_type = config['DL']['Asset'].get('OccupancyType', None)
+
+                    for dmg_cmp in dmg_cmps:
+                        if dmg_cmp == 'collapse':
+                            continue
+
+                        cmp_class = dmg_cmp.split('.')[0]
+                        if occ_type is not None:
+                            loss_cmp = f'{cmp_class}.{occ_type}'
+                        else:
+                            loss_cmp = cmp_class
+
+                        if loss_cmp in loss_cmps:
+                            drivers.append(f'DMG-{dmg_cmp}')
+                            loss_models.append(loss_cmp)
+
+                loss_map = pd.DataFrame(
+                    loss_models, columns=['Repair'], index=drivers
+                )
+
+            elif repair_config['MapApproach'] == "User Defined":
+                if repair_config.get('MapFilePath', False) is not False:
+                    loss_map_path = repair_config['MapFilePath']
+
+                    loss_map_path = loss_map_path.replace(
+                        'CustomDLDataFolder', custom_dl_file_path
+                    )
+
+                else:
+                    print("User defined loss map path missing. Terminating analysis")
+                    return -1
+
+                loss_map = pd.read_csv(loss_map_path, index_col=0)
+
+            # prepare additional loss map entries, if needed
+            if 'DMG-collapse' not in loss_map.index:
+                loss_map.loc['DMG-collapse', 'Repair'] = 'replacement'
+                loss_map.loc['DMG-irreparable', 'Repair'] = 'replacement'
+
+            # assemble the list of requested decision variables
+            DV_list = []
+            if repair_config.get('DecisionVariables', False) is not False:
+                for DV_i, DV_status in repair_config['DecisionVariables'].items():
+                    if DV_status is True:
+                        DV_list.append(DV_i)
+
+            else:
+                DV_list = None
+
+            PAL.repair.load_model(
+                consequence_db
+                + [
+                    adf,
+                ],
+                loss_map,
+                decision_variables=DV_list,
+            )
+
+            PAL.repair.calculate(sample_size)
+
+            agg_repair = PAL.repair.aggregate_losses()
+
+            # if requested, save results
+            if out_config_loss.get('Repair', False):
+                repair_sample, repair_units = PAL.repair.save_sample(save_units=True)
+                repair_units = repair_units.to_frame().T
+
+                if (
+                    config['DL']['Outputs']['Settings'].get(
+                        'AggregateColocatedComponentResults', False
+                    )
+                    is True
+                ):
+                    repair_units = repair_units.groupby(
+                        level=[0, 1, 2, 3, 4, 5], axis=1
+                    ).first()
+
+                    repair_groupby_uid = repair_sample.groupby(
+                        level=[0, 1, 2, 3, 4, 5], axis=1
+                    )
+
+                    repair_sample = repair_groupby_uid.sum().mask(
+                        repair_groupby_uid.count() == 0, np.nan
+                    )
+
+                out_reqs = [
+                    out if val else ""
+                    for out, val in out_config_loss['Repair'].items()
+                ]
+
+                if np.any(
+                    np.isin(
+                        [
+                            'Sample',
+                            'Statistics',
+                            'GroupedSample',
+                            'GroupedStatistics',
+                            'AggregateSample',
+                            'AggregateStatistics',
+                        ],
+                        out_reqs,
+                    )
+                ):
+                    if 'Sample' in out_reqs:
+                        repair_sample_s = repair_sample.copy()
+                        repair_sample_s = pd.concat([repair_sample_s, repair_units])
+
+                        repair_sample_s = convert_to_SimpleIndex(
+                            repair_sample_s, axis=1
+                        )
+                        repair_sample_s.to_csv(
+                            output_path / "DV_repair_sample.zip",
+                            index_label=repair_sample_s.columns.name,
+                            compression=dict(
+                                method='zip',
+                                archive_name='DV_repair_sample.csv',
+                            ),
+                        )
+                        output_files.append('DV_repair_sample.zip')
+
+                    if 'Statistics' in out_reqs:
+                        repair_stats = describe(repair_sample)
+                        repair_stats = pd.concat([repair_stats, repair_units])
+
+                        repair_stats = convert_to_SimpleIndex(repair_stats, axis=1)
+                        repair_stats.to_csv(
+                            output_path / "DV_repair_stats.csv",
+                            index_label=repair_stats.columns.name,
+                        )
+                        output_files.append('DV_repair_stats.csv')
+
+                    if np.any(
+                        np.isin(['GroupedSample', 'GroupedStatistics'], out_reqs)
+                    ):
+                        repair_groupby = repair_sample.groupby(
+                            level=[0, 1, 2], axis=1
+                        )
+
+                        repair_units = repair_units.groupby(
+                            level=[0, 1, 2], axis=1
+                        ).first()
+
+                        grp_repair = repair_groupby.sum().mask(
+                            repair_groupby.count() == 0, np.nan
+                        )
+
+                        if 'GroupedSample' in out_reqs:
+                            grp_repair_s = pd.concat([grp_repair, repair_units])
+
+                            grp_repair_s = convert_to_SimpleIndex(
+                                grp_repair_s, axis=1
+                            )
+                            grp_repair_s.to_csv(
+                                output_path / "DV_repair_grp.zip",
+                                index_label=grp_repair_s.columns.name,
+                                compression=dict(
+                                    method='zip',
+                                    archive_name='DV_repair_grp.csv',
+                                ),
+                            )
+                            output_files.append('DV_repair_grp.zip')
+
+                        if 'GroupedStatistics' in out_reqs:
+                            grp_stats = describe(grp_repair)
+                            grp_stats = pd.concat([grp_stats, repair_units])
+
+                            grp_stats = convert_to_SimpleIndex(grp_stats, axis=1)
+                            grp_stats.to_csv(
+                                output_path / "DV_repair_grp_stats.csv",
+                                index_label=grp_stats.columns.name,
+                            )
+                            output_files.append('DV_repair_grp_stats.csv')
+
+                    if np.any(
+                        np.isin(['AggregateSample', 'AggregateStatistics'], out_reqs)
+                    ):
+                        if 'AggregateSample' in out_reqs:
+                            agg_repair_s = convert_to_SimpleIndex(agg_repair, axis=1)
+                            agg_repair_s.to_csv(
+                                output_path / "DV_repair_agg.zip",
+                                index_label=agg_repair_s.columns.name,
+                                compression=dict(
+                                    method='zip',
+                                    archive_name='DV_repair_agg.csv',
+                                ),
+                            )
+                            output_files.append('DV_repair_agg.zip')
+
+                        if 'AggregateStatistics' in out_reqs:
+                            agg_stats = convert_to_SimpleIndex(
+                                describe(agg_repair), axis=1
+                            )
+                            agg_stats.to_csv(
+                                output_path / "DV_repair_agg_stats.csv",
+                                index_label=agg_stats.columns.name,
+                            )
+                            output_files.append('DV_repair_agg_stats.csv')
+
+    # Result Summary -----------------------------------------------------------
+
+    if 'damage_sample' not in locals():
+        damage_sample = PAL.damage.save_sample()
+
+    damage_sample = damage_sample.groupby(level=[0, 3], axis=1).sum()
     damage_sample_s = convert_to_SimpleIndex(damage_sample, axis=1)
 
     if 'collapse-1' in damage_sample_s.columns:
