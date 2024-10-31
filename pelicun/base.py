@@ -496,38 +496,6 @@ class Logger:
             prepend_timestamp=False,
         )
 
-    def log_exception(
-        self,
-        exc_type: type[BaseException],
-        exc_value: BaseException,
-        exc_traceback: TracebackType | None,
-    ) -> None:
-        """
-        Log uncaught exceptions and their traceback.
-
-        Parameters
-        ----------
-        exc_type : Type[BaseException]
-            The exception class.
-        exc_value : BaseException
-            The exception instance.
-        exc_traceback : Optional[TracebackType]
-            The traceback object representing the call stack at the point
-            where the exception occurred.
-
-        """
-        message = (
-            f"Unhandled exception occurred:\n"
-            f"{''.join(traceback.format_exception(exc_type, exc_value, exc_traceback))}"
-        )
-
-        if self.log_file is not None:
-            with Path(self.log_file).open('a', encoding='utf-8') as f:
-                f.write(message)
-
-        if self.print_log:
-            print(message, file=sys.stderr)  # noqa: T201
-
 
 # get the absolute path of the pelicun directory
 pelicun_path = Path(__file__).resolve().parent
