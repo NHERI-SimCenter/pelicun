@@ -46,24 +46,26 @@
 
 import pandas as pd
 
-from WindMetaVarRulesets import parse_BIM
-from BuildingClassRulesets import building_class
-from FloodAssmRulesets import Assm_config
-from FloodClassRulesets import FL_config
-from WindCECBRulesets import CECB_config
-from WindCERBRulesets import CERB_config
-from WindMECBRulesets import MECB_config
-from WindMERBRulesets import MERB_config
-from WindMHRulesets import MH_config
-from WindMLRIRulesets import MLRI_config
-from WindMLRMRulesets import MLRM_config
-from WindMMUHRulesets import MMUH_config
-from WindMSFRulesets import MSF_config
-from WindSECBRulesets import SECB_config
-from WindSERBRulesets import SERB_config
-from WindSPMBRulesets import SPMB_config
-from WindWMUHRulesets import WMUH_config
-from WindWSFRulesets import WSF_config
+from pelicun.tests.dl_calculation.rulesets.WindMetaVarRulesets import parse_BIM
+from pelicun.tests.dl_calculation.rulesets.BuildingClassRulesets import (
+    building_class,
+)
+from pelicun.tests.dl_calculation.rulesets.FloodAssmRulesets import Assm_config
+from pelicun.tests.dl_calculation.rulesets.FloodClassRulesets import FL_config
+from pelicun.tests.dl_calculation.rulesets.WindCECBRulesets import CECB_config
+from pelicun.tests.dl_calculation.rulesets.WindCERBRulesets import CERB_config
+from pelicun.tests.dl_calculation.rulesets.WindMECBRulesets import MECB_config
+from pelicun.tests.dl_calculation.rulesets.WindMERBRulesets import MERB_config
+from pelicun.tests.dl_calculation.rulesets.WindMHRulesets import MH_config
+from pelicun.tests.dl_calculation.rulesets.WindMLRIRulesets import MLRI_config
+from pelicun.tests.dl_calculation.rulesets.WindMLRMRulesets import MLRM_config
+from pelicun.tests.dl_calculation.rulesets.WindMMUHRulesets import MMUH_config
+from pelicun.tests.dl_calculation.rulesets.WindMSFRulesets import MSF_config
+from pelicun.tests.dl_calculation.rulesets.WindSECBRulesets import SECB_config
+from pelicun.tests.dl_calculation.rulesets.WindSERBRulesets import SERB_config
+from pelicun.tests.dl_calculation.rulesets.WindSPMBRulesets import SPMB_config
+from pelicun.tests.dl_calculation.rulesets.WindWMUHRulesets import WMUH_config
+from pelicun.tests.dl_calculation.rulesets.WindWSFRulesets import WSF_config
 
 
 def auto_populate(aim):
@@ -94,7 +96,7 @@ def auto_populate(aim):
     GI = aim.get('GeneralInformation', None)
 
     # parse the GI data
-    GI_ap = parse_BIM(GI, location="NJ", hazards=['wind', 'inundation'])
+    GI_ap = parse_BIM(GI, location='NJ', hazards=['wind', 'inundation'])
 
     # identify the building class
     bldg_class = building_class(GI_ap, hazard='wind')
@@ -130,8 +132,8 @@ def auto_populate(aim):
         bldg_config = MH_config(GI_ap)
     else:
         raise ValueError(
-            f"Building class {bldg_class} not recognized by the "
-            f"auto-population routine."
+            f'Building class {bldg_class} not recognized by the '
+            f'auto-population routine.'
         )
 
     # prepare the flood rulesets
@@ -150,24 +152,24 @@ def auto_populate(aim):
     ).T
 
     DL_ap = {
-        "Asset": {
-            "ComponentAssignmentFile": "CMP_QNT.csv",
-            "ComponentDatabase": "Hazus Hurricane",
-            "NumberOfStories": f"{GI_ap['NumberOfStories']}",
-            "OccupancyType": f"{GI_ap['OccupancyClass']}",
-            "PlanArea": f"{GI_ap['PlanArea']}",
+        'Asset': {
+            'ComponentAssignmentFile': 'CMP_QNT.csv',
+            'ComponentDatabase': 'Hazus Hurricane',
+            'NumberOfStories': f"{GI_ap['NumberOfStories']}",
+            'OccupancyType': f"{GI_ap['OccupancyClass']}",
+            'PlanArea': f"{GI_ap['PlanArea']}",
         },
-        "Damage": {"DamageProcess": "Hazus Hurricane"},
-        "Demands": {},
-        "Losses": {
-            "BldgRepair": {
-                "ConsequenceDatabase": "Hazus Hurricane",
-                "MapApproach": "Automatic",
-                "DecisionVariables": {
-                    "Cost": True,
-                    "Carbon": False,
-                    "Energy": False,
-                    "Time": False,
+        'Damage': {'DamageProcess': 'Hazus Hurricane'},
+        'Demands': {},
+        'Losses': {
+            'BldgRepair': {
+                'ConsequenceDatabase': 'Hazus Hurricane',
+                'MapApproach': 'Automatic',
+                'DecisionVariables': {
+                    'Cost': True,
+                    'Carbon': False,
+                    'Energy': False,
+                    'Time': False,
                 },
             }
         },

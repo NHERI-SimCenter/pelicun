@@ -1,0 +1,93 @@
+.. _changes_v3_3_0:
+
+==============================
+Version 3.3.0 (March 29, 2024)
+==============================
+
+New features
+------------
+
+.. _changes_v3_3_0.new.loc_dmg_prc:
+
+Location-specific damage processes
+..................................
+
+This new feature is useful when you want damage to a component type to induce damage in another component type at the same location only.
+For example, damaged water pipes on a specific story can trigger damage in floor covering only on that specific story.
+Location-matching is performed automatically without you having to define component pairs for every location using the following syntax: ``'1_CMP.A-LOC', {'DS1': 'CMP.B_DS1'}`` , where ``DS1`` of ``CMP.A`` at each location triggers ``DS1`` of ``CMP.B`` at the same location.
+
+.. _changes_v3_3_0.new.custom_model_dir:
+
+New ``custom_model_dir`` argument for ``DL_calculation.py``
+...........................................................
+
+This argument allows users to prepare custom damage and loss model files in a folder and pass the path to that folder to an auto-population script through ``DL_calculation.py``.
+Within the auto-population script, they can reference only the name of the files in that folder.
+This provides portability for simulations that use custom models and auto population, such as some of the advanced regional simulations in `SimCenter's R2D Tool <https://simcenter.designsafe-ci.org/research-tools/r2dtool/>`_.
+
+.. _changes_v3_3_0.new.hazus_eq_auto_pop:
+
+Extend Hazus EQ auto population scripts to include water networks
+.................................................................
+
+Automatically recognize water network assets and map them to archetypes from the Hazus Earthquake technical manual.
+
+.. _changes_v3_3_0.new.convert_units:
+
+Introduce ``convert_units`` function
+....................................
+
+Provide streamlined unit conversion using the pre-defined library of units in Pelicun.
+Allows you to convert a variable from one unit to another using a single line of simple code, such as:
+
+.. code::
+
+  converted_height = pelicun.base.convert_units(raw_height, unit='m', to_unit='ft')
+
+While not as powerful as some of the Python packages dedicated to unit conversion (e.g., `Pint <https://pint.readthedocs.io/en/stable/>`_), we believe the convenience this function provides for commonly used units justifies its use in several cases.
+
+.. _changes_v3_3_0.breaking:
+
+Backwards incompatible changes
+------------------------------
+
+.. _changes_v3_3_0.breaking.bldg:
+
+Remove ``bldg`` from repair consequence output filenames
+........................................................
+
+The increasing scope of Pelicun now covers simulations for transportation and water networks.
+Hence, labeling repair consequence outputs as if they were limited to buildings no longer seems appropriate.
+The bldg label was dropped from the following files: ``DV_bldg_repair_sample``, ``DV_bldg_repair_stats``, ``DV_bldg_repair_grp``, ``DV_bldg_repair_grp_stats``, ``DV_bldg_repair_agg``, ``DV_bldg_repair_agg_stats``.
+
+.. _changes_v3_3_0.changes:
+
+Other changes
+-------------
+
+- We split ``model.py`` into subcomponents.
+  The ``model.py`` file was too large and its contents were easy to refactor into separate modules.
+  Each model type has its own python file now and they are stored under the model folder.
+
+- We split the ``RandomVariable`` class into specific classes.
+  It seems more straightforward to grow the list of supported random variables by having a specific class for each kind of RV.
+  We split the existing large RandomVariable class in uq.py leveraging inheritance to minimize redundant code.
+
+- Automatic code formatting: Further improve consistency in coding style by using black to review and format the code when needed.
+
+- Removed ``bldg`` from variable and class names: Following the changes mentioned earlier, we dropped bldg from labels where the functionality is no longer limited to buildings.
+
+- Introduced ``calibrated`` attribute for demand model: This new attribute will allow users to check if a model has already been calibrated to the provided empirical data.
+
+- Version ceiling was raised for pandas, supporting version 2.0 and above up until 3.0.
+
+Soon-to-be removed features
+---------------------------
+
+.. _changes_v3_3_0.deprecated.bldg:
+
+Remove ``Bldg`` from repair settings label in DL configuration file
+...................................................................
+
+Following the changes above, we dropped ``Bldg`` from ``BldgRepair`` when defining settings for repair consequence simulation in a configuration file.
+The previous version (i.e., ``BldgRepair``) will keep working until the next major release, but we encourage everyone to adopt the new approach and simply use the ``Repair`` keyword there.

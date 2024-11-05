@@ -1080,8 +1080,8 @@ def _asset_save(
     """
     output = assessment.asset.save_cmp_sample(save_units=True)
     assert isinstance(output, tuple)
-    cmp_sample, cmp_units = output
-    cmp_units = cmp_units.to_frame().T  # type: ignore
+    cmp_sample, cmp_units_series = output
+    cmp_units = cmp_units_series.to_frame().T
 
     if aggregate_colocated:
         cmp_units = cmp_units.groupby(level=['cmp', 'loc', 'dir'], axis=1).first()  # type: ignore
