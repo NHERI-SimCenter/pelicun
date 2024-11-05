@@ -43,7 +43,9 @@ from __future__ import annotations
 
 import argparse
 import io
+import platform
 import re
+import subprocess  # noqa: S404
 import tempfile
 from contextlib import redirect_stdout
 from pathlib import Path
@@ -206,6 +208,69 @@ def test_logger_div() -> None:
         with Path(f'{temp_dir}/log.txt').open(encoding='utf-8') as f:
             # simply check that it is not empty
             assert f.read()
+
+
+@pytest.mark.skipif(
+    platform.system() == 'Windows',
+    reason='Skipping test on Windows due to path handling issues.',
+)
+def test_logger_exception() -> None:
+    # Create a temporary directory for log files
+    temp_dir = tempfile.mkdtemp()
+
+    # Create a sample Python script that will raise an exception
+    test_script = Path(temp_dir) / 'test_script.py'
+    test_script_content = f"""
+from pathlib import Path
+from pelicun.base import Logger
+
+log_file_A = Path("{temp_dir}") / 'log_A.txt'
+log_file_B = Path("{temp_dir}") / 'log_B.txt'
+
+log_A = Logger(
+    log_file=log_file_A,
+    verbose=True,
+    log_show_ms=True,
+    print_log=True,
+)
+log_B = Logger(
+    log_file=log_file_B,
+    verbose=True,
+    log_show_ms=True,
+    print_log=True,
+)
+
+raise ValueError('Test exception in subprocess')
+"""
+
+    # Write the test script to the file
+    test_script.write_text(test_script_content)
+
+    # Use subprocess to run the script
+    process = subprocess.run(  # noqa: S603
+        ['python', str(test_script)],  # noqa: S607
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    # Check that the process exited with an error
+    assert process.returncode == 1
+
+    # Check the stdout/stderr for the expected output
+    assert 'Test exception in subprocess' in process.stdout
+
+    # Check that the exception was logged in the log file
+    log_files = (
+        Path(temp_dir) / 'log_A_warnings.txt',
+        Path(temp_dir) / 'log_B_warnings.txt',
+    )
+    for log_file in log_files:
+        assert log_file.exists(), 'Log file was not created'
+        log_content = log_file.read_text()
+        assert 'Test exception in subprocess' in log_content
+        assert 'Traceback' in log_content
+        assert 'ValueError' in log_content
 
 
 def test_split_file_name() -> None:
