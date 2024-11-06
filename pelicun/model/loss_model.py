@@ -83,7 +83,7 @@ class LossModel(PelicunModel):
     def __init__(
         self,
         assessment: AssessmentBase,
-        decision_variables: tuple[str, ...] = ('Carbon', 'Cost', 'Energy', 'Time'),
+        decision_variables: tuple[str, ...] = ('Cost', 'Time'),
         dv_units: dict[str, str] | None = None,
     ) -> None:
         """
