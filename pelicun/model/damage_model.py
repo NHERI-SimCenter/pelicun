@@ -1374,6 +1374,11 @@ class DamageModel_DS(DamageModel_Base):
 
                     theta_0 = frg_params_ls.get('Theta_0', np.nan)
                     family = frg_params_ls.get('Family', 'deterministic')
+
+                    # if `family` is defined but is `None`, we
+                    # consider it to be `deterministic`
+                    if not family:
+                        family = 'deterministic'
                     ds_weights = frg_params_ls.get('DamageStateWeights', None)
 
                     # check if the limit state is defined for the component
@@ -1385,7 +1390,7 @@ class DamageModel_DS(DamageModel_Base):
                     ]
 
                     if capacity_adjustment_operation:
-                        if family in {'normal', 'lognormal'}:
+                        if family in {'normal', 'lognormal', 'deterministic'}:
                             theta[0] = self._handle_operation(
                                 theta[0],
                                 capacity_adjustment_operation[0],
