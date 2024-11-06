@@ -1195,6 +1195,16 @@ class DLCalculationAssessment(AssessmentBase):
 
                     dmg_process = new_dmg_process
 
+                # Remove components not present in the asset model
+                # from the source components of the damage process.
+                asset_components = set(self.asset.list_unique_component_ids())
+                filtered_dmg_process = {}
+                for key in dmg_process:
+                    component = key.split('_')[1]
+                    if component in asset_components:
+                        filtered_dmg_process[key] = dmg_process[key]
+                dmg_process = filtered_dmg_process
+
             elif damage_process_approach == 'User Defined':
                 if damage_process_file_path is None:
                     msg = (
