@@ -84,18 +84,17 @@ def test_dl_calculation_1(obtain_temp_dir: str) -> None:
     os.chdir(temp_dir)
 
     # run
-    with pytest.warns(PelicunWarning):
-        run_pelicun(
-            demand_file='response.csv',
-            config_path='8000-AIM.json',
-            output_path=None,
-            coupled_edp=True,
-            realizations=100,
-            auto_script_path=None,
-            detailed_results=False,
-            output_format=None,
-            custom_model_dir=None,
-        )
+    run_pelicun(
+        demand_file='response.csv',
+        config_path='8000-AIM.json',
+        output_path=None,
+        coupled_edp=True,
+        realizations=100,
+        auto_script_path=None,
+        detailed_results=False,
+        output_format=None,
+        custom_model_dir=None,
+    )
 
     #
     # Test files

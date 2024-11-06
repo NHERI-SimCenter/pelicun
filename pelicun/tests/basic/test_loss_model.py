@@ -172,7 +172,7 @@ class TestLossModel(TestPelicunModel):
         assert len(loss_model._loss_models) == 2
 
     def test_decision_variables(self, loss_model: LossModel) -> None:
-        dvs = ('Carbon', 'Cost', 'Energy', 'Time')
+        dvs = ('Cost', 'Time')
         assert loss_model.decision_variables == dvs
         assert loss_model.ds_model.decision_variables == dvs
         assert loss_model.lf_model.decision_variables == dvs
@@ -337,14 +337,15 @@ class TestLossModel(TestPelicunModel):
     ) -> None:
         # tests that aggregate losses works when there is no loss.
         loss_model = LossModel(assessment_instance)
+        loss_model.decision_variables = ('Cost', 'Time', 'Carbon', 'Energy')
         df_agg = loss_model.aggregate_losses()
         assert isinstance(df_agg, pd.DataFrame)
         pd.testing.assert_frame_equal(
             df_agg,
             pd.DataFrame(
                 {
-                    'repair_carbon': 0.0,
                     'repair_cost': 0.00,
+                    'repair_carbon': 0.0,
                     'repair_energy': 0.00,
                     'repair_time-sequential': 0.00,
                     'repair_time-parallel': 0.00,
