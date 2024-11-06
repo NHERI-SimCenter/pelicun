@@ -1373,8 +1373,8 @@ class DLCalculationAssessment(AssessmentBase):
 
         # prepare additional loss map entries, if needed
         if 'DMG-collapse' not in loss_map.index:
-            loss_map.loc['DMG-collapse', 'Repair'] = 'replacement'
-            loss_map.loc['DMG-irreparable', 'Repair'] = 'replacement'
+            loss_map.loc['collapse', 'Repair'] = 'replacement'
+            loss_map.loc['irreparable', 'Repair'] = 'replacement'
 
         if decision_variables:
             self.loss.decision_variables = decision_variables
@@ -1916,7 +1916,7 @@ def _loss__map_auto(
                 continue
 
             if dmg_cmp in loss_cmps:
-                drivers.append(f'DMG-{dmg_cmp}')
+                drivers.append(dmg_cmp)
                 loss_models.append(dmg_cmp)
 
     elif dl_method in {
@@ -1936,7 +1936,7 @@ def _loss__map_auto(
                 loss_cmp = cmp_class
 
             if loss_cmp in loss_cmps:
-                drivers.append(f'DMG-{dmg_cmp}')
+                drivers.append(dmg_cmp)
                 loss_models.append(loss_cmp)
 
     return pd.DataFrame(loss_models, columns=['Repair'], index=drivers)
