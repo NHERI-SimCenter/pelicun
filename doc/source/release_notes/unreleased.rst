@@ -23,7 +23,7 @@ Added
 
 **New ``DL_calculation.py`` input file options**: We expanded configuration options in the ``DL_calculation.py`` input file specification. Specifically, we added ``CustomDLDataFolder`` for specifying additional user-defined components.
 
-**Warnings in red**: Added support for colored outputs. In execution enviornments that support colored outputs, warnings are now shown in red.
+**Warnings in red**: Added support for colored outputs. In execution environments that support colored outputs, warnings are now shown in red.
 
 Code base related additions, which are not directly implementing new features but are nonetheless enhancing robustness, include the following:
 - pelicun-specific warnings with the option to disable them
