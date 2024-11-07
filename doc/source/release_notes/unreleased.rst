@@ -7,27 +7,27 @@ Unreleased
 Added
 -----
 
-**Documentation pages**: Documentation for pelicun 3 is back online. The documentation includes guides for users and developers as well as an auto-generated API reference. A lineup of examples is planned to be featured in the documentation, highlighting specific features, including the new features listed in this section.
+**Documentation pages**: Documentation for pelicun 3 is back online. The documentation includes guides for users and developers as well as an auto-generated API reference. A lineup of examples is planned to be part of the documentation, highlighting specific features, including the new ones listed in this section.
 
-**Consequence scaling**: This feature can be used to apply scaling factors to estimated losses based on specific decision variables, component types, locations and directions. This can make it easier to examining several different consequence scaling schemes without the need to repeat all calculations or write extensive custom code.
+**Consequence scaling**: This feature can be used to apply scaling factors to consequence and loss functions for specific decision variables, component types, locations and directions. This can make it easier to examine several different consequence scaling schemes without the need to repeat all calculations or write extensive custom code.
 
-**Loss functions**: Loss functions are used to estimate losses directly from the demands. The damage and loss models were substantially restructured to facilitate the addition of loss functions.
+**Loss functions**: Loss functions are used to estimate losses directly from the demands. The damage and loss models were substantially restructured to facilitate the use of loss functions.
 
-**Loss combinations**: Loss combinations allow for the combination of two types of losses using a multi-dimensional lookup table. For example, independently calculated wind and flooding losses can be combined to produce a single loss estimate considering their combined occurrence.
+**Loss combinations**: Loss combinations allow for the combination of two types of losses using a multi-dimensional lookup table. For example, independently calculated losses from wind and flood can be combined to produce a single loss estimate considering both demands.
 
-**Utility demand**: Utility demands are compound demands calculated using a mathematical expression involving other demands. Application examples could include the application of a mathematical expression to a demand column before using it to estimate damage, or combining multiple columns with an arbitrary multivariate expression to generate a combined demand.
+**Utility demand**: Utility demands are compound demands calculated using a mathematical expression involving other demands. Practical examples include the application of a mathematical expression on a demand before using it to estimate damage, or combining multiple demands with a multivariate expression to generate a combined demand.Such utility demands can be used to implement those multidimensional fragility models that utilize a single, one-dimensional distribution that is defined through a combination of multiple input variables.
 
-**Normal with standard deviation**: Added a few variants of "normal" in ``uq.py``: ``normal_COV`` and ``normal_STD``. Since the variance of the default normal random variables is currently defined via the coefficient of variation, ``normal_STD`` enables the definition of normal random variables with zero mean. ``normal_COV`` is treated in the same way as the default ``normal``.
+**Normal distribution with standard deviation**: Added two new variants of "normal" in ``uq.py``: ``normal_COV`` and ``normal_STD``. Since the variance of the default normal random variables is currently defined via the coefficient of variation, the new ``normal_STD`` is required to define a normal random variable with zero mean. ``normal_COV`` is treated the same way as the default ``normal``.
 
 **Weibull random variable**: Added a Weibull random variable class in ``uq.py``.
 
 **New ``DL_calculation.py`` input file options**: We expanded configuration options in the ``DL_calculation.py`` input file specification. Specifically, we added ``CustomDLDataFolder`` for specifying additional user-defined components.
 
-**Warnings in red**: Added support for colored outputs. Warnings are now shown in red, conditioned on what the execution environment supports.
+**Warnings in red**: Added support for colored outputs. In execution enviornments that support colored outputs, warnings are now shown in red.
 
 Code base related additions, which are not directly implementing new features but are nonetheless enhancing robustness, include the following:
 - pelicun-specific warnings with the option to disable them
-- a JSON schema for the ``DL_calculation.py`` input file
+- a JSON schema for the input file used to configure simulations through ``DL_calculation.py``
 - addition of type hints in the entire code base
 - addition of slots in all classes, preventing on-the-fly definition of new attributes which is prone to bugs
 
@@ -35,8 +35,8 @@ Changed
 -------
 
 - Updated random variable class names in ``uq.py``.
-- Extensive code refactoring for improved organization and to support the added features. We made a good-faith effort to maintain backwards compatibility, and issue helpful warnings to assist migration to the new syntax.
-- Moved code from DL_calculation.py to assessment.py and created an assessment class.
+- Extensive code refactoring for improved organization and to support the new features. We made a good-faith effort to maintain backwards compatibility, and issue helpful warnings to assist migration to the new syntax.
+- Moved most of the code in DL_calculation.py to assessment.py and created an assessment class.
 - Migrated to Ruff for linting and code formatting. Began using mypy for type checking and codespell for spell checking.
 
 Deprecated
