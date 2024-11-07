@@ -80,7 +80,7 @@ def auto_populate(aim):
         "Damage": {"DamageProcess": "None"},
         "Demands": {},
         "Losses": {
-            "BldgRepair": {
+            "Repair": {
                 "ConsequenceDatabase": "None",
                 "ConsequenceDatabasePath": (
                     "CustomDLDataFolder/loss_repair_Tsunami.csv"

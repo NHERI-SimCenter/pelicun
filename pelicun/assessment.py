@@ -1195,6 +1195,16 @@ class DLCalculationAssessment(AssessmentBase):
 
                     dmg_process = new_dmg_process
 
+                # Remove components not present in the asset model
+                # from the source components of the damage process.
+                asset_components = set(self.asset.list_unique_component_ids())
+                filtered_dmg_process = {}
+                for key in dmg_process:
+                    component = key.split('_')[1]
+                    if component in asset_components:
+                        filtered_dmg_process[key] = dmg_process[key]
+                dmg_process = filtered_dmg_process
+
             elif damage_process_approach == 'User Defined':
                 if damage_process_file_path is None:
                     msg = (
@@ -1363,8 +1373,8 @@ class DLCalculationAssessment(AssessmentBase):
 
         # prepare additional loss map entries, if needed
         if 'DMG-collapse' not in loss_map.index:
-            loss_map.loc['DMG-collapse', 'Repair'] = 'replacement'
-            loss_map.loc['DMG-irreparable', 'Repair'] = 'replacement'
+            loss_map.loc['collapse', 'Repair'] = 'replacement'
+            loss_map.loc['irreparable', 'Repair'] = 'replacement'
 
         if decision_variables:
             self.loss.decision_variables = decision_variables
@@ -1906,7 +1916,7 @@ def _loss__map_auto(
                 continue
 
             if dmg_cmp in loss_cmps:
-                drivers.append(f'DMG-{dmg_cmp}')
+                drivers.append(dmg_cmp)
                 loss_models.append(dmg_cmp)
 
     elif dl_method in {
@@ -1926,7 +1936,7 @@ def _loss__map_auto(
                 loss_cmp = cmp_class
 
             if loss_cmp in loss_cmps:
-                drivers.append(f'DMG-{dmg_cmp}')
+                drivers.append(dmg_cmp)
                 loss_models.append(loss_cmp)
 
     return pd.DataFrame(loss_models, columns=['Repair'], index=drivers)

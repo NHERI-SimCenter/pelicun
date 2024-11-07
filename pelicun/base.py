@@ -451,7 +451,7 @@ class Logger:
         """Issues all warnings and clears the warning stack."""
         for message in self.warning_stack:
             if message not in self.emitted:
-                warnings.warn(message, PelicunWarning, stacklevel=2)
+                warnings.warn(message, PelicunWarning, stacklevel=3)
                 if self.warning_file is not None:
                     with Path(self.warning_file).open('a', encoding='utf-8') as f:
                         f.write(

@@ -78,18 +78,17 @@ def test_dl_calculation_3(obtain_temp_dir: tuple[str, str]) -> None:
     os.chdir(temp_dir)
 
     # run
-    with pytest.warns(PelicunWarning):
-        run_pelicun(
-            demand_file='response.csv',
-            config_path='170-AIM.json',
-            output_path=None,
-            coupled_edp=False,
-            realizations=100,
-            auto_script_path='PelicunDefault/Hazus_Earthquake_Story.py',
-            detailed_results=False,
-            output_format=None,
-            custom_model_dir=None,
-        )
+    run_pelicun(
+        demand_file='response.csv',
+        config_path='170-AIM.json',
+        output_path=None,
+        coupled_edp=False,
+        realizations=100,
+        auto_script_path='PelicunDefault/Hazus_Earthquake_Story.py',
+        detailed_results=False,
+        output_format=None,
+        custom_model_dir=None,
+    )
 
     #
     # Test files

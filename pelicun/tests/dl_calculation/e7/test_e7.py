@@ -95,18 +95,17 @@ def test_dl_calculation_7(obtain_temp_dir: tuple[str, str]) -> None:
     os.chdir(temp_dir)
 
     # run
-    with pytest.warns(PelicunWarning):
-        run_pelicun(
-            demand_file='response.csv',
-            config_path='1-AIM.json',
-            output_path=None,
-            coupled_edp=True,
-            realizations=100,
-            auto_script_path='auto_HU_NJ.py',
-            detailed_results=False,
-            output_format=None,
-            custom_model_dir=None,
-        )
+    run_pelicun(
+        demand_file='response.csv',
+        config_path='1-AIM.json',
+        output_path=None,
+        coupled_edp=True,
+        realizations=100,
+        auto_script_path='auto_HU_NJ.py',
+        detailed_results=False,
+        output_format=None,
+        custom_model_dir=None,
+    )
 
     # now remove the ruleset files and auto script
     for file_path in ruleset_files:
