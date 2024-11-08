@@ -68,6 +68,7 @@ from pelicun.base import (
     is_unspecified,
     str2bool,
     update,
+    update_vals
 )
 from pelicun.pelicun_warnings import PelicunInvalidConfigError
 
@@ -643,6 +644,25 @@ def _parse_config_file(  # noqa: C901
                 'a valid damage and loss configuration for this asset. '
             )
             raise PelicunInvalidConfigError(msg)
+
+        # look for possibly specified assessment options
+        try:
+            assessment_options = config['Applications']['DL']['ApplicationData'][
+                'Options'
+            ]
+        except KeyError:
+            assessment_options = None
+
+        if assessment_options:
+            # extend options defined via the auto-population script to
+            # include those in the original `config`
+            config_ap['Applications']['DL']['ApplicationData'].pop('Options')
+            update_vals(
+                config_ap['DL']['Options'],
+                assessment_options,
+                "config_ap['DL']['Options']",
+                'assessment_options',
+            )
 
         # add the demand information
         update(config_ap, '/DL/Demands/DemandFilePath', demand_file)

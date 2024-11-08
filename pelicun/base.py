@@ -152,7 +152,7 @@ class Options:
     __slots__ = [
         '_asmnt',
         '_rng',
-        '_seed',
+        'seed',
         'defaults',
         'demand_offset',
         'eco_scale',
@@ -194,12 +194,11 @@ class Options:
         self.sampling_method: str | None = None
         self.list_all_ds: bool | None = None
 
-        self._seed: float | None = None
+        self.seed: float | None = None
 
-        self._rng = np.random.default_rng()
         merged_config_options = merge_default_config(user_config_options)
 
-        self._seed = merged_config_options['Seed']
+        self.seed = merged_config_options['Seed']
         self.sampling_method = merged_config_options['Sampling']['SamplingMethod']
         self.list_all_ds = merged_config_options['ListAllDamageStates']
 
