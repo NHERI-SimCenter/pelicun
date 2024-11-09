@@ -42,11 +42,9 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
-
 import json
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
 import pandas as pd
@@ -125,7 +123,9 @@ class AssessmentBase:
         """
         self.stories: int | None = None
         self.options = base.Options(config_options, self)
-        self.unit_conversion_factors: dict = base.parse_units(self.options.units_file)
+        self.unit_conversion_factors: dict = base.parse_units(
+            self.options.units_file
+        )
 
         self.log: Logger = self.options.log
         self.log.msg(
