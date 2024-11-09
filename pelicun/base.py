@@ -152,7 +152,7 @@ class Options:
     __slots__ = [
         '_asmnt',
         '_rng',
-        'seed',
+        '_seed',
         'defaults',
         'demand_offset',
         'eco_scale',
@@ -193,8 +193,6 @@ class Options:
         self.defaults: dict[str, Any] | None = None
         self.sampling_method: str | None = None
         self.list_all_ds: bool | None = None
-
-        self.seed: float | None = None
 
         merged_config_options = merge_default_config(user_config_options)
 

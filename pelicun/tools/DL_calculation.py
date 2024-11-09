@@ -68,7 +68,7 @@ from pelicun.base import (
     is_unspecified,
     str2bool,
     update,
-    update_vals
+    update_vals,
 )
 from pelicun.pelicun_warnings import PelicunInvalidConfigError
 

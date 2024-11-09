@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # Copyright (c) 2023 Leland Stanford Junior University
 # Copyright (c) 2023 The Regents of the University of California
@@ -39,38 +38,38 @@
 
 import pandas as pd
 
-ap_DesignLevel = {1940: "LC", 1975: "MC", 2100: "HC"}
+ap_DesignLevel = {1940: 'LC', 1975: 'MC', 2100: 'HC'}
 # ap_DesignLevel = {1940: 'PC', 1940: 'LC', 1975: 'MC', 2100: 'HC'}
 
-ap_DesignLevel_W1 = {0: "LC", 1975: "MC", 2100: "HC"}
+ap_DesignLevel_W1 = {0: 'LC', 1975: 'MC', 2100: 'HC'}
 # ap_DesignLevel_W1 = {0: 'PC', 0: 'LC', 1975: 'MC', 2100: 'HC'}
 
 ap_Occupancy = {
-    "Other/Unknown": "RES3",
-    "Residential - Single-Family": "RES1",
-    "Residential - Town-Home": "RES3",
-    "Residential - Multi-Family": "RES3",
-    "Residential - Mixed Use": "RES3",
-    "Office": "COM4",
-    "Hotel": "RES4",
-    "School": "EDU1",
-    "Industrial - Light": "IND2",
-    "Industrial - Warehouse": "IND2",
-    "Industrial - Heavy": "IND1",
-    "Retail": "COM1",
-    "Parking": "COM10",
+    'Other/Unknown': 'RES3',
+    'Residential - Single-Family': 'RES1',
+    'Residential - Town-Home': 'RES3',
+    'Residential - Multi-Family': 'RES3',
+    'Residential - Mixed Use': 'RES3',
+    'Office': 'COM4',
+    'Hotel': 'RES4',
+    'School': 'EDU1',
+    'Industrial - Light': 'IND2',
+    'Industrial - Warehouse': 'IND2',
+    'Industrial - Heavy': 'IND1',
+    'Retail': 'COM1',
+    'Parking': 'COM10',
 }
 
 convert_design_level = {
-    "High-Code": "HC",
-    "Moderate-Code": "MC",
-    "Low-Code": "LC",
-    "Pre-Code": "PC",
+    'High-Code': 'HC',
+    'Moderate-Code': 'MC',
+    'Low-Code': 'LC',
+    'Pre-Code': 'PC',
 }
 
 
 def convert_story_rise(structureType, stories):
-    if structureType in ["W1", "W2", "S3", "PC1", "MH"]:
+    if structureType in ['W1', 'W2', 'S3', 'PC1', 'MH']:
         # These archetypes have no rise information in their IDs
         rise = None
 
@@ -79,101 +78,103 @@ def convert_story_rise(structureType, stories):
         try:
             stories = int(stories)
 
-        except (ValueError, TypeError):
-            raise ValueError(
+        except (ValueError, TypeError) as exc:
+            msg = (
                 'Missing "NumberOfStories" information, '
-                "cannot infer `rise` attribute of archetype"
+                'cannot infer `rise` attribute of archetype'
             )
 
-        if structureType == "RM1":
+            raise ValueError(msg) from exc
+
+        if structureType == 'RM1':
             if stories <= 3:
-                rise = "L"
+                rise = 'L'
 
             else:
-                rise = "M"
+                rise = 'M'
 
-        elif structureType == "URM":
+        elif structureType == 'URM':
             if stories <= 2:
-                rise = "L"
+                rise = 'L'
 
             else:
-                rise = "M"
+                rise = 'M'
 
         elif structureType in [
-            "S1",
-            "S2",
-            "S4",
-            "S5",
-            "C1",
-            "C2",
-            "C3",
-            "PC2",
-            "RM2",
+            'S1',
+            'S2',
+            'S4',
+            'S5',
+            'C1',
+            'C2',
+            'C3',
+            'PC2',
+            'RM2',
         ]:
             if stories <= 3:
-                rise = "L"
+                rise = 'L'
 
             elif stories <= 7:
-                rise = "M"
+                rise = 'M'
 
             else:
-                rise = "H"
+                rise = 'H'
 
     return rise
 
 
-def auto_populate(AIM):
+def auto_populate(aim):
     """
     Automatically creates a performance model for story EDP-based Hazus EQ analysis.
 
     Parameters
     ----------
-    AIM: dict
+    aim: dict
         Asset Information Model - provides features of the asset that can be
         used to infer attributes of the performance model.
 
     Returns
     -------
-    GI_ap: dict
+    gi_ap: dict
         Extended General Information - extends the GI from the input AIM with
         additional inferred features. These features are typically used in
         intermediate steps during the auto-population and are not required
         for the performance assessment. They are returned to allow reviewing
         how these latent variables affect the final results.
-    DL_ap: dict
+    dl_ap: dict
         Damage and Loss parameters - these define the performance model and
         details of the calculation.
-    CMP: DataFrame
+    comp: DataFrame
         Component assignment - Defines the components (in rows) and their
         location, direction, and quantity (in columns).
     """
 
     # extract the General Information
-    GI = AIM.get("GeneralInformation", None)
+    gi = aim.get('GeneralInformation', None)
 
-    if GI is None:
+    if gi is None:
         # TODO: show an error message
         pass
 
-    # initialize the auto-populated GI
-    GI_ap = GI.copy()
+    # initialize the auto-populated gi
+    gi_ap = gi.copy()
 
-    assetType = AIM["assetType"]
-    ground_failure = AIM["Applications"]["DL"]["ApplicationData"]["ground_failure"]
+    assetType = aim['assetType']
+    ground_failure = aim['Applications']['DL']['ApplicationData']['ground_failure']
 
-    if assetType == "Buildings":
+    if assetType == 'Buildings':
         # get the building parameters
-        bt = GI["StructureType"]  # building type
+        bt = gi['StructureType']  # building type
 
         # get the design level
-        dl = GI.get("DesignLevel", None)
+        dl = gi.get('DesignLevel', None)
 
         if dl is None:
             # If there is no DesignLevel provided, we assume that the YearBuilt is
             # available
-            year_built = GI["YearBuilt"]
+            year_built = gi['YearBuilt']
 
-            if "W1" in bt:
+            if 'W1' in bt:
                 DesignL = ap_DesignLevel_W1
             else:
                 DesignL = ap_DesignLevel
@@ -183,108 +184,108 @@ def auto_populate(AIM):
                     dl = DesignL[year]
                     break
 
-            GI_ap["DesignLevel"] = dl
+            gi_ap['DesignLevel'] = dl
         # get the number of stories / height
-        stories = GI.get("NumberOfStories", None)
+        stories = gi.get('NumberOfStories', None)
 
         # We assume that the structure type does not include height information
         # and we append it here based on the number of story information
         rise = convert_story_rise(bt, stories)
 
         # get the number of stories / height
-        stories = GI.get("NumberOfStories", None)
+        stories = gi.get('NumberOfStories', None)
 
         if rise is None:
             # To prevent STR.W2.None.LC
-            FG_S = f"STR.{bt}.{dl}"
+            fg_s = f'STR.{bt}.{dl}'
         else:
-            FG_S = f"STR.{bt}.{rise}.{dl}"
-        # FG_S = f"STR.{bt}.{dl}"
-        FG_NSD = "NSD"
-        FG_NSA = f"NSA.{dl}"
+            fg_s = f'STR.{bt}.{rise}.{dl}'
+        # fg_s = f"STR.{bt}.{dl}"
+        fg_nsd = 'NSD'
+        fg_nsa = f'NSA.{dl}'
 
-        CMP = pd.DataFrame(
+        comp = pd.DataFrame(
             {
-                f"{FG_S}": [
-                    "ea",
+                f'{fg_s}': [
+                    'ea',
                     1,
                     1,
                     1,
-                    "N/A",
+                    'N/A',
                 ],
-                f"{FG_NSA}": [
-                    "ea",
+                f'{fg_nsa}': [
+                    'ea',
                     1,
                     0,
                     1,
-                    "N/A",
+                    'N/A',
                 ],
-                f"{FG_NSD}": [
-                    "ea",
+                f'{fg_nsd}': [
+                    'ea',
                     1,
                     1,
                     1,
-                    "N/A",
+                    'N/A',
                 ],
             },
-            index=["Units", "Location", "Direction", "Theta_0", "Family"],
+            index=['Units', 'Location', 'Direction', 'Theta_0', 'Family'],
         ).T
 
         # if needed, add components to simulate damage from ground failure
         if ground_failure:
-            foundation_type = "S"
+            foundation_type = 'S'
 
             # fmt: off
-            FG_GF_H = f'GF.H.{foundation_type}'                                        # noqa
-            FG_GF_V = f'GF.V.{foundation_type}'                                        # noqa
-            CMP_GF = pd.DataFrame(                                                     # noqa
-                {f'{FG_GF_H}':[  'ea',         1,          1,        1,   'N/A'],      # noqa
-                 f'{FG_GF_V}':[  'ea',         1,          3,        1,   'N/A']},     # noqa
-                index = [     'Units','Location','Direction','Theta_0','Family']       # noqa
-            ).T                                                                        # noqa
+            FG_GF_H = f'GF.H.{foundation_type}'
+            FG_GF_V = f'GF.V.{foundation_type}'
+            comp_gf = pd.DataFrame(
+                {f'{FG_GF_H}': [  'ea',         1,          1,        1,   'N/A'],      # noqa: E201, E241
+                 f'{FG_GF_V}': [  'ea',         1,          3,        1,   'N/A']},     # noqa: E201, E241
+                index = [     'Units', 'Location', 'Direction', 'Theta_0', 'Family']       # noqa: E201, E251
+            ).T
             # fmt: on
 
-            CMP = pd.concat([CMP, CMP_GF], axis=0)
+            comp = pd.concat([comp, comp_gf], axis=0)
 
         # get the occupancy class
-        if GI["OccupancyClass"] in ap_Occupancy.keys():
-            ot = ap_Occupancy[GI["OccupancyClass"]]
+        if gi['OccupancyClass'] in ap_Occupancy:
+            occupancy = ap_Occupancy[gi['OccupancyClass']]
         else:
-            ot = GI["OccupancyClass"]
+            occupancy = gi['OccupancyClass']
 
-        plan_area = GI.get("PlanArea", 1.0)
+        plan_area = gi.get('PlanArea', 1.0)
 
         repair_config = {
-            "ConsequenceDatabase": "Hazus Earthquake - Buildings",
-            "MapApproach": "Automatic",
-            "DecisionVariables": {
-                "Cost": True,
-                "Carbon": False,
-                "Energy": False,
-                "Time": False,
+            'ConsequenceDatabase': 'Hazus Earthquake - Buildings',
+            'MapApproach': 'Automatic',
+            'DecisionVariables': {
+                'Cost': True,
+                'Carbon': False,
+                'Energy': False,
+                'Time': False,
             },
         }
 
-        DL_ap = {
-            "Asset": {
-                "ComponentAssignmentFile": "CMP_QNT.csv",
-                "ComponentDatabase": "Hazus Earthquake - Buildings",
-                "NumberOfStories": f"{stories}",
-                "OccupancyType": f"{ot}",
-                "PlanArea": str(plan_area),
+        dl_ap = {
+            'Asset': {
+                'ComponentAssignmentFile': 'CMP_QNT.csv',
+                'ComponentDatabase': 'Hazus Earthquake - Buildings',
+                'NumberOfStories': f'{stories}',
+                'OccupancyType': f'{occupancy}',
+                'PlanArea': str(plan_area),
             },
-            "Damage": {"DamageProcess": "Hazus Earthquake"},
-            "Demands": {},
-            "Losses": {"Repair": repair_config},
-            "Options": {
-                "NonDirectionalMultipliers": {"ALL": 1.0},
+            'Damage': {'DamageProcess': 'Hazus Earthquake'},
+            'Demands': {},
+            'Losses': {'Repair': repair_config},
+            'Options': {
+                'NonDirectionalMultipliers': {'ALL': 1.0},
             },
         }
 
     else:
         print(
-            f"AssetType: {assetType} is not supported "
-            f"in Hazus Earthquake Capacity Spectrum Method-based DL method"
+            f'AssetType: {assetType} is not supported '
+            f'in Hazus Earthquake Capacity Spectrum Method-based DL method'
         )
 
-    return GI_ap, DL_ap, CMP
+    return gi_ap, dl_ap, comp

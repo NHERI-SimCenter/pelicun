@@ -420,17 +420,16 @@ def auto_populate(aim):  # noqa: C901
 
             # fmt: off
             comp = pd.DataFrame(
-                {f'HWB.GS.{bt[3:]}': [  'ea',         1,          1,        1,   'N/A']}, # noqa: E201, E241
-                index = [            'Units','Location','Direction','Theta_0','Family']   # noqa: E201, E241, E251
+                {f'HWB.GS.{bt[3:]}': [  'ea',         1,          1,        1,   'N/A']},  # noqa: E201, E241
+                index = [            'Units', 'Location', 'Direction', 'Theta_0', 'Family']   # noqa: E201, E251
             ).T
             # fmt: on
             # if needed, add components to simulate damage from ground failure
             if ground_failure:
-
                 # fmt: off
                 comp_gf = pd.DataFrame(
-                    {f'HWB.GF':          [  'ea',         1,          1,        1,   'N/A']}, # noqa: E201, E241, F541
-                    index = [     'Units','Location','Direction','Theta_0','Family']   # noqa: E201, E241, E251
+                    {f'HWB.GF':          [  'ea',         1,          1,        1,   'N/A']},  # noqa: E201, E241, F541
+                    index = [     'Units', 'Location', 'Direction', 'Theta_0', 'Family']   # noqa: E201, E251
                 ).T
                 # fmt: on
 
@@ -463,16 +462,15 @@ def auto_populate(aim):  # noqa: C901
 
             # fmt: off
             comp = pd.DataFrame(
-                {f'HTU.GS.{tt[3:]}': [  'ea',         1,          1,        1,   'N/A']}, # noqa: E201, E241
+                {f'HTU.GS.{tt[3:]}': [  'ea',         1,          1,        1,   'N/A']},  # noqa: E201, E241
                 index = [            'Units','Location','Direction','Theta_0','Family']   # noqa: E201, E231, E251
             ).T
             # fmt: on
             # if needed, add components to simulate damage from ground failure
             if ground_failure:
-
                 # fmt: off
                 comp_gf = pd.DataFrame(
-                    {f'HTU.GF':          [  'ea',         1,          1,        1,   'N/A']}, # noqa: E201, E241, F541
+                    {f'HTU.GF':          [  'ea',         1,          1,        1,   'N/A']},  # noqa: E201, E241, F541
                     index = [     'Units','Location','Direction','Theta_0','Family']   # noqa: E201, E231, E251
                 ).T
                 # fmt: on
@@ -505,16 +503,15 @@ def auto_populate(aim):  # noqa: C901
 
             # fmt: off
             comp = pd.DataFrame(
-                {},   # noqa: E201, E241
+                {},
                 index = [           'Units','Location','Direction','Theta_0','Family']     # noqa: E201, E231, E251
             ).T
             # fmt: on
 
             if ground_failure:
-
                 # fmt: off
                 comp_gf = pd.DataFrame(
-                    {f'HRD.GF.{rt[3:]}':[  'ea',         1,          1,        1,   'N/A']}, # noqa: E201, E231, E241
+                    {f'HRD.GF.{rt[3:]}':[  'ea',         1,          1,        1,   'N/A']},  # noqa: E201, E231, E241
                     index = [     'Units','Location','Direction','Theta_0','Family']   # noqa: E201, E231, E251
                 ).T
                 # fmt: on
