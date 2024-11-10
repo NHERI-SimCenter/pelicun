@@ -645,7 +645,7 @@ class DLCalculationAssessment(AssessmentBase):
 
             if 'Units' in raw_demands.index:
                 raw_units = raw_demands.loc['Units', :]
-                raw_demands = raw_demands.drop('Units', axis=0)
+                raw_demands = raw_demands.drop('Units', axis=0).astype(float)
 
             else:
                 raw_units = None
