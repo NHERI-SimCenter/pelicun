@@ -879,7 +879,8 @@ def convert_dtypes(dataframe: pd.DataFrame) -> pd.DataFrame:
         The modified DataFrame.
 
     """
-    dataframe = dataframe.fillna(value=np.nan)
+    with pd.option_context("future.no_silent_downcasting", True):
+        dataframe = dataframe.fillna(value=np.nan).infer_objects(copy=False)
     # note: `axis=0` applies the function to the columns
     # note: ignoring errors is a bad idea and should never be done. In
     # this case, however, that's not what we do, despite the name of
