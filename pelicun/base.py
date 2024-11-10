@@ -1193,26 +1193,22 @@ def int_or_None(string: str) -> int | None:  # noqa: N802
     except ValueError:
         return None
 
-
-def with_parsed_str_na_values(df: pd.DataFrame) -> pd.DataFrame:
+def check_if_str_is_na(string: str) -> bool:
     """
-    Identify string values interpretable as N/A.
-
-    Given a dataframe, this function identifies values that have
-    string type and can be interpreted as N/A, and replaces them with
-    actual NA's.
+    Check if the provided string can be interpreted as N/A.
 
     Parameters
     ----------
-    df: pd.DataFrame
-        Dataframe to process
+    string: str
+            The string to evaluate
 
     Returns
     -------
-    pd.DataFrame
-        The dataframe with proper N/A values.
+    bool
+        The evaluation result. Yes, if the string is considered N/A.
 
     """
+
     na_vals = {
         '',
         'N/A',
@@ -1236,10 +1232,33 @@ def with_parsed_str_na_values(df: pd.DataFrame) -> pd.DataFrame:
     }
     # obtained from Pandas' internal STR_NA_VALUES variable.
 
+    return isinstance(string, str) and string in na_vals
+
+
+def with_parsed_str_na_values(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Identify string values interpretable as N/A.
+
+    Given a dataframe, this function identifies values that have
+    string type and can be interpreted as N/A, and replaces them with
+    actual NA's.
+
+    Parameters
+    ----------
+    df: pd.DataFrame
+        Dataframe to process
+
+    Returns
+    -------
+    pd.DataFrame
+        The dataframe with proper N/A values.
+
+    """
+
     # Replace string NA values with actual NaNs
     return df.apply(
         lambda col: col.map(
-            lambda x: np.nan if isinstance(x, str) and x in na_vals else x
+            lambda x: np.nan if check_if_str_is_na(x) else x
         )
     )
 
