@@ -289,8 +289,18 @@ class DamageModel(PelicunModel):
         if operation == '/':
             return initial_value / other_value
         raise ValueError(f'Invalid operation: {operation}')
+    
+    def _handle_operation_list(self, initial_value, operations):
+        if len(operations) == 1:
+            return self._handle_operation(initial_value, operations[0][0], operations[0][1])
+        else:
+            new_values = []
+            for operation in operations:
+                new_values.append(self._handle_operation(initial_value, operation[0], operation[1]))
+            return new_values
 
-    def _create_dmg_RVs(self, PGB, scaling_specification=None):
+
+    def _create_dmg_RVs(self, PGB, scaling_specification=None, demand_dict=None):
         """
         Creates random variables required later for the damage calculation.
 
@@ -465,24 +475,29 @@ class DamageModel(PelicunModel):
                     value = value['ALL']
                 for LS, specifics in value.items():
                     css = 'capacity adjustment specification'
-                    if not isinstance(specifics, str):
-                        raise ValueError(
-                            f'Invalud entry in {css}: {specifics}. It has to be a string. '
-                            f'See docstring of DamageModel._create_dmg_RVs.'
-                        )
-                    capacity_adjustment_operation = specifics[0]
-                    number = specifics[1::]
-                    if capacity_adjustment_operation not in ('+', '-', '*', '/'):
-                        raise ValueError(
-                            f'Invalid operation in {css}: '
-                            f'{capacity_adjustment_operation}'
-                        )
-                    fnumber = base.float_or_None(number)
-                    if fnumber is None:
-                        raise ValueError(f'Invalid number in {css}: {number}')
-                    parsed_scaling_specification[key].update({
-                        LS: (capacity_adjustment_operation, fnumber)
-                        })
+                    if not isinstance(specifics, list):
+                        specifics = [specifics]
+                    for spec in specifics:
+                        if not isinstance(spec, str):
+                            raise ValueError(
+                                f'Invalud entry in {css}: {spec}. It has to be a string. '
+                                f'See docstring of DamageModel._create_dmg_RVs.'
+                            )
+                        capacity_adjustment_operation = spec[0]
+                        number = spec[1::]
+                        if capacity_adjustment_operation not in ('+', '-', '*', '/'):
+                            raise ValueError(
+                                f'Invalid operation in {css}: '
+                                f'{capacity_adjustment_operation}'
+                            )
+                        fnumber = base.float_or_None(number)
+                        if fnumber is None:
+                            raise ValueError(f'Invalid number in {css}: {number}')
+                        if LS not in parsed_scaling_specification[key]:
+                            parsed_scaling_specification[key][LS] = []
+                        parsed_scaling_specification[key][LS].append(
+                            (capacity_adjustment_operation, fnumber)
+                            )
                     
             scaling_specification = parsed_scaling_specification
 
@@ -535,16 +550,14 @@ class DamageModel(PelicunModel):
                             # Only scale the median value if ls_id is defined in capacity_adjustment_operation
                             # Otherwise, use the original value
                             if 'ALL' in capacity_adjustment_operation:
-                                theta[0] = self._handle_operation(
+                                theta[0] = self._handle_operation_list(
                                     theta[0],
                                     capacity_adjustment_operation['ALL'][0],
-                                    capacity_adjustment_operation['ALL'][1],
                                 )
                             elif f'LS{ls_id}' in capacity_adjustment_operation:
-                                theta[0] = self._handle_operation(
+                                theta[0] = self._handle_operation_list(
                                     theta[0],
-                                    capacity_adjustment_operation[f'LS{ls_id}'][0],
-                                    capacity_adjustment_operation[f'LS{ls_id}'][1],
+                                    capacity_adjustment_operation[f'LS{ls_id}'],
                                 )
                         else:
                             self.log_msg(
@@ -643,7 +656,8 @@ class DamageModel(PelicunModel):
 
         return capacity_RV_reg, lsds_RV_reg
 
-    def _generate_dmg_sample(self, sample_size, PGB, scaling_specification=None):
+    def _generate_dmg_sample(self, sample_size, PGB, scaling_specification=None,
+                             demand_dict=None):
         """
         This method generates a damage sample by creating random
         variables (RVs) for capacities and limit-state-damage-states
@@ -691,7 +705,8 @@ class DamageModel(PelicunModel):
             )
 
         # Create capacity and LSD RVs for each performance group
-        capacity_RVs, lsds_RVs = self._create_dmg_RVs(PGB, scaling_specification)
+        capacity_RVs, lsds_RVs = self._create_dmg_RVs(PGB, scaling_specification,
+                                                      demand_dict)
 
         if self._asmnt.log.verbose:
             self.log_msg('Sampling capacities...', prepend_timestamp=True)
@@ -1665,19 +1680,19 @@ class DamageModel(PelicunModel):
                 f"{int(performance_group['Blocks'].sum())} blocks"
             )
 
-            # Generate an array with component capacities for each block and
-            # generate a second array that assigns a specific damage state to
-            # each component limit state. The latter is primarily needed to
-            # handle limit states with multiple, mutually exclusive DS options
-            capacity_sample, lsds_sample = self._generate_dmg_sample(
-                sample_size, performance_group, scaling_specification
-            )
-
             # Get the required demand types for the analysis
             EDP_req = self._get_required_demand_type(performance_group)
 
             # Create the demand vector
             demand_dict = self._assemble_required_demand_data(EDP_req)
+
+            # Generate an array with component capacities for each block and
+            # generate a second array that assigns a specific damage state to
+            # each component limit state. The latter is primarily needed to
+            # handle limit states with multiple, mutually exclusive DS options
+            capacity_sample, lsds_sample = self._generate_dmg_sample(
+                sample_size, performance_group, scaling_specification, demand_dict
+            )
 
             # Evaluate the Damage State of each Component Block
             ds_sample = self._evaluate_damage_state(

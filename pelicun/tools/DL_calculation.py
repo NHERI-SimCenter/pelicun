@@ -378,6 +378,9 @@ def run_pelicun(
         if auto_script_path is not None:
             log_msg("Trying to auto-populate")
 
+            # Add the demandFile to the config dict to allow demand dependent auto-population
+            config['DL'] = {'Demands': {'DemandFilePath': f'{demand_file}'}}
+
             config_ap, CMP = auto_populate(config, auto_script_path)
 
             if not config_ap['DL']:

@@ -319,7 +319,7 @@ def substitute_default_path(data_paths):
 
 def load_data(
     data_source,
-    unit_conversion_factors,
+    unit_conversion_factors=None,
     orientation=0,
     reindex=True,
     return_units=False,
