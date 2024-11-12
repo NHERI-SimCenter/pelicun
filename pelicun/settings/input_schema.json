@@ -1,0 +1,645 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "GeneralInformation": {
+      "type": "object",
+      "properties": {
+        "AssetName": {
+          "type": "string"
+        },
+        "AssetType": {
+          "type": "string"
+        },
+        "Location": {
+          "type": "object",
+          "properties": {
+            "Latitude": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "string"
+                }
+              ]
+            },
+            "Longitude": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        "units": {
+          "type": "object",
+          "properties": {
+            "length": {
+              "type": "string",
+              "examples": [
+                "in",
+                "m"
+              ]
+            }
+          },
+          "required": [
+            "length"
+          ]
+        }
+      },
+      "required": [
+        "units"
+      ]
+    },
+    "assetType": {
+      "type": "string",
+      "examples": [
+        "Buildings"
+      ]
+    },
+    "DL": {
+      "type": "object",
+      "properties": {
+        "Demands": {
+          "type": "object",
+          "properties": {
+            "DemandFilePath": {
+              "type": "string"
+            },
+            "SampleSize": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "string"
+                }
+              ]
+            },
+            "CoupledDemands": {
+              "type": "boolean"
+            },
+            "Calibration": {
+              "type": "object"
+            },
+            "CollapseLimits": {
+              "type": "object",
+              "patternProperties": {
+                ".*": {
+                  "anyOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "string"
+                    }
+                  ]
+                }
+              }
+            },
+            "InferResidualDrift": {
+              "type": "object",
+              "properties": {
+                "method": {
+                  "type": "string"
+                },
+                "x-direction": {
+                  "anyOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "string"
+                    }
+                  ]
+                },
+                "y-direction": {
+                  "anyOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "string"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "method"
+              ]
+            }
+          },
+          "required": [
+            "DemandFilePath"
+          ]
+        },
+        "Asset": {
+          "type": "object",
+          "properties": {
+            "ComponentAssignmentFile": {
+              "type": "string"
+            },
+            "NumberOfStories": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "string"
+                }
+              ],
+              "examples": [
+                1,
+                5,
+                10
+              ]
+            },
+            "ComponentSampleFile": {
+              "type": "string"
+            },
+            "ComponentDatabase": {
+              "type": "string"
+            },
+            "ComponentDatabasePath": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "ComponentAssignmentFile"
+          ]
+        },
+        "Damage": {
+          "type": "object",
+          "properties": {
+            "CollapseFragility": {
+              "type": "object",
+              "properties": {
+                "DemandType": {
+                  "type": "string",
+                  "examples": [
+                    "SA",
+                    "PFA",
+                    "PGA"
+                  ]
+                },
+                "CapacityDistribution": {
+                  "type": "string"
+                },
+                "CapacityMedian": {
+                  "anyOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "string"
+                    }
+                  ]
+                },
+                "Theta_1": {
+                  "anyOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "string"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "DemandType",
+                "CapacityDistribution",
+                "CapacityMedian",
+                "Theta_1"
+              ]
+            },
+            "DamageProcess": {
+              "type": "string"
+            },
+            "IrreparableDamage": {
+              "type": "object",
+              "properties": {
+                "DriftCapacityMedian": {
+                  "anyOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "string"
+                    }
+                  ]
+                },
+                "DriftCapacityLogStd": {
+                  "anyOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "string"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "DriftCapacityMedian",
+                "DriftCapacityLogStd"
+              ]
+            }
+          },
+          "required": [
+            "DamageProcess"
+          ]
+        },
+        "Losses": {
+          "type": "object",
+          "properties": {
+            "Repair": {
+              "type": "object",
+              "properties": {
+                "ConsequenceDatabase": {
+                  "type": "string"
+                },
+                "MapApproach": {
+                  "type": "string"
+                },
+                "MapFilePath": {
+                  "type": "string"
+                },
+                "DecisionVariables": {
+                  "type": "object",
+                  "properties": {
+                    "Cost": {
+                      "type": "boolean"
+                    },
+                    "Time": {
+                      "type": "boolean"
+                    },
+                    "Carbon": {
+                      "type": "boolean"
+                    },
+                    "Energy": {
+                      "type": "boolean"
+                    }
+                  }
+                },
+                "ConsequenceDatabasePath": {
+                  "type": "string"
+                },
+                "ReplacementEnergy": {
+                  "type": "object",
+                  "properties": {
+                    "Unit": {
+                      "type": "string"
+                    },
+                    "Median": {
+                      "anyOf": [
+                        {
+                          "type": "number"
+                        },
+                        {
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "Distribution": {
+                      "type": "string"
+                    },
+                    "Theta_1": {
+                      "anyOf": [
+                        {
+                          "type": "number"
+                        },
+                        {
+                          "type": "string"
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "Unit",
+                    "Median",
+                    "Distribution",
+                    "Theta_1"
+                  ]
+                },
+                "ReplacementCarbon": {
+                  "type": "object",
+                  "properties": {
+                    "Unit": {
+                      "type": "string"
+                    },
+                    "Median": {
+                      "anyOf": [
+                        {
+                          "type": "number"
+                        },
+                        {
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "Distribution": {
+                      "type": "string"
+                    },
+                    "Theta_1": {
+                      "anyOf": [
+                        {
+                          "type": "number"
+                        },
+                        {
+                          "type": "string"
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "Unit",
+                    "Median",
+                    "Distribution",
+                    "Theta_1"
+                  ]
+                },
+                "ReplacementTime": {
+                  "type": "object",
+                  "properties": {
+                    "Unit": {
+                      "type": "string"
+                    },
+                    "Median": {
+                      "anyOf": [
+                        {
+                          "type": "number"
+                        },
+                        {
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "Distribution": {
+                      "type": "string"
+                    },
+                    "Theta_1": {
+                      "anyOf": [
+                        {
+                          "type": "number"
+                        },
+                        {
+                          "type": "string"
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "Unit",
+                    "Median",
+                    "Distribution",
+                    "Theta_1"
+                  ]
+                },
+                "ReplacementCost": {
+                  "type": "object",
+                  "properties": {
+                    "Unit": {
+                      "type": "string"
+                    },
+                    "Median": {
+                      "anyOf": [
+                        {
+                          "type": "number"
+                        },
+                        {
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "Distribution": {
+                      "type": "string"
+                    },
+                    "Theta_1": {
+                      "anyOf": [
+                        {
+                          "type": "number"
+                        },
+                        {
+                          "type": "string"
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "Unit",
+                    "Median",
+                    "Distribution",
+                    "Theta_1"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "Outputs": {
+          "type": "object",
+          "properties": {
+            "Demand": {
+              "type": "object",
+              "properties": {
+                "Sample": {
+                  "type": "boolean"
+                },
+                "Statistics": {
+                  "type": "boolean"
+                }
+              }
+            },
+            "Asset": {
+              "type": "object",
+              "properties": {
+                "Sample": {
+                  "type": "boolean"
+                },
+                "Statistics": {
+                  "type": "boolean"
+                }
+              }
+            },
+            "Damage": {
+              "type": "object",
+              "properties": {
+                "Sample": {
+                  "type": "boolean"
+                },
+                "Statistics": {
+                  "type": "boolean"
+                },
+                "GroupedSample": {
+                  "type": "boolean"
+                },
+                "GroupedStatistics": {
+                  "type": "boolean"
+                }
+              }
+            },
+            "Loss": {
+              "type": "object",
+              "properties": {
+                "Repair": {
+                  "type": "object",
+                  "properties": {
+                    "Sample": {
+                      "type": "boolean"
+                    },
+                    "Statistics": {
+                      "type": "boolean"
+                    },
+                    "GroupedSample": {
+                      "type": "boolean"
+                    },
+                    "GroupedStatistics": {
+                      "type": "boolean"
+                    },
+                    "AggregateSample": {
+                      "type": "boolean"
+                    },
+                    "AggregateStatistics": {
+                      "type": "boolean"
+                    }
+                  }
+                }
+              }
+            },
+            "Format": {
+              "type": "object",
+              "properties": {
+                "CSV": {
+                  "type": "boolean"
+                },
+                "JSON": {
+                  "type": "boolean"
+                }
+              }
+            },
+            "Settings": {
+              "type": "object",
+              "properties": {
+                "CondenseDS": {
+                  "type": "boolean"
+                },
+                "SimpleIndexInJSON": {
+                  "type": "boolean"
+                },
+                "AggregateColocatedComponentResults": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        },
+        "Options": {
+          "type": "object",
+          "properties": {
+            "Options": {
+              "type": "boolean"
+            },
+            "Seed": {
+              "type": "integer"
+            },
+            "LogShowMS": {
+              "type": "boolean"
+            },
+            "LogFile": {
+              "type": "string"
+            },
+            "UnitsFile": {
+              "type": "string"
+            },
+            "PrintLog": {
+              "type": "boolean"
+            },
+            "ShowWarnings": {
+              "type": "boolean"
+            },
+            "DemandOffset": {
+              "type": "object"
+            },
+            "ListAllDamageStates": {
+              "type": "boolean"
+            },
+            "NonDirectionalMultipliers": {
+              "type": "object"
+            },
+            "EconomiesOfScale": {
+              "type": "object",
+              "properties": {
+                "AcrossFlorrs": {
+                  "type": "boolean"
+                },
+                "AcrossDamageStates": {
+                  "type": "boolean"
+                }
+              }
+            },
+            "Sampling": {
+              "type": "object",
+              "properties": {
+                "SamplingMethod": {
+                  "type": "string"
+                },
+                "SampleSize": {
+                  "type": "integer"
+                },
+                "PreserveRawOrder": {
+                  "type": "boolean"
+                }
+              }
+            },
+            "RepairCostAndTimeCorrelation": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        "DemandAssessment": {
+          "type": "object",
+          "properties": {
+            "Calibration": {
+              "type": "object",
+              "properties": {
+                "Marginals": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "ApplicationData": {
+          "type": "object",
+          "properties": {
+            "ground_failure": {
+              "type": "boolean"
+            }
+          }
+        }
+      }
+    },
+    "Applications": {
+      "type": "object"
+    },
+    "auto_script_path": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "GeneralInformation"
+  ]
+}

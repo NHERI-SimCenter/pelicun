@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # Copyright (c) 2018 Leland Stanford Junior University
 # Copyright (c) 2018 The Regents of the University of California
@@ -33,26 +32,26 @@
 #
 # You should have received a copy of the BSD 3-Clause License along with
 # pelicun. If not, see <http://www.opensource.org/licenses/>.
-#
-# Contributors:
-# Adam Zsarnóczay
 
-import pandas as pd
-import sys
+from __future__ import annotations
+
 import argparse
+import sys
 from pathlib import Path
 
+import pandas as pd
 
-def convert_HDF(HDF_path):
-    HDF_ext = HDF_path.split('.')[-1]
-    CSV_base = HDF_path[: -len(HDF_ext) - 1]
 
-    HDF_path = Path(HDF_path).resolve()
+def convert_HDF(hdf_path) -> None:  # noqa: N802
+    hdf_ext = hdf_path.split('.')[-1]
+    csv_base = hdf_path[: -len(hdf_ext) - 1]
 
-    store = pd.HDFStore(HDF_path)
+    hdf_path = Path(hdf_path).resolve()
 
-    for key in store.keys():
-        store[key].to_csv(f'{CSV_base}_{key[1:].replace("/","_")}.csv')
+    store = pd.HDFStore(hdf_path)
+
+    for key in store:
+        store[key].to_csv(f'{csv_base}_{key[1:].replace("/", "_")}.csv')
 
     store.close()
 
@@ -63,6 +62,6 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('HDF_path')
 
-    args = parser.parse_args(args)
+    parser_args = parser.parse_args(args)
 
-    convert_HDF(args.HDF_path)
+    convert_HDF(parser_args.HDF_path)

@@ -1,0 +1,48 @@
+.. _changes_v2_0_0:
+
+================================
+Version 2.0.0 (October 15, 2019)
+================================
+
+- Migrated to the latest version of Python, numpy, scipy, and pandas.
+  See setup.py for required minimum versions of those tools.
+
+- Python 2.x is no longer supported.
+
+- Improved DL input structure to
+
+  - make it easier to define complex performance models,
+
+  - make input files easier to read,
+
+  - support custom, non-PACT units for component quantities,
+
+  - and support different component quantities on every floor.
+
+- Updated FEMA P58 DL data to use ea for equipment instead of units such as KV, CF, AP, TN.
+
+- Added FEMA P58 2nd edition DL data.
+
+- Support for EDP inputs in standard csv format.
+
+- Added a function that produces SimCenter DM and DV json output files.
+
+- Added a differential evolution algorithm to the EDP fitting function to do a better job at finding the global optimum.
+
+- Enhanced DL_calculation.py to handle multi-stripe analysis (significant contributions by Joanna Zou):
+
+  - Recognize stripe_ID and occurrence rate in BIM/EVENT file.
+
+  - Fit a collapse fragility function to empirical collapse probabilities.
+
+  - Perform loss assessment for each stripe independently and produce corresponding outputs.
+
+================================
+Version 1.2.0 (October 15, 2019)
+================================
+
+- Added support for HAZUS hurricane wind damage and loss assessment.
+- Added HAZUS hurricane DL data for wooden houses.
+- Moved DL resources inside the pelicun folder so that they come with pelicun when it is pip installed.
+- Add various options for EDP fitting and collapse probability estimation.
+- Improved the way warning messages are printed to make them more useful.

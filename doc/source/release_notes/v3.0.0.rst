@@ -1,0 +1,52 @@
+.. _changes_v3_0_0:
+
+==================================
+Version 3.0.0 (December 31, 2021)
+==================================
+
+- The architecture was redesigned to better support interactive calculation and provide a low-level integration across all supported methods.
+  This is the first release with the new architecture.
+  Frequent updates are planned to provide additional examples, tests, and bugfixes in the next few months.
+
+- New assessment module introduced to replace control module:
+
+  - Provides a high-level access to models and their methods.
+
+  - Integrates all types of assessments into a uniform approach.
+
+  - Most of the methods from the earlier control module were moved to the model module.
+
+- Decoupled demand, damage, and loss calculations:
+
+  - Fragility functions and consequence functions are stored in separate files.
+    Added new methods to the db module to prepare the corresponding data files and re-generated such data for FEMA P58 and Hazus earthquake assessments.
+    Hazus hurricane data will be added in a future release.
+
+  - Decoupling removed a large amount of redundant data from supporting databases and made the use of HDF and json files for such data unnecessary.
+    All data are stored in easy-to-read csv files.
+
+  - Assessment workflows can include all three steps (i.e., demand, damage, and loss) or only one or two steps.
+    For example, damage estimates from one analysis can drive loss calculations in another one.
+
+- Integrated damage and loss calculation across all methods and components:
+
+  - This includes phenomena such as collapse, including various collapse modes, and irreparable damage.
+
+  - Cascading damages and other interdependencies between various components can be introduced using a damage process file.
+
+  - Losses can be driven by damages or demands.
+    The former supports the conventional damage->consequence function approach, while the latter supports the use of vulnerability functions.
+    These can be combined within the same analysis, if needed.
+
+  - The same loss component can be driven by multiple types of damages.
+    For example, replacement can be triggered by either collapse or irreparable damage.
+
+- Introduced Options in the configuration file and in the base module:
+
+  - These options handle settings that concern pelicun behavior;
+
+  - general preferences that might affect multiple assessment models;
+
+  - and settings that users would not want to change frequently.
+
+  - Default settings are provided in a default_config.json file. These can be overridden by providing any of the prescribed keys with a user-defined value assigned to them in the configuration file for an analysis.

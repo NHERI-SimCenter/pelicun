@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # Copyright (c) 2023 Leland Stanford Junior University
 # Copyright (c) 2023 The Regents of the University of California
@@ -37,48 +36,51 @@
 # Contributors:
 # Adam Zsarnóczay
 
-"""
-This module has classes and methods that auto-populate DL models.
 
-.. rubric:: Contents
+"""Classes and methods that auto-populate DL models."""
 
-.. autosummary::
+from __future__ import annotations
 
-    auto_populate
-
-"""
-
-import sys
 import importlib
+import sys
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 from pelicun import base
 
+if TYPE_CHECKING:
+    import pandas as pd
+
 
 def auto_populate(
-    config, auto_script_path, **kwargs  # pylint: disable=unused-argument
-):
+    config: dict,
+    auto_script_path: Path,
+    **kwargs,  # noqa: ANN003
+) -> tuple[dict, pd.DataFrame]:
     """
-    Automatically populates the Damage and Loss (DL) configuration for
-    a Pelicun calculation using predefined rules.
+    Auto populate the DL configuration with predefined rules.
 
-    This function modifies the provided configuration dictionary based
-    on an external Python script that defines auto-population
-    rules. It supports using built-in scripts or custom scripts
-    specified by the user.
+    Automatically populates the Damage and Loss (DL) configuration for
+    a Pelicun calculation using predefined rules.  This function
+    modifies the provided configuration dictionary based on an
+    external Python script that defines auto-population rules. It
+    supports using built-in scripts or custom scripts specified by the
+    user.
 
     Parameters
     ----------
-    config : dict
+    config: dict
         A configuration dictionary with a 'GeneralInformation' key
         that holds another dictionary with attributes of the asset of
         interest. This dictionary is modified in-place with
         auto-populated values.
-    auto_script_path : str
+    auto_script_path: str
         The path pointing to a Python script with the auto-population
         rules. Built-in scripts can be referenced using the
         'PelicunDefault/XY' format where 'XY' is the name of the
         script.
+    kwargs
+        Keyword arguments.
 
     Returns
     -------
@@ -94,33 +96,37 @@ def auto_populate(
     ValueError
         If the configuration dictionary does not contain necessary
         asset information under 'GeneralInformation'.
-    """
 
+    """
     # try to get the AIM attributes
-    AIM = config.get('GeneralInformation', None)
-    if AIM is None:
-        raise ValueError(
-            "No Asset Information provided for the auto-population routine."
-        )
+    aim = config.get('GeneralInformation')
+    if aim is None:
+        msg = 'No Asset Information provided for the auto-population routine.'
+        raise ValueError(msg)
 
     # replace default keyword with actual path in auto_script location
-    if 'PelicunDefault/' in auto_script_path:
-        auto_script_path = auto_script_path.replace(
-            'PelicunDefault/', f'{base.pelicun_path}/resources/auto/'
-        )
+    path_parts = Path(auto_script_path).resolve().parts
+    new_parts: list[str] = [
+        (Path(base.pelicun_path) / 'resources/auto').resolve().absolute().as_posix()
+        if part == 'PelicunDefault'
+        else part
+        for part in path_parts
+    ]
+    if 'PelicunDefault' in path_parts:
+        auto_script_path = Path(*new_parts)
 
     # load the auto population module
-    ASP = Path(auto_script_path).resolve()
-    sys.path.insert(0, str(ASP.parent) + '/')
-    auto_script = importlib.__import__(ASP.name[:-3], globals(), locals(), [], 0)
+    asp = Path(auto_script_path).resolve()
+    sys.path.insert(0, str(asp.parent) + '/')
+    auto_script = importlib.__import__(asp.name[:-3], globals(), locals(), [], 0)
     auto_populate_ext = auto_script.auto_populate
 
     # generate the DL input data
-    AIM_ap, DL_ap, CMP = auto_populate_ext(AIM=config)
+    aim_ap, dl_ap, comp = auto_populate_ext(aim=config)
 
     # assemble the extended config
-    config['GeneralInformation'].update(AIM_ap)
-    config.update({'DL': DL_ap})
+    config['GeneralInformation'].update(aim_ap)
+    config.update({'DL': dl_ap})
 
     # return the extended config data and the component quantities
-    return config, CMP
+    return config, comp
