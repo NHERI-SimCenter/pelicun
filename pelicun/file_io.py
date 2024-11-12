@@ -305,15 +305,14 @@ def substitute_default_path(
     return updated_paths
 
 
-def load_data(  # noqa: C901
-    data_source: str | pd.DataFrame,
-    unit_conversion_factors: dict | None,
-    orientation: int = 0,
-    *,
-    reindex: bool = True,
-    return_units: bool = False,
-    log: base.Logger | None = None,
-) -> tuple[pd.DataFrame, pd.Series] | pd.DataFrame:
+def load_data(
+    data_source,
+    unit_conversion_factors=None,
+    orientation=0,
+    reindex=True,
+    return_units=False,
+    log=None,
+):
     """
     Load data assuming it follows standard SimCenter tabular schema.
 

@@ -627,9 +627,10 @@ def _parse_config_file(  # noqa: C901
     if is_unspecified(config, 'DL'):
         log_msg('Damage and Loss configuration missing from config file. ')
 
-        if auto_script_path is None:
-            msg = 'No `DL` entry in config file.'
-            raise PelicunInvalidConfigError(msg)
+            # Add the demandFile to the config dict to allow demand dependent auto-population
+            config['DL'] = {'Demands': {'DemandFilePath': f'{demand_file}'}}
+
+            config_ap, CMP = auto_populate(config, auto_script_path)
 
         log_msg('Trying to auto-populate')
 

@@ -1726,6 +1726,13 @@ class LogNormalRandomVariable(RandomVariable):
         )
         assert self.theta is not None, '`theta` is required for LogNormal RVs'
         self.distribution = 'lognormal'
+        if isinstance(theta[0], list):
+            max_length = len(theta[0])
+            for i in range(1, len(theta)):
+                theta[i] = [theta[i]]
+                theta[i].extend([theta[i][-1]] * (max_length - len(theta[i])))
+        self.theta = np.atleast_1d(theta)
+        self.truncation_limits = truncation_limits
 
     def cdf(self, values: np.ndarray) -> np.ndarray:
         """
@@ -1816,6 +1823,10 @@ class LogNormalRandomVariable(RandomVariable):
             )
 
         else:
+            # repead theta and beta in order until their length is equal to the length of values
+            if isinstance(theta, np.ndarray):
+                theta = np.tile(theta, len(values) // len(theta) + 1)[: len(values)]
+                beta = np.tile(beta, len(values) // len(beta) + 1)[: len(values)]
             result = np.exp(norm.ppf(values, loc=np.log(theta), scale=beta))
 
         return result

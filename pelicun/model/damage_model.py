@@ -903,15 +903,19 @@ class DamageModel_DS(DamageModel_Base):
             return initial_value * other_value
         if operation == '/':
             return initial_value / other_value
-        msg = f'Invalid operation: `{operation}`'
-        raise ValueError(msg)
+        raise ValueError(f'Invalid operation: {operation}')
+    
+    def _handle_operation_list(self, initial_value, operations):
+        if len(operations) == 1:
+            return self._handle_operation(initial_value, operations[0][0], operations[0][1])
+        else:
+            new_values = []
+            for operation in operations:
+                new_values.append(self._handle_operation(initial_value, operation[0], operation[1]))
+            return new_values
 
-    def _generate_dmg_sample(
-        self,
-        sample_size: int,
-        pgb: pd.DataFrame,
-        scaling_specification: dict | None = None,
-    ) -> tuple[pd.DataFrame, pd.DataFrame]:
+
+    def _create_dmg_RVs(self, PGB, scaling_specification=None, demand_dict=None):
         """
         Generate the damage sample.
 
@@ -1325,24 +1329,29 @@ class DamageModel_DS(DamageModel_Base):
                     value = value['ALL']
                 for LS, specifics in value.items():
                     css = 'capacity adjustment specification'
-                    if not isinstance(specifics, str):
-                        raise ValueError(
-                            f'Invalud entry in {css}: {specifics}. It has to be a string. '
-                            f'See docstring of DamageModel._create_dmg_RVs.'
-                        )
-                    capacity_adjustment_operation = specifics[0]
-                    number = specifics[1::]
-                    if capacity_adjustment_operation not in ('+', '-', '*', '/'):
-                        raise ValueError(
-                            f'Invalid operation in {css}: '
-                            f'{capacity_adjustment_operation}'
-                        )
-                    fnumber = base.float_or_None(number)
-                    if fnumber is None:
-                        raise ValueError(f'Invalid number in {css}: {number}')
-                    parsed_scaling_specification[key].update({
-                        LS: (capacity_adjustment_operation, fnumber)
-                        })
+                    if not isinstance(specifics, list):
+                        specifics = [specifics]
+                    for spec in specifics:
+                        if not isinstance(spec, str):
+                            raise ValueError(
+                                f'Invalud entry in {css}: {spec}. It has to be a string. '
+                                f'See docstring of DamageModel._create_dmg_RVs.'
+                            )
+                        capacity_adjustment_operation = spec[0]
+                        number = spec[1::]
+                        if capacity_adjustment_operation not in ('+', '-', '*', '/'):
+                            raise ValueError(
+                                f'Invalid operation in {css}: '
+                                f'{capacity_adjustment_operation}'
+                            )
+                        fnumber = base.float_or_None(number)
+                        if fnumber is None:
+                            raise ValueError(f'Invalid number in {css}: {number}')
+                        if LS not in parsed_scaling_specification[key]:
+                            parsed_scaling_specification[key][LS] = []
+                        parsed_scaling_specification[key][LS].append(
+                            (capacity_adjustment_operation, fnumber)
+                            )
                     
             scaling_specification = parsed_scaling_specification
 
@@ -1407,16 +1416,14 @@ class DamageModel_DS(DamageModel_Base):
                             # Only scale the median value if ls_id is defined in capacity_adjustment_operation
                             # Otherwise, use the original value
                             if 'ALL' in capacity_adjustment_operation:
-                                theta[0] = self._handle_operation(
+                                theta[0] = self._handle_operation_list(
                                     theta[0],
                                     capacity_adjustment_operation['ALL'][0],
-                                    capacity_adjustment_operation['ALL'][1],
                                 )
                             elif f'LS{ls_id}' in capacity_adjustment_operation:
-                                theta[0] = self._handle_operation(
+                                theta[0] = self._handle_operation_list(
                                     theta[0],
-                                    capacity_adjustment_operation[f'LS{ls_id}'][0],
-                                    capacity_adjustment_operation[f'LS{ls_id}'][1],
+                                    capacity_adjustment_operation[f'LS{ls_id}'],
                                 )
                         else:
                             self.log.warning(
@@ -1516,15 +1523,417 @@ class DamageModel_DS(DamageModel_Base):
 
         return capacity_rv_reg, lsds_rv_reg
 
-    def prepare_dmg_quantities(
-        self,
-        component_sample: pd.DataFrame,
-        component_marginal_parameters: pd.DataFrame | None,
-        *,
-        dropzero: bool = True,
-    ) -> pd.DataFrame:
+    def _generate_dmg_sample(self, sample_size, PGB, scaling_specification=None,
+                             demand_dict=None):
         """
-        Combine component quantity and damage state information.
+        This method generates a damage sample by creating random
+        variables (RVs) for capacities and limit-state-damage-states
+        (lsds), and then sampling from these RVs. The sample size and
+        performance group batches (PGB) are specified as inputs. The
+        method returns the capacity sample and the lsds sample.
+
+        Parameters
+        ----------
+        sample_size : int
+            The number of realizations to generate.
+        PGB : DataFrame
+            A DataFrame that groups performance groups into batches
+            for efficient damage assessment.
+        scaling_specification: dict, optional
+            A dictionary defining the shift in median.
+            Example: {'CMP-1-1': '*1.2', 'CMP-1-2': '/1.4'}
+            The keys are individual components that should be present
+            in the `capacity_sample`.  The values should be strings
+            containing an operation followed by the value formatted as
+            a float.  The operation can be '+' for addition, '-' for
+            subtraction, '*' for multiplication, and '/' for division.
+
+        Returns
+        -------
+        capacity_sample : DataFrame
+            A DataFrame that represents the capacity sample.
+        lsds_sample : DataFrame
+            A DataFrame that represents the .
+
+        Raises
+        ------
+        ValueError
+            If the damage parameters have not been specified.
+
+        """
+
+        # Check if damage model parameters have been specified
+        if self.damage_params is None:
+            raise ValueError(
+                'Damage model parameters have not been specified. '
+                'Load parameters from the default damage model '
+                'databases or provide your own damage model '
+                'definitions before generating a sample.'
+            )
+
+        # Create capacity and LSD RVs for each performance group
+        capacity_RVs, lsds_RVs = self._create_dmg_RVs(PGB, scaling_specification,
+                                                      demand_dict)
+
+        if self._asmnt.log.verbose:
+            self.log_msg('Sampling capacities...', prepend_timestamp=True)
+
+        # Generate samples for capacity RVs
+        capacity_RVs.generate_sample(
+            sample_size=sample_size, method=self._asmnt.options.sampling_method
+        )
+
+        # Generate samples for LSD RVs
+        lsds_RVs.generate_sample(
+            sample_size=sample_size, method=self._asmnt.options.sampling_method
+        )
+
+        if self._asmnt.log.verbose:
+            self.log_msg("Raw samples are available", prepend_timestamp=True)
+
+        # get the capacity and lsds samples
+        capacity_sample = (
+            pd.DataFrame(capacity_RVs.RV_sample).sort_index(axis=0).sort_index(axis=1)
+        )
+        capacity_sample = base.convert_to_MultiIndex(capacity_sample, axis=1)['FRG']
+        capacity_sample.columns.names = ['cmp', 'loc', 'dir', 'uid', 'block', 'ls']
+
+        lsds_sample = (
+            pd.DataFrame(lsds_RVs.RV_sample)
+            .sort_index(axis=0)
+            .sort_index(axis=1)
+            .astype(int)
+        )
+        lsds_sample = base.convert_to_MultiIndex(lsds_sample, axis=1)['LSDS']
+        lsds_sample.columns.names = ['cmp', 'loc', 'dir', 'uid', 'block', 'ls']
+
+        if self._asmnt.log.verbose:
+            self.log_msg(
+                f"Successfully generated {sample_size} realizations.",
+                prepend_timestamp=True,
+            )
+
+        return capacity_sample, lsds_sample
+
+    def _get_required_demand_type(self, PGB):
+        """
+        Returns the id of the demand needed to calculate damage to a
+        component. We assume that a damage model sample is available.
+
+        This method returns the demand type and its properties
+        required to calculate the damage to a component. The
+        properties include whether the demand is directional, the
+        offset, and the type of the demand. The method takes as input
+        a dataframe PGB that contains information about the component
+        groups in the asset. For each component group PG in the PGB
+        dataframe, the method retrieves the relevant damage parameters
+        from the damage_params dataframe and parses the demand type
+        into its properties. If the demand type has a subtype, the
+        method splits it and adds the subtype to the demand type to
+        form the EDP (engineering demand parameter) type. The method
+        also considers the default offset for the demand type, if it
+        is specified in the options attribute of the assessment, and
+        adds the offset to the EDP. If the demand is directional, the
+        direction is added to the EDP. The method collects all the
+        unique EDPs for each component group and returns them as a
+        dictionary where each key is an EDP and its value is a list of
+        component groups that require that EDP.
+
+        Parameters
+        ----------
+        `PGB`: pd.DataFrame
+            A pandas DataFrame with the block information for
+            each component
+
+        Returns
+        -------
+        dict
+            A dictionary of EDP requirements, where each key is the EDP
+            string (e.g., "Peak Ground Acceleration-0-0"), and the
+            corresponding value is a list of tuples (component_id,
+            location, direction)
+
+        """
+
+        # Assign the damage_params attribute to a local variable `DP`
+        DP = self.damage_params
+
+        # Check if verbose logging is enabled in `self._asmnt.log`
+        if self._asmnt.log.verbose:
+            # If verbose logging is enabled, log a message indicating
+            # that we are collecting demand information
+            self.log_msg(
+                'Collecting required demand information...', prepend_timestamp=True
+            )
+
+        # Initialize an empty dictionary to store the unique EDP
+        # requirements
+        EDP_req = {}
+
+        # Iterate over the index of the `PGB` DataFrame
+        for PG in PGB.index:
+            # Get the component name from the first element of the
+            # `PG` tuple
+            cmp = PG[0]
+
+            # Get the directional, offset, and demand_type parameters
+            # from the `DP` DataFrame
+            directional, offset, demand_type = DP.loc[
+                cmp,
+                [
+                    ('Demand', 'Directional'),
+                    ('Demand', 'Offset'),
+                    ('Demand', 'Type'),
+                ],
+            ]
+
+            # Parse the demand type
+
+            # Check if there is a subtype included in the demand_type
+            # string
+            if '|' in demand_type:
+                # If there is a subtype, split the demand_type string
+                # on the '|' character
+                demand_type, subtype = demand_type.split('|')
+                # Convert the demand type to the corresponding EDP
+                # type using `base.EDP_to_demand_type`
+                demand_type = base.EDP_to_demand_type[demand_type]
+                # Concatenate the demand type and subtype to form the
+                # EDP type
+                EDP_type = f'{demand_type}_{subtype}'
+            else:
+                # If there is no subtype, convert the demand type to
+                # the corresponding EDP type using
+                # `base.EDP_to_demand_type`
+                demand_type = base.EDP_to_demand_type[demand_type]
+                # Assign the EDP type to be equal to the demand type
+                EDP_type = demand_type
+
+            # Consider the default offset, if needed
+            if demand_type in self._asmnt.options.demand_offset.keys():
+                # If the demand type has a default offset in
+                # `self._asmnt.options.demand_offset`, add the offset
+                # to the default offset
+                offset = int(offset + self._asmnt.options.demand_offset[demand_type])
+            else:
+                # If the demand type does not have a default offset in
+                # `self._asmnt.options.demand_offset`, convert the
+                # offset to an integer
+                offset = int(offset)
+
+            # Determine the direction
+            if directional:
+                # If the demand is directional, use the third element
+                # of the `PG` tuple as the direction
+                direction = PG[2]
+            else:
+                # If the demand is not directional, use '0' as the
+                # direction
+                direction = '0'
+
+            # Concatenate the EDP type, offset, and direction to form
+            # the EDP key
+            EDP = f"{EDP_type}-{str(int(PG[1]) + offset)}-{direction}"
+
+            # If the EDP key is not already in the `EDP_req`
+            # dictionary, add it and initialize it with an empty list
+            if EDP not in EDP_req:
+                EDP_req.update({EDP: []})
+
+            # Add the current PG (performance group) to the list of
+            # PGs associated with the current EDP key
+            EDP_req[EDP].append(PG)
+
+        # Return the unique EDP requirements
+        return EDP_req
+
+    def _assemble_required_demand_data(self, EDP_req):
+        """
+        Assembles demand data for damage state determination.
+
+        The method takes the maximum of all available directions for
+        non-directional demand, scaling it using the non-directional
+        multiplier specified in self._asmnt.options, and returning the
+        result as a dictionary with keys in the format of
+        '<demand_type>-<location>-<direction>' and values as arrays of
+        demand values. If demand data is not found, logs a warning
+        message and skips the corresponding damages calculation.
+
+        Parameters
+        ----------
+        EDP_req : dict
+            A dictionary of unique EDP requirements
+
+        Returns
+        -------
+        demand_dict : dict
+            A dictionary of assembled demand data for calculation
+
+        Raises
+        ------
+        KeyError
+            If demand data for a given EDP cannot be found
+
+        """
+
+        if self._asmnt.log.verbose:
+            self.log_msg(
+                'Assembling demand data for calculation...', prepend_timestamp=True
+            )
+
+        demand_source = self._asmnt.demand.sample
+
+        demand_dict = {}
+
+        for EDP in EDP_req.keys():
+            EDP = EDP.split('-')
+
+            # if non-directional demand is requested...
+            if EDP[2] == '0':
+                # assume that the demand at the given location is available
+                try:
+                    # take the maximum of all available directions and scale it
+                    # using the nondirectional multiplier specified in the
+                    # self._asmnt.options (the default value is 1.2)
+                    demand = demand_source.loc[:, (EDP[0], EDP[1])].max(axis=1).values
+                    demand = demand * self._asmnt.options.nondir_multi(EDP[0])
+
+                except KeyError:
+                    demand = None
+
+            else:
+                demand = demand_source[(EDP[0], EDP[1], EDP[2])].values
+
+            if demand is None:
+                self.log_msg(
+                    f'\nWARNING: Cannot find demand data for {EDP}. The '
+                    'corresponding damages cannot be calculated.',
+                    prepend_timestamp=False,
+                )
+            else:
+                demand_dict.update({f'{EDP[0]}-{EDP[1]}-{EDP[2]}': demand})
+
+        return demand_dict
+
+    def _evaluate_damage_state(
+        self, demand_dict, EDP_req, capacity_sample, lsds_sample
+    ):
+        """
+        Use the demand and LS capacity sample to evaluate damage states
+
+        Parameters
+        ----------
+        demand_dict: dict
+            Dictionary containing the demand of each demand type.
+        EDP_req: dict
+            Dictionary containing the EDPs assigned to each demand
+            type.
+        capacity_sample: DataFrame
+            Provides a sample of the capacity.
+        lsds_sample: DataFrame
+            Provides the mapping between limit states and damage
+            states.
+
+        Returns
+        -------
+        DataFrame
+            Assigns a Damage State to each component block in the
+            asset model.
+        """
+
+        # Log a message indicating that damage states are being
+        # evaluated
+
+        if self._asmnt.log.verbose:
+            self.log_msg('Evaluating damage states...', prepend_timestamp=True)
+
+        # Create an empty dataframe with columns and index taken from
+        # the input capacity sample
+        dmg_eval = pd.DataFrame(
+            columns=capacity_sample.columns, index=capacity_sample.index
+        )
+
+        # Initialize an empty list to store demand data
+        demand_df = []
+
+        # For each demand type in the demand dictionary
+        for demand_name, demand_vals in demand_dict.items():
+            # Get the list of PGs assigned to this demand type
+            PG_list = EDP_req[demand_name]
+
+            # Create a list of columns for the demand data
+            # corresponding to each PG in the PG_list
+            PG_cols = pd.concat(
+                [dmg_eval.loc[:1, PG_i] for PG_i in PG_list], axis=1, keys=PG_list
+            ).columns
+            PG_cols.names = ['cmp', 'loc', 'dir', 'uid', 'block', 'ls']
+            # Create a dataframe with demand values repeated for the
+            # number of PGs and assign the columns as PG_cols
+            demand_df.append(
+                pd.concat([pd.Series(demand_vals)] * len(PG_cols), axis=1, keys=PG_cols)
+            )
+
+        # Concatenate all demand dataframes into a single dataframe
+        demand_df = pd.concat(demand_df, axis=1)
+        # Sort the columns of the demand dataframe
+        demand_df.sort_index(axis=1, inplace=True)
+
+        # Evaluate the damage exceedance by subtracting demand from
+        # capacity and checking if the result is less than zero
+        dmg_eval = (capacity_sample - demand_df) < 0
+
+        # Remove any columns with NaN values from the damage
+        # exceedance dataframe
+        dmg_eval.dropna(axis=1, inplace=True)
+
+        # initialize the DataFrames that store the damage states and
+        # quantities
+        ds_sample = pd.DataFrame(
+            0,  # fill value
+            columns=capacity_sample.columns.droplevel('ls').unique(),
+            index=capacity_sample.index,
+            dtype='int32',
+        )
+
+        # get a list of limit state ids among all components in the damage model
+        ls_list = dmg_eval.columns.get_level_values(5).unique()
+
+        # for each consecutive limit state...
+        for LS_id in ls_list:
+            # get all cmp - loc - dir - block where this limit state occurs
+            dmg_e_ls = dmg_eval.loc[:, idx[:, :, :, :, :, LS_id]].dropna(axis=1)
+
+            # Get the damage states corresponding to this limit state in each
+            # block
+            # Note that limit states with a set of mutually exclusive damage
+            # states options have their damage state picked here.
+            lsds = lsds_sample.loc[:, dmg_e_ls.columns]
+
+            # Drop the limit state level from the columns to make the damage
+            # exceedance DataFrame compatible with the other DataFrames in the
+            # following steps
+            dmg_e_ls.columns = dmg_e_ls.columns.droplevel(5)
+
+            # Same thing for the lsds DataFrame
+            lsds.columns = dmg_e_ls.columns
+
+            # Update the damage state in the result with the values from the
+            # lsds DF if the limit state was exceeded according to the
+            # dmg_e_ls DF.
+            # This one-liner updates the given Limit State exceedance in the
+            # entire damage model. If subsequent Limit States are also exceeded,
+            # those cells in the result matrix will get overwritten by higher
+            # damage states.
+            ds_sample.loc[:, dmg_e_ls.columns] = ds_sample.loc[
+                :, dmg_e_ls.columns
+            ].mask(dmg_e_ls, lsds)
+
+        return ds_sample
+
+    def _prepare_dmg_quantities(self, damage_state_sample, dropzero=True):
+        """
+        Combine component quantity and damage state information in one
+        DataFrame.
 
         This method assumes that a component quantity sample is
         available in the asset model and a damage state sample is
@@ -1964,5 +2373,82 @@ def _is_for_ds_model(data: pd.DataFrame) -> bool:
     bool
         If the data are for `ds_model`.
 
-    """
-    return 'LS1' in data.columns.get_level_values(0)
+        # get the list of performance groups
+        self.log_msg(
+            f'Number of Performance Groups in Asset Model:'
+            f' {self._asmnt.asset.cmp_sample.shape[1]}',
+            prepend_timestamp=False,
+        )
+
+        pg_batch = self._get_pg_batches(block_batch_size)
+        batches = pg_batch.index.get_level_values(0).unique()
+
+        self.log_msg(
+            f'Number of Component Blocks: {pg_batch["Blocks"].sum()}',
+            prepend_timestamp=False,
+        )
+
+        self.log_msg(
+            f"{len(batches)} batches of Performance Groups prepared "
+            "for damage assessment",
+            prepend_timestamp=False,
+        )
+
+        # for PG_i in self._asmnt.asset.cmp_sample.columns:
+        ds_samples = []
+        for PGB_i in batches:
+            performance_group = pg_batch.loc[PGB_i]
+
+            self.log_msg(
+                f"Calculating damage for PG batch {PGB_i} with "
+                f"{int(performance_group['Blocks'].sum())} blocks"
+            )
+
+            # Get the required demand types for the analysis
+            EDP_req = self._get_required_demand_type(performance_group)
+
+            # Create the demand vector
+            demand_dict = self._assemble_required_demand_data(EDP_req)
+
+            # Generate an array with component capacities for each block and
+            # generate a second array that assigns a specific damage state to
+            # each component limit state. The latter is primarily needed to
+            # handle limit states with multiple, mutually exclusive DS options
+            capacity_sample, lsds_sample = self._generate_dmg_sample(
+                sample_size, performance_group, scaling_specification, demand_dict
+            )
+
+            # Evaluate the Damage State of each Component Block
+            ds_sample = self._evaluate_damage_state(
+                demand_dict, EDP_req, capacity_sample, lsds_sample
+            )
+
+            ds_samples.append(ds_sample)
+
+        ds_sample = pd.concat(ds_samples, axis=1)
+        self.log_msg("Raw damage calculation successful.", prepend_timestamp=False)
+
+        # Apply the prescribed damage process, if any
+        if dmg_process is not None:
+            self.log_msg("Applying damage processes...")
+
+            # Sort the damage processes tasks
+            dmg_process = {key: dmg_process[key] for key in sorted(dmg_process)}
+
+            # Perform damage tasks in the sorted order
+            for task in dmg_process.items():
+                self._perform_dmg_task(task, ds_sample)
+
+            self.log_msg(
+                "Damage processes successfully applied.", prepend_timestamp=False
+            )
+
+        qnt_sample = self._prepare_dmg_quantities(ds_sample, dropzero=False)
+
+        # If requested, extend the quantity table with all possible DSs
+        if self._asmnt.options.list_all_ds:
+            qnt_sample = self._complete_ds_cols(qnt_sample)
+
+        self.sample = qnt_sample
+
+        self.log_msg('Damage calculation successfully completed.')

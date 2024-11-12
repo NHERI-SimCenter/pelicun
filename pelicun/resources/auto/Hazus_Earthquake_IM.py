@@ -45,6 +45,9 @@ import pandas as pd
 
 import pelicun
 import numpy as np
+from pathlib import Path
+
+import pelicun.file_io
 
 ap_design_level = {1940: 'LC', 1975: 'MC', 2100: 'HC'}
 # original:
@@ -234,10 +237,10 @@ def convertBridgeToHAZUSclass(aim):  # noqa: C901
 
 def getHAZUSBridgePGDModifier(hazus_class, AIM):
     # This is the original modifier in HAZUS, which gives inf if Skew is 0
-    # modifier1 = 0.5*AIM['Length']/(AIM['DeckWidth']*AIM['NumOfSpans']*np.sin(AIM['Skew']/180.0*np.pi))
+    # modifier1 = 0.5*AIM['StructureLength']/(AIM['DeckWidth']*AIM['NumOfSpans']*np.sin(AIM['Skew']/180.0*np.pi))
     # Use the modifier that is corrected from HAZUS manual to achive the asymptotic behavior
     # Where longer bridges, narrower bridges, less span and higher skew leads to lower modifier (i.e., more fragile bridges)
-    modifier1 = AIM['DeckWidth'] * AIM['NumOfSpans'] * np.sin((90-AIM['Skew'])/180.0*np.pi) / (AIM['Length']*0.5)
+    modifier1 = AIM['DeckWidth'] * AIM['NumOfSpans'] * np.sin((90-AIM['Skew'])/180.0*np.pi) / (AIM['StructureLength']*0.5)
     modifier2 = np.sin((90-AIM['Skew'])/180.0*np.pi)
     mapping = {'HWB1':(1,1),
                'HWB2':(1,1),
@@ -298,6 +301,7 @@ def convert_story_rise(structure_type, stories):
         rise = None
 
     else:
+        rise = None # Default value
         # First, check if we have valid story information
         try:
             stories = int(stories)
@@ -336,6 +340,34 @@ def convert_story_rise(structure_type, stories):
                 rise = 'H'
 
     return rise
+
+def getHAZUSBridgeSlightDamageModifier(hazus_class, AIM):
+    if hazus_class in ['HWB1', 'HWB2', 'HWB5', 'HWB6', 'HWB7', 'HWB8', 'HWB9',
+                       'HWB12', 'HWB13', 'HWB14', 'HWB17', 'HWB18', 'HWB19',
+                       'HWB20', 'HWB21', 'HWB24', 'HWB25', 'HWB28']:
+        return None
+    demand_path = Path(AIM['DL']['Demands']['DemandFilePath']).resolve()
+    raw_demands = pd.read_csv(demand_path, index_col=0)
+    demands = pelicun.file_io.load_data(raw_demands)
+    edp_types = demands.columns.get_level_values(1)
+    if (edp_types == 'SA_0.3').sum() != 1:
+        raise ValueError('The demand file does not contain the required EDP type SA_0.3'
+                         ' or contains multiple instances of it.')
+    sa_0p3 = demands.loc[:, demands.columns.get_level_values(1) == 'SA_0.3'].values.flatten()
+    if (edp_types == 'SA_1.0').sum() != 1:
+        raise ValueError('The demand file does not contain the required EDP type SA_1.0'
+                         ' or contains multiple instances of it.')
+    sa_1p0 = demands.loc[:, demands.columns.get_level_values(1) == 'SA_1.0'].values.flatten()
+
+    ratio = 2.5 * sa_1p0 / sa_0p3
+    operation = []
+    for i in range(len(ratio)):
+        if ratio[i] > 1.0:
+            ratio[i] = 1.0
+        operation.append(f'*{ratio[i]}')
+    return operation
+
+
 
 
 def auto_populate(aim):  # noqa: C901
@@ -489,15 +521,16 @@ def auto_populate(aim):  # noqa: C901
             # scaling_specification
             k_skew = np.sqrt(np.sin((90 - GI['Skew']) * np.pi / 180.0))
             k_3d = getHAZUSBridgeK3DModifier(bt, GI)
-
+            k_shape = getHAZUSBridgeSlightDamageModifier(bt, AIM)
             scaling_specification = {
                 f'HWB.GS.{bt[3:]}-1-1': {
-                    'LS1': '*1.0',
                     'LS2': f'*{k_skew*k_3d}',
                     'LS3': f'*{k_skew*k_3d}',
                     'LS4': f'*{k_skew*k_3d}'
                 }
             }
+            if k_shape is not None:
+                scaling_specification[f'HWB.GS.{bt[3:]}-1-1']['LS1'] = k_shape
             # if needed, add components to simulate damage from ground failure
             if ground_failure:
                 # fmt: off
