@@ -122,10 +122,10 @@ def getHAZUSBridgeK3DModifier(hazus_class, aim):
     if hazus_class in ['HWB3', 'HWB4', 'HWB28']:
         return 1
     else:
-        N = aim['NumOfSpans']
-        A = factors[mapping[hazus_class]][0]
-        B = factors[mapping[hazus_class]][1]
-        return 1 + A/(N-B) # This is the original form in Mander and Basoz (1999)
+        n = aim['NumOfSpans']
+        a = factors[mapping[hazus_class]][0]
+        b = factors[mapping[hazus_class]][1]
+        return 1 + a/(n-b) # This is the original form in Mander and Basoz (1999)
 
 def convertBridgeToHAZUSclass(aim):  # noqa: C901
     # TODO: replace labels in aim with standard CamelCase versions
@@ -624,7 +624,7 @@ def auto_populate(aim):  # noqa: C901
             gi_ap['RoadHazusClass'] = rt
 
             # fmt: off
-            CMP = pd.DataFrame(                                                            # noqa
+            comp = pd.DataFrame(                                                            # noqa
                 {},   # noqa
                 index = [           'Units','Location','Direction','Theta_0','Family']     # noqa
             ).T                                                                            # noqa
@@ -633,15 +633,15 @@ def auto_populate(aim):  # noqa: C901
             if ground_failure:
 
                 # fmt: off
-                CMP_GF = pd.DataFrame(                                                 # noqa
+                comp_gf = pd.DataFrame(                                                 # noqa
                     {f'HRD.GF.{rt[3:]}':[  'ea',         1,          1,        1,   'N/A']}, # noqa
                     index = [     'Units','Location','Direction','Theta_0','Family']   # noqa
                 ).T                                                                    # noqa
                 # fmt: on
 
-                CMP = pd.concat([CMP, CMP_GF], axis=0)
+                comp = pd.concat([comp, comp_gf], axis=0)
 
-            DL_ap = {
+            dl_ap = {
                 "Asset": {
                     "ComponentAssignmentFile": "CMP_QNT.csv",
                     "ComponentDatabase": "Hazus Earthquake - Transportation",

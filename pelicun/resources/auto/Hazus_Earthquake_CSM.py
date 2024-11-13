@@ -123,7 +123,7 @@ def convert_story_rise(structureType, stories):
     return rise
 
 
-def auto_populate(AIM):
+def auto_populate(aim):
     """
     Automatically creates a performance model for story EDP-based Hazus EQ analysis.
 
@@ -135,8 +135,8 @@ def auto_populate(AIM):
 
     Returns
     -------
-    GI_ap: dict
-        Extended General Information - extends the GI from the input AIM with
+    gi_ap: dict
+        Extended General Information - extends the gi from the input AIM with
         additional inferred features. These features are typically used in
         intermediate steps during the auto-population and are not required
         for the performance assessment. They are returned to allow reviewing
@@ -150,29 +150,29 @@ def auto_populate(AIM):
     """
 
     # extract the General Information
-    GI = AIM.get("GeneralInformation", None)
+    gi = aim.get("GeneralInformation", None)
 
-    if GI is None:
+    if gi is None:
         # TODO: show an error message
         pass
 
-    # initialize the auto-populated GI
-    GI_ap = GI.copy()
+    # initialize the auto-populated gi
+    gi_ap = gi.copy()
 
-    assetType = AIM["assetType"]
-    ground_failure = AIM["Applications"]["DL"]["ApplicationData"]["ground_failure"]
+    assetType = aim["assetType"]
+    ground_failure = aim["Applications"]["DL"]["ApplicationData"]["ground_failure"]
 
     if assetType == "Buildings":
         # get the building parameters
-        bt = GI["StructureType"]  # building type
+        bt = gi["StructureType"]  # building type
 
         # get the design level
-        dl = GI.get("DesignLevel", None)
+        dl = gi.get("DesignLevel", None)
 
         if dl is None:
             # If there is no DesignLevel provided, we assume that the YearBuilt is
             # available
-            year_built = GI["YearBuilt"]
+            year_built = gi["YearBuilt"]
 
             if "W1" in bt:
                 DesignL = ap_DesignLevel_W1
@@ -184,16 +184,16 @@ def auto_populate(AIM):
                     dl = DesignL[year]
                     break
 
-            GI_ap["DesignLevel"] = dl
+            gi_ap["DesignLevel"] = dl
         # get the number of stories / height
-        stories = GI.get("NumberOfStories", None)
+        stories = gi.get("NumberOfStories", None)
 
         # We assume that the structure type does not include height information
         # and we append it here based on the number of story information
         rise = convert_story_rise(bt, stories)
 
         # get the number of stories / height
-        stories = GI.get("NumberOfStories", None)
+        stories = gi.get("NumberOfStories", None)
 
         if rise is None:
             # To prevent STR.W2.None.LC
@@ -248,12 +248,12 @@ def auto_populate(AIM):
             CMP = pd.concat([CMP, CMP_GF], axis=0)
 
         # get the occupancy class
-        if GI["OccupancyClass"] in ap_Occupancy.keys():
-            ot = ap_Occupancy[GI["OccupancyClass"]]
+        if gi["OccupancyClass"] in ap_Occupancy.keys():
+            ot = ap_Occupancy[gi["OccupancyClass"]]
         else:
-            ot = GI["OccupancyClass"]
+            ot = gi["OccupancyClass"]
 
-        plan_area = GI.get("PlanArea", 1.0)
+        plan_area = gi.get("PlanArea", 1.0)
 
         repair_config = {
             "ConsequenceDatabase": "Hazus Earthquake - Buildings",
@@ -288,4 +288,4 @@ def auto_populate(AIM):
             f"in Hazus Earthquake Capacity Spectrum Method-based DL method"
         )
 
-    return GI_ap, DL_ap, CMP
+    return gi_ap, DL_ap, CMP
