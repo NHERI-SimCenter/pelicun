@@ -490,7 +490,7 @@ def auto_populate(aim):  # noqa: C901
             # available
             year_built = gi['YearBuilt']
 
-            design_l = ap_design_level_w1 if 'W1' in bt else ap_design_level
+            design_l = ap_design_level_w1 if 'W1' in bt else ap_design_level # type: ignore
 
             for year in sorted(design_l.keys()):
                 if year_built <= year:
@@ -704,7 +704,7 @@ def auto_populate(aim):  # noqa: C901
                 comp_gf = pd.DataFrame(                                                 # noqa
                     {f'HRD.GF.{rt[3:]}':[  'ea',         1,          1,        1,   'N/A']}, # noqa
                     index = [     'Units','Location','Direction','Theta_0','Family']   # noqa
-                ).T                                                                    # noqa
+                ).T                                                                   
                 # fmt: on
 
                 comp = pd.concat([comp, comp_gf], axis=0)
