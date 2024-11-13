@@ -851,8 +851,7 @@ class DamageModel_DS(DamageModel_Base):
             # each component limit state. The latter is primarily needed to
             # handle limit states with multiple, mutually exclusive DS options
             capacity_sample, lsds_sample = self._generate_dmg_sample(
-                sample_size, performance_group, scaling_specification,
-                demand_dict
+                sample_size, performance_group, scaling_specification, demand_dict
             )
 
             # Evaluate the Damage State of each Component Block
