@@ -490,7 +490,7 @@ def auto_populate(aim):  # noqa: C901
             # available
             year_built = gi['YearBuilt']
 
-            design_l = ap_design_level_w1 if 'W1' in bt else ap_design_level # type: ignore
+            design_l = ap_design_level_w1 if 'W1' in bt else ap_design_level  # type: ignore
 
             for year in sorted(design_l.keys()):
                 if year_built <= year:
