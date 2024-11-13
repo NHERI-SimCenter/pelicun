@@ -249,9 +249,9 @@ def auto_populate(aim):
 
         # get the occupancy class
         if gi["OccupancyClass"] in ap_Occupancy.keys():
-            ot = ap_Occupancy[gi["OccupancyClass"]]
+            occ_type = ap_Occupancy[gi["OccupancyClass"]]
         else:
-            ot = gi["OccupancyClass"]
+            occ_type = gi["OccupancyClass"]
 
         plan_area = gi.get("PlanArea", 1.0)
 
@@ -271,7 +271,7 @@ def auto_populate(aim):
                 "ComponentAssignmentFile": "CMP_QNT.csv",
                 "ComponentDatabase": "Hazus Earthquake - Buildings",
                 "NumberOfStories": f"{stories}",
-                "OccupancyType": f"{ot}",
+                "OccupancyType": f"{occ_type}",
                 "PlanArea": str(plan_area),
             },
             "Damage": {"DamageProcess": "Hazus Earthquake"},
