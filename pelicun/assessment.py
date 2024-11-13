@@ -1227,7 +1227,7 @@ class DLCalculationAssessment(AssessmentBase):
                     f'Prescribed Damage Process not recognized: '
                     f'`{damage_process_approach}`.'
                 )
-
+    
         # calculate damages
         self.damage.calculate(
             dmg_process=dmg_process,

@@ -1660,7 +1660,7 @@ class LogNormalRandomVariable(RandomVariable):
             if isinstance(theta, np.ndarray):
                 theta = np.tile(theta, len(values) // len(theta) + 1)[: len(values)]
                 beta = np.tile(beta, len(values) // len(beta) + 1)[: len(values)]
-                
+
             p_a, p_b = (
                 norm.cdf((np.log(lim) - np.log(theta)) / beta) for lim in (a, b)
             )

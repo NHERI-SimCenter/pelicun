@@ -851,7 +851,8 @@ class DamageModel_DS(DamageModel_Base):
             # each component limit state. The latter is primarily needed to
             # handle limit states with multiple, mutually exclusive DS options
             capacity_sample, lsds_sample = self._generate_dmg_sample(
-                sample_size, performance_group, scaling_specification
+                sample_size, performance_group, scaling_specification,
+                demand_dict
             )
 
             # Evaluate the Damage State of each Component Block
@@ -908,11 +909,15 @@ class DamageModel_DS(DamageModel_Base):
 
     def _handle_operation_list(self, initial_value, operations):
         if len(operations) == 1:
-            return self._handle_operation(initial_value, operations[0][0], operations[0][1])
+            return self._handle_operation(
+                initial_value, operations[0][0], operations[0][1]
+            )
         else:
             new_values = []
             for operation in operations:
-                new_values.append(self._handle_operation(initial_value, operation[0], operation[1]))
+                new_values.append(
+                    self._handle_operation(initial_value, operation[0], operation[1])
+                )
             return new_values
 
     def _generate_dmg_sample(
@@ -971,8 +976,9 @@ class DamageModel_DS(DamageModel_Base):
             raise ValueError(msg)
 
         # Create capacity and LSD RVs for each performance group
-        capacity_rvs, lsds_rvs = self._create_dmg_RVs(pgb, scaling_specification,
-                                                      demand_dict)
+        capacity_rvs, lsds_rvs = self._create_dmg_RVs(
+            pgb, scaling_specification, demand_dict
+        )
 
         if self._asmnt.log.verbose:
             self.log.msg('Sampling capacities...', prepend_timestamp=True)
@@ -1147,8 +1153,10 @@ class DamageModel_DS(DamageModel_Base):
         return ds_sample
 
     def _create_dmg_RVs(  # noqa: N802, C901
-        self, pgb: pd.DataFrame, scaling_specification: dict | None = None,
-        demand_dict=None
+        self,
+        pgb: pd.DataFrame,
+        scaling_specification: dict | None = None,
+        demand_dict=None,
     ) -> tuple[uq.RandomVariableRegistry, uq.RandomVariableRegistry]:
         """
         Create random variables for the damage calculation.
@@ -1359,7 +1367,7 @@ class DamageModel_DS(DamageModel_Base):
                             parsed_scaling_specification[key][LS] = []
                         parsed_scaling_specification[key][LS].append(
                             (capacity_adjustment_operation, fnumber)
-                            )
+                        )
 
             scaling_specification = parsed_scaling_specification
 
