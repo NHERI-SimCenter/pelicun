@@ -1204,16 +1204,10 @@ def _damage_save(
         out_files.append('DMG_stats.csv')
 
     if out_reqs.intersection({'GroupedSample', 'GroupedStatistics'}):
-        if aggregate_colocated:
-            damage_groupby = damage_sample.groupby(level=['cmp', 'ds'], axis=1)  # type: ignore
-            damage_units = damage_units.groupby(level=['cmp', 'ds'], axis=1).first()  # type: ignore
-        else:
-            damage_groupby = damage_sample.groupby(  # type: ignore
-                level=['cmp', 'loc', 'dir', 'ds'], axis=1
-            )
-            damage_units = damage_units.groupby(  # type: ignore
-                level=['cmp', 'loc', 'dir', 'ds'], axis=1
-            ).first()
+        damage_groupby = damage_sample.groupby(
+            level=['cmp', 'loc', 'ds'], axis=1)  # type: ignore
+        damage_units = damage_units.groupby(
+            level=['cmp', 'loc', 'ds'], axis=1).first()  # type: ignore
 
         grp_damage = damage_groupby.sum().mask(damage_groupby.count() == 0, np.nan)
 
@@ -1231,7 +1225,7 @@ def _damage_save(
             grp_damage = grp_damage.mul(ds_list, axis=1)
 
             # aggregate across damage state indices
-            damage_groupby_2 = grp_damage.groupby(level=['cmp', 'ds'], axis=1)
+            damage_groupby_2 = grp_damage.groupby(level=['cmp', 'loc'], axis=1)
 
             # choose the max value
             # i.e., the governing DS for each comp-loc pair
@@ -1241,7 +1235,7 @@ def _damage_save(
 
             # aggregate units to the same format
             # assume identical units across locations for each comp
-            damage_units = damage_units.groupby(level=['cmp', 'ds'], axis=1).first()  # type: ignore
+            damage_units = damage_units.groupby(level=['cmp', 'loc'], axis=1).first()  # type: ignore
 
         else:
             # otherwise, aggregate damage quantities for each comp
