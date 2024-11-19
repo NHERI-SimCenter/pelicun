@@ -24,6 +24,17 @@ Complete list
 |           |assessment of a steel moment frame structure using the   |
 |           |FEMA P-58 methodology.                                   |
 +-----------+---------------------------------------------------------+
+|`E2`_      |Example of a simple assessment involving a single loss   |
+|           |function. The example and associated input files can be  |
+|           |easily extended to include more loss functions and input |
+|           |demands.                                                 |
++-----------+---------------------------------------------------------+
+|`E3`_      |Example validating the estimated damage state            |
+|           |probabilities of a single component.                     |
++-----------+---------------------------------------------------------+
+|`E4`_      |                                                         |
+|           |                                                         |
++-----------+---------------------------------------------------------+
 
 Grouped by feature
 ------------------
@@ -43,7 +54,7 @@ The following sections group the examples above based on the specific features t
    +------------------------------------------------------+---------------------------------------------------------+
    |Feature                                               |Examples                                                 |
    +======================================================+=========================================================+
-   |:ref:`Model calibration <fo_calibration>`             |`E1`_                                                    |
+   |:ref:`Model calibration <fo_calibration>`             |`E1`_, `E2`_                                             |
    +------------------------------------------------------+---------------------------------------------------------+
    |:ref:`RID|PID inference <fo_pidrid>`                  |`E1`_                                                    |
    +------------------------------------------------------+---------------------------------------------------------+
@@ -56,9 +67,11 @@ The following sections group the examples above based on the specific features t
    +------------------------------------------------------+---------------------------------------------------------+
    |Feature                                               |Examples                                                 |
    +======================================================+=========================================================+
-   |:ref:`Loss maps <fo_loss_maps>`                       |`E1`_                                                    |
+   |:ref:`Loss maps <fo_loss_maps>`                       |`E1`_, `E2`_                                             |
    +------------------------------------------------------+---------------------------------------------------------+
-   |:ref:`Active decision variables <fo_active_dvs>`      |`E1`_                                                    |
+   |:ref:`Active decision variables <fo_active_dvs>`      |`E1`_, `E2`_                                             |
+   +------------------------------------------------------+---------------------------------------------------------+
+   |:ref:`Loss functions <fo_loss_functions>`             |`E2`_                                                    |
    +------------------------------------------------------+---------------------------------------------------------+
    |:ref:`Loss aggregation <fo_loss_aggregation>`         |`E1`_                                                    |
    +------------------------------------------------------+---------------------------------------------------------+
@@ -68,5 +81,11 @@ The following sections group the examples above based on the specific features t
    :hidden:
 
    notebooks/example_1.pct.py
+   notebooks/example_2.pct.py
+   notebooks/example_3.pct.py
+   notebooks/example_4.pct.py
 
 .. _E1: notebooks/example_1.pct.py
+.. _E2: notebooks/example_2.pct.py
+.. _E3: notebooks/example_3.pct.py
+.. _E4: notebooks/example_4.pct.py

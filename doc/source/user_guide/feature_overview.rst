@@ -108,6 +108,10 @@ Loss aggregation
 
 Also talk about replacement thresholds here.
 
+.. _fo_loss_functions:
+
+Loss functions
+^^^^^^^^^^^^^^
 .. _fo_cli:
 
 Command-line support
