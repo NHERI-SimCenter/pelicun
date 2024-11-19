@@ -879,8 +879,11 @@ def convert_dtypes(dataframe: pd.DataFrame) -> pd.DataFrame:
         The modified DataFrame.
 
     """
-    with pd.option_context("future.no_silent_downcasting", True):
-        dataframe = dataframe.fillna(value=np.nan).infer_objects(copy=False)
+    with (
+        pd.option_context('future.no_silent_downcasting', True),  # noqa: FBT003
+        pd.option_context('mode.copy_on_write', True),  # noqa: FBT003
+    ):
+        dataframe = dataframe.fillna(value=np.nan).infer_objects()
     # note: `axis=0` applies the function to the columns
     # note: ignoring errors is a bad idea and should never be done. In
     # this case, however, that's not what we do, despite the name of
@@ -1193,22 +1196,21 @@ def int_or_None(string: str) -> int | None:  # noqa: N802
     except ValueError:
         return None
 
-def check_if_str_is_na(string: str) -> bool:
+
+def check_if_str_is_na(string: Any) -> bool:  # noqa: ANN401
     """
     Check if the provided string can be interpreted as N/A.
 
     Parameters
     ----------
-    string: str
+    string: object
             The string to evaluate
 
     Returns
     -------
     bool
         The evaluation result. Yes, if the string is considered N/A.
-
     """
-
     na_vals = {
         '',
         'N/A',
