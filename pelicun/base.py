@@ -280,7 +280,11 @@ class LoggerRegistry:
             f"{''.join(traceback.format_exception(exc_type, exc_value, exc_traceback))}"
         )
         for logger in cls._loggers:
-            logger.warning(message)
+            logger.msg(message)
+
+        # Also call the default excepthook to print the exception to
+        # the console as is done by default.
+        sys.__excepthook__(exc_type, exc_value, exc_traceback)
 
 
 # Update sys.excepthook to log exceptions in all loggers

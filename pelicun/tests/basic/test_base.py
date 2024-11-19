@@ -262,8 +262,8 @@ raise ValueError('Test exception in subprocess')
 
     # Check that the exception was logged in the log file
     log_files = (
-        Path(temp_dir) / 'log_A_warnings.txt',
-        Path(temp_dir) / 'log_B_warnings.txt',
+        Path(temp_dir) / 'log_A.txt',
+        Path(temp_dir) / 'log_B.txt',
     )
     for log_file in log_files:
         assert log_file.exists(), 'Log file was not created'
