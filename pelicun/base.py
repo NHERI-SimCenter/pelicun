@@ -1254,14 +1254,10 @@ def with_parsed_str_na_values(df: pd.DataFrame) -> pd.DataFrame:
     -------
     pd.DataFrame
         The dataframe with proper N/A values.
-
     """
-
     # Replace string NA values with actual NaNs
     return df.apply(
-        lambda col: col.map(
-            lambda x: np.nan if check_if_str_is_na(x) else x
-        )
+        lambda col: col.map(lambda x: np.nan if check_if_str_is_na(x) else x)
     )
 
 

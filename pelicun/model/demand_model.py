@@ -545,7 +545,9 @@ class DemandModel(PelicunModel):
         ) -> None:
             def parse_str_to_float(in_str: str, context_string: str) -> float:
                 try:
-                    out_float = np.nan if base.check_if_str_is_na(in_str) else float(in_str)
+                    out_float = (
+                        np.nan if base.check_if_str_is_na(in_str) else float(in_str)
+                    )
 
                 except ValueError:
                     self.log.warning(

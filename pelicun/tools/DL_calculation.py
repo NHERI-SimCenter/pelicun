@@ -90,14 +90,14 @@ def log_msg(msg: str, color_codes: tuple[str, str] | None = None) -> None:
     """
     if color_codes:
         cpref, csuff = color_codes
-        (
+        print(  # noqa: T201
             f'{strftime("%Y-%m-%dT%H:%M:%SZ", gmtime())} '
             f'{cpref}'
             f'{msg}'
             f'{csuff}'
         )
     else:
-        f'{strftime("%Y-%m-%dT%H:%M:%SZ", gmtime())} {msg}'
+        print(f'{strftime("%Y-%m-%dT%H:%M:%SZ", gmtime())} {msg}')  # noqa: T201
 
 
 # list of output files help perform safe initialization of output dir
@@ -293,8 +293,6 @@ def run_pelicun(
         If True, EDPs are not resampled and processed in order.
 
     """
-    log_msg('First line of DL_calculation')
-
     # Initial setup -----------------------------------------------------------
 
     # get the absolute path to the config file
@@ -1204,10 +1202,10 @@ def _damage_save(
         out_files.append('DMG_stats.csv')
 
     if out_reqs.intersection({'GroupedSample', 'GroupedStatistics'}):
-        damage_groupby = damage_sample.groupby(
-            level=['cmp', 'loc', 'ds'], axis=1)  # type: ignore
+        damage_groupby = damage_sample.groupby(level=['cmp', 'loc', 'ds'], axis=1)  # type: ignore
         damage_units = damage_units.groupby(
-            level=['cmp', 'loc', 'ds'], axis=1).first()  # type: ignore
+            level=['cmp', 'loc', 'ds'], axis=1
+        ).first()  # type: ignore
 
         grp_damage = damage_groupby.sum().mask(damage_groupby.count() == 0, np.nan)
 
