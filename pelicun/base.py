@@ -43,12 +43,12 @@
 from __future__ import annotations
 
 import argparse
-import datetime
 import json
 import pprint
 import sys
 import traceback
 import warnings
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, ClassVar, Optional, TypeVar, overload
 
@@ -280,7 +280,11 @@ class LoggerRegistry:
             f"{''.join(traceback.format_exception(exc_type, exc_value, exc_traceback))}"
         )
         for logger in cls._loggers:
-            logger.warning(message)
+            logger.msg(message)
+
+        # Also call the default excepthook to print the exception to
+        # the console as is done by default.
+        sys.__excepthook__(exc_type, exc_value, exc_traceback)
 
 
 # Update sys.excepthook to log exceptions in all loggers
@@ -408,7 +412,9 @@ class Logger:
 
         for msg_i, msg_line in enumerate(msg_lines):
             if prepend_timestamp and (msg_i == 0):
-                formatted_msg = f'{datetime.datetime.now().strftime(self.log_time_format)} {msg_line}'  # noqa: DTZ005
+                formatted_msg = (
+                    f'{datetime.now().strftime(self.log_time_format)} {msg_line}'  # noqa: DTZ005
+                )
             elif prepend_timestamp or prepend_blank_space:
                 formatted_msg = self.spaces + msg_line
             else:
@@ -483,9 +489,9 @@ class Logger:
         self.msg(
             'System Information:', prepend_timestamp=False, prepend_blank_space=False
         )
-        start = datetime.datetime.now().strftime('%Y-%m-%dT%H:%M:%S')  # noqa: DTZ005
+        start = datetime.now().strftime('%Y-%m-%dT%H:%M:%S')  # noqa: DTZ005
         self.msg(
-            f'local time zone: {datetime.datetime.utcnow().astimezone().tzinfo}\n'
+            f'local time zone: {datetime.now(timezone.utc).astimezone().tzinfo}\n'
             f'start time: {start}\n'
             f'python: {sys.version}\n'
             f'numpy: {np.__version__}\n'
