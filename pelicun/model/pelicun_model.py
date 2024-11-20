@@ -51,6 +51,7 @@ from pelicun import base, uq
 
 if TYPE_CHECKING:
     from pelicun.assessment import AssessmentBase
+    from pelicun.base import Logger
 
 idx = base.idx
 
@@ -75,7 +76,7 @@ class PelicunModel:
 
         # link logging methods as attributes enabling more
         # concise syntax
-        self.log = self._asmnt.log
+        self.log: Logger = self._asmnt.log
 
     def _convert_marginal_params(  # noqa: C901
         self,

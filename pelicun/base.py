@@ -43,12 +43,12 @@
 from __future__ import annotations
 
 import argparse
-import datetime
 import json
 import pprint
 import sys
 import traceback
 import warnings
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, ClassVar, Optional, TypeVar, overload
 
@@ -194,12 +194,9 @@ class Options:
         self.sampling_method: str | None = None
         self.list_all_ds: bool | None = None
 
-        self._seed: float | None = None
-
-        self._rng = np.random.default_rng()
         merged_config_options = merge_default_config(user_config_options)
 
-        self._seed = merged_config_options['Seed']
+        self.seed = merged_config_options['Seed']
         self.sampling_method = merged_config_options['Sampling']['SamplingMethod']
         self.list_all_ds = merged_config_options['ListAllDamageStates']
 
@@ -283,7 +280,11 @@ class LoggerRegistry:
             f"{''.join(traceback.format_exception(exc_type, exc_value, exc_traceback))}"
         )
         for logger in cls._loggers:
-            logger.warning(message)
+            logger.msg(message)
+
+        # Also call the default excepthook to print the exception to
+        # the console as is done by default.
+        sys.__excepthook__(exc_type, exc_value, exc_traceback)
 
 
 # Update sys.excepthook to log exceptions in all loggers
@@ -411,7 +412,9 @@ class Logger:
 
         for msg_i, msg_line in enumerate(msg_lines):
             if prepend_timestamp and (msg_i == 0):
-                formatted_msg = f'{datetime.datetime.now().strftime(self.log_time_format)} {msg_line}'  # noqa: DTZ005
+                formatted_msg = (
+                    f'{datetime.now().strftime(self.log_time_format)} {msg_line}'  # noqa: DTZ005
+                )
             elif prepend_timestamp or prepend_blank_space:
                 formatted_msg = self.spaces + msg_line
             else:
@@ -486,9 +489,9 @@ class Logger:
         self.msg(
             'System Information:', prepend_timestamp=False, prepend_blank_space=False
         )
-        start = datetime.datetime.now().strftime('%Y-%m-%dT%H:%M:%S')  # noqa: DTZ005
+        start = datetime.now().strftime('%Y-%m-%dT%H:%M:%S')  # noqa: DTZ005
         self.msg(
-            f'local time zone: {datetime.datetime.utcnow().astimezone().tzinfo}\n'
+            f'local time zone: {datetime.now(timezone.utc).astimezone().tzinfo}\n'
             f'start time: {start}\n'
             f'python: {sys.version}\n'
             f'numpy: {np.__version__}\n'
@@ -882,7 +885,11 @@ def convert_dtypes(dataframe: pd.DataFrame) -> pd.DataFrame:
         The modified DataFrame.
 
     """
-    dataframe = dataframe.fillna(value=np.nan)
+    with (
+        pd.option_context('future.no_silent_downcasting', True),  # noqa: FBT003
+        pd.option_context('mode.copy_on_write', True),  # noqa: FBT003
+    ):
+        dataframe = dataframe.fillna(value=np.nan).infer_objects()
     # note: `axis=0` applies the function to the columns
     # note: ignoring errors is a bad idea and should never be done. In
     # this case, however, that's not what we do, despite the name of
@@ -1196,24 +1203,19 @@ def int_or_None(string: str) -> int | None:  # noqa: N802
         return None
 
 
-def with_parsed_str_na_values(df: pd.DataFrame) -> pd.DataFrame:
+def check_if_str_is_na(string: Any) -> bool:  # noqa: ANN401
     """
-    Identify string values interpretable as N/A.
-
-    Given a dataframe, this function identifies values that have
-    string type and can be interpreted as N/A, and replaces them with
-    actual NA's.
+    Check if the provided string can be interpreted as N/A.
 
     Parameters
     ----------
-    df: pd.DataFrame
-        Dataframe to process
+    string: object
+            The string to evaluate
 
     Returns
     -------
-    pd.DataFrame
-        The dataframe with proper N/A values.
-
+    bool
+        The evaluation result. Yes, if the string is considered N/A.
     """
     na_vals = {
         '',
@@ -1238,11 +1240,30 @@ def with_parsed_str_na_values(df: pd.DataFrame) -> pd.DataFrame:
     }
     # obtained from Pandas' internal STR_NA_VALUES variable.
 
+    return isinstance(string, str) and string in na_vals
+
+
+def with_parsed_str_na_values(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Identify string values interpretable as N/A.
+
+    Given a dataframe, this function identifies values that have
+    string type and can be interpreted as N/A, and replaces them with
+    actual NA's.
+
+    Parameters
+    ----------
+    df: pd.DataFrame
+        Dataframe to process
+
+    Returns
+    -------
+    pd.DataFrame
+        The dataframe with proper N/A values.
+    """
     # Replace string NA values with actual NaNs
     return df.apply(
-        lambda col: col.map(
-            lambda x: np.nan if isinstance(x, str) and x in na_vals else x
-        )
+        lambda col: col.map(lambda x: np.nan if check_if_str_is_na(x) else x)
     )
 
 

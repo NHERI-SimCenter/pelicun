@@ -1,0 +1,3 @@
+[submodule "pelicun/resources/DamageAndLossModelLibrary"]
+	path = pelicun/resources/DamageAndLossModelLibrary
+	url = https://github.com/NHERI-SimCenter/DamageAndLossModelLibrary

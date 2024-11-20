@@ -68,6 +68,7 @@ from pelicun.base import (
     is_unspecified,
     str2bool,
     update,
+    update_vals,
 )
 from pelicun.pelicun_warnings import PelicunInvalidConfigError
 
@@ -89,14 +90,14 @@ def log_msg(msg: str, color_codes: tuple[str, str] | None = None) -> None:
     """
     if color_codes:
         cpref, csuff = color_codes
-        (
+        print(  # noqa: T201
             f'{strftime("%Y-%m-%dT%H:%M:%SZ", gmtime())} '
             f'{cpref}'
             f'{msg}'
             f'{csuff}'
         )
     else:
-        f'{strftime("%Y-%m-%dT%H:%M:%SZ", gmtime())} {msg}'
+        print(f'{strftime("%Y-%m-%dT%H:%M:%SZ", gmtime())} {msg}')  # noqa: T201
 
 
 # list of output files help perform safe initialization of output dir
@@ -292,8 +293,6 @@ def run_pelicun(
         If True, EDPs are not resampled and processed in order.
 
     """
-    log_msg('First line of DL_calculation')
-
     # Initial setup -----------------------------------------------------------
 
     # get the absolute path to the config file
@@ -643,6 +642,25 @@ def _parse_config_file(  # noqa: C901
                 'a valid damage and loss configuration for this asset. '
             )
             raise PelicunInvalidConfigError(msg)
+
+        # look for possibly specified assessment options
+        try:
+            assessment_options = config['Applications']['DL']['ApplicationData'][
+                'Options'
+            ]
+        except KeyError:
+            assessment_options = None
+
+        if assessment_options:
+            # extend options defined via the auto-population script to
+            # include those in the original `config`
+            config_ap['Applications']['DL']['ApplicationData'].pop('Options')
+            update_vals(
+                config_ap['DL']['Options'],
+                assessment_options,
+                "config_ap['DL']['Options']",
+                'assessment_options',
+            )
 
         # add the demand information
         update(config_ap, '/DL/Demands/DemandFilePath', demand_file)
@@ -1184,16 +1202,10 @@ def _damage_save(
         out_files.append('DMG_stats.csv')
 
     if out_reqs.intersection({'GroupedSample', 'GroupedStatistics'}):
-        if aggregate_colocated:
-            damage_groupby = damage_sample.groupby(level=['cmp', 'ds'], axis=1)  # type: ignore
-            damage_units = damage_units.groupby(level=['cmp', 'ds'], axis=1).first()  # type: ignore
-        else:
-            damage_groupby = damage_sample.groupby(  # type: ignore
-                level=['cmp', 'loc', 'dir', 'ds'], axis=1
-            )
-            damage_units = damage_units.groupby(  # type: ignore
-                level=['cmp', 'loc', 'dir', 'ds'], axis=1
-            ).first()
+        damage_groupby = damage_sample.groupby(level=['cmp', 'loc', 'ds'], axis=1)  # type: ignore
+        damage_units = damage_units.groupby(
+            level=['cmp', 'loc', 'ds'], axis=1
+        ).first()  # type: ignore
 
         grp_damage = damage_groupby.sum().mask(damage_groupby.count() == 0, np.nan)
 
@@ -1211,7 +1223,7 @@ def _damage_save(
             grp_damage = grp_damage.mul(ds_list, axis=1)
 
             # aggregate across damage state indices
-            damage_groupby_2 = grp_damage.groupby(level=['cmp', 'ds'], axis=1)
+            damage_groupby_2 = grp_damage.groupby(level=['cmp', 'loc'], axis=1)
 
             # choose the max value
             # i.e., the governing DS for each comp-loc pair
@@ -1221,7 +1233,7 @@ def _damage_save(
 
             # aggregate units to the same format
             # assume identical units across locations for each comp
-            damage_units = damage_units.groupby(level=['cmp', 'ds'], axis=1).first()  # type: ignore
+            damage_units = damage_units.groupby(level=['cmp', 'loc'], axis=1).first()  # type: ignore
 
         else:
             # otherwise, aggregate damage quantities for each comp

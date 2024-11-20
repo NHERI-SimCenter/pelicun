@@ -262,8 +262,8 @@ raise ValueError('Test exception in subprocess')
 
     # Check that the exception was logged in the log file
     log_files = (
-        Path(temp_dir) / 'log_A_warnings.txt',
-        Path(temp_dir) / 'log_B_warnings.txt',
+        Path(temp_dir) / 'log_A.txt',
+        Path(temp_dir) / 'log_B.txt',
     )
     for log_file in log_files:
         assert log_file.exists(), 'Log file was not created'
@@ -757,6 +757,14 @@ def test_int_or_None() -> None:
     assert base.int_or_None('123a') is None
     assert base.int_or_None(' ') is None
     assert base.int_or_None('') is None
+
+
+def test_check_if_str_is_na() -> None:
+    data = ['N/A', 'foo', 'NaN', '', 'bar', np.nan]
+
+    res = [base.check_if_str_is_na(x) for x in data]
+
+    assert res == [True, False, True, True, False, False]
 
 
 def test_with_parsed_str_na_values() -> None:

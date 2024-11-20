@@ -44,7 +44,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
 import pandas as pd
@@ -52,6 +52,9 @@ import pandas as pd
 from pelicun import base, file_io, model, uq
 from pelicun.__init__ import __version__ as pelicun_version  # type: ignore
 from pelicun.base import EDP_to_demand_type, get
+
+if TYPE_CHECKING:
+    from pelicun.base import Logger
 
 default_dbs = {
     'fragility': {
@@ -120,9 +123,11 @@ class AssessmentBase:
         """
         self.stories: int | None = None
         self.options = base.Options(config_options, self)
-        self.unit_conversion_factors = base.parse_units(self.options.units_file)
+        self.unit_conversion_factors: dict = base.parse_units(
+            self.options.units_file
+        )
 
-        self.log = self.options.log
+        self.log: Logger = self.options.log
         self.log.msg(
             f'pelicun {pelicun_version} | \n',
             prepend_timestamp=False,
@@ -640,7 +645,7 @@ class DLCalculationAssessment(AssessmentBase):
 
             if 'Units' in raw_demands.index:
                 raw_units = raw_demands.loc['Units', :]
-                raw_demands = raw_demands.drop('Units', axis=0)
+                raw_demands = raw_demands.drop('Units', axis=0).astype(float)
 
             else:
                 raw_units = None

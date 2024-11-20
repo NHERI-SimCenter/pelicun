@@ -545,7 +545,9 @@ class DemandModel(PelicunModel):
         ) -> None:
             def parse_str_to_float(in_str: str, context_string: str) -> float:
                 try:
-                    out_float = float(in_str)
+                    out_float = (
+                        np.nan if base.check_if_str_is_na(in_str) else float(in_str)
+                    )
 
                 except ValueError:
                     self.log.warning(
@@ -574,7 +576,7 @@ class DemandModel(PelicunModel):
                 cols = tuple(cols_lst)
 
             # load the distribution family
-            cal_df.loc[idx[cols, :, :], 'Family'] = settings['DistributionFamily']
+            cal_df.loc[list(cols), 'Family'] = settings['DistributionFamily']
 
             # load limits
             for lim in (
@@ -586,7 +588,7 @@ class DemandModel(PelicunModel):
                 if lim in settings:
                     val = parse_str_to_float(settings[lim], lim)
                     if not pd.isna(val):
-                        cal_df.loc[idx[cols, :, :], lim] = val
+                        cal_df.loc[list(cols), lim] = val
 
             # scale the censor and truncation limits, if needed
             scale_factor = self._asmnt.scale_factor(settings.get('Unit'))
@@ -609,7 +611,7 @@ class DemandModel(PelicunModel):
                 if settings['DistributionFamily'] == 'normal':
                     sig_increase *= scale_factor
 
-                cal_df.loc[idx[cols, :, :], 'SigIncrease'] = sig_increase
+                cal_df.loc[list(cols), 'SigIncrease'] = sig_increase
 
         def get_filter_mask(
             demand_sample: pd.DataFrame,
