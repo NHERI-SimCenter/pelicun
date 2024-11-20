@@ -1385,9 +1385,14 @@ class DamageModel_DS(DamageModel_Base):
                     if pd.isna(theta_0):
                         continue
 
-                    theta = [
-                        frg_params_ls.get(f'Theta_{t_i}', np.nan) for t_i in range(3)
-                    ]
+                    theta = np.array(
+                        [
+                            value
+                            for t_i in range(3)
+                            if (value := frg_params_ls.get(f'Theta_{t_i}', None))
+                            is not None
+                        ]
+                    )
 
                     if capacity_adjustment_operation:
                         if family in {'normal', 'lognormal', 'deterministic'}:
@@ -1403,10 +1408,12 @@ class DamageModel_DS(DamageModel_Base):
                                 f'Ignoring: `{cmp_loc_dir}`, which is `{family}`'
                             )
 
-                    tr_lims = [
-                        frg_params_ls.get(f'Truncate{side}', np.nan)
-                        for side in ('Lower', 'Upper')
-                    ]
+                    tr_lims = np.array(
+                        [
+                            frg_params_ls.get(f'Truncate{side}', np.nan)
+                            for side in ('Lower', 'Upper')
+                        ]
+                    )
 
                     for block_i, _ in enumerate(blocks):
                         frg_rv_tag = (
