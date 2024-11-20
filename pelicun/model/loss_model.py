@@ -1714,8 +1714,10 @@ class RepairModel_DS(RepairModel_Base):
 
         assert self.sample is not None
         assert self.loss_params is not None
-        cmp_units = self.loss_params['DV', 'Unit']
-        dv_units = pd.Series(index=self.sample.columns, name='Units', dtype='object')
+        cmp_units = self.loss_params['DV', 'Unit'].sort_index()
+        dv_units = pd.Series(
+            index=self.sample.columns, name='Units', dtype='object'
+        ).sort_index()
 
         valid_dv_types = dv_units.index.unique(level=0)
         valid_cmp_ids = dv_units.index.unique(level=1)
