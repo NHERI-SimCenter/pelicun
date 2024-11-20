@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # Copyright (c) 2023 Leland Stanford Junior University
 # Copyright (c) 2023 The Regents of the University of California
@@ -36,22 +35,28 @@
 #
 # Contributors:
 # Adam Zsarnóczay
+"""Hazus Earthquake IM."""
+
+from __future__ import annotations
+
 import json
+
 import pandas as pd
+
 import pelicun
 
-ap_DesignLevel = {1940: 'LC', 1975: 'MC', 2100: 'HC'}
+ap_design_level = {1940: 'LC', 1975: 'MC', 2100: 'HC'}
 # original:
 # ap_DesignLevel = {1940: 'PC', 1940: 'LC', 1975: 'MC', 2100: 'HC'}
 # Note that the duplicated key is ignored, and Python keeps the last
 # entry.
 
-ap_DesignLevel_W1 = {0: 'LC', 1975: 'MC', 2100: 'HC'}
+ap_design_level_w1 = {0: 'LC', 1975: 'MC', 2100: 'HC'}
 # original:
 # ap_DesignLevel_W1 = {0: 'PC', 0: 'LC', 1975: 'MC', 2100: 'HC'}
 # same thing applies
 
-ap_Occupancy = {
+ap_occupancy = {
     'Other/Unknown': 'RES3',
     'Residential - Single-Family': 'RES1',
     'Residential - Town-Home': 'RES3',
@@ -70,6 +75,9 @@ ap_Occupancy = {
 
 # Convert common length units
 def convertUnits(value, unit_in, unit_out):
+    """
+    Convert units.
+    """
     aval_types = ['m', 'mm', 'cm', 'km', 'inch', 'ft', 'mile']
     m = 1.0
     mm = 0.001 * m
@@ -89,117 +97,116 @@ def convertUnits(value, unit_in, unit_out):
     }
     if (unit_in not in aval_types) or (unit_out not in aval_types):
         print(
-            f"The unit {unit_in} or {unit_out} "
-            f"are used in auto_population but not supported"
+            f'The unit {unit_in} or {unit_out} '
+            f'are used in auto_population but not supported'
         )
-        return
-    value = value * scale_map[unit_in] / scale_map[unit_out]
-    return value
+        return None
+    return value * scale_map[unit_in] / scale_map[unit_out]
 
 
-def convertBridgeToHAZUSclass(AIM):
+def convertBridgeToHAZUSclass(aim):  # noqa: C901
     # TODO: replace labels in AIM with standard CamelCase versions
-    structureType = AIM["BridgeClass"]
+    structure_type = aim['BridgeClass']
     # if (
-    #     type(structureType) == str
-    #     and len(structureType) > 3
-    #     and structureType[:3] == "HWB"
-    #     and 0 < int(structureType[3:])
-    #     and 29 > int(structureType[3:])
+    #     type(structure_type) == str
+    #     and len(structure_type) > 3
+    #     and structure_type[:3] == "HWB"
+    #     and 0 < int(structure_type[3:])
+    #     and 29 > int(structure_type[3:])
     # ):
     #     return AIM["bridge_class"]
-    state = AIM["StateCode"]
-    yr_built = AIM["YearBuilt"]
-    num_span = AIM["NumOfSpans"]
-    len_max_span = AIM["MaxSpanLength"]
-    len_unit = AIM["units"]["length"]
-    len_max_span = convertUnits(len_max_span, len_unit, "m")
+    state = aim['StateCode']
+    yr_built = aim['YearBuilt']
+    num_span = aim['NumOfSpans']
+    len_max_span = aim['MaxSpanLength']
+    len_unit = aim['units']['length']
+    len_max_span = convertUnits(len_max_span, len_unit, 'm')
 
     seismic = (int(state) == 6 and int(yr_built) >= 1975) or (
         int(state) != 6 and int(yr_built) >= 1990
     )
     # Use a catch-all, other class by default
-    bridge_class = "HWB28"
+    bridge_class = 'HWB28'
 
     if len_max_span > 150:
         if not seismic:
-            bridge_class = "HWB1"
+            bridge_class = 'HWB1'
         else:
-            bridge_class = "HWB2"
+            bridge_class = 'HWB2'
 
     elif num_span == 1:
         if not seismic:
-            bridge_class = "HWB3"
+            bridge_class = 'HWB3'
         else:
-            bridge_class = "HWB4"
+            bridge_class = 'HWB4'
 
-    elif structureType in list(range(101, 107)):
+    elif structure_type in list(range(101, 107)):
         if not seismic:
             if state != 6:
-                bridge_class = "HWB5"
+                bridge_class = 'HWB5'
             else:
-                bridge_class = "HWB6"
+                bridge_class = 'HWB6'
         else:
-            bridge_class = "HWB7"
+            bridge_class = 'HWB7'
 
-    elif structureType in [205, 206]:
+    elif structure_type in [205, 206]:
         if not seismic:
-            bridge_class = "HWB8"
+            bridge_class = 'HWB8'
         else:
-            bridge_class = "HWB9"
+            bridge_class = 'HWB9'
 
-    elif structureType in list(range(201, 207)):
+    elif structure_type in list(range(201, 207)):
         if not seismic:
-            bridge_class = "HWB10"
+            bridge_class = 'HWB10'
         else:
-            bridge_class = "HWB11"
+            bridge_class = 'HWB11'
 
-    elif structureType in list(range(301, 307)):
+    elif structure_type in list(range(301, 307)):
         if not seismic:
             if len_max_span >= 20:
                 if state != 6:
-                    bridge_class = "HWB12"
+                    bridge_class = 'HWB12'
                 else:
-                    bridge_class = "HWB13"
+                    bridge_class = 'HWB13'
             else:
                 if state != 6:
-                    bridge_class = "HWB24"
+                    bridge_class = 'HWB24'
                 else:
-                    bridge_class = "HWB25"
+                    bridge_class = 'HWB25'
         else:
-            bridge_class = "HWB14"
+            bridge_class = 'HWB14'
 
-    elif structureType in list(range(402, 411)):
+    elif structure_type in list(range(402, 411)):
         if not seismic:
             if len_max_span >= 20:
-                bridge_class = "HWB15"
+                bridge_class = 'HWB15'
             elif state != 6:
-                bridge_class = "HWB26"
+                bridge_class = 'HWB26'
             else:
-                bridge_class = "HWB27"
+                bridge_class = 'HWB27'
         else:
-            bridge_class = "HWB16"
+            bridge_class = 'HWB16'
 
-    elif structureType in list(range(501, 507)):
+    elif structure_type in list(range(501, 507)):
         if not seismic:
             if state != 6:
-                bridge_class = "HWB17"
+                bridge_class = 'HWB17'
             else:
-                bridge_class = "HWB18"
+                bridge_class = 'HWB18'
         else:
-            bridge_class = "HWB19"
+            bridge_class = 'HWB19'
 
-    elif structureType in [605, 606]:
+    elif structure_type in [605, 606]:
         if not seismic:
-            bridge_class = "HWB20"
+            bridge_class = 'HWB20'
         else:
-            bridge_class = "HWB21"
+            bridge_class = 'HWB21'
 
-    elif structureType in list(range(601, 608)):
+    elif structure_type in list(range(601, 608)):
         if not seismic:
-            bridge_class = "HWB22"
+            bridge_class = 'HWB22'
         else:
-            bridge_class = "HWB23"
+            bridge_class = 'HWB23'
 
     # TODO: review and add HWB24-27 rules
     # TODO: also double check rules for HWB10-11 and HWB22-23
@@ -207,30 +214,30 @@ def convertBridgeToHAZUSclass(AIM):
     return bridge_class
 
 
-def convertTunnelToHAZUSclass(AIM):
-    if ("Bored" in AIM["ConstructType"]) or ("Drilled" in AIM["ConstructType"]):
-        return "HTU1"
-    elif ("Cut" in AIM["ConstructType"]) or ("Cover" in AIM["ConstructType"]):
-        return "HTU2"
+def convertTunnelToHAZUSclass(aim) -> str:
+    if ('Bored' in aim['ConstructType']) or ('Drilled' in aim['ConstructType']):
+        return 'HTU1'
+    elif ('Cut' in aim['ConstructType']) or ('Cover' in aim['ConstructType']):
+        return 'HTU2'
     else:
-        # Select HTU2 for unclassfied tunnels because it is more conservative.
-        return "HTU2"
+        # Select HTU2 for unclassified tunnels because it is more conservative.
+        return 'HTU2'
 
 
-def convertRoadToHAZUSclass(AIM):
-    if AIM["RoadType"] in ["Primary", "Secondary"]:
-        return "HRD1"
+def convertRoadToHAZUSclass(aim) -> str:
+    if aim['RoadType'] in ['Primary', 'Secondary']:
+        return 'HRD1'
 
-    elif AIM["RoadType"] == "Residential":
-        return "HRD2"
+    elif aim['RoadType'] == 'Residential':
+        return 'HRD2'
 
     else:
         # many unclassified roads are urban roads
-        return "HRD2"
+        return 'HRD2'
 
 
-def convert_story_rise(structureType, stories):
-    if structureType in ['W1', 'W2', 'S3', 'PC1', 'MH']:
+def convert_story_rise(structure_type, stories):
+    if structure_type in ['W1', 'W2', 'S3', 'PC1', 'MH']:
         # These archetypes have no rise information in their IDs
         rise = None
 
@@ -240,26 +247,19 @@ def convert_story_rise(structureType, stories):
             stories = int(stories)
 
         except (ValueError, TypeError):
-            raise ValueError(
+            msg = (
                 'Missing "NumberOfStories" information, '
                 'cannot infer `rise` attribute of archetype'
             )
+            raise ValueError(msg)  # noqa: B904
 
-        if structureType == 'RM1':
-            if stories <= 3:
-                rise = "L"
+        if structure_type == 'RM1':
+            rise = 'L' if stories <= 3 else 'M'
 
-            else:
-                rise = "M"
+        elif structure_type == 'URM':
+            rise = 'L' if stories <= 2 else 'M'
 
-        elif structureType == 'URM':
-            if stories <= 2:
-                rise = "L"
-
-            else:
-                rise = "M"
-
-        elif structureType in [
+        elif structure_type in [
             'S1',
             'S2',
             'S4',
@@ -271,18 +271,18 @@ def convert_story_rise(structureType, stories):
             'RM2',
         ]:
             if stories <= 3:
-                rise = "L"
+                rise = 'L'
 
             elif stories <= 7:
-                rise = "M"
+                rise = 'M'
 
             else:
-                rise = "H"
+                rise = 'H'
 
     return rise
 
 
-def auto_populate(AIM):
+def auto_populate(aim):  # noqa: C901
     """
     Automatically creates a performance model for PGA-based Hazus EQ analysis.
 
@@ -306,286 +306,278 @@ def auto_populate(AIM):
     CMP: DataFrame
         Component assignment - Defines the components (in rows) and their
         location, direction, and quantity (in columns).
+
     """
-
     # extract the General Information
-    GI = AIM.get('GeneralInformation', None)
+    gi = aim.get('GeneralInformation', None)
 
-    if GI is None:
+    if gi is None:
         # TODO: show an error message
         pass
 
     # initialize the auto-populated GI
-    GI_ap = GI.copy()
+    gi_ap = gi.copy()
 
-    assetType = AIM["assetType"]
-    ground_failure = AIM["Applications"]["DL"]["ApplicationData"]["ground_failure"]
+    asset_type = aim['assetType']
+    ground_failure = aim['Applications']['DL']['ApplicationData']['ground_failure']
 
-    if assetType == "Buildings":
+    if asset_type == 'Buildings':
         # get the building parameters
-        bt = GI['StructureType']  # building type
+        bt = gi['StructureType']  # building type
 
         # get the design level
-        dl = GI.get('DesignLevel', None)
+        dl = gi.get('DesignLevel', None)
 
         if dl is None:
             # If there is no DesignLevel provided, we assume that the YearBuilt is
             # available
-            year_built = GI['YearBuilt']
+            year_built = gi['YearBuilt']
 
-            if 'W1' in bt:
-                DesignL = ap_DesignLevel_W1
-            else:
-                DesignL = ap_DesignLevel
+            design_l = ap_design_level_w1 if 'W1' in bt else ap_design_level
 
-            for year in sorted(DesignL.keys()):
+            for year in sorted(design_l.keys()):
                 if year_built <= year:
-                    dl = DesignL[year]
+                    dl = design_l[year]
                     break
 
-            GI_ap['DesignLevel'] = dl
+            gi_ap['DesignLevel'] = dl
 
         # get the number of stories / height
-        stories = GI.get('NumberOfStories', None)
+        stories = gi.get('NumberOfStories', None)
 
         # We assume that the structure type does not include height information
         # and we append it here based on the number of story information
         rise = convert_story_rise(bt, stories)
 
         if rise is not None:
-            LF = f'LF.{bt}.{rise}.{dl}'
-            GI_ap['BuildingRise'] = rise
+            lf = f'LF.{bt}.{rise}.{dl}'
+            gi_ap['BuildingRise'] = rise
         else:
-            LF = f'LF.{bt}.{dl}'
+            lf = f'LF.{bt}.{dl}'
 
         # fmt: off
-        CMP = pd.DataFrame(                                                 # noqa
-            {f'{LF}': ['ea',         1,          1,        1,   'N/A']},    # noqa
-            index = ['Units','Location','Direction','Theta_0','Family']     # noqa
-        ).T                                                                 # noqa
+        comp = pd.DataFrame(
+            {f'{lf}': ['ea',         1,          1,        1,   'N/A']},  # noqa: E241
+            index = ['Units','Location','Direction','Theta_0','Family']  # noqa: E231, E251
+        ).T
         # fmt: on
 
         # if needed, add components to simulate damage from ground failure
         if ground_failure:
             foundation_type = 'S'
 
-            FG_GF_H = f'GF.H.{foundation_type}'
-            FG_GF_V = f'GF.V.{foundation_type}'
+            fg_gf_h = f'GF.H.{foundation_type}'
+            fg_gf_v = f'GF.V.{foundation_type}'
 
             # fmt: off
-            CMP_GF = pd.DataFrame(                                                 # noqa
-                {f'{FG_GF_H}':[  'ea',         1,          1,        1,   'N/A'],  # noqa
-                 f'{FG_GF_V}':[  'ea',         1,          3,        1,   'N/A']}, # noqa
-                index = [     'Units','Location','Direction','Theta_0','Family']   # noqa
-            ).T                                                                    # noqa
+            comp_gf = pd.DataFrame(
+                {f'{fg_gf_h}':[  'ea',         1,          1,        1,   'N/A'],  # noqa: E201, E231, E241
+                 f'{fg_gf_v}':[  'ea',         1,          3,        1,   'N/A']},  # noqa: E201, E231, E241
+                index = [     'Units','Location','Direction','Theta_0','Family']  # noqa: E201, E231, E251
+            ).T
             # fmt: on
 
-            CMP = pd.concat([CMP, CMP_GF], axis=0)
+            comp = pd.concat([comp, comp_gf], axis=0)
 
         # set the number of stories to 1
         # there is only one component in a building-level resolution
         stories = 1
 
         # get the occupancy class
-        if GI['OccupancyClass'] in ap_Occupancy.keys():
-            ot = ap_Occupancy[GI['OccupancyClass']]
+        if gi['OccupancyClass'] in ap_occupancy:
+            occupancy_type = ap_occupancy[gi['OccupancyClass']]
         else:
-            ot = GI['OccupancyClass']
+            occupancy_type = gi['OccupancyClass']
 
-        DL_ap = {
-            "Asset": {
-                "ComponentAssignmentFile": "CMP_QNT.csv",
-                "ComponentDatabase": "Hazus Earthquake - Buildings",
-                "NumberOfStories": f"{stories}",
-                "OccupancyType": f"{ot}",
-                "PlanArea": "1",
+        dl_ap = {
+            'Asset': {
+                'ComponentAssignmentFile': 'CMP_QNT.csv',
+                'ComponentDatabase': 'Hazus Earthquake - Buildings',
+                'NumberOfStories': f'{stories}',
+                'OccupancyType': f'{occupancy_type}',
+                'PlanArea': '1',
             },
-            "Damage": {"DamageProcess": "Hazus Earthquake"},
-            "Demands": {},
-            "Losses": {
-                "Repair": {
-                    "ConsequenceDatabase": "Hazus Earthquake - Buildings",
-                    "MapApproach": "Automatic",
+            'Damage': {'DamageProcess': 'Hazus Earthquake'},
+            'Demands': {},
+            'Losses': {
+                'Repair': {
+                    'ConsequenceDatabase': 'Hazus Earthquake - Buildings',
+                    'MapApproach': 'Automatic',
                 }
             },
-            "Options": {
-                "NonDirectionalMultipliers": {"ALL": 1.0},
+            'Options': {
+                'NonDirectionalMultipliers': {'ALL': 1.0},
             },
         }
 
-    elif assetType == "TransportationNetwork":
-        inf_type = GI["assetSubtype"]
+    elif asset_type == 'TransportationNetwork':
+        inf_type = gi['assetSubtype']
 
-        if inf_type == "HwyBridge":
+        if inf_type == 'HwyBridge':
             # get the bridge class
-            bt = convertBridgeToHAZUSclass(GI)
-            GI_ap['BridgeHazusClass'] = bt
+            bt = convertBridgeToHAZUSclass(gi)
+            gi_ap['BridgeHazusClass'] = bt
 
             # fmt: off
-            CMP = pd.DataFrame(                                                           # noqa
-                {f'HWB.GS.{bt[3:]}': [  'ea',         1,          1,        1,   'N/A']}, # noqa
-                index = [            'Units','Location','Direction','Theta_0','Family']   # noqa
-            ).T                                                                           # noqa
+            comp = pd.DataFrame(
+                {f'HWB.GS.{bt[3:]}': [  'ea',         1,          1,        1,   'N/A']},  # noqa: E201, E241
+                index = [            'Units', 'Location', 'Direction', 'Theta_0', 'Family']   # noqa: E201, E251
+            ).T
             # fmt: on
             # if needed, add components to simulate damage from ground failure
             if ground_failure:
-
                 # fmt: off
-                CMP_GF = pd.DataFrame(                                                 # noqa
-                    {f'HWB.GF':          [  'ea',         1,          1,        1,   'N/A']}, # noqa
-                    index = [     'Units','Location','Direction','Theta_0','Family']   # noqa
-                ).T                                                                    # noqa
+                comp_gf = pd.DataFrame(
+                    {f'HWB.GF':          [  'ea',         1,          1,        1,   'N/A']},  # noqa: E201, E241, F541
+                    index = [     'Units', 'Location', 'Direction', 'Theta_0', 'Family']   # noqa: E201, E251
+                ).T
                 # fmt: on
 
-                CMP = pd.concat([CMP, CMP_GF], axis=0)
+                comp = pd.concat([comp, comp_gf], axis=0)
 
-            DL_ap = {
-                "Asset": {
-                    "ComponentAssignmentFile": "CMP_QNT.csv",
-                    "ComponentDatabase": "Hazus Earthquake - Transportation",
-                    "BridgeHazusClass": bt,
-                    "PlanArea": "1",
+            dl_ap = {
+                'Asset': {
+                    'ComponentAssignmentFile': 'CMP_QNT.csv',
+                    'ComponentDatabase': 'Hazus Earthquake - Transportation',
+                    'BridgeHazusClass': bt,
+                    'PlanArea': '1',
                 },
-                "Damage": {"DamageProcess": "Hazus Earthquake"},
-                "Demands": {},
-                "Losses": {
-                    "Repair": {
-                        "ConsequenceDatabase": "Hazus Earthquake - Transportation",
-                        "MapApproach": "Automatic",
+                'Damage': {'DamageProcess': 'Hazus Earthquake'},
+                'Demands': {},
+                'Losses': {
+                    'Repair': {
+                        'ConsequenceDatabase': 'Hazus Earthquake - Transportation',
+                        'MapApproach': 'Automatic',
                     }
                 },
-                "Options": {
-                    "NonDirectionalMultipliers": {"ALL": 1.0},
+                'Options': {
+                    'NonDirectionalMultipliers': {'ALL': 1.0},
                 },
             }
 
-        elif inf_type == "HwyTunnel":
+        elif inf_type == 'HwyTunnel':
             # get the tunnel class
-            tt = convertTunnelToHAZUSclass(GI)
-            GI_ap['TunnelHazusClass'] = tt
+            tt = convertTunnelToHAZUSclass(gi)
+            gi_ap['TunnelHazusClass'] = tt
 
             # fmt: off
-            CMP = pd.DataFrame(                                                           # noqa
-                {f'HTU.GS.{tt[3:]}': [  'ea',         1,          1,        1,   'N/A']}, # noqa
-                index = [            'Units','Location','Direction','Theta_0','Family']   # noqa
-            ).T                                                                           # noqa
+            comp = pd.DataFrame(
+                {f'HTU.GS.{tt[3:]}': [  'ea',         1,          1,        1,   'N/A']},  # noqa: E201, E241
+                index = [            'Units','Location','Direction','Theta_0','Family']   # noqa: E201, E231, E251
+            ).T
             # fmt: on
             # if needed, add components to simulate damage from ground failure
             if ground_failure:
-
                 # fmt: off
-                CMP_GF = pd.DataFrame(                                                 # noqa
-                    {f'HTU.GF':          [  'ea',         1,          1,        1,   'N/A']}, # noqa
-                    index = [     'Units','Location','Direction','Theta_0','Family']   # noqa
-                ).T                                                                    # noqa
+                comp_gf = pd.DataFrame(
+                    {f'HTU.GF':          [  'ea',         1,          1,        1,   'N/A']},  # noqa: E201, E241, F541
+                    index = [     'Units','Location','Direction','Theta_0','Family']   # noqa: E201, E231, E251
+                ).T
                 # fmt: on
 
-                CMP = pd.concat([CMP, CMP_GF], axis=0)
+                comp = pd.concat([comp, comp_gf], axis=0)
 
-            DL_ap = {
-                "Asset": {
-                    "ComponentAssignmentFile": "CMP_QNT.csv",
-                    "ComponentDatabase": "Hazus Earthquake - Transportation",
-                    "TunnelHazusClass": tt,
-                    "PlanArea": "1",
+            dl_ap = {
+                'Asset': {
+                    'ComponentAssignmentFile': 'CMP_QNT.csv',
+                    'ComponentDatabase': 'Hazus Earthquake - Transportation',
+                    'TunnelHazusClass': tt,
+                    'PlanArea': '1',
                 },
-                "Damage": {"DamageProcess": "Hazus Earthquake"},
-                "Demands": {},
-                "Losses": {
-                    "Repair": {
-                        "ConsequenceDatabase": "Hazus Earthquake - Transportation",
-                        "MapApproach": "Automatic",
+                'Damage': {'DamageProcess': 'Hazus Earthquake'},
+                'Demands': {},
+                'Losses': {
+                    'Repair': {
+                        'ConsequenceDatabase': 'Hazus Earthquake - Transportation',
+                        'MapApproach': 'Automatic',
                     }
                 },
-                "Options": {
-                    "NonDirectionalMultipliers": {"ALL": 1.0},
+                'Options': {
+                    'NonDirectionalMultipliers': {'ALL': 1.0},
                 },
             }
-        elif inf_type == "Roadway":
+        elif inf_type == 'Roadway':
             # get the road class
-            rt = convertRoadToHAZUSclass(GI)
-            GI_ap['RoadHazusClass'] = rt
+            rt = convertRoadToHAZUSclass(gi)
+            gi_ap['RoadHazusClass'] = rt
 
             # fmt: off
-            CMP = pd.DataFrame(                                                            # noqa
-                {},   # noqa
-                index = [           'Units','Location','Direction','Theta_0','Family']     # noqa
-            ).T                                                                            # noqa
+            comp = pd.DataFrame(
+                {},
+                index = [           'Units','Location','Direction','Theta_0','Family']     # noqa: E201, E231, E251
+            ).T
             # fmt: on
 
             if ground_failure:
-
                 # fmt: off
-                CMP_GF = pd.DataFrame(                                                 # noqa
-                    {f'HRD.GF.{rt[3:]}':[  'ea',         1,          1,        1,   'N/A']}, # noqa
-                    index = [     'Units','Location','Direction','Theta_0','Family']   # noqa
-                ).T                                                                    # noqa
+                comp_gf = pd.DataFrame(
+                    {f'HRD.GF.{rt[3:]}':[  'ea',         1,          1,        1,   'N/A']},  # noqa: E201, E231, E241
+                    index = [     'Units','Location','Direction','Theta_0','Family']   # noqa: E201, E231, E251
+                ).T
                 # fmt: on
 
-                CMP = pd.concat([CMP, CMP_GF], axis=0)
+                comp = pd.concat([comp, comp_gf], axis=0)
 
-            DL_ap = {
-                "Asset": {
-                    "ComponentAssignmentFile": "CMP_QNT.csv",
-                    "ComponentDatabase": "Hazus Earthquake - Transportation",
-                    "RoadHazusClass": rt,
-                    "PlanArea": "1",
+            dl_ap = {
+                'Asset': {
+                    'ComponentAssignmentFile': 'CMP_QNT.csv',
+                    'ComponentDatabase': 'Hazus Earthquake - Transportation',
+                    'RoadHazusClass': rt,
+                    'PlanArea': '1',
                 },
-                "Damage": {"DamageProcess": "Hazus Earthquake"},
-                "Demands": {},
-                "Losses": {
-                    "Repair": {
-                        "ConsequenceDatabase": "Hazus Earthquake - Transportation",
-                        "MapApproach": "Automatic",
+                'Damage': {'DamageProcess': 'Hazus Earthquake'},
+                'Demands': {},
+                'Losses': {
+                    'Repair': {
+                        'ConsequenceDatabase': 'Hazus Earthquake - Transportation',
+                        'MapApproach': 'Automatic',
                     }
                 },
-                "Options": {
-                    "NonDirectionalMultipliers": {"ALL": 1.0},
+                'Options': {
+                    'NonDirectionalMultipliers': {'ALL': 1.0},
                 },
             }
         else:
-            print("subtype not supported in HWY")
+            print('subtype not supported in HWY')
 
-    elif assetType == "WaterDistributionNetwork":
+    elif asset_type == 'WaterDistributionNetwork':
         pipe_material_map = {
-            "CI": "B",
-            "AC": "B",
-            "RCC": "B",
-            "DI": "D",
-            "PVC": "D",
-            "DS": "D",
-            "BS": "B",
+            'CI': 'B',
+            'AC': 'B',
+            'RCC': 'B',
+            'DI': 'D',
+            'PVC': 'D',
+            'DS': 'D',
+            'BS': 'B',
         }
 
         # GI = AIM.get("GeneralInformation", None)
         # if GI==None:
 
         # initialize the auto-populated GI
-        wdn_element_type = GI_ap.get("type", "MISSING")
-        asset_name = GI_ap.get("AIM_id", None)
+        wdn_element_type = gi_ap.get('type', 'MISSING')
+        asset_name = gi_ap.get('AIM_id', None)
 
-        if wdn_element_type == "Pipe":
-            pipe_construction_year = GI_ap.get("year", None)
-            pipe_diameter = GI_ap.get("Diam", None)
+        if wdn_element_type == 'Pipe':
+            pipe_construction_year = gi_ap.get('year', None)
+            pipe_diameter = gi_ap.get('Diam', None)
             # diamaeter value is a fundamental part of hydraulic
             # performance assessment
             if pipe_diameter is None:
-                raise ValueError(
-                    f"pipe diamater in asset type {assetType}, \
-                                 asset id \"{asset_name}\" has no diameter \
-                                     value."
-                )
+                msg = f'pipe diameter in asset type {asset_type}, \
+                                 asset id "{asset_name}" has no diameter \
+                                     value.'
+                raise ValueError(msg)
 
-            pipe_length = GI_ap.get("Len", None)
+            pipe_length = gi_ap.get('Len', None)
             # length value is a fundamental part of hydraulic performance assessment
             if pipe_diameter is None:
-                raise ValueError(
-                    f"pipe length in asset type {assetType}, \
-                                 asset id \"{asset_name}\" has no diameter \
-                                     value."
-                )
+                msg = f'pipe length in asset type {asset_type}, \
+                                 asset id "{asset_name}" has no diameter \
+                                     value.'
+                raise ValueError(msg)
 
-            pipe_material = GI_ap.get("material", None)
+            pipe_material = gi_ap.get('material', None)
 
             # pipe material can be not available or named "missing" in
             # both case, pipe flexibility will be set to "missing"
@@ -595,60 +587,62 @@ def auto_populate(AIM):
             missing, if the pipe is smaller than or equal to 20
             inches, the material is Cast Iron (CI) otherwise the pipe
             material is steel.
-                If the material is steel (ST), either based on user specified
-            input or the assumption due to the lack of the user-input, the year
-            that the pipe is constructed define the flexibility status per HAZUS
-            instructions. If the pipe is built in 1935 or after, it is, the pipe
-            is Ductile Steel (DS), and otherwise it is Brittle Steel (BS).
-                If the pipe is missing construction year and is built by steel,
-            we assume consevatively that the pipe is brittle (i.e., BS)
+                If the material is steel (ST), either based on user
+            specified input or the assumption due to the lack of the
+            user-input, the year that the pipe is constructed define
+            the flexibility status per HAZUS instructions. If the pipe
+            is built in 1935 or after, it is, the pipe is Ductile
+            Steel (DS), and otherwise it is Brittle Steel (BS).
+                If the pipe is missing construction year and is built
+            by steel, we assume consevatively that the pipe is brittle
+            (i.e., BS)
             """
             if pipe_material is None:
                 if pipe_diameter > 20 * 0.0254:  # 20 inches in meter
                     print(
-                        f"Asset {asset_name} is missing material. Material is\
-                          assumed to be Cast Iron"
+                        f'Asset {asset_name} is missing material. Material is\
+                          assumed to be Cast Iron'
                     )
-                    pipe_material = "CI"
+                    pipe_material = 'CI'
                 else:
                     print(
-                        f"Asset {asset_name} is missing material. Material is "
-                        f"assumed to be Steel (ST)"
+                        f'Asset {asset_name} is missing material. Material is '
+                        f'assumed to be Steel (ST)'
                     )
-                    pipe_material = "ST"
+                    pipe_material = 'ST'
 
-            if pipe_material == "ST":
+            if pipe_material == 'ST':
                 if (pipe_construction_year is not None) and (
                     pipe_construction_year >= 1935
                 ):
                     print(
-                        f"Asset {asset_name} has material of \"ST\" is assumed to be\
-                          Ductile Steel"
+                        f'Asset {asset_name} has material of "ST" is assumed to be\
+                          Ductile Steel'
                     )
-                    pipe_material = "DS"
+                    pipe_material = 'DS'
                 else:
                     print(
                         f'Asset {asset_name} has material of "ST" is assumed to be '
                         f'Brittle Steel'
                     )
-                    pipe_material = "BS"
+                    pipe_material = 'BS'
 
-            pipe_flexibility = pipe_material_map.get(pipe_material, "missing")
+            pipe_flexibility = pipe_material_map.get(pipe_material, 'missing')
 
-            GI_ap["material flexibility"] = pipe_flexibility
-            GI_ap["material"] = pipe_material
+            gi_ap['material flexibility'] = pipe_flexibility
+            gi_ap['material'] = pipe_material
 
             # Pipes are broken into 20ft segments (rounding up) and
             # each segment is represented by an individual entry in
-            # the performance model, `CMP`. The damage capcity of each
+            # the performance model, `CMP`. The damage capacity of each
             # segment is assumed to be independent and driven by the
             # same EDP. We therefore replicate the EDP associated with
-            # the pipe to the various locations assgined to the
+            # the pipe to the various locations assigned to the
             # segments.
 
             # Determine number of segments
 
-            pipe_length_unit = GI_ap['units']['length']
+            pipe_length_unit = gi_ap['units']['length']
             pipe_length_feet = pelicun.base.convert_units(
                 pipe_length, unit=pipe_length_unit, to_unit='ft', category='length'
             )
@@ -659,19 +653,16 @@ def auto_populate(AIM):
             else:
                 # In all other cases, round up.
                 num_segments = int(pipe_length_feet / reference_length) + 1
-            if num_segments > 1:
-                location_string = f'1--{num_segments}'
-            else:
-                location_string = '1'
+            location_string = f'1--{num_segments}' if num_segments > 1 else '1'
 
             # Define performance model
             # fmt: off
-            CMP = pd.DataFrame(                                                         # noqa
-                {f'PWP.{pipe_flexibility}.GS': ['ea', location_string, '0', 1, 'N/A'],  # noqa
-                 f'PWP.{pipe_flexibility}.GF': ['ea', location_string, '0', 1, 'N/A'],  # noqa
-                 'aggregate':                  ['ea', location_string, '0', 1, 'N/A']}, # noqa
-                index = ['Units','Location','Direction','Theta_0','Family']             # noqa
-            ).T                                                                         # noqa
+            comp = pd.DataFrame(
+                {f'PWP.{pipe_flexibility}.GS': ['ea', location_string, '0', 1, 'N/A'],
+                 f'PWP.{pipe_flexibility}.GF': ['ea', location_string, '0', 1, 'N/A'],
+                 'aggregate':                  ['ea', location_string, '0', 1, 'N/A']},
+                index = ['Units','Location','Direction','Theta_0','Family']  # noqa: E231, E251
+            ).T
             # fmt: on
 
             # Set up the demand cloning configuration for the pipe
@@ -688,122 +679,119 @@ def auto_populate(AIM):
                     )
                 demand_cloning_config = {}
                 for edp in response_data.columns:
-                    tag, location, direction = edp
+                    tag, location, direction = edp  # noqa: F841
 
                     demand_cloning_config['-'.join(edp)] = [
                         f'{tag}-{x}-{direction}'
-                        for x in [f'{i+1}' for i in range(num_segments)]
+                        for x in [f'{i + 1}' for i in range(num_segments)]
                     ]
                 demand_config = {'DemandCloning': demand_cloning_config}
 
             # Create damage process
             dmg_process = {
-                f"1_PWP.{pipe_flexibility}.GS-LOC": {"DS1": "aggregate_DS1"},
-                f"2_PWP.{pipe_flexibility}.GF-LOC": {"DS1": "aggregate_DS1"},
-                f"3_PWP.{pipe_flexibility}.GS-LOC": {"DS2": "aggregate_DS2"},
-                f"4_PWP.{pipe_flexibility}.GF-LOC": {"DS2": "aggregate_DS2"},
+                f'1_PWP.{pipe_flexibility}.GS-LOC': {'DS1': 'aggregate_DS1'},
+                f'2_PWP.{pipe_flexibility}.GF-LOC': {'DS1': 'aggregate_DS1'},
+                f'3_PWP.{pipe_flexibility}.GS-LOC': {'DS2': 'aggregate_DS2'},
+                f'4_PWP.{pipe_flexibility}.GF-LOC': {'DS2': 'aggregate_DS2'},
             }
             dmg_process_filename = 'dmg_process.json'
             with open(dmg_process_filename, 'w', encoding='utf-8') as f:
                 json.dump(dmg_process, f, indent=2)
 
             # Define the auto-populated config
-            DL_ap = {
-                "Asset": {
-                    "ComponentAssignmentFile": "CMP_QNT.csv",
-                    "ComponentDatabase": "Hazus Earthquake - Water",
-                    "Material Flexibility": pipe_flexibility,
-                    "PlanArea": "1",  # Sina: does not make sense for water.
+            dl_ap = {
+                'Asset': {
+                    'ComponentAssignmentFile': 'CMP_QNT.csv',
+                    'ComponentDatabase': 'Hazus Earthquake - Water',
+                    'Material Flexibility': pipe_flexibility,
+                    'PlanArea': '1',  # Sina: does not make sense for water.
                     # Kept it here since itw as also
                     # kept here for Transportation
                 },
-                "Damage": {
-                    "DamageProcess": "User Defined",
-                    "DamageProcessFilePath": "dmg_process.json",
+                'Damage': {
+                    'DamageProcess': 'User Defined',
+                    'DamageProcessFilePath': 'dmg_process.json',
                 },
-                "Demands": demand_config,
+                'Demands': demand_config,
             }
 
-        elif wdn_element_type == "Tank":
+        elif wdn_element_type == 'Tank':
             tank_cmp_lines = {
-                ("OG", "C", 1): {'PST.G.C.A.GS': ['ea', 1, 1, 1, 'N/A']},
-                ("OG", "C", 0): {'PST.G.C.U.GS': ['ea', 1, 1, 1, 'N/A']},
-                ("OG", "S", 1): {'PST.G.S.A.GS': ['ea', 1, 1, 1, 'N/A']},
-                ("OG", "S", 0): {'PST.G.S.U.GS': ['ea', 1, 1, 1, 'N/A']},
+                ('OG', 'C', 1): {'PST.G.C.A.GS': ['ea', 1, 1, 1, 'N/A']},
+                ('OG', 'C', 0): {'PST.G.C.U.GS': ['ea', 1, 1, 1, 'N/A']},
+                ('OG', 'S', 1): {'PST.G.S.A.GS': ['ea', 1, 1, 1, 'N/A']},
+                ('OG', 'S', 0): {'PST.G.S.U.GS': ['ea', 1, 1, 1, 'N/A']},
                 # Anchored status and Wood is not defined for On Ground tanks
-                ("OG", "W", 0): {'PST.G.W.GS': ['ea', 1, 1, 1, 'N/A']},
+                ('OG', 'W', 0): {'PST.G.W.GS': ['ea', 1, 1, 1, 'N/A']},
                 # Anchored status and Steel is not defined for Above Ground tanks
-                ("AG", "S", 0): {'PST.A.S.GS': ['ea', 1, 1, 1, 'N/A']},
+                ('AG', 'S', 0): {'PST.A.S.GS': ['ea', 1, 1, 1, 'N/A']},
                 # Anchored status and Concrete is not defined for Buried tanks.
-                ("B", "C", 0): {'PST.B.C.GF': ['ea', 1, 1, 1, 'N/A']},
+                ('B', 'C', 0): {'PST.B.C.GF': ['ea', 1, 1, 1, 'N/A']},
             }
 
             # The default values are assumed: material = Concrete (C),
             # location= On Ground (OG), and Anchored = 1
-            tank_material = GI_ap.get("material", "C")
-            tank_location = GI_ap.get("location", "OG")
-            tank_anchored = GI_ap.get("anchored", int(1))
+            tank_material = gi_ap.get('material', 'C')
+            tank_location = gi_ap.get('location', 'OG')
+            tank_anchored = gi_ap.get('anchored', 1)
 
-            tank_material_allowable = {"C", "S"}
+            tank_material_allowable = {'C', 'S'}
             if tank_material not in tank_material_allowable:
-                raise ValueError(
-                    f"Tank's material = \"{tank_material}\" is \
+                msg = f'Tank\'s material = "{tank_material}" is \
                      not allowable in tank {asset_name}. The \
                      material must be either C for concrete or S \
-                     for steel."
-                )
+                     for steel.'
+                raise ValueError(msg)
 
-            tank_location_allowable = {"AG", "OG", "B"}
+            tank_location_allowable = {'AG', 'OG', 'B'}
             if tank_location not in tank_location_allowable:
-                raise ValueError(
-                    f"Tank's location = \"{tank_location}\" is \
+                msg = f'Tank\'s location = "{tank_location}" is \
                      not allowable in tank {asset_name}. The \
-                     location must be either \"AG\" for Above \
-                     ground, \"OG\" for On Ground or \"BG\" for \
-                     Bellow Ground (burried) Tanks."
-                )
+                     location must be either "AG" for Above \
+                     ground, "OG" for On Ground or "BG" for \
+                     Below Ground (buried) Tanks.'
+                raise ValueError(msg)
 
-            tank_anchored_allowable = {int(0), int(1)}
+            tank_anchored_allowable = {0, 1}
             if tank_anchored not in tank_anchored_allowable:
-                raise ValueError(
-                    f"Tank's anchored status = \"{tank_location}\
-                     \" is not allowable in tank {asset_name}. \
+                msg = f'Tank\'s anchored status = "{tank_location}\
+                     " is not allowable in tank {asset_name}. \
                      The anchored status must be either integer\
-                     value 0 for unachored, or 1 for anchored"
-                )
+                     value 0 for unachored, or 1 for anchored'
+                raise ValueError(msg)
 
-            if tank_location == "AG" and tank_material == "C":
+            if tank_location == 'AG' and tank_material == 'C':
                 print(
-                    f"The tank {asset_name} is Above Ground (i.e., AG), but \
-                     the material type is Concrete (\"C\"). Tank type \"C\" is not \
-                     defiend for AG tanks. The tank is assumed to be Steel (\"S\")"
+                    f'The tank {asset_name} is Above Ground (i.e., AG), but \
+                     the material type is Concrete ("C"). Tank type "C" is not \
+                     defined for AG tanks. The tank is assumed to be Steel ("S")'
                 )
-                tank_material = "S"
+                tank_material = 'S'
 
-            if tank_location == "AG" and tank_material == "W":
+            if tank_location == 'AG' and tank_material == 'W':
                 print(
-                    f"The tank {asset_name} is Above Ground (i.e., AG), but \
-                     the material type is Wood (\"W\"). Tank type \"W\" is not \
-                     defiend for AG tanks. The tank is assumed to be Steel (\"S\")"
+                    f'The tank {asset_name} is Above Ground (i.e., AG), but \
+                     the material type is Wood ("W"). Tank type "W" is not \
+                     defined for AG tanks. The tank is assumed to be Steel ("S")'
                 )
-                tank_material = "S"
+                tank_material = 'S'
 
-            if tank_location == "B" and tank_material == "S":
+            if tank_location == 'B' and tank_material == 'S':
                 print(
-                    f"The tank {asset_name} is burried (i.e., B), but the\
-                     material type is Steel (\"S\"). \
-                     Tank type \"S\" is not defiend for\
-                     B tanks. The tank is assumed to be Concrete (\"C\")"
+                    f'The tank {asset_name} is buried (i.e., B), but the\
+                     material type is Steel ("S"). \
+                     Tank type "S" is not defined for\
+                     B tanks. The tank is assumed to be Concrete ("C")'
                 )
-                tank_material = "C"
+                tank_material = 'C'
 
-            if tank_location == "B" and tank_material == "W":
+            if tank_location == 'B' and tank_material == 'W':
                 print(
-                    f"The tank {asset_name} is burried (i.e., B), but the\
-                     material type is Wood (\"W\"). Tank type \"W\" is not defiend \
-                     for B tanks. The tank is assumed to be Concrete (\"C\")"
+                    f'The tank {asset_name} is buried (i.e., B), but the\
+                     material type is Wood ("W"). Tank type "W" is not defined \
+                     for B tanks. The tank is assumed to be Concrete ("C")'
                 )
-                tank_material = "C"
+                tank_material = 'C'
 
             if tank_anchored == 1:
                 # Since anchore status does nto matter, there is no need to
@@ -811,40 +799,40 @@ def auto_populate(AIM):
                 tank_anchored = 0
 
             cur_tank_cmp_line = tank_cmp_lines[
-                (tank_location, tank_material, tank_anchored)
+                tank_location, tank_material, tank_anchored
             ]
 
-            CMP = pd.DataFrame(
+            comp = pd.DataFrame(
                 cur_tank_cmp_line,
                 index=['Units', 'Location', 'Direction', 'Theta_0', 'Family'],
             ).T
 
-            DL_ap = {
-                "Asset": {
-                    "ComponentAssignmentFile": "CMP_QNT.csv",
-                    "ComponentDatabase": "Hazus Earthquake - Water",
-                    "Material": tank_material,
-                    "Location": tank_location,
-                    "Anchored": tank_anchored,
-                    "PlanArea": "1",  # Sina: does not make sense for water.
+            dl_ap = {
+                'Asset': {
+                    'ComponentAssignmentFile': 'CMP_QNT.csv',
+                    'ComponentDatabase': 'Hazus Earthquake - Water',
+                    'Material': tank_material,
+                    'Location': tank_location,
+                    'Anchored': tank_anchored,
+                    'PlanArea': '1',  # Sina: does not make sense for water.
                     # Kept it here since itw as also kept here for Transportation
                 },
-                "Damage": {"DamageProcess": "Hazus Earthquake"},
-                "Demands": {},
+                'Damage': {'DamageProcess': 'Hazus Earthquake'},
+                'Demands': {},
             }
 
         else:
             print(
-                f"Water Distribution network element type {wdn_element_type} "
-                f"is not supported in Hazus Earthquake IM DL method"
+                f'Water Distribution network element type {wdn_element_type} '
+                f'is not supported in Hazus Earthquake IM DL method'
             )
-            DL_ap = None
-            CMP = None
+            dl_ap = None
+            comp = None
 
     else:
         print(
-            f"AssetType: {assetType} is not supported "
-            f"in Hazus Earthquake IM DL method"
+            f'AssetType: {asset_type} is not supported '
+            f'in Hazus Earthquake IM DL method'
         )
 
-    return GI_ap, DL_ap, CMP
+    return gi_ap, dl_ap, comp

@@ -1,0 +1,14 @@
+.. _changes_v2_6_0:
+
+==============================
+Version 2.6.0 (August 6, 2021)
+==============================
+
+- Support EDPs with more than 3 characters and/or a variable in their name.
+  For example, ``SA_1.0`` or ``SA_T1``.
+
+- Support fitting normal distribution to raw EDP data (lognormal was already available)
+
+- Extract key settings to base.py to make them more accessible for users.
+
+- Minor bug fixes mostly related to hurricane storm surge assessment

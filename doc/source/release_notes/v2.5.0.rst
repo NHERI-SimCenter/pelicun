@@ -1,0 +1,18 @@
+.. _changes_v2_5_0:
+
+=================================
+Version 2.5.0 (December 31, 2020)
+=================================
+
+- Extend the uq module to support:
+  - More efficient sampling, especially when most of the random variables in the model are either independent or perfectly correlated.
+  - More accurate and more efficient fitting of multivariate probability distributions to raw EDP data.
+  - Arbitrary marginals (beyond the basic Normal and Lognormal) for joint distributions.
+  - Latin Hypercube Sampling
+- Introduce external auto-population scripts and provide an example for hurricane assessments.
+- Add a script to help users convert HDF files to CSV (HDF_to_CSV.py under tools)
+- Use unique and standardized attribute names in the input files
+- Migrate to the latest version of Python, numpy, scipy, and pandas (see setup.py for required minimum versions of those tools).
+- Bug fixes and minor improvements to support user needs:
+  - Add 1.2 scale factor for EDPs controlling non-directional Fragility Groups.
+  - Remove dependency on scipy's truncnorm function to avoid long computation times due to a bug in recent scipy versions.

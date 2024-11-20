@@ -37,7 +37,7 @@
     "inchps": 0.0254,
     "ftps": 0.3048
   },
-  "accelleration": {
+  "acceleration": {
     "mps2": 1.0,
     "inps2": 0.0254,
     "inchps2": 0.0254,

@@ -1,0 +1,130 @@
+{
+  "RandomVariables": [],
+  "GeneralInformation": {
+    "AIM_id": "1",
+    "location": {
+      "latitude": 30.2696026,
+      "longitude": -93.18640624
+    },
+    "RoofShape": "Hip",
+    "PlanArea": 744.6,
+    "Longitude": -93.18640624,
+    "Latitude": 30.2696026,
+    "LULC": 43,
+    "DWSII": 128.7,
+    "BuildingType": "Wood",
+    "OccupancyClass": "RES3",
+    "AvgJanTemp": "Above",
+    "Garage": 0,
+    "NumberOfStories": 1,
+    "MeanRoofHt": 15.0,
+    "RoofSlope": 0.25,
+    "YearBuilt": 1962,
+    "Footprint": "{\"geometry\": {\"coordinates\": [[[-93.186341, 30.269573], [-93.18626, 30.269613], [-93.186367, 30.26977], [-93.186542, 30.269681], [-93.186471, 30.269576], [-93.186496, 30.269444], [-93.186369, 30.269425], [-93.186341, 30.269573]]], \"type\": \"Polygon\"}, \"properties\": {}, \"type\": \"Feature\"}",
+    "units": {
+      "force": "kips",
+      "length": "ft",
+      "time": "sec"
+    }
+  },
+  "DefaultValues": {
+    "driverFile": "driver",
+    "edpFiles": [
+      "EDP.json"
+    ],
+    "filenameDL": "BIM.json",
+    "filenameEDP": "EDP.json",
+    "filenameEVENT": "EVENT.json",
+    "filenameSAM": "SAM.json",
+    "filenameSIM": "SIM.json",
+    "rvFiles": [
+      "SAM.json",
+      "EVENT.json",
+      "SIM.json"
+    ],
+    "workflowInput": "scInput.json",
+    "workflowOutput": "EDP.json"
+  },
+  "commonFileDir": "/Users/adamzs/Documents/R2D/LocalWorkDir/tmp.SimCenter/input_data",
+  "remoteAppDir": "/Users/adamzs/SimCenter",
+  "localAppDir": "/Users/adamzs/SimCenter",
+  "units": {
+    "force": "kips",
+    "length": "ft",
+    "time": "sec"
+  },
+  "outputs": {
+    "AIM": false,
+    "DM": true,
+    "DV": true,
+    "EDP": true,
+    "IM": false
+  },
+  "RegionalEvent": {
+    "eventFile": "EventGrid.csv",
+    "eventFilePath": "/Users/adamzs/Documents/R2D/LocalWorkDir/tmp.SimCenter/input_data",
+    "intensityLabels": [
+      "PWS"
+    ],
+    "intensityMeasures": [
+      "PWS"
+    ],
+    "units": {
+      "PWS": "mph"
+    }
+  },
+  "assetType": "Buildings",
+  "Applications": {
+    "Events": [
+      {
+        "Application": "SimCenterEvent",
+        "ApplicationData": {},
+        "EventClassification": "Earthquake"
+      }
+    ],
+    "Modeling": {
+      "Application": "None",
+      "ApplicationData": {}
+    },
+    "Simulation": {
+      "Application": "IMasEDP",
+      "ApplicationData": {}
+    },
+    "UQ": {
+      "Application": "None",
+      "ApplicationData": {}
+    },
+    "DL": {
+      "Application": "Pelicun3",
+      "ApplicationData": {
+        "DL_Method": "HAZUS MH HU",
+        "Realizations": 500,
+        "auto_script": "auto_HU_LA.py",
+        "coupled_EDP": true,
+        "detailed_results": false,
+        "ground_failure": false,
+        "log_file": true,
+        "path_to_auto_script": "/Users/adamzs/Examples/R2D/00_Built_ins/E8HurricaneWind/input_data/ruleset",
+        "regional": "true"
+      }
+    }
+  },
+  "Modeling": {},
+  "Simulation": {
+    "type": "IMasEDP"
+  },
+  "UQ": {},
+  "DL": {},
+  "Events": [
+    {
+      "EventFolderPath": "/Users/adamzs/Documents/R2D/LocalWorkDir/tmp.SimCenter/input_data",
+      "Events": [
+        [
+          "Site_0.csvx0x00000",
+          1.0
+        ]
+      ],
+      "type": "intensityMeasure"
+    }
+  ]
+}

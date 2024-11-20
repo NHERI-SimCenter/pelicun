@@ -1,0 +1,14 @@
+.. _changes_v2_1_1:
+
+=============================
+Version 2.1.1 (June 30, 2020)
+=============================
+
+- Aggregate DL data from JSON files to HDF5 files.
+  This greatly reduces the number of files and makes it easier to share databases.
+- Significant performance improvements in EDP fitting, damage and loss calculations, and output file saving.
+- Add log file to pelicun that records every important calculation detail and warnings.
+- Add 8 new EDP types: RID, PMD, SA, SV, SD, PGD, DWD, RDR.
+- Drop support for Python 2.x and add support for Python 3.8.
+- Extend auto-population logic with solutions for HAZUS EQ assessments.
+- Several bug fixes and minor improvements to support user needs.
