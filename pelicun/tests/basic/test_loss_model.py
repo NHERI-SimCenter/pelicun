@@ -748,13 +748,13 @@ class TestRepairModel_DS(TestRepairModel_Base):
         assert isinstance(rv_reg.RV['Time-cmp.A-1-0-1-0'], uq.NormalRandomVariable)
         assert isinstance(rv_reg.RV['Cost-cmp.D-1-0-1-0'], uq.NormalRandomVariable)
         assert np.all(
-            rv_reg.RV['Cost-cmp.A-1-0-1-0'].theta[0:2] == np.array((1.0, 1.0))
+            rv_reg.RV['Cost-cmp.A-1-0-1-0'].theta[0:2] == np.array((1.0, 1.0))  # type: ignore
         )
         assert np.all(
-            rv_reg.RV['Time-cmp.A-1-0-1-0'].theta[0:2] == np.array((1.0, 1.0))
+            rv_reg.RV['Time-cmp.A-1-0-1-0'].theta[0:2] == np.array((1.0, 1.0))  # type: ignore
         )
         assert np.all(
-            rv_reg.RV['Cost-cmp.D-1-0-1-0'].theta[0:2] == np.array([1.0, 1.0])
+            rv_reg.RV['Cost-cmp.D-1-0-1-0'].theta[0:2] == np.array([1.0, 1.0])  # type: ignore
         )
         assert 'DV-cmp.A-1-0-1-0_set' in rv_reg.RV_set
         np.all(
@@ -1076,10 +1076,10 @@ class TestRepairModel_LF(TestRepairModel_Base):
             rv_reg.RV['Time-cmp.A-cmp.A-0-1-0-1'], uq.NormalRandomVariable
         )
         assert np.all(
-            rv_reg.RV['Cost-cmp.A-cmp.A-0-1-0-1'].theta[0:2] == np.array((1.0, 0.3))
+            rv_reg.RV['Cost-cmp.A-cmp.A-0-1-0-1'].theta[0:2] == np.array((1.0, 0.3))  # type: ignore
         )
         assert np.all(
-            rv_reg.RV['Time-cmp.A-cmp.A-0-1-0-1'].theta[0:2] == np.array((1.0, 0.3))
+            rv_reg.RV['Time-cmp.A-cmp.A-0-1-0-1'].theta[0:2] == np.array((1.0, 0.3))  # type: ignore
         )
         assert 'DV-cmp.A-cmp.A-0-1-0-1_set' in rv_reg.RV_set
         np.all(
