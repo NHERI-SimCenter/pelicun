@@ -1,0 +1,30 @@
+pelicun.tests.dl\_calculation.e7.auto\_HU\_NJ
+=============================================
+
+.. automodule:: pelicun.tests.dl_calculation.e7.auto_HU_NJ
+   :members:
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      auto_populate
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

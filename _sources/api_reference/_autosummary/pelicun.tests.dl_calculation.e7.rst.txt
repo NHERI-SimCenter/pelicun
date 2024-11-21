@@ -1,0 +1,34 @@
+pelicun.tests.dl\_calculation.e7
+================================
+
+.. automodule:: pelicun.tests.dl_calculation.e7
+   :members:
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+.. rubric:: Modules
+
+.. autosummary::
+   :toctree:
+   :template: custom-module-template.rst
+   :recursive:
+
+   auto_HU_NJ
+   test_e7
+

@@ -1,0 +1,536 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>8.1.5.2. pelicun.model.damage_model &mdash; pelicun  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css?v=f9bf6728" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="8.1.5.3. pelicun.model.demand_model" href="pelicun.model.demand_model.html" />
+    <link rel="prev" title="8.1.5.1. pelicun.model.asset_model" href="pelicun.model.asset_model.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #F2F2F2" >
+
+          
+          
+          <a href="../../index.html">
+            
+              <img src="../../_static/pelicun-Logo-grey.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">About</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../about/license.html">1. Copyright and license</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../about/cite.html">2. Citing pelicun</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../about/cite.html#logo">3. Logo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../about/acknowledgments.html">4. Acknowledgments</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../about/acknowledgments.html#national-science-foundation">4.1. National Science Foundation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../about/acknowledgments.html#contributors">4.2. Contributors</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../release_notes/index.html">5. Release Notes</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../release_notes/index.html#version-3-0">5.1. Version 3.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../release_notes/index.html#version-2-0">5.2. Version 2.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../release_notes/index.html#version-1-0">5.3. Version 1.0</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../user_guide/install.html">1. Getting started</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/install.html#staying-up-to-date">1.1. Staying up to date</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../user_guide/pelicun_framework.html">2. The Pelicun Framework</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/pelicun_framework.html#abbreviations">2.1. Abbreviations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/pelicun_framework.html#introduction-to-pelicun">2.2. Introduction to Pelicun</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/pelicun_framework.html#overview">2.3. Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/pelicun_framework.html#performance-assessment-workflow">2.4. Performance Assessment Workflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/pelicun_framework.html#response-model">2.5. Response Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/pelicun_framework.html#performance-model">2.6. Performance Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/pelicun_framework.html#damage-model">2.7. Damage Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/pelicun_framework.html#loss-model">2.8. Loss Model</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../user_guide/feature_overview.html">3. Overview of pelicun features</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/feature_overview.html#saving-loading-samples">3.1. Saving/loading samples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/feature_overview.html#logging-support">3.2. Logging support</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/feature_overview.html#uncertainty-quantification">3.3. Uncertainty quantification</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/feature_overview.html#assessment-types">3.4. Assessment types</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/feature_overview.html#demand-simulation">3.5. Demand simulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/feature_overview.html#damage-estimation">3.6. Damage estimation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/feature_overview.html#loss-estimation">3.7. Loss estimation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/feature_overview.html#command-line-support">3.8. Command-line support</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/feature_overview.html#standalone-tools">3.9. Standalone tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/feature_overview.html#feature-overview-and-examples">3.10. Feature overview and examples</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../user_guide/damage_and_loss_library.html">4. Damage and loss library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../user_guide/bug_reports_and_feature_requests.html">5. Bug reports and feature requests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../user_guide/resources_for_new_python_users.html">6. Resources for new python users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/index.html">7. Examples</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../examples/index.html#complete-list">7.1. Complete list</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../examples/index.html#grouped-by-feature">7.2. Grouped by feature</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">8. API Reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="pelicun.html">8.1. pelicun</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../developer_guide/getting_started.html">1. Getting started</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../developer_guide/getting_started.html#code-of-conduct">1.1. Code of conduct</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../developer_guide/getting_started.html#how-to-contribute">1.2. How to contribute</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../developer_guide/development_environment.html">2. Setting up a development environment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developer_guide/code_quality.html">3. Coding practice</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../developer_guide/code_quality.html#code-quality-assurance">3.1. Code quality assurance</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../developer_guide/code_quality.html#unit-tests">3.2. Unit tests</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../developer_guide/code_quality.html#documentation">3.3. Documentation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../developer_guide/internals.html">4. Package architecture</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../developer_guide/internals.html#overview-of-files">4.1. Overview of files</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #F2F2F2" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">pelicun</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html"><span class="section-number">8. </span>API Reference</a></li>
+          <li class="breadcrumb-item"><a href="pelicun.html"><span class="section-number">8.1. </span>pelicun</a></li>
+          <li class="breadcrumb-item"><a href="pelicun.model.html"><span class="section-number">8.1.5. </span>pelicun.model</a></li>
+      <li class="breadcrumb-item active"><span class="section-number">8.1.5.2. </span>pelicun.model.damage_model</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-pelicun.model.damage_model">
+<span id="pelicun-model-damage-model"></span><h1><span class="section-number">8.1.5.2. </span>pelicun.model.damage_model<a class="headerlink" href="#module-pelicun.model.damage_model" title="Link to this heading"></a></h1>
+<p>DamageModel object and methods.</p>
+<p class="rubric">Classes</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pelicun.model.damage_model.DamageModel" title="pelicun.model.damage_model.DamageModel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DamageModel</span></code></a>(assessment)</p></td>
+<td><p>Manages damage information used in assessments.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pelicun.model.damage_model.DamageModel_Base" title="pelicun.model.damage_model.DamageModel_Base"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DamageModel_Base</span></code></a>(assessment)</p></td>
+<td><p>Base class for damage models.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pelicun.model.damage_model.DamageModel_DS" title="pelicun.model.damage_model.DamageModel_DS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DamageModel_DS</span></code></a>(assessment)</p></td>
+<td><p>Damage model for components that have discrete Damage States (DS).</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py class">
+<dt class="sig sig-object py" id="pelicun.model.damage_model.DamageModel">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pelicun.model.damage_model.</span></span><span class="sig-name descname"><span class="pre">DamageModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">assessment</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pelicun.assessment.html#pelicun.assessment.AssessmentBase" title="pelicun.assessment.AssessmentBase"><span class="pre">AssessmentBase</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pelicun/model/damage_model.html#DamageModel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.model.damage_model.DamageModel" title="Link to this definition"></a></dt>
+<dd><p>Manages damage information used in assessments.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pelicun.model.damage_model.DamageModel.calculate">
+<span class="sig-name descname"><span class="pre">calculate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dmg_process</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><span class="pre">dict</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">block_batch_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scaling_specification</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><span class="pre">dict</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../_modules/pelicun/model/damage_model.html#DamageModel.calculate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.model.damage_model.DamageModel.calculate" title="Link to this definition"></a></dt>
+<dd><p>Calculate the damage of each component block.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>dmg_process: dict, optional</strong></dt><dd><p>Allows simulating damage processes, where damage to some
+component can alter the damage state of other components.</p>
+</dd>
+<dt><strong>block_batch_size: int</strong></dt><dd><p>Maximum number of components in each batch.</p>
+</dd>
+<dt><strong>scaling_specification: dict, optional</strong></dt><dd><p>A dictionary defining the shift in median.
+Example: {‘CMP-1-1’: ‘<em>1.2’, ‘CMP-1-2’: ‘/1.4’}
+The keys are individual components that should be present
+in the `capacity_sample`.  The values should be strings
+containing an operation followed by the value formatted as
+a float.  The operation can be ‘+’ for addition, ‘-’ for
+subtraction, ‘</em>’ for multiplication, and ‘/’ for division.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pelicun.model.damage_model.DamageModel.load_damage_model">
+<span class="sig-name descname"><span class="pre">load_damage_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_paths</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">DataFrame</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">warn_missing</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../_modules/pelicun/model/damage_model.html#DamageModel.load_damage_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.model.damage_model.DamageModel.load_damage_model" title="Link to this definition"></a></dt>
+<dd><p>&lt;backwards compatibility&gt;.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pelicun.model.damage_model.DamageModel.load_model_parameters">
+<span class="sig-name descname"><span class="pre">load_model_parameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_paths</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">DataFrame</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmp_set</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#set" title="(in Python v3.13)"><span class="pre">set</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">warn_missing</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../_modules/pelicun/model/damage_model.html#DamageModel.load_model_parameters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.model.damage_model.DamageModel.load_model_parameters" title="Link to this definition"></a></dt>
+<dd><p>Load damage model parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>data_paths: list of (string | DataFrame)</strong></dt><dd><p>List of paths to data or files with damage model
+information. Default XY datasets can be accessed as
+PelicunDefault/XY. Order matters. Parameters defined in
+prior elements in the list take precedence over the same
+parameters in subsequent data paths. I.e., place the
+Default datasets in the back.</p>
+</dd>
+<dt><strong>cmp_set: set</strong></dt><dd><p>Set of component IDs that are present in the asset model.
+Damage parameters in the input files for components
+outside of that set are omitted for performance.</p>
+</dd>
+<dt><strong>warn_missing: bool</strong></dt><dd><p>Whether to check if there are components in the asset model
+that do not have specified damage parameters. Should be
+set to True if all components in the asset model are
+damage state-driven, or if only a damage estimation is
+performed, without a subsequent loss estimation.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>ValueError</dt><dd><p>If the method can’t parse the damage parameters in the
+specified paths.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pelicun.model.damage_model.DamageModel.load_sample">
+<span class="sig-name descname"><span class="pre">load_sample</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../_modules/pelicun/model/damage_model.html#DamageModel.load_sample"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.model.damage_model.DamageModel.load_sample" title="Link to this definition"></a></dt>
+<dd><p>Load damage state sample data.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pelicun.model.damage_model.DamageModel.sample">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">sample</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">DataFrame</span></em><a class="headerlink" href="#pelicun.model.damage_model.DamageModel.sample" title="Link to this definition"></a></dt>
+<dd><p>&lt;backwards compatibility&gt;.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>pd.DataFrame</dt><dd><p>The damage sample of the <cite>ds_model</cite>.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pelicun.model.damage_model.DamageModel.save_sample">
+<span class="sig-name descname"><span class="pre">save_sample</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_units</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><span class="pre">DataFrame</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Series</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../_modules/pelicun/model/damage_model.html#DamageModel.save_sample"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.model.damage_model.DamageModel.save_sample" title="Link to this definition"></a></dt>
+<dd><p>Save or return the damage sample data.</p>
+<p>Saves the damage sample data to a CSV file or returns it
+directly with an option to include units.</p>
+<p>This function handles saving the sample data of damage
+assessments to a specified file path or, if no path is
+provided, returns the data as a DataFrame. The function can
+optionally include a row for unit information when returning
+data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>filepath: str, optional</strong></dt><dd><p>The path to the file where the damage sample should be
+saved. If not provided, the sample is not saved to disk
+but returned.</p>
+</dd>
+<dt><strong>save_units: bool, default: False</strong></dt><dd><p>Indicates whether to include a row with unit information
+in the returned DataFrame. This parameter is ignored if a
+file path is provided.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>None or tuple</dt><dd><p>If <cite>filepath</cite> is provided, the function returns None after
+saving the data.
+If no <cite>filepath</cite> is specified, returns:
+- DataFrame containing the damage sample.
+- Optionally, a Series containing the units for each
+column if <cite>save_units</cite> is True.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pelicun.model.damage_model.DamageModel_Base">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pelicun.model.damage_model.</span></span><span class="sig-name descname"><span class="pre">DamageModel_Base</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">assessment</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pelicun.assessment.html#pelicun.assessment.AssessmentBase" title="pelicun.assessment.AssessmentBase"><span class="pre">AssessmentBase</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pelicun/model/damage_model.html#DamageModel_Base"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.model.damage_model.DamageModel_Base" title="Link to this definition"></a></dt>
+<dd><p>Base class for damage models.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pelicun.model.damage_model.DamageModel_Base.convert_damage_parameter_units">
+<span class="sig-name descname"><span class="pre">convert_damage_parameter_units</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../_modules/pelicun/model/damage_model.html#DamageModel_Base.convert_damage_parameter_units"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.model.damage_model.DamageModel_Base.convert_damage_parameter_units" title="Link to this definition"></a></dt>
+<dd><p>Convert previously loaded damage parameters to base units.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pelicun.model.damage_model.DamageModel_Base.drop_unused_damage_parameters">
+<span class="sig-name descname"><span class="pre">drop_unused_damage_parameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cmp_set</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#set" title="(in Python v3.13)"><span class="pre">set</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../_modules/pelicun/model/damage_model.html#DamageModel_Base.drop_unused_damage_parameters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.model.damage_model.DamageModel_Base.drop_unused_damage_parameters" title="Link to this definition"></a></dt>
+<dd><p>Remove info for non existent components.</p>
+<p>Removes damage parameter definitions for component IDs not
+present in the given list.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>cmp_set: set</strong></dt><dd><p>Set of component IDs to be preserved in the damage
+parameters.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pelicun.model.damage_model.DamageModel_Base.load_model_parameters">
+<span class="sig-name descname"><span class="pre">load_model_parameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../_modules/pelicun/model/damage_model.html#DamageModel_Base.load_model_parameters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.model.damage_model.DamageModel_Base.load_model_parameters" title="Link to this definition"></a></dt>
+<dd><p>Load model parameters from a DataFrame.</p>
+<p>Loads model parameters from a DataFrame, extending those
+already available. Parameters already defined take precedence,
+i.e. redefinitions of parameters are ignored.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>data: DataFrame</strong></dt><dd><p>Data with damage model information.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pelicun.model.damage_model.DamageModel_Base.remove_incomplete_components">
+<span class="sig-name descname"><span class="pre">remove_incomplete_components</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../_modules/pelicun/model/damage_model.html#DamageModel_Base.remove_incomplete_components"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.model.damage_model.DamageModel_Base.remove_incomplete_components" title="Link to this definition"></a></dt>
+<dd><p>Remove components with incompelte damage parameter info.</p>
+<p>Removes components that have incomplete damage model
+definitions from the damage model parameters.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pelicun.model.damage_model.DamageModel_DS">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pelicun.model.damage_model.</span></span><span class="sig-name descname"><span class="pre">DamageModel_DS</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">assessment</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pelicun.assessment.html#pelicun.assessment.AssessmentBase" title="pelicun.assessment.AssessmentBase"><span class="pre">AssessmentBase</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pelicun/model/damage_model.html#DamageModel_DS"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.model.damage_model.DamageModel_DS" title="Link to this definition"></a></dt>
+<dd><p>Damage model for components that have discrete Damage States (DS).</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pelicun.model.damage_model.DamageModel_DS.complete_ds_cols">
+<span class="sig-name descname"><span class="pre">complete_ds_cols</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dmg_sample</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="reference internal" href="../../_modules/pelicun/model/damage_model.html#DamageModel_DS.complete_ds_cols"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.model.damage_model.DamageModel_DS.complete_ds_cols" title="Link to this definition"></a></dt>
+<dd><p>Complete damage state columns.</p>
+<p>Completes the damage sample DataFrame with all possible damage
+states for each component.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>dmg_sample: DataFrame</strong></dt><dd><p>A DataFrame containing the damage state information for
+each component block in the asset model. The columns are
+MultiIndexed with levels corresponding to component
+information (‘cmp’, ‘loc’, ‘dir’, ‘uid’) and the damage
+state (‘ds’).</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>DataFrame</dt><dd><p>A DataFrame similar to <cite>dmg_sample</cite> but with additional
+columns for missing damage states for each component,
+ensuring that all possible damage states are
+represented. The new columns are filled with zeros,
+indicating no occurrence of those damage states in the
+sample.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>The method assumes that the damage model parameters
+(<cite>self.damage_params</cite>) are available and contain the
+necessary information to determine the total number of
+damage states for each component.</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pelicun.model.damage_model.DamageModel_DS.obtain_ds_sample">
+<span class="sig-name descname"><span class="pre">obtain_ds_sample</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">demand_sample</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">component_blocks</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">block_batch_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">scaling_specification</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><span class="pre">dict</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">missing_components</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nondirectional_multipliers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../_modules/pelicun/model/damage_model.html#DamageModel_DS.obtain_ds_sample"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.model.damage_model.DamageModel_DS.obtain_ds_sample" title="Link to this definition"></a></dt>
+<dd><p>Obtain the damage state of each performance group.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pelicun.model.damage_model.DamageModel_DS.perform_dmg_task">
+<span class="sig-name descname"><span class="pre">perform_dmg_task</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">task</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)"><span class="pre">tuple</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../_modules/pelicun/model/damage_model.html#DamageModel_DS.perform_dmg_task"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.model.damage_model.DamageModel_DS.perform_dmg_task" title="Link to this definition"></a></dt>
+<dd><p>Perform a task from a damage process.</p>
+<p>The method performs a task from a damage process on a given
+damage state sample. The events of the task are triggered by a
+damage state occurrence. The method assigns target
+component(s) into the target damage state based on the damage
+state of the source component. If the target event is “NA”,
+the method removes damage state information from the target
+components.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>task: list</strong></dt><dd><p>A list representing a task from the damage process. The
+list contains two elements:
+- The first element is a string representing the source
+component, e.g., <cite>‘1_CMP_A’</cite>. The number in the beginning
+is used to order the tasks and is not considered here.
+- The second element is a dictionary representing the
+events triggered by the damage state of the source
+component. The keys of the dictionary are strings that
+represent the damage state of the source component,
+e.g., <cite>‘DS1’</cite>. The values are lists of strings
+representing the target component(s) and event(s), e.g.,
+<cite>[‘CMP_B.DS1’, ‘CMP_C.DS1’]</cite>. They could also be a
+single element instead of a list.</p>
+<dl class="simple">
+<dt>Examples of a task:</dt><dd><p>[‘1_CMP.A’, {‘DS1’: [‘CMP.B_DS1’, ‘CMP.C_DS2’]}]
+[‘1_CMP.A’, {‘DS1’: ‘CMP.B_DS1’, ‘DS2’: ‘CMP.B_DS2’}]
+[‘1_CMP.A-LOC’, {‘DS1’: ‘CMP.B_DS1’}]</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>ValueError</dt><dd><p>Raises an error if the source or target event descriptions
+do not follow expected formats.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pelicun.model.damage_model.DamageModel_DS.prepare_dmg_quantities">
+<span class="sig-name descname"><span class="pre">prepare_dmg_quantities</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component_sample</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">component_marginal_parameters</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dropzero</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="reference internal" href="../../_modules/pelicun/model/damage_model.html#DamageModel_DS.prepare_dmg_quantities"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.model.damage_model.DamageModel_DS.prepare_dmg_quantities" title="Link to this definition"></a></dt>
+<dd><p>Combine component quantity and damage state information.</p>
+<p>This method assumes that a component quantity sample is
+available in the asset model and a damage state sample is
+available in the damage model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>component_sample: pd.DataFrame</strong></dt><dd><p>Component quantity sample from the AssetModel.</p>
+</dd>
+<dt><strong>component_marginal_parameters: pd.DataFrame</strong></dt><dd><p>Component marginal parameters from the AssetModel.</p>
+</dd>
+<dt><strong>dropzero: bool, optional, default: True</strong></dt><dd><p>If True, the quantity of non-damaged components is not
+saved.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>DataFrame</dt><dd><p>A DataFrame that combines the component quantity and
+damage state information.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pelicun.model.damage_model.DamageModel_DS.probabilities">
+<span class="sig-name descname"><span class="pre">probabilities</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="reference internal" href="../../_modules/pelicun/model/damage_model.html#DamageModel_DS.probabilities"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.model.damage_model.DamageModel_DS.probabilities" title="Link to this definition"></a></dt>
+<dd><p>Return the probability of each observed damage state.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>pd.DataFrame</dt><dd><p>DataFrame with the probability of each damage state for
+each component block.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Leland Stanford Junior University and The Regents of the University of California.</p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+    <!-- Theme Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-158130480-7"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'UA-158130480-7', {
+          'anonymize_ip': false,
+      });
+    </script> 
+
+</body>
+</html>

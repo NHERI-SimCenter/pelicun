@@ -1,0 +1,33 @@
+pelicun.tools.DL\_calculation
+=============================
+
+.. automodule:: pelicun.tools.DL_calculation
+   :members:
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      convert_df_to_dict
+      log_msg
+      main
+      run_pelicun
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

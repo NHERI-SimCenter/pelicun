@@ -1,0 +1,34 @@
+pelicun.assessment
+==================
+
+.. automodule:: pelicun.assessment
+   :members:
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+      :template: custom-class-template.rst
+   
+      Assessment
+      AssessmentBase
+      DLCalculationAssessment
+      TimeBasedAssessment
+   
+   
+
+   
+   
+   
+
+
+

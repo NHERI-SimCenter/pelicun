@@ -1,0 +1,312 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>8.1.8.1. pelicun.tools.DL_calculation &mdash; pelicun  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css?v=f9bf6728" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="8.1.8.2. pelicun.tools.HDF_to_CSV" href="pelicun.tools.HDF_to_CSV.html" />
+    <link rel="prev" title="8.1.8. pelicun.tools" href="pelicun.tools.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #F2F2F2" >
+
+          
+          
+          <a href="../../index.html">
+            
+              <img src="../../_static/pelicun-Logo-grey.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">About</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../about/license.html">1. Copyright and license</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../about/cite.html">2. Citing pelicun</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../about/cite.html#logo">3. Logo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../about/acknowledgments.html">4. Acknowledgments</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../about/acknowledgments.html#national-science-foundation">4.1. National Science Foundation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../about/acknowledgments.html#contributors">4.2. Contributors</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../release_notes/index.html">5. Release Notes</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../release_notes/index.html#version-3-0">5.1. Version 3.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../release_notes/index.html#version-2-0">5.2. Version 2.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../release_notes/index.html#version-1-0">5.3. Version 1.0</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../user_guide/install.html">1. Getting started</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/install.html#staying-up-to-date">1.1. Staying up to date</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../user_guide/pelicun_framework.html">2. The Pelicun Framework</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/pelicun_framework.html#abbreviations">2.1. Abbreviations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/pelicun_framework.html#introduction-to-pelicun">2.2. Introduction to Pelicun</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/pelicun_framework.html#overview">2.3. Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/pelicun_framework.html#performance-assessment-workflow">2.4. Performance Assessment Workflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/pelicun_framework.html#response-model">2.5. Response Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/pelicun_framework.html#performance-model">2.6. Performance Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/pelicun_framework.html#damage-model">2.7. Damage Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/pelicun_framework.html#loss-model">2.8. Loss Model</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../user_guide/feature_overview.html">3. Overview of pelicun features</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/feature_overview.html#saving-loading-samples">3.1. Saving/loading samples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/feature_overview.html#logging-support">3.2. Logging support</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/feature_overview.html#uncertainty-quantification">3.3. Uncertainty quantification</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/feature_overview.html#assessment-types">3.4. Assessment types</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/feature_overview.html#demand-simulation">3.5. Demand simulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/feature_overview.html#damage-estimation">3.6. Damage estimation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/feature_overview.html#loss-estimation">3.7. Loss estimation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/feature_overview.html#command-line-support">3.8. Command-line support</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/feature_overview.html#standalone-tools">3.9. Standalone tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/feature_overview.html#feature-overview-and-examples">3.10. Feature overview and examples</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../user_guide/damage_and_loss_library.html">4. Damage and loss library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../user_guide/bug_reports_and_feature_requests.html">5. Bug reports and feature requests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../user_guide/resources_for_new_python_users.html">6. Resources for new python users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/index.html">7. Examples</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../examples/index.html#complete-list">7.1. Complete list</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../examples/index.html#grouped-by-feature">7.2. Grouped by feature</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">8. API Reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="pelicun.html">8.1. pelicun</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../developer_guide/getting_started.html">1. Getting started</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../developer_guide/getting_started.html#code-of-conduct">1.1. Code of conduct</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../developer_guide/getting_started.html#how-to-contribute">1.2. How to contribute</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../developer_guide/development_environment.html">2. Setting up a development environment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developer_guide/code_quality.html">3. Coding practice</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../developer_guide/code_quality.html#code-quality-assurance">3.1. Code quality assurance</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../developer_guide/code_quality.html#unit-tests">3.2. Unit tests</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../developer_guide/code_quality.html#documentation">3.3. Documentation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../developer_guide/internals.html">4. Package architecture</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../developer_guide/internals.html#overview-of-files">4.1. Overview of files</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #F2F2F2" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">pelicun</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html"><span class="section-number">8. </span>API Reference</a></li>
+          <li class="breadcrumb-item"><a href="pelicun.html"><span class="section-number">8.1. </span>pelicun</a></li>
+          <li class="breadcrumb-item"><a href="pelicun.tools.html"><span class="section-number">8.1.8. </span>pelicun.tools</a></li>
+      <li class="breadcrumb-item active"><span class="section-number">8.1.8.1. </span>pelicun.tools.DL_calculation</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-pelicun.tools.DL_calculation">
+<span id="pelicun-tools-dl-calculation"></span><h1><span class="section-number">8.1.8.1. </span>pelicun.tools.DL_calculation<a class="headerlink" href="#module-pelicun.tools.DL_calculation" title="Link to this heading"></a></h1>
+<p>Main functionality to run a pelicun calculation from the command line.</p>
+<p class="rubric">Functions</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pelicun.tools.DL_calculation.convert_df_to_dict" title="pelicun.tools.DL_calculation.convert_df_to_dict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">convert_df_to_dict</span></code></a>(data[, axis])</p></td>
+<td><p>Convert a pandas DataFrame to a dictionary.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pelicun.tools.DL_calculation.log_msg" title="pelicun.tools.DL_calculation.log_msg"><code class="xref py py-obj docutils literal notranslate"><span class="pre">log_msg</span></code></a>(msg[, color_codes])</p></td>
+<td><p>Print a formatted log message with a timestamp.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pelicun.tools.DL_calculation.main" title="pelicun.tools.DL_calculation.main"><code class="xref py py-obj docutils literal notranslate"><span class="pre">main</span></code></a>()</p></td>
+<td><p>Parse arguments and run the pelicun calculation.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pelicun.tools.DL_calculation.run_pelicun" title="pelicun.tools.DL_calculation.run_pelicun"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run_pelicun</span></code></a>(config_path, demand_file, ...)</p></td>
+<td><p>Use settings in the config JSON to prepare and run a Pelicun calculation.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py function">
+<dt class="sig sig-object py" id="pelicun.tools.DL_calculation.convert_df_to_dict">
+<span class="sig-prename descclassname"><span class="pre">pelicun.tools.DL_calculation.</span></span><span class="sig-name descname"><span class="pre">convert_df_to_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Series</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">axis</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><span class="pre">dict</span></a></span></span><a class="reference internal" href="../../_modules/pelicun/tools/DL_calculation.html#convert_df_to_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.tools.DL_calculation.convert_df_to_dict" title="Link to this definition"></a></dt>
+<dd><p>Convert a pandas DataFrame to a dictionary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>data</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>The DataFrame to be converted.</p>
+</dd>
+<dt><strong>axis</strong><span class="classifier">int, optional</span></dt><dd><p>The axis to consider for the conversion.
+* If 1 (default), the DataFrame is used as-is.
+* If 0, the DataFrame is transposed before conversion.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>dict</dt><dd><p>A dictionary representation of the DataFrame. The structure of
+the dictionary depends on the levels in the DataFrame’s
+MultiIndex columns.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>If the axis is not 0 or 1.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>If the columns have multiple levels, the function will
+recursively convert sub-DataFrames.</p></li>
+<li><p>If the column labels at any level are numeric, they will be
+converted to a list of floats.</p></li>
+<li><p>If the column labels are non-numeric, a dictionary will be
+created with the index labels as keys and the corresponding data
+as values.</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pelicun.tools.DL_calculation.log_msg">
+<span class="sig-prename descclassname"><span class="pre">pelicun.tools.DL_calculation.</span></span><span class="sig-name descname"><span class="pre">log_msg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">color_codes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../_modules/pelicun/tools/DL_calculation.html#log_msg"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.tools.DL_calculation.log_msg" title="Link to this definition"></a></dt>
+<dd><p>Print a formatted log message with a timestamp.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>msg</strong><span class="classifier">str</span></dt><dd><p>The message to print.</p>
+</dd>
+<dt><strong>color_codes</strong><span class="classifier">tuple, optional</span></dt><dd><p>Color codes for formatting the message. Default is None.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pelicun.tools.DL_calculation.main">
+<span class="sig-prename descclassname"><span class="pre">pelicun.tools.DL_calculation.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../_modules/pelicun/tools/DL_calculation.html#main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.tools.DL_calculation.main" title="Link to this definition"></a></dt>
+<dd><p>Parse arguments and run the pelicun calculation.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pelicun.tools.DL_calculation.run_pelicun">
+<span class="sig-prename descclassname"><span class="pre">pelicun.tools.DL_calculation.</span></span><span class="sig-name descname"><span class="pre">run_pelicun</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">realizations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">auto_script_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">custom_model_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_format</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><span class="pre">list</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">detailed_results</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">coupled_edp</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../_modules/pelicun/tools/DL_calculation.html#run_pelicun"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.tools.DL_calculation.run_pelicun" title="Link to this definition"></a></dt>
+<dd><p>Use settings in the config JSON to prepare and run a Pelicun calculation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>config_path: string</strong></dt><dd><p>Path pointing to the location of the JSON configuration file.</p>
+</dd>
+<dt><strong>demand_file: string</strong></dt><dd><p>Path pointing to the location of a CSV file with the demand data.</p>
+</dd>
+<dt><strong>output_path: string, optional</strong></dt><dd><p>Path pointing to the location where results shall be saved.</p>
+</dd>
+<dt><strong>realizations: int, optional</strong></dt><dd><p>Number of realizations to generate.</p>
+</dd>
+<dt><strong>auto_script_path: string, optional</strong></dt><dd><p>Path pointing to the location of a Python script with an auto_populate
+method that automatically creates the performance model using data
+provided in the AIM JSON file.</p>
+</dd>
+<dt><strong>custom_model_dir: string, optional</strong></dt><dd><p>Path pointing to a directory with files that define user-provided model
+parameters for a customized damage and loss assessment.</p>
+</dd>
+<dt><strong>output_format: list, optional.</strong></dt><dd><p>Type of output format, JSON or CSV.
+Valid options: [‘csv’, ‘json’], [‘csv’], [‘json’], [], None</p>
+</dd>
+<dt><strong>detailed_results: bool, optional</strong></dt><dd><p>If False, only the main statistics are saved.</p>
+</dd>
+<dt><strong>coupled_edp: bool, optional</strong></dt><dd><p>If True, EDPs are not resampled and processed in order.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Leland Stanford Junior University and The Regents of the University of California.</p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+    <!-- Theme Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-158130480-7"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'UA-158130480-7', {
+          'anonymize_ip': false,
+      });
+    </script> 
+
+</body>
+</html>

@@ -1,0 +1,34 @@
+pelicun.tests.dl\_calculation.e8
+================================
+
+.. automodule:: pelicun.tests.dl_calculation.e8
+   :members:
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+.. rubric:: Modules
+
+.. autosummary::
+   :toctree:
+   :template: custom-module-template.rst
+   :recursive:
+
+   auto_HU_LA
+   test_e8
+

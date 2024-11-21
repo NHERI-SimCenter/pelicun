@@ -1,0 +1,210 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pelicun.tests.dl_calculation.e4.test_e4 &mdash; pelicun  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css?v=f9bf6728" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="pelicun.tests.dl_calculation.e5" href="pelicun.tests.dl_calculation.e5.html" />
+    <link rel="prev" title="pelicun.tests.dl_calculation.e4" href="pelicun.tests.dl_calculation.e4.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #F2F2F2" >
+
+          
+          
+          <a href="../../index.html">
+            
+              <img src="../../_static/pelicun-Logo-grey.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">About</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../about/license.html">1. Copyright and license</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../about/cite.html">2. Citing pelicun</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../about/cite.html#logo">3. Logo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../about/acknowledgments.html">4. Acknowledgments</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../about/acknowledgments.html#national-science-foundation">4.1. National Science Foundation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../about/acknowledgments.html#contributors">4.2. Contributors</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../release_notes/index.html">5. Release Notes</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../release_notes/index.html#version-3-0">5.1. Version 3.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../release_notes/index.html#version-2-0">5.2. Version 2.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../release_notes/index.html#version-1-0">5.3. Version 1.0</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../user_guide/install.html">1. Getting started</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/install.html#staying-up-to-date">1.1. Staying up to date</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../user_guide/pelicun_framework.html">2. The Pelicun Framework</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/pelicun_framework.html#abbreviations">2.1. Abbreviations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/pelicun_framework.html#introduction-to-pelicun">2.2. Introduction to Pelicun</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/pelicun_framework.html#overview">2.3. Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/pelicun_framework.html#performance-assessment-workflow">2.4. Performance Assessment Workflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/pelicun_framework.html#response-model">2.5. Response Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/pelicun_framework.html#performance-model">2.6. Performance Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/pelicun_framework.html#damage-model">2.7. Damage Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/pelicun_framework.html#loss-model">2.8. Loss Model</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../user_guide/feature_overview.html">3. Overview of pelicun features</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/feature_overview.html#saving-loading-samples">3.1. Saving/loading samples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/feature_overview.html#logging-support">3.2. Logging support</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/feature_overview.html#uncertainty-quantification">3.3. Uncertainty quantification</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/feature_overview.html#assessment-types">3.4. Assessment types</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/feature_overview.html#demand-simulation">3.5. Demand simulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/feature_overview.html#damage-estimation">3.6. Damage estimation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/feature_overview.html#loss-estimation">3.7. Loss estimation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/feature_overview.html#command-line-support">3.8. Command-line support</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/feature_overview.html#standalone-tools">3.9. Standalone tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/feature_overview.html#feature-overview-and-examples">3.10. Feature overview and examples</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../user_guide/damage_and_loss_library.html">4. Damage and loss library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../user_guide/bug_reports_and_feature_requests.html">5. Bug reports and feature requests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../user_guide/resources_for_new_python_users.html">6. Resources for new python users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/index.html">7. Examples</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../examples/index.html#complete-list">7.1. Complete list</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../examples/index.html#grouped-by-feature">7.2. Grouped by feature</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">8. API Reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="pelicun.html">8.1. pelicun</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../developer_guide/getting_started.html">1. Getting started</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../developer_guide/getting_started.html#code-of-conduct">1.1. Code of conduct</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../developer_guide/getting_started.html#how-to-contribute">1.2. How to contribute</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../developer_guide/development_environment.html">2. Setting up a development environment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developer_guide/code_quality.html">3. Coding practice</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../developer_guide/code_quality.html#code-quality-assurance">3.1. Code quality assurance</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../developer_guide/code_quality.html#unit-tests">3.2. Unit tests</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../developer_guide/code_quality.html#documentation">3.3. Documentation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../developer_guide/internals.html">4. Package architecture</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../developer_guide/internals.html#overview-of-files">4.1. Overview of files</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #F2F2F2" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">pelicun</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html"><span class="section-number">8. </span>API Reference</a></li>
+          <li class="breadcrumb-item"><a href="pelicun.html"><span class="section-number">8.1. </span>pelicun</a></li>
+          <li class="breadcrumb-item"><a href="pelicun.tests.html"><span class="section-number">8.1.7. </span>pelicun.tests</a></li>
+          <li class="breadcrumb-item"><a href="pelicun.tests.dl_calculation.html"><span class="section-number">8.1.7.3. </span>pelicun.tests.dl_calculation</a></li>
+          <li class="breadcrumb-item"><a href="pelicun.tests.dl_calculation.e4.html">pelicun.tests.dl_calculation.e4</a></li>
+      <li class="breadcrumb-item active">pelicun.tests.dl_calculation.e4.test_e4</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-pelicun.tests.dl_calculation.e4.test_e4">
+<span id="pelicun-tests-dl-calculation-e4-test-e4"></span><h1>pelicun.tests.dl_calculation.e4.test_e4<a class="headerlink" href="#module-pelicun.tests.dl_calculation.e4.test_e4" title="Link to this heading"></a></h1>
+<p>DL Calculation Example 4.</p>
+<p class="rubric">Functions</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">obtain_temp_dir</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_dl_calculation_4</span></code>(obtain_temp_dir)</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Leland Stanford Junior University and The Regents of the University of California.</p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+    <!-- Theme Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-158130480-7"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'UA-158130480-7', {
+          'anonymize_ip': false,
+      });
+    </script> 
+
+</body>
+</html>

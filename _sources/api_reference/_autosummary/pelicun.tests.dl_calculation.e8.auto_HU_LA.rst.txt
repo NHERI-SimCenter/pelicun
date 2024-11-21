@@ -1,0 +1,30 @@
+pelicun.tests.dl\_calculation.e8.auto\_HU\_LA
+=============================================
+
+.. automodule:: pelicun.tests.dl_calculation.e8.auto_HU_LA
+   :members:
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      auto_populate
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

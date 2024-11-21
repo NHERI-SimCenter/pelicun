@@ -1,0 +1,33 @@
+pelicun.file\_io
+================
+
+.. automodule:: pelicun.file_io
+   :members:
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      load_data
+      load_from_file
+      save_to_csv
+      substitute_default_path
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

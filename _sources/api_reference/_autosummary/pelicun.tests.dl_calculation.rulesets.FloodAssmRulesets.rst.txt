@@ -1,0 +1,30 @@
+pelicun.tests.dl\_calculation.rulesets.FloodAssmRulesets
+========================================================
+
+.. automodule:: pelicun.tests.dl_calculation.rulesets.FloodAssmRulesets
+   :members:
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      Assm_config
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

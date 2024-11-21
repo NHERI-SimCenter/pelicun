@@ -1,0 +1,43 @@
+pelicun.tests.dl\_calculation
+=============================
+
+.. automodule:: pelicun.tests.dl_calculation
+   :members:
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+.. rubric:: Modules
+
+.. autosummary::
+   :toctree:
+   :template: custom-module-template.rst
+   :recursive:
+
+   e1
+   e1_no_autopop
+   e2
+   e3
+   e4
+   e5
+   e6
+   e7
+   e8
+   e9
+   rulesets
+

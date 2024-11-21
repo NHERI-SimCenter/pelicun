@@ -1,0 +1,30 @@
+pelicun.tests.dl\_calculation.rulesets.FloodClassRulesets
+=========================================================
+
+.. automodule:: pelicun.tests.dl_calculation.rulesets.FloodClassRulesets
+   :members:
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      FL_config
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

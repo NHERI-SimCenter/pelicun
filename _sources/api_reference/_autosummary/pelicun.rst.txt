@@ -1,0 +1,41 @@
+﻿pelicun
+=======
+
+.. automodule:: pelicun
+   :members:
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+.. rubric:: Modules
+
+.. autosummary::
+   :toctree:
+   :template: custom-module-template.rst
+   :recursive:
+
+   assessment
+   auto
+   base
+   file_io
+   model
+   pelicun_warnings
+   tests
+   tools
+   uq
+

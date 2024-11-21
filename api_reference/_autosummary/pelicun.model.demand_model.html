@@ -1,0 +1,532 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>8.1.5.3. pelicun.model.demand_model &mdash; pelicun  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css?v=f9bf6728" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="8.1.5.4. pelicun.model.loss_model" href="pelicun.model.loss_model.html" />
+    <link rel="prev" title="8.1.5.2. pelicun.model.damage_model" href="pelicun.model.damage_model.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #F2F2F2" >
+
+          
+          
+          <a href="../../index.html">
+            
+              <img src="../../_static/pelicun-Logo-grey.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">About</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../about/license.html">1. Copyright and license</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../about/cite.html">2. Citing pelicun</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../about/cite.html#logo">3. Logo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../about/acknowledgments.html">4. Acknowledgments</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../about/acknowledgments.html#national-science-foundation">4.1. National Science Foundation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../about/acknowledgments.html#contributors">4.2. Contributors</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../release_notes/index.html">5. Release Notes</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../release_notes/index.html#version-3-0">5.1. Version 3.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../release_notes/index.html#version-2-0">5.2. Version 2.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../release_notes/index.html#version-1-0">5.3. Version 1.0</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../user_guide/install.html">1. Getting started</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/install.html#staying-up-to-date">1.1. Staying up to date</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../user_guide/pelicun_framework.html">2. The Pelicun Framework</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/pelicun_framework.html#abbreviations">2.1. Abbreviations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/pelicun_framework.html#introduction-to-pelicun">2.2. Introduction to Pelicun</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/pelicun_framework.html#overview">2.3. Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/pelicun_framework.html#performance-assessment-workflow">2.4. Performance Assessment Workflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/pelicun_framework.html#response-model">2.5. Response Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/pelicun_framework.html#performance-model">2.6. Performance Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/pelicun_framework.html#damage-model">2.7. Damage Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/pelicun_framework.html#loss-model">2.8. Loss Model</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../user_guide/feature_overview.html">3. Overview of pelicun features</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/feature_overview.html#saving-loading-samples">3.1. Saving/loading samples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/feature_overview.html#logging-support">3.2. Logging support</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/feature_overview.html#uncertainty-quantification">3.3. Uncertainty quantification</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/feature_overview.html#assessment-types">3.4. Assessment types</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/feature_overview.html#demand-simulation">3.5. Demand simulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/feature_overview.html#damage-estimation">3.6. Damage estimation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/feature_overview.html#loss-estimation">3.7. Loss estimation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/feature_overview.html#command-line-support">3.8. Command-line support</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/feature_overview.html#standalone-tools">3.9. Standalone tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/feature_overview.html#feature-overview-and-examples">3.10. Feature overview and examples</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../user_guide/damage_and_loss_library.html">4. Damage and loss library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../user_guide/bug_reports_and_feature_requests.html">5. Bug reports and feature requests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../user_guide/resources_for_new_python_users.html">6. Resources for new python users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/index.html">7. Examples</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../examples/index.html#complete-list">7.1. Complete list</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../examples/index.html#grouped-by-feature">7.2. Grouped by feature</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">8. API Reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="pelicun.html">8.1. pelicun</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../developer_guide/getting_started.html">1. Getting started</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../developer_guide/getting_started.html#code-of-conduct">1.1. Code of conduct</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../developer_guide/getting_started.html#how-to-contribute">1.2. How to contribute</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../developer_guide/development_environment.html">2. Setting up a development environment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developer_guide/code_quality.html">3. Coding practice</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../developer_guide/code_quality.html#code-quality-assurance">3.1. Code quality assurance</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../developer_guide/code_quality.html#unit-tests">3.2. Unit tests</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../developer_guide/code_quality.html#documentation">3.3. Documentation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../developer_guide/internals.html">4. Package architecture</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../developer_guide/internals.html#overview-of-files">4.1. Overview of files</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #F2F2F2" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">pelicun</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html"><span class="section-number">8. </span>API Reference</a></li>
+          <li class="breadcrumb-item"><a href="pelicun.html"><span class="section-number">8.1. </span>pelicun</a></li>
+          <li class="breadcrumb-item"><a href="pelicun.model.html"><span class="section-number">8.1.5. </span>pelicun.model</a></li>
+      <li class="breadcrumb-item active"><span class="section-number">8.1.5.3. </span>pelicun.model.demand_model</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-pelicun.model.demand_model">
+<span id="pelicun-model-demand-model"></span><h1><span class="section-number">8.1.5.3. </span>pelicun.model.demand_model<a class="headerlink" href="#module-pelicun.model.demand_model" title="Link to this heading"></a></h1>
+<p>DemandModel object and associated methods.</p>
+<p class="rubric">Classes</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pelicun.model.demand_model.DemandModel" title="pelicun.model.demand_model.DemandModel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DemandModel</span></code></a>(assessment)</p></td>
+<td><p>Manages demand information used in assessments.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py class">
+<dt class="sig sig-object py" id="pelicun.model.demand_model.DemandModel">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pelicun.model.demand_model.</span></span><span class="sig-name descname"><span class="pre">DemandModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">assessment</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pelicun.assessment.html#pelicun.assessment.AssessmentBase" title="pelicun.assessment.AssessmentBase"><span class="pre">AssessmentBase</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pelicun/model/demand_model.html#DemandModel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.model.demand_model.DemandModel" title="Link to this definition"></a></dt>
+<dd><p>Manages demand information used in assessments.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>marginal_params: DataFrame</strong></dt><dd><p>Available after the model has been calibrated or calibration data has
+been imported. Defines the marginal distribution of each demand
+variable.</p>
+</dd>
+<dt><strong>correlation: DataFrame</strong></dt><dd><p>Available after the model has been calibrated or calibration data has
+been imported. Defines the correlation between the demand variables in
+standard normal space. That is, the variables are sampled in standard
+normal space and then transformed into the space of their respective
+distributions and the correlation matrix corresponds to the space where
+they are sampled.</p>
+</dd>
+<dt><strong>empirical_data: DataFrame</strong></dt><dd><p>Available after the model has been calibrated or calibration data has
+been imported. It provides an empirical dataset for the demand
+variables that are modeled with an empirical distribution.</p>
+</dd>
+<dt><strong>sample: DataFrame</strong></dt><dd><p>Available after a sample has been generated. Demand variables are
+listed in columns and each row provides an independent realization of
+the joint demand distribution.</p>
+</dd>
+<dt><strong>units: Series</strong></dt><dd><p>Available after any demand data has been loaded. The index identifies
+the demand variables and the values provide the unit for each variable.</p>
+</dd>
+<dt><strong>calibrated: bool</strong></dt><dd><p>Signifies whether the DemandModel object has been calibrated.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pelicun.model.demand_model.DemandModel.calibrate_model">
+<span class="sig-name descname"><span class="pre">calibrate_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><span class="pre">dict</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../_modules/pelicun/model/demand_model.html#DemandModel.calibrate_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.model.demand_model.DemandModel.calibrate_model" title="Link to this definition"></a></dt>
+<dd><p>Calibrate a demand model to describe the raw demand data.</p>
+<p>The raw data shall be parsed first to ensure that it follows the
+schema expected by this method. The calibration settings define the
+characteristics of the multivariate distribution that is fit to the
+raw data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>config: dict</strong></dt><dd><p>A dictionary, typically read from a JSON file, that specifies the
+distribution family, truncation and censoring limits, and other
+settings for the calibration.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pelicun.model.demand_model.DemandModel.clone_demands">
+<span class="sig-name descname"><span class="pre">clone_demands</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">demand_cloning</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><span class="pre">dict</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../_modules/pelicun/model/demand_model.html#DemandModel.clone_demands"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.model.demand_model.DemandModel.clone_demands" title="Link to this definition"></a></dt>
+<dd><p>Clone demands.</p>
+<p>Copies over columns of the original demand sample and
+assigns given names to them. The columns to be copied over
+and the names to be assigned to the copies are defined as the keys
+and values of the <cite>demand_cloning</cite> dictionary.
+The method modifies <cite>sample</cite> inplace.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>demand_cloning: dict</strong></dt><dd><p>Keys correspond to the columns of the original sample to
+be copied over and the values correspond to the intended
+names for the copies. Caution: It’s possible to define a
+dictionary with duplicate keys, and Python will just keep
+the last entry without warning. Users need to be careful
+enough to avoid duplicate keys, because we can’t validate
+them.
+E.g.: x = {‘1’: 1.00, ‘1’: 2.00} results in x={‘1’: 2.00}.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>ValueError</dt><dd><p>In multiple instances of invalid demand_cloning entries.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pelicun.model.demand_model.DemandModel.estimate_RID">
+<span class="sig-name descname"><span class="pre">estimate_RID</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">demands</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Series</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><span class="pre">dict</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'FEMA</span> <span class="pre">P58'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="reference internal" href="../../_modules/pelicun/model/demand_model.html#DemandModel.estimate_RID"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.model.demand_model.DemandModel.estimate_RID" title="Link to this definition"></a></dt>
+<dd><p>Estimate residual inter-story drift (RID).</p>
+<p>Estimates residual inter-story drift (RID) realizations based
+on peak inter-story drift (PID) and other demand parameters
+using specified methods.</p>
+<p>This method calculates RID based on the peak inter-story drift
+provided in the demands DataFrame and parameters such as yield
+drift specified in the params dictionary. The calculation
+adheres to the FEMA P-58 methodology, which includes
+conditions for different ranges of drift.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>demands: DataFrame</strong></dt><dd><p>A DataFrame containing samples of demands, specifically
+peak inter-story drift (PID) values for various
+location-direction pairs required for the estimation
+method.</p>
+</dd>
+<dt><strong>params: dict</strong></dt><dd><p>A dictionary containing parameters required for the
+estimation method, such as ‘yield_drift’, which is the
+drift at which yielding is expected to occur.</p>
+</dd>
+<dt><strong>method: str, optional</strong></dt><dd><p>The method used to estimate the RID values. Currently,
+only ‘FEMA P58’ is implemented. Defaults to ‘FEMA P58’.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>DataFrame</dt><dd><p>A DataFrame containing the estimated residual inter-story
+drift (RID) realizations, indexed and structured similarly
+to the input demands DataFrame.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>Raises a ValueError if an unrecognized method is provided
+or required parameters are missing in the <cite>params</cite>
+dictionary.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>The FEMA P-58 estimation approach divides the drift into three
+domains, with different transformation rules for
+each. Additional stochastic variation is introduced to nonzero
+RID values to model the inherent uncertainty. The method
+ensures that the RID values do not exceed the corresponding
+PID values.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pelicun.model.demand_model.DemandModel.estimate_RID_and_adjust_sample">
+<span class="sig-name descname"><span class="pre">estimate_RID_and_adjust_sample</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><span class="pre">dict</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'FEMA</span> <span class="pre">P58'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../_modules/pelicun/model/demand_model.html#DemandModel.estimate_RID_and_adjust_sample"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.model.demand_model.DemandModel.estimate_RID_and_adjust_sample" title="Link to this definition"></a></dt>
+<dd><p>Estimate residual inter-story drift (RID) and modifies sample.</p>
+<p>Uses <cite>self.estimate_RID</cite> and adjusts the demand sample.
+See the docstring of the <cite>estimate_RID</cite> method for details.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>params: dict</strong></dt><dd><p>A dictionary containing parameters required for the
+estimation method, such as ‘yield_drift’, which is the
+drift at which yielding is expected to occur.</p>
+</dd>
+<dt><strong>method: str, optional</strong></dt><dd><p>The method used to estimate the RID values. Currently,
+only ‘FEMA P58’ is implemented. Defaults to ‘FEMA P58’.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>ValueError</dt><dd><p>If the method is called before a sample is generated.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pelicun.model.demand_model.DemandModel.expand_sample">
+<span class="sig-name descname"><span class="pre">expand_sample</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.1)"><span class="pre">ndarray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">unit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">location</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'0'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">direction</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'1'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../_modules/pelicun/model/demand_model.html#DemandModel.expand_sample"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.model.demand_model.DemandModel.expand_sample" title="Link to this definition"></a></dt>
+<dd><p>Add an extra column to the demand sample.</p>
+<p>The column contains repeated instances of <cite>value</cite>, is accessed
+via the multi-index (<cite>label</cite>-<cite>location</cite>-<cite>direction</cite>), and has
+units of <cite>unit</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>label: str</strong></dt><dd><p>Label to use to extend the MultiIndex of the demand sample.</p>
+</dd>
+<dt><strong>value: float | np.ndarray</strong></dt><dd><p>Values to add to the rows of the additional column.</p>
+</dd>
+<dt><strong>unit: str</strong></dt><dd><p>Unit that corresponds to the additional column.</p>
+</dd>
+<dt><strong>location: str, optional</strong></dt><dd><p>Optional location, defaults to <cite>0</cite>.</p>
+</dd>
+<dt><strong>direction: str, optional</strong></dt><dd><p>Optional direction, defaults to <cite>1</cite>.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>ValueError</dt><dd><p>If the method is called before a sample is generated.</p>
+</dd>
+<dt>ValueError</dt><dd><p>If <cite>value</cite> is a numpy array of incorrect shape.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pelicun.model.demand_model.DemandModel.generate_sample">
+<span class="sig-name descname"><span class="pre">generate_sample</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><span class="pre">dict</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../_modules/pelicun/model/demand_model.html#DemandModel.generate_sample"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.model.demand_model.DemandModel.generate_sample" title="Link to this definition"></a></dt>
+<dd><p>Generate the demand sample.</p>
+<p>Generates a sample of random variables (RVs) based on the
+specified configuration for demand modeling.</p>
+<p>This method utilizes the current settings for marginal
+distribution parameters to generate a sample of demand
+variables. The configuration can specify details such as the
+sample size, whether to preserve the order of raw data, and
+whether to apply demand cloning. The generated sample is
+stored internally and can be used for subsequent analysis.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>config: dict</strong></dt><dd><p>A dictionary containing configuration options for the
+sample generation. Key options include:
+* ‘SampleSize’: The number of samples to generate.
+* ‘PreserveRawOrder’: Boolean indicating whether to
+preserve the order of the raw data. Defaults to False.
+* ‘DemandCloning’: Specifies if and how demand cloning
+should be applied. Can be a boolean or a detailed
+configuration.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>ValueError</dt><dd><p>If model parameters are not loaded or specified before
+attempting to generate a sample.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>The function is responsible for the creation of random
+variables based on the distribution parameters specified in
+<cite>marginal_params</cite>.  It ensures that the sample is properly
+indexed and sorted according to type, location, and
+direction. It also handles the configuration of demand cloning
+if specified, which is a method to artificially augment the
+variability in the sample based on existing realizations.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">config</span> <span class="o">=</span> <span class="p">{</span>
+<span class="go">        &#39;SampleSize&#39;: 1000,</span>
+<span class="go">        &#39;PreserveRawOrder&#39;: True,</span>
+<span class="go">        &#39;DemandCloning&#39;: False</span>
+<span class="go">    }</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">model</span><span class="o">.</span><span class="n">generate_sample</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+<span class="go"># This will generate 1000 realizations of demand variables</span>
+<span class="go"># with the specified configuration.</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pelicun.model.demand_model.DemandModel.load_model">
+<span class="sig-name descname"><span class="pre">load_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_source</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><span class="pre">dict</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../_modules/pelicun/model/demand_model.html#DemandModel.load_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.model.demand_model.DemandModel.load_model" title="Link to this definition"></a></dt>
+<dd><p>Load the model that describes demands on the asset.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>data_source: string or dict</strong></dt><dd><p>If string, the data_source is a file prefix (&lt;prefix&gt; in the
+following description) that identifies the following files:
+&lt;prefix&gt;_marginals.csv,  &lt;prefix&gt;_empirical.csv,
+&lt;prefix&gt;_correlation.csv. If dict, the data source is a dictionary
+with the following optional keys: ‘marginals’, ‘empirical’, and
+‘correlation’. The value under each key shall be a DataFrame.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>TypeError</dt><dd><p>If the data source type is invalid.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pelicun.model.demand_model.DemandModel.load_sample">
+<span class="sig-name descname"><span class="pre">load_sample</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">DataFrame</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../_modules/pelicun/model/demand_model.html#DemandModel.load_sample"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.model.demand_model.DemandModel.load_sample" title="Link to this definition"></a></dt>
+<dd><p>Load demand sample data and parse it.</p>
+<p>Besides parsing the sample, the method also reads and saves
+the units specified for each demand variable. If no units are
+specified, base units are assumed.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>filepath: string or DataFrame</strong></dt><dd><p>Location of the file with the demand sample.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pelicun.model.demand_model.DemandModel.save_model">
+<span class="sig-name descname"><span class="pre">save_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_prefix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../_modules/pelicun/model/demand_model.html#DemandModel.save_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.model.demand_model.DemandModel.save_model" title="Link to this definition"></a></dt>
+<dd><p>Save parameters of the demand model to a set of csv files.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pelicun.model.demand_model.DemandModel.save_sample">
+<span class="sig-name descname"><span class="pre">save_sample</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_units</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><span class="pre">DataFrame</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Series</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">DataFrame</span></span></span><a class="reference internal" href="../../_modules/pelicun/model/demand_model.html#DemandModel.save_sample"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.model.demand_model.DemandModel.save_sample" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">save_sample</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_units</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span></dt>
+<dd><p>Save demand sample to a csv file or return it in a DataFrame.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>None or tuple</dt><dd><p>If <cite>filepath</cite> is specified, the function saves the demand
+sample to a CSV file and returns None.
+If <cite>filepath</cite> is not specified, it returns the DataFrame
+containing the demand sample.
+If <cite>save_units</cite> is True, it returns a tuple of the
+DataFrame and a Series containing the units.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Leland Stanford Junior University and The Regents of the University of California.</p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+    <!-- Theme Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-158130480-7"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'UA-158130480-7', {
+          'anonymize_ip': false,
+      });
+    </script> 
+
+</body>
+</html>

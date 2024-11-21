@@ -1,0 +1,43 @@
+pelicun.tests.basic.test\_loss\_model
+=====================================
+
+.. automodule:: pelicun.tests.basic.test_loss_model
+   :members:
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      test__is_for_ds_model
+      test__is_for_lf_model
+      test__prep_bounded_multilinear_median_DV
+      test__prep_constant_median_DV
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+      :template: custom-class-template.rst
+   
+      TestLossModel
+      TestRepairModel_Base
+      TestRepairModel_DS
+      TestRepairModel_LF
+   
+   
+
+   
+   
+   
+
+
+

@@ -1,0 +1,56 @@
+pelicun.uq
+==========
+
+.. automodule:: pelicun.uq
+   :members:
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      fit_distribution_to_percentiles
+      fit_distribution_to_sample
+      mvn_orthotope_density
+      rv_class_map
+      scale_distribution
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+      :template: custom-class-template.rst
+   
+      BaseRandomVariable
+      CoupledEmpiricalRandomVariable
+      DeterministicRandomVariable
+      EmpiricalRandomVariable
+      LogNormalRandomVariable
+      MultilinearCDFRandomVariable
+      MultinomialRandomVariable
+      NormalRandomVariable
+      Normal_COV
+      Normal_STD
+      RandomVariable
+      RandomVariableRegistry
+      RandomVariableSet
+      UniformRandomVariable
+      UtilityRandomVariable
+      WeibullRandomVariable
+   
+   
+
+   
+   
+   
+
+
+

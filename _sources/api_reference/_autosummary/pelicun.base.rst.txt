@@ -1,0 +1,65 @@
+pelicun.base
+============
+
+.. automodule:: pelicun.base
+   :members:
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      check_if_str_is_na
+      control_warnings
+      convert_dtypes
+      convert_to_MultiIndex
+      convert_to_SimpleIndex
+      convert_units
+      dedupe_index
+      describe
+      dict_raise_on_duplicates
+      ensure_value
+      float_or_None
+      get
+      int_or_None
+      invert_mapping
+      is_specified
+      is_unspecified
+      load_default_options
+      merge_default_config
+      multiply_factor_multiple_levels
+      parse_units
+      show_matrix
+      split_file_name
+      str2bool
+      stringterpolation
+      update
+      update_vals
+      with_parsed_str_na_values
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+      :template: custom-class-template.rst
+   
+      Logger
+      LoggerRegistry
+      Options
+   
+   
+
+   
+   
+   
+
+
+

@@ -1,0 +1,30 @@
+pelicun.tests.dl\_calculation.rulesets.WindMERBRulesets
+=======================================================
+
+.. automodule:: pelicun.tests.dl_calculation.rulesets.WindMERBRulesets
+   :members:
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      MERB_config
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

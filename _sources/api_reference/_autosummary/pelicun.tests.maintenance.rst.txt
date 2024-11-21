@@ -1,0 +1,33 @@
+pelicun.tests.maintenance
+=========================
+
+.. automodule:: pelicun.tests.maintenance
+   :members:
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+.. rubric:: Modules
+
+.. autosummary::
+   :toctree:
+   :template: custom-module-template.rst
+   :recursive:
+
+   search_in_functions
+

@@ -1,0 +1,44 @@
+pelicun.tests.basic
+===================
+
+.. automodule:: pelicun.tests.basic
+   :members:
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+.. rubric:: Modules
+
+.. autosummary::
+   :toctree:
+   :template: custom-module-template.rst
+   :recursive:
+
+   reset_tests
+   test_assessment
+   test_asset_model
+   test_auto
+   test_base
+   test_damage_model
+   test_demand_model
+   test_file_io
+   test_loss_model
+   test_model
+   test_pelicun_model
+   test_uq
+

@@ -1,0 +1,254 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>5.1.2. Version 3.3.0 (March 29, 2024) &mdash; pelicun  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=f9bf6728" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../_static/design-tabs.js?v=f930bc37"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="5.1.3. Version 3.2.0 (February 27, 2024)" href="v3.2.0.html" />
+    <link rel="prev" title="5.1.1. Unreleased" href="unreleased.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #F2F2F2" >
+
+          
+          
+          <a href="../index.html">
+            
+              <img src="../_static/pelicun-Logo-grey.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">About</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../about/license.html">1. Copyright and license</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../about/cite.html">2. Citing pelicun</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../about/cite.html#logo">3. Logo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../about/acknowledgments.html">4. Acknowledgments</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../about/acknowledgments.html#national-science-foundation">4.1. National Science Foundation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../about/acknowledgments.html#contributors">4.2. Contributors</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">5. Release Notes</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="index.html#version-3-0">5.1. Version 3.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#version-2-0">5.2. Version 2.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#version-1-0">5.3. Version 1.0</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/install.html">1. Getting started</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/install.html#staying-up-to-date">1.1. Staying up to date</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/pelicun_framework.html">2. The Pelicun Framework</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/pelicun_framework.html#abbreviations">2.1. Abbreviations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/pelicun_framework.html#introduction-to-pelicun">2.2. Introduction to Pelicun</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/pelicun_framework.html#overview">2.3. Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/pelicun_framework.html#performance-assessment-workflow">2.4. Performance Assessment Workflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/pelicun_framework.html#response-model">2.5. Response Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/pelicun_framework.html#performance-model">2.6. Performance Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/pelicun_framework.html#damage-model">2.7. Damage Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/pelicun_framework.html#loss-model">2.8. Loss Model</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/feature_overview.html">3. Overview of pelicun features</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/feature_overview.html#saving-loading-samples">3.1. Saving/loading samples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/feature_overview.html#logging-support">3.2. Logging support</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/feature_overview.html#uncertainty-quantification">3.3. Uncertainty quantification</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/feature_overview.html#assessment-types">3.4. Assessment types</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/feature_overview.html#demand-simulation">3.5. Demand simulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/feature_overview.html#damage-estimation">3.6. Damage estimation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/feature_overview.html#loss-estimation">3.7. Loss estimation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/feature_overview.html#command-line-support">3.8. Command-line support</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/feature_overview.html#standalone-tools">3.9. Standalone tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/feature_overview.html#feature-overview-and-examples">3.10. Feature overview and examples</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/damage_and_loss_library.html">4. Damage and loss library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/bug_reports_and_feature_requests.html">5. Bug reports and feature requests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/resources_for_new_python_users.html">6. Resources for new python users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples/index.html">7. Examples</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../examples/index.html#complete-list">7.1. Complete list</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/index.html#grouped-by-feature">7.2. Grouped by feature</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../api_reference/index.html">8. API Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../api_reference/_autosummary/pelicun.html">8.1. pelicun</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../developer_guide/getting_started.html">1. Getting started</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../developer_guide/getting_started.html#code-of-conduct">1.1. Code of conduct</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../developer_guide/getting_started.html#how-to-contribute">1.2. How to contribute</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../developer_guide/development_environment.html">2. Setting up a development environment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developer_guide/code_quality.html">3. Coding practice</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../developer_guide/code_quality.html#code-quality-assurance">3.1. Code quality assurance</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../developer_guide/code_quality.html#unit-tests">3.2. Unit tests</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../developer_guide/code_quality.html#documentation">3.3. Documentation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../developer_guide/internals.html">4. Package architecture</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../developer_guide/internals.html#overview-of-files">4.1. Overview of files</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #F2F2F2" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">pelicun</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html"><span class="section-number">5. </span>Release Notes</a></li>
+      <li class="breadcrumb-item active"><span class="section-number">5.1.2. </span>Version 3.3.0 (March 29, 2024)</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="version-3-3-0-march-29-2024">
+<span id="changes-v3-3-0"></span><h1><span class="section-number">5.1.2. </span>Version 3.3.0 (March 29, 2024)<a class="headerlink" href="#version-3-3-0-march-29-2024" title="Link to this heading"></a></h1>
+<section id="new-features">
+<h2><span class="section-number">5.1.2.1. </span>New features<a class="headerlink" href="#new-features" title="Link to this heading"></a></h2>
+<section id="location-specific-damage-processes">
+<span id="changes-v3-3-0-new-loc-dmg-prc"></span><h3>Location-specific damage processes<a class="headerlink" href="#location-specific-damage-processes" title="Link to this heading"></a></h3>
+<p>This new feature is useful when you want damage to a component type to induce damage in another component type at the same location only.
+For example, damaged water pipes on a specific story can trigger damage in floor covering only on that specific story.
+Location-matching is performed automatically without you having to define component pairs for every location using the following syntax: <code class="docutils literal notranslate"><span class="pre">'1_CMP.A-LOC',</span> <span class="pre">{'DS1':</span> <span class="pre">'CMP.B_DS1'}</span></code> , where <code class="docutils literal notranslate"><span class="pre">DS1</span></code> of <code class="docutils literal notranslate"><span class="pre">CMP.A</span></code> at each location triggers <code class="docutils literal notranslate"><span class="pre">DS1</span></code> of <code class="docutils literal notranslate"><span class="pre">CMP.B</span></code> at the same location.</p>
+</section>
+<section id="new-custom-model-dir-argument-for-dl-calculation-py">
+<span id="changes-v3-3-0-new-custom-model-dir"></span><h3>New <code class="docutils literal notranslate"><span class="pre">custom_model_dir</span></code> argument for <code class="docutils literal notranslate"><span class="pre">DL_calculation.py</span></code><a class="headerlink" href="#new-custom-model-dir-argument-for-dl-calculation-py" title="Link to this heading"></a></h3>
+<p>This argument allows users to prepare custom damage and loss model files in a folder and pass the path to that folder to an auto-population script through <code class="docutils literal notranslate"><span class="pre">DL_calculation.py</span></code>.
+Within the auto-population script, they can reference only the name of the files in that folder.
+This provides portability for simulations that use custom models and auto population, such as some of the advanced regional simulations in <a class="reference external" href="https://simcenter.designsafe-ci.org/research-tools/r2dtool/">SimCenter’s R2D Tool</a>.</p>
+</section>
+<section id="extend-hazus-eq-auto-population-scripts-to-include-water-networks">
+<span id="changes-v3-3-0-new-hazus-eq-auto-pop"></span><h3>Extend Hazus EQ auto population scripts to include water networks<a class="headerlink" href="#extend-hazus-eq-auto-population-scripts-to-include-water-networks" title="Link to this heading"></a></h3>
+<p>Automatically recognize water network assets and map them to archetypes from the Hazus Earthquake technical manual.</p>
+</section>
+<section id="introduce-convert-units-function">
+<span id="changes-v3-3-0-new-convert-units"></span><h3>Introduce <code class="docutils literal notranslate"><span class="pre">convert_units</span></code> function<a class="headerlink" href="#introduce-convert-units-function" title="Link to this heading"></a></h3>
+<p>Provide streamlined unit conversion using the pre-defined library of units in Pelicun.
+Allows you to convert a variable from one unit to another using a single line of simple code, such as:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">converted_height</span> <span class="o">=</span> <span class="n">pelicun</span><span class="o">.</span><span class="n">base</span><span class="o">.</span><span class="n">convert_units</span><span class="p">(</span><span class="n">raw_height</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s1">&#39;m&#39;</span><span class="p">,</span> <span class="n">to_unit</span><span class="o">=</span><span class="s1">&#39;ft&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>While not as powerful as some of the Python packages dedicated to unit conversion (e.g., <a class="reference external" href="https://pint.readthedocs.io/en/stable/">Pint</a>), we believe the convenience this function provides for commonly used units justifies its use in several cases.</p>
+</section>
+</section>
+<section id="backwards-incompatible-changes">
+<span id="changes-v3-3-0-breaking"></span><h2><span class="section-number">5.1.2.2. </span>Backwards incompatible changes<a class="headerlink" href="#backwards-incompatible-changes" title="Link to this heading"></a></h2>
+<section id="remove-bldg-from-repair-consequence-output-filenames">
+<span id="changes-v3-3-0-breaking-bldg"></span><h3>Remove <code class="docutils literal notranslate"><span class="pre">bldg</span></code> from repair consequence output filenames<a class="headerlink" href="#remove-bldg-from-repair-consequence-output-filenames" title="Link to this heading"></a></h3>
+<p>The increasing scope of Pelicun now covers simulations for transportation and water networks.
+Hence, labeling repair consequence outputs as if they were limited to buildings no longer seems appropriate.
+The bldg label was dropped from the following files: <code class="docutils literal notranslate"><span class="pre">DV_bldg_repair_sample</span></code>, <code class="docutils literal notranslate"><span class="pre">DV_bldg_repair_stats</span></code>, <code class="docutils literal notranslate"><span class="pre">DV_bldg_repair_grp</span></code>, <code class="docutils literal notranslate"><span class="pre">DV_bldg_repair_grp_stats</span></code>, <code class="docutils literal notranslate"><span class="pre">DV_bldg_repair_agg</span></code>, <code class="docutils literal notranslate"><span class="pre">DV_bldg_repair_agg_stats</span></code>.</p>
+</section>
+</section>
+<section id="other-changes">
+<span id="changes-v3-3-0-changes"></span><h2><span class="section-number">5.1.2.3. </span>Other changes<a class="headerlink" href="#other-changes" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>We split <code class="docutils literal notranslate"><span class="pre">model.py</span></code> into subcomponents.
+The <code class="docutils literal notranslate"><span class="pre">model.py</span></code> file was too large and its contents were easy to refactor into separate modules.
+Each model type has its own python file now and they are stored under the model folder.</p></li>
+<li><p>We split the <code class="docutils literal notranslate"><span class="pre">RandomVariable</span></code> class into specific classes.
+It seems more straightforward to grow the list of supported random variables by having a specific class for each kind of RV.
+We split the existing large RandomVariable class in uq.py leveraging inheritance to minimize redundant code.</p></li>
+<li><p>Automatic code formatting: Further improve consistency in coding style by using black to review and format the code when needed.</p></li>
+<li><p>Removed <code class="docutils literal notranslate"><span class="pre">bldg</span></code> from variable and class names: Following the changes mentioned earlier, we dropped bldg from labels where the functionality is no longer limited to buildings.</p></li>
+<li><p>Introduced <code class="docutils literal notranslate"><span class="pre">calibrated</span></code> attribute for demand model: This new attribute will allow users to check if a model has already been calibrated to the provided empirical data.</p></li>
+<li><p>Version ceiling was raised for pandas, supporting version 2.0 and above up until 3.0.</p></li>
+</ul>
+</section>
+<section id="soon-to-be-removed-features">
+<h2><span class="section-number">5.1.2.4. </span>Soon-to-be removed features<a class="headerlink" href="#soon-to-be-removed-features" title="Link to this heading"></a></h2>
+<section id="remove-bldg-from-repair-settings-label-in-dl-configuration-file">
+<span id="changes-v3-3-0-deprecated-bldg"></span><h3>Remove <code class="docutils literal notranslate"><span class="pre">Bldg</span></code> from repair settings label in DL configuration file<a class="headerlink" href="#remove-bldg-from-repair-settings-label-in-dl-configuration-file" title="Link to this heading"></a></h3>
+<p>Following the changes above, we dropped <code class="docutils literal notranslate"><span class="pre">Bldg</span></code> from <code class="docutils literal notranslate"><span class="pre">BldgRepair</span></code> when defining settings for repair consequence simulation in a configuration file.
+The previous version (i.e., <code class="docutils literal notranslate"><span class="pre">BldgRepair</span></code>) will keep working until the next major release, but we encourage everyone to adopt the new approach and simply use the <code class="docutils literal notranslate"><span class="pre">Repair</span></code> keyword there.</p>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Leland Stanford Junior University and The Regents of the University of California.</p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+    <!-- Theme Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-158130480-7"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'UA-158130480-7', {
+          'anonymize_ip': false,
+      });
+    </script> 
+
+</body>
+</html>

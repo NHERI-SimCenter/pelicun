@@ -1,0 +1,57 @@
+pelicun.tests.basic.test\_base
+==============================
+
+.. automodule:: pelicun.tests.basic.test_base
+   :members:
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      test_check_if_str_is_na
+      test_convert_dtypes
+      test_convert_to_MultiIndex
+      test_convert_to_SimpleIndex
+      test_dedupe_index
+      test_describe
+      test_dict_raise_on_duplicates
+      test_float_or_None
+      test_int_or_None
+      test_invert_mapping
+      test_logger_div
+      test_logger_exception
+      test_logger_init
+      test_logger_msg
+      test_merge_default_config
+      test_multiply_factor_multiple_levels
+      test_nondir_multi
+      test_options_init
+      test_parse_units
+      test_print_system_info
+      test_run_input_specs
+      test_show_matrix
+      test_split_file_name
+      test_str2bool
+      test_stringterpolation
+      test_unit_conversion
+      test_update_vals
+      test_with_parsed_str_na_values
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

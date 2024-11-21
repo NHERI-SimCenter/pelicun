@@ -1,0 +1,31 @@
+pelicun.model.asset\_model
+==========================
+
+.. automodule:: pelicun.model.asset_model
+   :members:
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+      :template: custom-class-template.rst
+   
+      AssetModel
+   
+   
+
+   
+   
+   
+
+
+

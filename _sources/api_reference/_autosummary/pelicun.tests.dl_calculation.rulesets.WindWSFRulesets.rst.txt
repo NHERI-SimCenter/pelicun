@@ -1,0 +1,30 @@
+pelicun.tests.dl\_calculation.rulesets.WindWSFRulesets
+======================================================
+
+.. automodule:: pelicun.tests.dl_calculation.rulesets.WindWSFRulesets
+   :members:
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      WSF_config
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

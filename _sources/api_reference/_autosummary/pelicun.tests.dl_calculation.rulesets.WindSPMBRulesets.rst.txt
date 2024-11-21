@@ -1,0 +1,30 @@
+pelicun.tests.dl\_calculation.rulesets.WindSPMBRulesets
+=======================================================
+
+.. automodule:: pelicun.tests.dl_calculation.rulesets.WindSPMBRulesets
+   :members:
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      SPMB_config
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

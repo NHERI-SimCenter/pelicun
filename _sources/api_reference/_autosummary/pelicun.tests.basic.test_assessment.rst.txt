@@ -1,0 +1,34 @@
+pelicun.tests.basic.test\_assessment
+====================================
+
+.. automodule:: pelicun.tests.basic.test_assessment
+   :members:
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      create_assessment_obj
+      test_Assessment_init
+      test_assessment_calc_unit_scale_factor
+      test_assessment_get_default_metadata
+      test_assessment_scale_factor
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

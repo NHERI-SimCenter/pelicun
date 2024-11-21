@@ -1,0 +1,33 @@
+pelicun.tests.dl\_calculation.rulesets.WindEFRulesets
+=====================================================
+
+.. automodule:: pelicun.tests.dl_calculation.rulesets.WindEFRulesets
+   :members:
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      HUEFFS_config
+      HUEFH_config
+      HUEFSS_config
+      HUEFS_config
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

@@ -1,0 +1,31 @@
+pelicun.tests.maintenance.search\_in\_functions
+===============================================
+
+.. automodule:: pelicun.tests.maintenance.search_in_functions
+   :members:
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      find_functions_with_string
+      visit_FunctionDef
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

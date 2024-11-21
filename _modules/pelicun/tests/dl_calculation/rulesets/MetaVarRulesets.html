@@ -1,0 +1,618 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pelicun.tests.dl_calculation.rulesets.MetaVarRulesets &mdash; pelicun  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/sphinx-design.min.css?v=95c83b7e" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/css/custom.css?v=f9bf6728" />
+
+  
+      <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../../../_static/design-tabs.js?v=f930bc37"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #F2F2F2" >
+
+          
+          
+          <a href="../../../../../index.html">
+            
+              <img src="../../../../../_static/pelicun-Logo-grey.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">About</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../about/license.html">1. Copyright and license</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../about/cite.html">2. Citing pelicun</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../about/cite.html#logo">3. Logo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../about/acknowledgments.html">4. Acknowledgments</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../about/acknowledgments.html#national-science-foundation">4.1. National Science Foundation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../about/acknowledgments.html#contributors">4.2. Contributors</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../release_notes/index.html">5. Release Notes</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../release_notes/index.html#version-3-0">5.1. Version 3.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../release_notes/index.html#version-2-0">5.2. Version 2.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../release_notes/index.html#version-1-0">5.3. Version 1.0</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../user_guide/install.html">1. Getting started</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../user_guide/install.html#staying-up-to-date">1.1. Staying up to date</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../user_guide/pelicun_framework.html">2. The Pelicun Framework</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../user_guide/pelicun_framework.html#abbreviations">2.1. Abbreviations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../user_guide/pelicun_framework.html#introduction-to-pelicun">2.2. Introduction to Pelicun</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../user_guide/pelicun_framework.html#overview">2.3. Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../user_guide/pelicun_framework.html#performance-assessment-workflow">2.4. Performance Assessment Workflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../user_guide/pelicun_framework.html#response-model">2.5. Response Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../user_guide/pelicun_framework.html#performance-model">2.6. Performance Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../user_guide/pelicun_framework.html#damage-model">2.7. Damage Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../user_guide/pelicun_framework.html#loss-model">2.8. Loss Model</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../user_guide/feature_overview.html">3. Overview of pelicun features</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../user_guide/feature_overview.html#saving-loading-samples">3.1. Saving/loading samples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../user_guide/feature_overview.html#logging-support">3.2. Logging support</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../user_guide/feature_overview.html#uncertainty-quantification">3.3. Uncertainty quantification</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../user_guide/feature_overview.html#assessment-types">3.4. Assessment types</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../user_guide/feature_overview.html#demand-simulation">3.5. Demand simulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../user_guide/feature_overview.html#damage-estimation">3.6. Damage estimation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../user_guide/feature_overview.html#loss-estimation">3.7. Loss estimation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../user_guide/feature_overview.html#command-line-support">3.8. Command-line support</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../user_guide/feature_overview.html#standalone-tools">3.9. Standalone tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../user_guide/feature_overview.html#feature-overview-and-examples">3.10. Feature overview and examples</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../user_guide/damage_and_loss_library.html">4. Damage and loss library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../user_guide/bug_reports_and_feature_requests.html">5. Bug reports and feature requests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../user_guide/resources_for_new_python_users.html">6. Resources for new python users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../examples/index.html">7. Examples</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../examples/index.html#complete-list">7.1. Complete list</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../examples/index.html#grouped-by-feature">7.2. Grouped by feature</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../api_reference/index.html">8. API Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../api_reference/_autosummary/pelicun.html">8.1. pelicun</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developer_guide/getting_started.html">1. Getting started</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../developer_guide/getting_started.html#code-of-conduct">1.1. Code of conduct</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../developer_guide/getting_started.html#how-to-contribute">1.2. How to contribute</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developer_guide/development_environment.html">2. Setting up a development environment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developer_guide/code_quality.html">3. Coding practice</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../developer_guide/code_quality.html#code-quality-assurance">3.1. Code quality assurance</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../developer_guide/code_quality.html#unit-tests">3.2. Unit tests</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../developer_guide/code_quality.html#documentation">3.3. Documentation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developer_guide/internals.html">4. Package architecture</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../developer_guide/internals.html#overview-of-files">4.1. Overview of files</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #F2F2F2" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../index.html">pelicun</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">pelicun.tests.dl_calculation.rulesets.MetaVarRulesets</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for pelicun.tests.dl_calculation.rulesets.MetaVarRulesets</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="c1">#</span>
+<span class="c1"># Copyright (c) 2018 Leland Stanford Junior University</span>
+<span class="c1"># Copyright (c) 2018 The Regents of the University of California</span>
+<span class="c1">#</span>
+<span class="c1"># This file is part of the SimCenter Backend Applications</span>
+<span class="c1">#</span>
+<span class="c1"># Redistribution and use in source and binary forms, with or without</span>
+<span class="c1"># modification, are permitted provided that the following conditions are met:</span>
+<span class="c1">#</span>
+<span class="c1"># 1. Redistributions of source code must retain the above copyright notice,</span>
+<span class="c1"># this list of conditions and the following disclaimer.</span>
+<span class="c1">#</span>
+<span class="c1"># 2. Redistributions in binary form must reproduce the above copyright notice,</span>
+<span class="c1"># this list of conditions and the following disclaimer in the documentation</span>
+<span class="c1"># and/or other materials provided with the distribution.</span>
+<span class="c1">#</span>
+<span class="c1"># 3. Neither the name of the copyright holder nor the names of its contributors</span>
+<span class="c1"># may be used to endorse or promote products derived from this software without</span>
+<span class="c1"># specific prior written permission.</span>
+<span class="c1">#</span>
+<span class="c1"># THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS &quot;AS IS&quot;</span>
+<span class="c1"># AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE</span>
+<span class="c1"># IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE</span>
+<span class="c1"># ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE</span>
+<span class="c1"># LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR</span>
+<span class="c1"># CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF</span>
+<span class="c1"># SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS</span>
+<span class="c1"># INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN</span>
+<span class="c1"># CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)</span>
+<span class="c1"># ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE</span>
+<span class="c1"># POSSIBILITY OF SUCH DAMAGE.</span>
+<span class="c1">#</span>
+<span class="c1"># You should have received a copy of the BSD 3-Clause License along with</span>
+<span class="c1"># this file. If not, see &lt;http://www.opensource.org/licenses/&gt;.</span>
+<span class="c1">#</span>
+<span class="c1"># Contributors:</span>
+<span class="c1"># Adam Zsarnóczay</span>
+<span class="c1"># Kuanshi Zhong</span>
+<span class="c1">#</span>
+<span class="c1"># Based on rulesets developed by:</span>
+<span class="c1"># Karen Angeles</span>
+<span class="c1"># Meredith Lockhead</span>
+<span class="c1"># Tracy Kijewski-Correa</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<div class="viewcode-block" id="parse_BIM">
+<a class="viewcode-back" href="../../../../../api_reference/_autosummary/pelicun.tests.dl_calculation.rulesets.MetaVarRulesets.html#pelicun.tests.dl_calculation.rulesets.MetaVarRulesets.parse_BIM">[docs]</a>
+<span class="k">def</span> <span class="nf">parse_BIM</span><span class="p">(</span><span class="n">BIM_in</span><span class="p">,</span> <span class="n">location</span><span class="p">,</span> <span class="n">hazards</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Parses the information provided in the BIM model.</span>
+
+<span class="sd">    The atrributes below list the expected metadata in the BIM file</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    location: str</span>
+<span class="sd">        Supported locations:</span>
+<span class="sd">        NJ - New Jersey</span>
+<span class="sd">        LA - Louisiana</span>
+<span class="sd">    hazard: list of str</span>
+<span class="sd">        Supported hazard types: &quot;wind&quot;, &quot;inundation&quot;</span>
+
+<span class="sd">    BIM attributes</span>
+<span class="sd">    --------------</span>
+<span class="sd">    NumberOfStories: str</span>
+<span class="sd">        Number of stories</span>
+<span class="sd">    YearBuilt: str</span>
+<span class="sd">        Year of construction.</span>
+<span class="sd">    RoofShape: {&#39;hip&#39;, &#39;hipped&#39;, &#39;gabled&#39;, &#39;gable&#39;, &#39;flat&#39;}</span>
+<span class="sd">        One of the listed roof shapes that best describes the building.</span>
+<span class="sd">    OccupancyType: str</span>
+<span class="sd">        Occupancy type.</span>
+<span class="sd">    BuildingType: str</span>
+<span class="sd">        Core construction material type</span>
+<span class="sd">    DWSII: float</span>
+<span class="sd">        Design wind speed II as per ASCE 7 in mph</span>
+<span class="sd">    Area: float</span>
+<span class="sd">        Plan area in ft2.</span>
+<span class="sd">    LULC: integer</span>
+<span class="sd">        Land Use/Land Cover category (typically location-specific)</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    BIM: dictionary</span>
+<span class="sd">        Parsed building characteristics.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># check location</span>
+    <span class="k">if</span> <span class="n">location</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;LA&#39;</span><span class="p">,</span> <span class="s1">&#39;NJ&#39;</span><span class="p">]:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;WARNING: The provided location is not recognized: </span><span class="si">{</span><span class="n">location</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+    <span class="c1"># check hazard</span>
+    <span class="k">for</span> <span class="n">hazard</span> <span class="ow">in</span> <span class="n">hazards</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">hazard</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;wind&#39;</span><span class="p">,</span> <span class="s1">&#39;inundation&#39;</span><span class="p">]:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;WARNING: The provided hazard is not recognized: </span><span class="si">{</span><span class="n">hazard</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+    <span class="c1"># initialize the BIM dict</span>
+    <span class="n">BIM</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">if</span> <span class="s1">&#39;wind&#39;</span> <span class="ow">in</span> <span class="n">hazards</span><span class="p">:</span>
+        <span class="c1"># maps roof type to the internal representation</span>
+        <span class="n">ap_RoofType</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;hip&#39;</span>   <span class="p">:</span> <span class="s1">&#39;hip&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;hipped&#39;</span><span class="p">:</span> <span class="s1">&#39;hip&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;Hip&#39;</span>   <span class="p">:</span> <span class="s1">&#39;hip&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;gabled&#39;</span><span class="p">:</span> <span class="s1">&#39;gab&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;gable&#39;</span> <span class="p">:</span> <span class="s1">&#39;gab&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;Gable&#39;</span> <span class="p">:</span> <span class="s1">&#39;gab&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;flat&#39;</span>  <span class="p">:</span> <span class="s1">&#39;flt&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;Flat&#39;</span>  <span class="p">:</span> <span class="s1">&#39;flt&#39;</span>
+        <span class="p">}</span>
+
+        <span class="c1"># maps roof system to the internal representation</span>
+        <span class="n">ap_RoofSystem</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;Wood&#39;</span><span class="p">:</span> <span class="s1">&#39;trs&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;OWSJ&#39;</span><span class="p">:</span> <span class="s1">&#39;ows&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;N/A&#39;</span><span class="p">:</span> <span class="s1">&#39;trs&#39;</span>
+        <span class="p">}</span>
+        <span class="n">roof_system</span> <span class="o">=</span> <span class="n">BIM_in</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;RoofSystem&#39;</span><span class="p">,</span> <span class="s1">&#39;Wood&#39;</span><span class="p">)</span>
+
+        <span class="c1"># maps number of units to the internal representation</span>
+        <span class="n">ap_NoUnits</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;Single&#39;</span><span class="p">:</span> <span class="s1">&#39;sgl&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;Multiple&#39;</span><span class="p">:</span> <span class="s1">&#39;mlt&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;Multi&#39;</span><span class="p">:</span> <span class="s1">&#39;mlt&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;nav&#39;</span><span class="p">:</span> <span class="s1">&#39;nav&#39;</span>
+        <span class="p">}</span>
+
+        <span class="c1"># Average January Temp.</span>
+        <span class="n">ap_ajt</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;Above&#39;</span><span class="p">:</span> <span class="s1">&#39;above&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;Below&#39;</span><span class="p">:</span> <span class="s1">&#39;below&#39;</span>
+        <span class="p">}</span>
+
+        <span class="c1"># Year built</span>
+        <span class="n">alname_yearbuilt</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;yearBuilt&#39;</span><span class="p">,</span> <span class="s1">&#39;YearBuiltMODIV&#39;</span><span class="p">,</span> <span class="s1">&#39;YearBuiltNJDEP&#39;</span><span class="p">]</span>
+
+        <span class="n">yearbuilt</span> <span class="o">=</span> <span class="n">BIM_in</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;YearBuilt&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+        <span class="c1"># if none of the above works, set a default</span>
+        <span class="k">if</span> <span class="n">yearbuilt</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">alname</span> <span class="ow">in</span> <span class="n">alname_yearbuilt</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">alname</span> <span class="ow">in</span> <span class="n">BIM_in</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                    <span class="n">yearbuilt</span> <span class="o">=</span> <span class="n">BIM_in</span><span class="p">[</span><span class="n">alname</span><span class="p">]</span>
+                    <span class="k">break</span>
+
+        <span class="k">if</span> <span class="n">yearbuilt</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">yearbuilt</span> <span class="o">=</span> <span class="mi">1985</span>
+
+        <span class="c1"># Number of Stories</span>
+        <span class="n">alname_nstories</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;stories&#39;</span><span class="p">,</span> <span class="s1">&#39;NumberofStories0&#39;</span><span class="p">,</span> <span class="s1">&#39;NumberofStories&#39;</span><span class="p">,</span> <span class="s1">&#39;NumberofStories1&#39;</span><span class="p">]</span>
+
+        <span class="n">nstories</span> <span class="o">=</span> <span class="n">BIM_in</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;NumberOfStories&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">nstories</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">alname</span> <span class="ow">in</span> <span class="n">alname_nstories</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">alname</span> <span class="ow">in</span> <span class="n">BIM_in</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                    <span class="n">nstories</span> <span class="o">=</span> <span class="n">BIM_in</span><span class="p">[</span><span class="n">alname</span><span class="p">]</span>
+                    <span class="k">break</span>
+
+        <span class="k">if</span> <span class="n">nstories</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s2">&quot;NumberOfStories attribute missing, cannot autopopulate&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Plan Area</span>
+        <span class="n">alname_area</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;area&#39;</span><span class="p">,</span> <span class="s1">&#39;PlanArea1&#39;</span><span class="p">,</span> <span class="s1">&#39;Area&#39;</span><span class="p">,</span> <span class="s1">&#39;PlanArea0&#39;</span><span class="p">]</span>
+
+        <span class="n">area</span> <span class="o">=</span> <span class="n">BIM_in</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;PlanArea&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">area</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">alname</span> <span class="ow">in</span> <span class="n">alname_area</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">alname</span> <span class="ow">in</span> <span class="n">BIM_in</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                    <span class="n">area</span> <span class="o">=</span> <span class="n">BIM_in</span><span class="p">[</span><span class="n">alname</span><span class="p">]</span>
+                    <span class="k">break</span>
+
+        <span class="k">if</span> <span class="n">area</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s2">&quot;PlanArea attribute missing, cannot autopopulate&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Design Wind Speed</span>
+        <span class="n">alname_dws</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;DWSII&#39;</span><span class="p">,</span> <span class="s1">&#39;DesignWindSpeed&#39;</span><span class="p">]</span>
+
+        <span class="n">dws</span> <span class="o">=</span> <span class="n">BIM_in</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;DesignWindSpeed&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">dws</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">alname</span> <span class="ow">in</span> <span class="n">alname_dws</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">alname</span> <span class="ow">in</span> <span class="n">BIM_in</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                    <span class="n">dws</span> <span class="o">=</span> <span class="n">BIM_in</span><span class="p">[</span><span class="n">alname</span><span class="p">]</span>
+                    <span class="k">break</span>
+
+        <span class="k">if</span> <span class="n">dws</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s2">&quot;DesignWindSpeed attribute missing, cannot autopopulate&quot;</span><span class="p">)</span>
+
+        <span class="c1"># occupancy type</span>
+        <span class="n">alname_occupancy</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;occupancy&#39;</span><span class="p">,</span> <span class="s1">&#39;OccupancyClass&#39;</span><span class="p">]</span>
+
+        <span class="n">oc</span> <span class="o">=</span> <span class="n">BIM_in</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;OccupancyClass&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">oc</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">alname</span> <span class="ow">in</span> <span class="n">alname_occupancy</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">alname</span> <span class="ow">in</span> <span class="n">BIM_in</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                    <span class="n">oc</span> <span class="o">=</span> <span class="n">BIM_in</span><span class="p">[</span><span class="n">alname</span><span class="p">]</span>
+                    <span class="k">break</span>
+
+        <span class="k">if</span> <span class="n">oc</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s2">&quot;OccupancyClass attribute missing, cannot autopopulate&quot;</span><span class="p">)</span>
+
+        <span class="c1"># if getting RES3 then converting it to default RES3A</span>
+        <span class="k">if</span> <span class="n">oc</span> <span class="o">==</span> <span class="s1">&#39;RES3&#39;</span><span class="p">:</span>
+            <span class="n">oc</span> <span class="o">=</span> <span class="s1">&#39;RES3A&#39;</span>
+
+        <span class="c1"># maps for BuildingType</span>
+        <span class="n">ap_BuildingType_NJ</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="c1"># Coastal areas with a 1% or greater chance of flooding and an</span>
+            <span class="c1"># additional hazard associated with storm waves.</span>
+            <span class="mi">3001</span><span class="p">:</span> <span class="s1">&#39;Wood&#39;</span><span class="p">,</span>
+            <span class="mi">3002</span><span class="p">:</span> <span class="s1">&#39;Steel&#39;</span><span class="p">,</span>
+            <span class="mi">3003</span><span class="p">:</span> <span class="s1">&#39;Concrete&#39;</span><span class="p">,</span>
+            <span class="mi">3004</span><span class="p">:</span> <span class="s1">&#39;Masonry&#39;</span><span class="p">,</span>
+            <span class="mi">3005</span><span class="p">:</span> <span class="s1">&#39;Manufactured&#39;</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="k">if</span> <span class="n">location</span> <span class="o">==</span> <span class="s1">&#39;NJ&#39;</span><span class="p">:</span>
+            <span class="c1"># NJDEP code for flood zone needs to be converted</span>
+            <span class="n">buildingtype</span> <span class="o">=</span> <span class="n">ap_BuildingType_NJ</span><span class="p">[</span><span class="n">BIM_in</span><span class="p">[</span><span class="s1">&#39;BuildingType&#39;</span><span class="p">]]</span>
+            
+        <span class="k">elif</span> <span class="n">location</span> <span class="o">==</span> <span class="s1">&#39;LA&#39;</span><span class="p">:</span>
+            <span class="c1"># standard input should provide the building type as a string</span>
+            <span class="n">buildingtype</span> <span class="o">=</span> <span class="n">BIM_in</span><span class="p">[</span><span class="s1">&#39;BuildingType&#39;</span><span class="p">]</span>
+
+        <span class="c1"># maps for design level (Marginal Engineered is mapped to Engineered as default)</span>
+        <span class="n">ap_DesignLevel</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;E&#39;</span><span class="p">:</span> <span class="s1">&#39;E&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;NE&#39;</span><span class="p">:</span> <span class="s1">&#39;NE&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;PE&#39;</span><span class="p">:</span> <span class="s1">&#39;PE&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;ME&#39;</span><span class="p">:</span> <span class="s1">&#39;E&#39;</span>
+        <span class="p">}</span>
+        <span class="n">design_level</span> <span class="o">=</span> <span class="n">BIM_in</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;DesignLevel&#39;</span><span class="p">,</span><span class="s1">&#39;E&#39;</span><span class="p">)</span>
+
+        <span class="c1"># flood zone</span>
+        <span class="n">flood_zone</span> <span class="o">=</span> <span class="n">BIM_in</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;FloodZone&#39;</span><span class="p">,</span> <span class="s1">&#39;X&#39;</span><span class="p">)</span>
+
+        <span class="c1"># add the parsed data to the BIM dict</span>
+        <span class="n">BIM</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span>
+            <span class="n">OccupancyClass</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">oc</span><span class="p">),</span>
+            <span class="n">BuildingType</span><span class="o">=</span><span class="n">buildingtype</span><span class="p">,</span>
+            <span class="n">YearBuilt</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">yearbuilt</span><span class="p">),</span>
+            <span class="n">NumberOfStories</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">nstories</span><span class="p">),</span>
+            <span class="n">PlanArea</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">area</span><span class="p">),</span>
+            <span class="n">V_ult</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">dws</span><span class="p">),</span>
+            <span class="n">AvgJanTemp</span><span class="o">=</span><span class="n">ap_ajt</span><span class="p">[</span><span class="n">BIM_in</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;AvgJanTemp&#39;</span><span class="p">,</span><span class="s1">&#39;Below&#39;</span><span class="p">)],</span>
+            <span class="n">RoofShape</span><span class="o">=</span><span class="n">ap_RoofType</span><span class="p">[</span><span class="n">BIM_in</span><span class="p">[</span><span class="s1">&#39;RoofShape&#39;</span><span class="p">]],</span>
+            <span class="n">RoofSlope</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">BIM_in</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;RoofSlope&#39;</span><span class="p">,</span><span class="mf">0.25</span><span class="p">)),</span> <span class="c1"># default 0.25</span>
+            <span class="n">SheathingThickness</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">BIM_in</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;SheathingThick&#39;</span><span class="p">,</span><span class="mf">1.0</span><span class="p">)),</span> <span class="c1"># default 1.0</span>
+            <span class="n">RoofSystem</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">ap_RoofSystem</span><span class="p">[</span><span class="n">roof_system</span><span class="p">]),</span> <span class="c1"># only valid for masonry structures</span>
+            <span class="n">Garage</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">BIM_in</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;Garage&#39;</span><span class="p">,</span><span class="o">-</span><span class="mf">1.0</span><span class="p">)),</span>
+            <span class="n">LULC</span><span class="o">=</span><span class="n">BIM_in</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;LULC&#39;</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">),</span>
+            <span class="n">MeanRoofHt</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">BIM_in</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;MeanRoofHt&#39;</span><span class="p">,</span><span class="mf">15.0</span><span class="p">)),</span> <span class="c1"># default 15</span>
+            <span class="n">WindowArea</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">BIM_in</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;WindowArea&#39;</span><span class="p">,</span><span class="mf">0.20</span><span class="p">)),</span>
+            <span class="n">WindZone</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">BIM_in</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;WindZone&#39;</span><span class="p">,</span> <span class="s1">&#39;I&#39;</span><span class="p">)),</span>
+            <span class="n">FloodZone</span> <span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">flood_zone</span><span class="p">)</span>
+        <span class="p">))</span>
+
+    <span class="k">if</span> <span class="s1">&#39;inundation&#39;</span> <span class="ow">in</span> <span class="n">hazards</span><span class="p">:</span>
+
+        <span class="c1"># maps for split level</span>
+        <span class="n">ap_SplitLevel</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;NO&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s1">&#39;YES&#39;</span><span class="p">:</span> <span class="mi">1</span>
+        <span class="p">}</span>
+
+        <span class="c1"># foundation type</span>
+        <span class="n">foundation</span> <span class="o">=</span> <span class="n">BIM_in</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;FoundationType&#39;</span><span class="p">,</span><span class="mi">3501</span><span class="p">)</span>
+
+        <span class="c1"># number of units</span>
+        <span class="n">nunits</span> <span class="o">=</span> <span class="n">BIM_in</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;NoUnits&#39;</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="c1"># maps for flood zone</span>
+        <span class="n">ap_FloodZone</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="c1"># Coastal areas with a 1% or greater chance of flooding and an</span>
+            <span class="c1"># additional hazard associated with storm waves.</span>
+            <span class="mi">6101</span><span class="p">:</span> <span class="s1">&#39;VE&#39;</span><span class="p">,</span>
+            <span class="mi">6102</span><span class="p">:</span> <span class="s1">&#39;VE&#39;</span><span class="p">,</span>
+            <span class="mi">6103</span><span class="p">:</span> <span class="s1">&#39;AE&#39;</span><span class="p">,</span>
+            <span class="mi">6104</span><span class="p">:</span> <span class="s1">&#39;AE&#39;</span><span class="p">,</span>
+            <span class="mi">6105</span><span class="p">:</span> <span class="s1">&#39;AO&#39;</span><span class="p">,</span>
+            <span class="mi">6106</span><span class="p">:</span> <span class="s1">&#39;AE&#39;</span><span class="p">,</span>
+            <span class="mi">6107</span><span class="p">:</span> <span class="s1">&#39;AH&#39;</span><span class="p">,</span>
+            <span class="mi">6108</span><span class="p">:</span> <span class="s1">&#39;AO&#39;</span><span class="p">,</span>
+            <span class="mi">6109</span><span class="p">:</span> <span class="s1">&#39;A&#39;</span><span class="p">,</span>
+            <span class="mi">6110</span><span class="p">:</span> <span class="s1">&#39;X&#39;</span><span class="p">,</span>
+            <span class="mi">6111</span><span class="p">:</span> <span class="s1">&#39;X&#39;</span><span class="p">,</span>
+            <span class="mi">6112</span><span class="p">:</span> <span class="s1">&#39;X&#39;</span><span class="p">,</span>
+            <span class="mi">6113</span><span class="p">:</span> <span class="s1">&#39;OW&#39;</span><span class="p">,</span>
+            <span class="mi">6114</span><span class="p">:</span> <span class="s1">&#39;D&#39;</span><span class="p">,</span>
+            <span class="mi">6115</span><span class="p">:</span> <span class="s1">&#39;NA&#39;</span><span class="p">,</span>
+            <span class="mi">6119</span><span class="p">:</span> <span class="s1">&#39;NA&#39;</span>
+        <span class="p">}</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">BIM_in</span><span class="p">[</span><span class="s1">&#39;FloodZone&#39;</span><span class="p">])</span> <span class="o">==</span> <span class="nb">int</span><span class="p">:</span>
+            <span class="c1"># NJDEP code for flood zone (conversion to the FEMA designations)</span>
+            <span class="n">floodzone_fema</span> <span class="o">=</span> <span class="n">ap_FloodZone</span><span class="p">[</span><span class="n">BIM_in</span><span class="p">[</span><span class="s1">&#39;FloodZone&#39;</span><span class="p">]]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># standard input should follow the FEMA flood zone designations</span>
+            <span class="n">floodzone_fema</span> <span class="o">=</span> <span class="n">BIM_in</span><span class="p">[</span><span class="s1">&#39;FloodZone&#39;</span><span class="p">]</span>
+
+        <span class="c1"># add the parsed data to the BIM dict</span>
+        <span class="n">BIM</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span>
+            <span class="n">DesignLevel</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">ap_DesignLevel</span><span class="p">[</span><span class="n">design_level</span><span class="p">]),</span> <span class="c1"># default engineered</span>
+            <span class="n">NumberOfUnits</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">nunits</span><span class="p">),</span>
+            <span class="n">FirstFloorElevation</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">BIM_in</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;FirstFloorHt1&#39;</span><span class="p">,</span><span class="mf">10.0</span><span class="p">)),</span>
+            <span class="n">SplitLevel</span><span class="o">=</span><span class="nb">bool</span><span class="p">(</span><span class="n">ap_SplitLevel</span><span class="p">[</span><span class="n">BIM_in</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;SplitLevel&#39;</span><span class="p">,</span><span class="s1">&#39;NO&#39;</span><span class="p">)]),</span> <span class="c1"># dfault: no</span>
+            <span class="n">FoundationType</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">foundation</span><span class="p">),</span> <span class="c1"># default: pile</span>
+            <span class="n">City</span><span class="o">=</span><span class="n">BIM_in</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;City&#39;</span><span class="p">,</span><span class="s1">&#39;NA&#39;</span><span class="p">)</span>
+        <span class="p">))</span>
+
+    <span class="c1"># add inferred, generic meta-variables</span>
+
+    <span class="k">if</span> <span class="s1">&#39;wind&#39;</span> <span class="ow">in</span> <span class="n">hazards</span><span class="p">:</span>
+
+        <span class="c1"># Hurricane-Prone Region (HRP)</span>
+        <span class="c1"># Areas vulnerable to hurricane, defined as the U.S. Atlantic Ocean and</span>
+        <span class="c1"># Gulf of Mexico coasts where the ultimate design wind speed, V_ult is</span>
+        <span class="c1"># greater than a pre-defined limit.</span>
+        <span class="k">if</span> <span class="n">BIM</span><span class="p">[</span><span class="s1">&#39;YearBuilt&#39;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">2016</span><span class="p">:</span>
+            <span class="c1"># The limit is 115 mph in IRC 2015</span>
+            <span class="n">HPR</span> <span class="o">=</span> <span class="n">BIM</span><span class="p">[</span><span class="s1">&#39;V_ult&#39;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mf">115.0</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># The limit is 90 mph in IRC 2009 and earlier versions</span>
+            <span class="n">HPR</span> <span class="o">=</span> <span class="n">BIM</span><span class="p">[</span><span class="s1">&#39;V_ult&#39;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mf">90.0</span>
+
+        <span class="c1"># Wind Borne Debris</span>
+        <span class="c1"># Areas within hurricane-prone regions are affected by debris if one of</span>
+        <span class="c1"># the following two conditions holds:</span>
+        <span class="c1"># (1) Within 1 mile (1.61 km) of the coastal mean high water line where</span>
+        <span class="c1"># the ultimate design wind speed is greater than flood_lim.</span>
+        <span class="c1"># (2) In areas where the ultimate design wind speed is greater than</span>
+        <span class="c1"># general_lim</span>
+        <span class="c1"># The flood_lim and general_lim limits depend on the year of construction</span>
+        <span class="k">if</span> <span class="n">BIM</span><span class="p">[</span><span class="s1">&#39;YearBuilt&#39;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">2016</span><span class="p">:</span>
+            <span class="c1"># In IRC 2015:</span>
+            <span class="n">flood_lim</span> <span class="o">=</span> <span class="mf">130.0</span> <span class="c1"># mph</span>
+            <span class="n">general_lim</span> <span class="o">=</span> <span class="mf">140.0</span> <span class="c1"># mph</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># In IRC 2009 and earlier versions</span>
+            <span class="n">flood_lim</span> <span class="o">=</span> <span class="mf">110.0</span> <span class="c1"># mph</span>
+            <span class="n">general_lim</span> <span class="o">=</span> <span class="mf">120.0</span> <span class="c1"># mph</span>
+        <span class="c1"># Areas within hurricane-prone regions located in accordance with</span>
+        <span class="c1"># one of the following:</span>
+        <span class="c1"># (1) Within 1 mile (1.61 km) of the coastal mean high water line</span>
+        <span class="c1"># where the ultimate design wind speed is 130 mph (58m/s) or greater.</span>
+        <span class="c1"># (2) In areas where the ultimate design wind speed is 140 mph (63.5m/s)</span>
+        <span class="c1"># or greater. (Definitions: Chapter 2, 2015 NJ Residential Code)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">HPR</span><span class="p">:</span>
+            <span class="n">WBD</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">WBD</span> <span class="o">=</span> <span class="p">(((</span><span class="n">BIM</span><span class="p">[</span><span class="s1">&#39;FloodZone&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;A&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">BIM</span><span class="p">[</span><span class="s1">&#39;FloodZone&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;V&#39;</span><span class="p">))</span> <span class="ow">and</span>
+                    <span class="n">BIM</span><span class="p">[</span><span class="s1">&#39;V_ult&#39;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">flood_lim</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">BIM</span><span class="p">[</span><span class="s1">&#39;V_ult&#39;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">general_lim</span><span class="p">))</span>
+
+        <span class="c1"># Terrain</span>
+        <span class="c1"># open (0.03) = 3</span>
+        <span class="c1"># light suburban (0.15) = 15</span>
+        <span class="c1"># suburban (0.35) = 35</span>
+        <span class="c1"># light trees (0.70) = 70</span>
+        <span class="c1"># trees (1.00) = 100</span>
+        <span class="c1"># Mapped to Land Use Categories in NJ (see https://www.state.nj.us/dep/gis/</span>
+        <span class="c1"># digidownload/metadata/lulc02/anderson2002.html) by T. Wu group</span>
+        <span class="c1"># (see internal report on roughness calculations, Table 4).</span>
+        <span class="c1"># These are mapped to Hazus defintions as follows:</span>
+        <span class="c1"># Open Water (5400s) with zo=0.01 and barren land (7600) with zo=0.04 assume Open</span>
+        <span class="c1"># Open Space Developed, Low Intensity Developed, Medium Intensity Developed</span>
+        <span class="c1"># (1110-1140) assumed zo=0.35-0.4 assume Suburban</span>
+        <span class="c1"># High Intensity Developed (1600) with zo=0.6 assume Lt. Tree</span>
+        <span class="c1"># Forests of all classes (4100-4300) assumed zo=0.6 assume Lt. Tree</span>
+        <span class="c1"># Shrub (4400) with zo=0.06 assume Open</span>
+        <span class="c1"># Grasslands, pastures and agricultural areas (2000 series) with</span>
+        <span class="c1"># zo=0.1-0.15 assume Lt. Suburban</span>
+        <span class="c1"># Woody Wetlands (6250) with zo=0.3 assume suburban</span>
+        <span class="c1"># Emergent Herbaceous Wetlands (6240) with zo=0.03 assume Open</span>
+        <span class="c1"># Note: HAZUS category of trees (1.00) does not apply to any LU/LC in NJ</span>
+        <span class="n">terrain</span> <span class="o">=</span> <span class="mi">15</span> <span class="c1"># Default in Reorganized Rulesets - WIND</span>
+        <span class="k">if</span> <span class="n">location</span> <span class="o">==</span> <span class="s2">&quot;NJ&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">BIM</span><span class="p">[</span><span class="s1">&#39;FloodZone&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;V&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">BIM</span><span class="p">[</span><span class="s1">&#39;FloodZone&#39;</span><span class="p">]</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;A&#39;</span><span class="p">,</span> <span class="s1">&#39;AE&#39;</span><span class="p">,</span> <span class="s1">&#39;A1-30&#39;</span><span class="p">,</span> <span class="s1">&#39;AR&#39;</span><span class="p">,</span> <span class="s1">&#39;A99&#39;</span><span class="p">]):</span>
+                <span class="n">terrain</span> <span class="o">=</span> <span class="mi">3</span>
+            <span class="k">elif</span> <span class="p">((</span><span class="n">BIM</span><span class="p">[</span><span class="s1">&#39;LULC&#39;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">5000</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">BIM</span><span class="p">[</span><span class="s1">&#39;LULC&#39;</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">5999</span><span class="p">)):</span>
+                <span class="n">terrain</span> <span class="o">=</span> <span class="mi">3</span> <span class="c1"># Open</span>
+            <span class="k">elif</span> <span class="p">((</span><span class="n">BIM</span><span class="p">[</span><span class="s1">&#39;LULC&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">4400</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">BIM</span><span class="p">[</span><span class="s1">&#39;LULC&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">6240</span><span class="p">))</span> <span class="ow">or</span> <span class="p">(</span><span class="n">BIM</span><span class="p">[</span><span class="s1">&#39;LULC&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">7600</span><span class="p">):</span>
+                <span class="n">terrain</span> <span class="o">=</span> <span class="mi">3</span> <span class="c1"># Open</span>
+            <span class="k">elif</span> <span class="p">((</span><span class="n">BIM</span><span class="p">[</span><span class="s1">&#39;LULC&#39;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">2000</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">BIM</span><span class="p">[</span><span class="s1">&#39;LULC&#39;</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">2999</span><span class="p">)):</span>
+                <span class="n">terrain</span> <span class="o">=</span> <span class="mi">15</span> <span class="c1"># Light suburban</span>
+            <span class="k">elif</span> <span class="p">((</span><span class="n">BIM</span><span class="p">[</span><span class="s1">&#39;LULC&#39;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">1110</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">BIM</span><span class="p">[</span><span class="s1">&#39;LULC&#39;</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">1140</span><span class="p">))</span> <span class="ow">or</span> <span class="p">((</span><span class="n">BIM</span><span class="p">[</span><span class="s1">&#39;LULC&#39;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">6250</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">BIM</span><span class="p">[</span><span class="s1">&#39;LULC&#39;</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">6252</span><span class="p">)):</span>
+                <span class="n">terrain</span> <span class="o">=</span> <span class="mi">35</span> <span class="c1"># Suburban</span>
+            <span class="k">elif</span> <span class="p">((</span><span class="n">BIM</span><span class="p">[</span><span class="s1">&#39;LULC&#39;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">4100</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">BIM</span><span class="p">[</span><span class="s1">&#39;LULC&#39;</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">4300</span><span class="p">))</span> <span class="ow">or</span> <span class="p">(</span><span class="n">BIM</span><span class="p">[</span><span class="s1">&#39;LULC&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1600</span><span class="p">):</span>
+                <span class="n">terrain</span> <span class="o">=</span> <span class="mi">70</span> <span class="c1"># light trees</span>
+        <span class="k">elif</span> <span class="n">location</span> <span class="o">==</span> <span class="s2">&quot;LA&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">BIM</span><span class="p">[</span><span class="s1">&#39;FloodZone&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;V&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">BIM</span><span class="p">[</span><span class="s1">&#39;FloodZone&#39;</span><span class="p">]</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;A&#39;</span><span class="p">,</span> <span class="s1">&#39;AE&#39;</span><span class="p">,</span> <span class="s1">&#39;A1-30&#39;</span><span class="p">,</span> <span class="s1">&#39;AR&#39;</span><span class="p">,</span> <span class="s1">&#39;A99&#39;</span><span class="p">]):</span>
+                <span class="n">terrain</span> <span class="o">=</span> <span class="mi">3</span>
+            <span class="k">elif</span> <span class="p">((</span><span class="n">BIM</span><span class="p">[</span><span class="s1">&#39;LULC&#39;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">50</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">BIM</span><span class="p">[</span><span class="s1">&#39;LULC&#39;</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">59</span><span class="p">)):</span>
+                <span class="n">terrain</span> <span class="o">=</span> <span class="mi">3</span> <span class="c1"># Open</span>
+            <span class="k">elif</span> <span class="p">((</span><span class="n">BIM</span><span class="p">[</span><span class="s1">&#39;LULC&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">44</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">BIM</span><span class="p">[</span><span class="s1">&#39;LULC&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">62</span><span class="p">))</span> <span class="ow">or</span> <span class="p">(</span><span class="n">BIM</span><span class="p">[</span><span class="s1">&#39;LULC&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">76</span><span class="p">):</span>
+                <span class="n">terrain</span> <span class="o">=</span> <span class="mi">3</span> <span class="c1"># Open</span>
+            <span class="k">elif</span> <span class="p">((</span><span class="n">BIM</span><span class="p">[</span><span class="s1">&#39;LULC&#39;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">20</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">BIM</span><span class="p">[</span><span class="s1">&#39;LULC&#39;</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">29</span><span class="p">)):</span>
+                <span class="n">terrain</span> <span class="o">=</span> <span class="mi">15</span> <span class="c1"># Light suburban</span>
+            <span class="k">elif</span> <span class="p">(</span><span class="n">BIM</span><span class="p">[</span><span class="s1">&#39;LULC&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">11</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">BIM</span><span class="p">[</span><span class="s1">&#39;LULC&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">61</span><span class="p">):</span>
+                <span class="n">terrain</span> <span class="o">=</span> <span class="mi">35</span> <span class="c1"># Suburban</span>
+            <span class="k">elif</span> <span class="p">((</span><span class="n">BIM</span><span class="p">[</span><span class="s1">&#39;LULC&#39;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">41</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">BIM</span><span class="p">[</span><span class="s1">&#39;LULC&#39;</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">43</span><span class="p">))</span> <span class="ow">or</span> <span class="p">(</span><span class="n">BIM</span><span class="p">[</span><span class="s1">&#39;LULC&#39;</span><span class="p">]</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">16</span><span class="p">,</span> <span class="mi">17</span><span class="p">]):</span>
+                <span class="n">terrain</span> <span class="o">=</span> <span class="mi">70</span> <span class="c1"># light trees</span>
+
+        <span class="n">BIM</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span>
+            <span class="c1"># Nominal Design Wind Speed</span>
+            <span class="c1"># Former term was “Basic Wind Speed”; it is now the “Nominal Design</span>
+            <span class="c1"># Wind Speed (V_asd). Unit: mph.&quot;</span>
+            <span class="n">V_asd</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">0.6</span> <span class="o">*</span> <span class="n">BIM</span><span class="p">[</span><span class="s1">&#39;V_ult&#39;</span><span class="p">]),</span>
+
+            <span class="n">HazardProneRegion</span><span class="o">=</span><span class="n">HPR</span><span class="p">,</span>
+            <span class="n">WindBorneDebris</span><span class="o">=</span><span class="n">WBD</span><span class="p">,</span>
+            <span class="n">TerrainRoughness</span><span class="o">=</span><span class="n">terrain</span><span class="p">,</span>
+        <span class="p">))</span>
+
+    <span class="k">if</span> <span class="s1">&#39;inundation&#39;</span> <span class="ow">in</span> <span class="n">hazards</span><span class="p">:</span>
+
+        <span class="n">BIM</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span>
+            <span class="c1"># Flood Risk</span>
+            <span class="c1"># Properties in the High Water Zone (within 1 mile of the coast) are at</span>
+            <span class="c1"># risk of flooding and other wind-borne debris action.</span>
+            <span class="n">FloodRisk</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>  <span class="c1"># TODO: need high water zone for this and move it to inputs!</span>
+        <span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">BIM</span></div>
+
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Leland Stanford Junior University and The Regents of the University of California.</p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+    <!-- Theme Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-158130480-7"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'UA-158130480-7', {
+          'anonymize_ip': false,
+      });
+    </script> 
+
+</body>
+</html>

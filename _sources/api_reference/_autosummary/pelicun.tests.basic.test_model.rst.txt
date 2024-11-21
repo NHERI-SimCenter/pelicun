@@ -1,0 +1,31 @@
+pelicun.tests.basic.test\_model
+===============================
+
+.. automodule:: pelicun.tests.basic.test_model
+   :members:
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+      :template: custom-class-template.rst
+   
+      TestModelModule
+   
+   
+
+   
+   
+   
+
+
+

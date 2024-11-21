@@ -1,0 +1,32 @@
+pelicun.tests.basic.test\_file\_io
+==================================
+
+.. automodule:: pelicun.tests.basic.test_file_io
+   :members:
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      test_load_data
+      test_save_to_csv
+      test_substitute_default_path
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

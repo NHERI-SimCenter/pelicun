@@ -1,0 +1,54 @@
+pelicun.tests.dl\_calculation.rulesets
+======================================
+
+.. automodule:: pelicun.tests.dl_calculation.rulesets
+   :members:
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+.. rubric:: Modules
+
+.. autosummary::
+   :toctree:
+   :template: custom-module-template.rst
+   :recursive:
+
+   BldgClassRulesets
+   BuildingClassRulesets
+   FloodAssmRulesets
+   FloodClassRulesets
+   FloodRulesets
+   MetaVarRulesets
+   WindCECBRulesets
+   WindCERBRulesets
+   WindEFRulesets
+   WindMECBRulesets
+   WindMERBRulesets
+   WindMHRulesets
+   WindMLRIRulesets
+   WindMLRMRulesets
+   WindMMUHRulesets
+   WindMSFRulesets
+   WindMetaVarRulesets
+   WindSECBRulesets
+   WindSERBRulesets
+   WindSPMBRulesets
+   WindWMUHRulesets
+   WindWSFRulesets
+

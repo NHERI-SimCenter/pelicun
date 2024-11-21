@@ -1,0 +1,26 @@
+.. _changes_v3_1_0:
+
+==================================
+Version 3.1.0 (September 30, 2022)
+==================================
+
+- Calculation settings are now assessment-specific. This allows you to use more than one assessments in an interactive calculation and each will have its own set of options, including log files.
+
+- The uq module was decoupled from the others to enable standalone uq calculations that work without having an active assessment.
+
+- A completely redesigned DL_calculation.py script that provides decoupled demand, damage, and loss assessment and more flexibility when setting up each of those when pelicun is used with a configuration file in a larger workflow.
+
+- Two new examples that use the DL_calculation.py script and a json configuration file were added to the example folder.
+
+- A new example that demonstrates a detailed interactive calculation in a Jupyter notebook was added to the following DesignSafe project: https://www.designsafe-ci.org/data/browser/public/designsafe.storage.published/PRJ-3411v5.
+  This project will be extended with additional examples in the future.
+
+- Unit conversion factors moved to an external file (settings/default_units) to make it easier to add new units to the list. This also allows redefining the internal units through a complete replacement of the factors. The internal units continue to follow the SI system.
+
+- Substantial improvements in coding style using flake8 and pylint to monitor and help enforce PEP8.
+
+- Several performance improvements made calculations more efficient, especially for large problems, such as regional assessements or tall buildings investigated using the FEMA P-58 methodology.
+
+- Several bugfixes and a large number of minor changes that make the engine more robust and easier to use.
+
+- Update recommended Python version to 3.10 and other dependencies to more recent versions.

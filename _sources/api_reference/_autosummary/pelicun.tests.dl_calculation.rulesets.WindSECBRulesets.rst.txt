@@ -1,0 +1,30 @@
+pelicun.tests.dl\_calculation.rulesets.WindSECBRulesets
+=======================================================
+
+.. automodule:: pelicun.tests.dl_calculation.rulesets.WindSECBRulesets
+   :members:
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      SECB_config
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

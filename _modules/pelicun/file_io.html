@@ -1,0 +1,719 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pelicun.file_io &mdash; pelicun  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css?v=f9bf6728" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #F2F2F2" >
+
+          
+          
+          <a href="../../index.html">
+            
+              <img src="../../_static/pelicun-Logo-grey.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">About</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../about/license.html">1. Copyright and license</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../about/cite.html">2. Citing pelicun</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../about/cite.html#logo">3. Logo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../about/acknowledgments.html">4. Acknowledgments</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../about/acknowledgments.html#national-science-foundation">4.1. National Science Foundation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../about/acknowledgments.html#contributors">4.2. Contributors</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../release_notes/index.html">5. Release Notes</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../release_notes/index.html#version-3-0">5.1. Version 3.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../release_notes/index.html#version-2-0">5.2. Version 2.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../release_notes/index.html#version-1-0">5.3. Version 1.0</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../user_guide/install.html">1. Getting started</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/install.html#staying-up-to-date">1.1. Staying up to date</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../user_guide/pelicun_framework.html">2. The Pelicun Framework</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/pelicun_framework.html#abbreviations">2.1. Abbreviations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/pelicun_framework.html#introduction-to-pelicun">2.2. Introduction to Pelicun</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/pelicun_framework.html#overview">2.3. Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/pelicun_framework.html#performance-assessment-workflow">2.4. Performance Assessment Workflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/pelicun_framework.html#response-model">2.5. Response Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/pelicun_framework.html#performance-model">2.6. Performance Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/pelicun_framework.html#damage-model">2.7. Damage Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/pelicun_framework.html#loss-model">2.8. Loss Model</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../user_guide/feature_overview.html">3. Overview of pelicun features</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/feature_overview.html#saving-loading-samples">3.1. Saving/loading samples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/feature_overview.html#logging-support">3.2. Logging support</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/feature_overview.html#uncertainty-quantification">3.3. Uncertainty quantification</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/feature_overview.html#assessment-types">3.4. Assessment types</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/feature_overview.html#demand-simulation">3.5. Demand simulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/feature_overview.html#damage-estimation">3.6. Damage estimation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/feature_overview.html#loss-estimation">3.7. Loss estimation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/feature_overview.html#command-line-support">3.8. Command-line support</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/feature_overview.html#standalone-tools">3.9. Standalone tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/feature_overview.html#feature-overview-and-examples">3.10. Feature overview and examples</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../user_guide/damage_and_loss_library.html">4. Damage and loss library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../user_guide/bug_reports_and_feature_requests.html">5. Bug reports and feature requests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../user_guide/resources_for_new_python_users.html">6. Resources for new python users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/index.html">7. Examples</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../examples/index.html#complete-list">7.1. Complete list</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../examples/index.html#grouped-by-feature">7.2. Grouped by feature</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../api_reference/index.html">8. API Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../api_reference/_autosummary/pelicun.html">8.1. pelicun</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../developer_guide/getting_started.html">1. Getting started</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../developer_guide/getting_started.html#code-of-conduct">1.1. Code of conduct</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../developer_guide/getting_started.html#how-to-contribute">1.2. How to contribute</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../developer_guide/development_environment.html">2. Setting up a development environment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developer_guide/code_quality.html">3. Coding practice</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../developer_guide/code_quality.html#code-quality-assurance">3.1. Code quality assurance</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../developer_guide/code_quality.html#unit-tests">3.2. Unit tests</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../developer_guide/code_quality.html#documentation">3.3. Documentation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../developer_guide/internals.html">4. Package architecture</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../developer_guide/internals.html#overview-of-files">4.1. Overview of files</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #F2F2F2" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">pelicun</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">pelicun.file_io</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for pelicun.file_io</h1><div class="highlight"><pre>
+<span></span><span class="c1">#</span>
+<span class="c1"># Copyright (c) 2018 Leland Stanford Junior University</span>
+<span class="c1"># Copyright (c) 2018 The Regents of the University of California</span>
+<span class="c1">#</span>
+<span class="c1"># This file is part of pelicun.</span>
+<span class="c1">#</span>
+<span class="c1"># Redistribution and use in source and binary forms, with or without</span>
+<span class="c1"># modification, are permitted provided that the following conditions are met:</span>
+<span class="c1">#</span>
+<span class="c1"># 1. Redistributions of source code must retain the above copyright notice,</span>
+<span class="c1"># this list of conditions and the following disclaimer.</span>
+<span class="c1">#</span>
+<span class="c1"># 2. Redistributions in binary form must reproduce the above copyright notice,</span>
+<span class="c1"># this list of conditions and the following disclaimer in the documentation</span>
+<span class="c1"># and/or other materials provided with the distribution.</span>
+<span class="c1">#</span>
+<span class="c1"># 3. Neither the name of the copyright holder nor the names of its contributors</span>
+<span class="c1"># may be used to endorse or promote products derived from this software without</span>
+<span class="c1"># specific prior written permission.</span>
+<span class="c1">#</span>
+<span class="c1"># THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS &quot;AS IS&quot;</span>
+<span class="c1"># AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE</span>
+<span class="c1"># IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE</span>
+<span class="c1"># ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE</span>
+<span class="c1"># LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR</span>
+<span class="c1"># CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF</span>
+<span class="c1"># SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS</span>
+<span class="c1"># INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN</span>
+<span class="c1"># CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)</span>
+<span class="c1"># ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE</span>
+<span class="c1"># POSSIBILITY OF SUCH DAMAGE.</span>
+<span class="c1">#</span>
+<span class="c1"># You should have received a copy of the BSD 3-Clause License along with</span>
+<span class="c1"># pelicun. If not, see &lt;http://www.opensource.org/licenses/&gt;.</span>
+<span class="c1">#</span>
+<span class="c1"># Contributors:</span>
+<span class="c1"># Adam Zsarnóczay</span>
+<span class="c1"># Pouria Kourehpaz</span>
+<span class="c1"># Kuanshi Zhong</span>
+<span class="c1"># John Vouvakis Manousakis</span>
+
+<span class="sd">&quot;&quot;&quot;Classes and methods that handle file input and output.&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+
+<span class="kn">from</span> <span class="nn">pelicun</span> <span class="kn">import</span> <span class="n">base</span>
+
+<span class="n">convert_dv_name</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;DV_rec_cost&#39;</span><span class="p">:</span> <span class="s1">&#39;Reconstruction Cost&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;DV_rec_time&#39;</span><span class="p">:</span> <span class="s1">&#39;Reconstruction Time&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;DV_injuries_0&#39;</span><span class="p">:</span> <span class="s1">&#39;Injuries lvl. 1&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;DV_injuries_1&#39;</span><span class="p">:</span> <span class="s1">&#39;Injuries lvl. 2&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;DV_injuries_2&#39;</span><span class="p">:</span> <span class="s1">&#39;Injuries lvl. 3&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;DV_injuries_3&#39;</span><span class="p">:</span> <span class="s1">&#39;Injuries lvl. 4&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;DV_red_tag&#39;</span><span class="p">:</span> <span class="s1">&#39;Red Tag &#39;</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="n">dependency_to_acronym</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;btw. Fragility Groups&#39;</span><span class="p">:</span> <span class="s1">&#39;FG&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;btw. Performance Groups&#39;</span><span class="p">:</span> <span class="s1">&#39;PG&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;btw. Floors&#39;</span><span class="p">:</span> <span class="s1">&#39;LOC&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;btw. Directions&#39;</span><span class="p">:</span> <span class="s1">&#39;DIR&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;btw. Component Groups&#39;</span><span class="p">:</span> <span class="s1">&#39;CSG&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;btw. Damage States&#39;</span><span class="p">:</span> <span class="s1">&#39;DS&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;Independent&#39;</span><span class="p">:</span> <span class="s1">&#39;IND&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;per ATC recommendation&#39;</span><span class="p">:</span> <span class="s1">&#39;ATC&#39;</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="n">HAZUS_occ_converter</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;RES&#39;</span><span class="p">:</span> <span class="s1">&#39;Residential&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;COM&#39;</span><span class="p">:</span> <span class="s1">&#39;Commercial&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;REL&#39;</span><span class="p">:</span> <span class="s1">&#39;Commercial&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;EDU&#39;</span><span class="p">:</span> <span class="s1">&#39;Educational&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;IND&#39;</span><span class="p">:</span> <span class="s1">&#39;Industrial&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;AGR&#39;</span><span class="p">:</span> <span class="s1">&#39;Industrial&#39;</span><span class="p">,</span>
+<span class="p">}</span>
+
+
+<div class="viewcode-block" id="save_to_csv">
+<a class="viewcode-back" href="../../api_reference/_autosummary/pelicun.file_io.html#pelicun.file_io.save_to_csv">[docs]</a>
+<span class="k">def</span> <span class="nf">save_to_csv</span><span class="p">(</span>  <span class="c1"># noqa: C901</span>
+    <span class="n">data</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">filepath</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">units</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">unit_conversion_factors</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">orientation</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">use_simpleindex</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">log</span><span class="p">:</span> <span class="n">base</span><span class="o">.</span><span class="n">Logger</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Save data to a CSV file following the standard SimCenter schema.</span>
+
+<span class="sd">    The produced CSV files have a single header line and an index</span>
+<span class="sd">    column. The second line may start with &#39;Units&#39; in the index or the</span>
+<span class="sd">    first column may be &#39;Units&#39; to provide the units for the data in</span>
+<span class="sd">    the file.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    data: DataFrame</span>
+<span class="sd">        The data to save.</span>
+<span class="sd">    filepath: Path</span>
+<span class="sd">        The location of the destination file. If None, the data is not</span>
+<span class="sd">        saved, but returned in the end.</span>
+<span class="sd">    units: Series, optional</span>
+<span class="sd">        Provides a Series with variables and corresponding units.</span>
+<span class="sd">    unit_conversion_factors: dict, optional</span>
+<span class="sd">        Dictionary containing key-value pairs of unit names and their</span>
+<span class="sd">        corresponding factors. Conversion factors are defined as the</span>
+<span class="sd">        number of times a base unit fits in the alternative unit.</span>
+<span class="sd">    orientation: int, {0, 1}, default 0</span>
+<span class="sd">        If 0, variables are organized along columns; otherwise, they</span>
+<span class="sd">        are along the rows. This is important when converting values</span>
+<span class="sd">        to follow the prescribed units.</span>
+<span class="sd">    use_simpleindex: bool, default True</span>
+<span class="sd">        If True, MultiIndex columns and indexes are converted to</span>
+<span class="sd">        SimpleIndex before saving.</span>
+<span class="sd">    log: Logger, optional</span>
+<span class="sd">        Logger object to be used. If no object is specified, no</span>
+<span class="sd">        logging is performed.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If units is not None but unit_conversion_factors is None.</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If writing to a file fails.</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If the provided file name does not have the `.csv` suffix.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    DataFrame or None</span>
+<span class="sd">        If `filepath` is None, returns the DataFrame with potential</span>
+<span class="sd">        unit conversions and reformatting applied. Otherwise, returns</span>
+<span class="sd">        None after saving the data to a CSV file.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">filepath</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">log</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">msg</span><span class="p">(</span><span class="s1">&#39;Preparing data ...&#39;</span><span class="p">,</span> <span class="n">prepend_timestamp</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="k">elif</span> <span class="n">log</span><span class="p">:</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">msg</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Saving data to `</span><span class="si">{</span><span class="n">filepath</span><span class="si">!s}</span><span class="s1">`...&#39;</span><span class="p">,</span> <span class="n">prepend_timestamp</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">data</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">log</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;Data was empty, no file saved.&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span>
+
+    <span class="c1"># make sure we do not modify the original data</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+    <span class="c1"># convert units and add unit information, if needed</span>
+    <span class="k">if</span> <span class="n">units</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">unit_conversion_factors</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="s1">&#39;When `units` is not None, &#39;</span>
+                <span class="s1">&#39;`unit_conversion_factors` must be provided.&#39;</span>
+            <span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">log</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">msg</span><span class="p">(</span><span class="s1">&#39;Converting units...&#39;</span><span class="p">,</span> <span class="n">prepend_timestamp</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="c1"># if the orientation is 1, we might not need to scale all columns</span>
+        <span class="k">if</span> <span class="n">orientation</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">cols_to_scale_bool</span> <span class="o">=</span> <span class="p">[</span><span class="n">dt</span> <span class="ow">in</span> <span class="p">{</span><span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">}</span> <span class="k">for</span> <span class="n">dt</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">dtypes</span><span class="p">]</span>
+            <span class="n">cols_to_scale</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="n">cols_to_scale_bool</span><span class="p">]</span>
+
+        <span class="n">labels_to_keep</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">unit_name</span> <span class="ow">in</span> <span class="n">units</span><span class="o">.</span><span class="n">unique</span><span class="p">():</span>
+            <span class="n">labels</span> <span class="o">=</span> <span class="n">units</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">units</span> <span class="o">==</span> <span class="n">unit_name</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+
+            <span class="n">unit_factor</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">unit_conversion_factors</span><span class="p">[</span><span class="n">unit_name</span><span class="p">]</span>
+
+            <span class="n">active_labels</span> <span class="o">=</span> <span class="p">[]</span>
+
+            <span class="k">if</span> <span class="n">orientation</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">labels</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+                        <span class="n">active_labels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">label</span><span class="p">)</span>  <span class="c1"># noqa: PERF401</span>
+
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">active_labels</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">data</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="n">active_labels</span><span class="p">]</span> <span class="o">*=</span> <span class="n">unit_factor</span>
+
+            <span class="k">else</span><span class="p">:</span>  <span class="c1"># elif orientation == 1:</span>
+                <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">labels</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">index</span><span class="p">:</span>
+                        <span class="n">active_labels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">label</span><span class="p">)</span>  <span class="c1"># noqa: PERF401</span>
+
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">active_labels</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">data</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">active_labels</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">cols_to_scale</span><span class="p">)]</span> <span class="o">*=</span> <span class="p">(</span>
+                        <span class="n">unit_factor</span>
+                    <span class="p">)</span>
+
+            <span class="n">labels_to_keep</span> <span class="o">+=</span> <span class="n">active_labels</span>
+
+        <span class="n">units_df</span> <span class="o">=</span> <span class="n">units</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">labels_to_keep</span><span class="p">]</span><span class="o">.</span><span class="n">to_frame</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">orientation</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">units_df</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">data</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">sort_index</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">units_df</span><span class="p">,</span> <span class="n">data</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">sort_index</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">log</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">msg</span><span class="p">(</span><span class="s1">&#39;Unit conversion successful.&#39;</span><span class="p">,</span> <span class="n">prepend_timestamp</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">use_simpleindex</span><span class="p">:</span>
+        <span class="c1"># convert MultiIndex to regular index with &#39;-&#39; separators</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">MultiIndex</span><span class="p">):</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">base</span><span class="o">.</span><span class="n">convert_to_SimpleIndex</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+        <span class="c1"># same thing for the columns</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">MultiIndex</span><span class="p">):</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">base</span><span class="o">.</span><span class="n">convert_to_SimpleIndex</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">filepath</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">filepath</span><span class="o">.</span><span class="n">suffix</span> <span class="o">==</span> <span class="s1">&#39;.csv&#39;</span><span class="p">:</span>
+            <span class="c1"># save the contents of the DataFrame into a csv</span>
+            <span class="n">data</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">log</span><span class="p">:</span>
+                <span class="n">log</span><span class="o">.</span><span class="n">msg</span><span class="p">(</span><span class="s1">&#39;Data successfully saved to file.&#39;</span><span class="p">,</span> <span class="n">prepend_timestamp</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="sa">f</span><span class="s1">&#39;Please use the `.csv` file extension. &#39;</span>
+                <span class="sa">f</span><span class="s1">&#39;Received file name is `</span><span class="si">{</span><span class="n">filepath</span><span class="si">}</span><span class="s1">`&#39;</span>
+            <span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="c1"># at this line, filepath is None</span>
+    <span class="k">return</span> <span class="n">data</span></div>
+
+
+
+<div class="viewcode-block" id="substitute_default_path">
+<a class="viewcode-back" href="../../api_reference/_autosummary/pelicun.file_io.html#pelicun.file_io.substitute_default_path">[docs]</a>
+<span class="k">def</span> <span class="nf">substitute_default_path</span><span class="p">(</span>
+    <span class="n">data_paths</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span> <span class="o">|</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span> <span class="o">|</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Substitute the default directory path with a specified path.</span>
+
+<span class="sd">    This function iterates over a list of data paths and replaces</span>
+<span class="sd">    occurrences of the &#39;PelicunDefault/&#39; substring with the path</span>
+<span class="sd">    specified by `base.pelicun_path` concatenated with</span>
+<span class="sd">    &#39;/resources/SimCenterDBDL/&#39;. This operation is performed to update</span>
+<span class="sd">    paths that are using a default location to a user-defined location</span>
+<span class="sd">    within the pelicun framework. The updated list of paths is then</span>
+<span class="sd">    returned.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    data_paths: list of str</span>
+<span class="sd">        A list containing the paths to data files. These paths may</span>
+<span class="sd">        include a placeholder directory &#39;PelicunDefault/&#39; that needs</span>
+<span class="sd">        to be substituted with the actual path specified in</span>
+<span class="sd">        `base.pelicun_path`.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    list of str</span>
+<span class="sd">        The list with updated paths where &#39;PelicunDefault/&#39; has been</span>
+<span class="sd">        replaced with the specified path in `base.pelicun_path`</span>
+<span class="sd">        concatenated with &#39;/resources/SimCenterDBDL/&#39;.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    - The function assumes that `base.pelicun_path` is properly</span>
+<span class="sd">      initialized and points to the correct directory where resources</span>
+<span class="sd">      are located.</span>
+<span class="sd">    - If a path in the input list does not contain &#39;PelicunDefault/&#39;,</span>
+<span class="sd">      it is added to the output list unchanged.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; data_paths = [&#39;PelicunDefault/data/file1.txt&#39;,</span>
+<span class="sd">        &#39;data/file2.txt&#39;]</span>
+<span class="sd">    &gt;&gt;&gt; substitute_default_path(data_paths)</span>
+<span class="sd">    [&#39;{base.pelicun_path}/resources/SimCenterDBDL/data/file1.txt&#39;,</span>
+<span class="sd">    &#39;data/file2.txt&#39;]</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">updated_paths</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span> <span class="o">|</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">data_path</span> <span class="ow">in</span> <span class="n">data_paths</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data_path</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="s1">&#39;PelicunDefault/&#39;</span> <span class="ow">in</span> <span class="n">data_path</span><span class="p">:</span>
+            <span class="n">path</span> <span class="o">=</span> <span class="n">data_path</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
+                <span class="s1">&#39;PelicunDefault/&#39;</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">base</span><span class="o">.</span><span class="n">pelicun_path</span><span class="si">}</span><span class="s1">/resources/SimCenterDBDL/&#39;</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">updated_paths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">updated_paths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data_path</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">updated_paths</span></div>
+
+
+
+<div class="viewcode-block" id="load_data">
+<a class="viewcode-back" href="../../api_reference/_autosummary/pelicun.file_io.html#pelicun.file_io.load_data">[docs]</a>
+<span class="k">def</span> <span class="nf">load_data</span><span class="p">(</span>  <span class="c1"># noqa: C901</span>
+    <span class="n">data_source</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">unit_conversion_factors</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">orientation</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">reindex</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">return_units</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">log</span><span class="p">:</span> <span class="n">base</span><span class="o">.</span><span class="n">Logger</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">]</span> <span class="o">|</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Load data assuming it follows standard SimCenter tabular schema.</span>
+
+<span class="sd">    The data is assumed to have a single header line and an index column. The</span>
+<span class="sd">    second line may start with &#39;Units&#39; in the index and provide the units for</span>
+<span class="sd">    each column in the file.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    data_source: string or DataFrame</span>
+<span class="sd">        If it is a string, the data_source is assumed to point to the location</span>
+<span class="sd">        of the source file. If it is a DataFrame, the data_source is assumed to</span>
+<span class="sd">        hold the raw data.</span>
+<span class="sd">    unit_conversion_factors: dict, optional</span>
+<span class="sd">        Dictionary containing key-value pairs of unit names and their</span>
+<span class="sd">        corresponding factors. Conversion factors are defined as the</span>
+<span class="sd">        number of times a base unit fits in the alternative unit. If</span>
+<span class="sd">        no conversion factors are specified, then no unit conversions</span>
+<span class="sd">        are made.</span>
+<span class="sd">    orientation: int, {0, 1}, default: 0</span>
+<span class="sd">        If 0, variables are organized along columns; otherwise they are along</span>
+<span class="sd">        the rows. This is important when converting values to follow the</span>
+<span class="sd">        prescribed units.</span>
+<span class="sd">    reindex: bool</span>
+<span class="sd">        If True, reindexes the table to ensure a 0-based, continuous index</span>
+<span class="sd">    return_units: bool</span>
+<span class="sd">        If True, returns the units as well as the data to allow for adjustments</span>
+<span class="sd">        in unit conversion.</span>
+<span class="sd">    log: Logger</span>
+<span class="sd">        Logger object to be used. If no object is specified, no logging</span>
+<span class="sd">        is performed.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    tuple</span>
+<span class="sd">        data: DataFrame</span>
+<span class="sd">            Parsed data.</span>
+<span class="sd">        units: Series</span>
+<span class="sd">            Labels from the data and corresponding units specified in the</span>
+<span class="sd">            data. Units are only returned if return_units is set to True.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    TypeError</span>
+<span class="sd">        If `data_source` is neither a string nor a DataFrame, a</span>
+<span class="sd">        TypeError is raised.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
+        <span class="c1"># store it at proceed (copying is needed to avoid changing the</span>
+        <span class="c1"># original)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">base</span><span class="o">.</span><span class="n">with_parsed_str_na_values</span><span class="p">(</span><span class="n">data_source</span><span class="o">.</span><span class="n">copy</span><span class="p">())</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="c1"># otherwise, load the data from a file</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">load_from_file</span><span class="p">(</span><span class="n">data_source</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;Invalid data_source type: </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">data_source</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+    <span class="c1"># Define a dictionary to decide the axis based on the orientation</span>
+    <span class="n">axis</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span> <span class="mi">0</span><span class="p">}</span>
+    <span class="n">the_index</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">columns</span> <span class="k">if</span> <span class="n">orientation</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="n">data</span><span class="o">.</span><span class="n">index</span>
+
+    <span class="c1"># if there is information about units, separate that information</span>
+    <span class="c1"># and optionally apply conversions to all numeric values</span>
+    <span class="k">if</span> <span class="s1">&#39;Units&#39;</span> <span class="ow">in</span> <span class="n">the_index</span><span class="p">:</span>
+        <span class="n">units</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;Units&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="n">orientation</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="n">data</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s1">&#39;Units&#39;</span><span class="p">]</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">drop</span><span class="p">([</span><span class="s1">&#39;Units&#39;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="n">orientation</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">base</span><span class="o">.</span><span class="n">convert_dtypes</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">unit_conversion_factors</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">numeric_elements</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">select_dtypes</span><span class="p">(</span><span class="n">include</span><span class="o">=</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">number</span><span class="p">])</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
+                <span class="k">if</span> <span class="n">orientation</span> <span class="o">==</span> <span class="mi">0</span>
+                <span class="k">else</span> <span class="p">(</span>
+                    <span class="n">data</span><span class="o">.</span><span class="n">select_dtypes</span><span class="p">(</span><span class="n">include</span><span class="o">=</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">number</span><span class="p">])</span><span class="o">.</span><span class="n">columns</span>  <span class="c1"># type: ignore</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">log</span><span class="p">:</span>
+                <span class="n">log</span><span class="o">.</span><span class="n">msg</span><span class="p">(</span><span class="s1">&#39;Converting units...&#39;</span><span class="p">,</span> <span class="n">prepend_timestamp</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+            <span class="n">conversion_factors</span> <span class="o">=</span> <span class="n">units</span><span class="o">.</span><span class="n">map</span><span class="p">(</span>
+                <span class="k">lambda</span> <span class="n">unit</span><span class="p">:</span> <span class="p">(</span>
+                    <span class="mf">1.00</span>
+                    <span class="k">if</span> <span class="n">pd</span><span class="o">.</span><span class="n">isna</span><span class="p">(</span><span class="n">unit</span><span class="p">)</span>
+                    <span class="k">else</span> <span class="n">unit_conversion_factors</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">unit</span><span class="p">,</span> <span class="mf">1.00</span><span class="p">)</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">orientation</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">data</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="n">numeric_elements</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+                    <span class="p">:,</span> <span class="n">numeric_elements</span>  <span class="c1"># type: ignore</span>
+                <span class="p">]</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span>
+                    <span class="n">conversion_factors</span><span class="p">,</span>
+                    <span class="n">axis</span><span class="o">=</span><span class="n">axis</span><span class="p">[</span><span class="n">orientation</span><span class="p">],</span>  <span class="c1"># type: ignore</span>
+                <span class="p">)</span>  <span class="c1"># type: ignore</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">data</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">numeric_elements</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+                    <span class="n">numeric_elements</span><span class="p">,</span> <span class="p">:</span>
+                <span class="p">]</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span>
+                    <span class="n">conversion_factors</span><span class="p">,</span>
+                    <span class="n">axis</span><span class="o">=</span><span class="n">axis</span><span class="p">[</span><span class="n">orientation</span><span class="p">],</span>  <span class="c1"># type: ignore</span>
+                <span class="p">)</span>  <span class="c1"># type: ignore</span>
+
+        <span class="k">if</span> <span class="n">log</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">msg</span><span class="p">(</span><span class="s1">&#39;Unit conversion successful.&#39;</span><span class="p">,</span> <span class="n">prepend_timestamp</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">units</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">base</span><span class="o">.</span><span class="n">convert_dtypes</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+    <span class="c1"># convert columns or index to MultiIndex if needed</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">base</span><span class="o">.</span><span class="n">convert_to_MultiIndex</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">sort_index</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="c1"># reindex the data, if needed</span>
+    <span class="k">if</span> <span class="n">reindex</span><span class="p">:</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">RangeIndex</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">stop</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">step</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># convert index to MultiIndex if needed</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">base</span><span class="o">.</span><span class="n">convert_to_MultiIndex</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">sort_index</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">return_units</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">units</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># convert index in units Series to MultiIndex if needed</span>
+            <span class="n">units</span> <span class="o">=</span> <span class="n">base</span><span class="o">.</span><span class="n">convert_to_MultiIndex</span><span class="p">(</span><span class="n">units</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span>  <span class="c1"># type: ignore</span>
+            <span class="n">units</span> <span class="o">=</span> <span class="n">units</span><span class="o">.</span><span class="n">sort_index</span><span class="p">()</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="n">data</span><span class="p">,</span> <span class="n">units</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="n">data</span>  <span class="c1"># type: ignore</span>
+
+    <span class="k">return</span> <span class="n">output</span>  <span class="c1"># type: ignore</span></div>
+
+
+
+<div class="viewcode-block" id="load_from_file">
+<a class="viewcode-back" href="../../api_reference/_autosummary/pelicun.file_io.html#pelicun.file_io.load_from_file">[docs]</a>
+<span class="k">def</span> <span class="nf">load_from_file</span><span class="p">(</span><span class="n">filepath</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">log</span><span class="p">:</span> <span class="n">base</span><span class="o">.</span><span class="n">Logger</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Load data from a file and stores it in a DataFrame.</span>
+
+<span class="sd">    Currently, only CSV files are supported, but the function is easily</span>
+<span class="sd">    extensible to support other file formats.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    filepath: string</span>
+<span class="sd">        The location of the source file.</span>
+<span class="sd">    log: base.Logger, optional</span>
+<span class="sd">        Optional logger object.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    tuple</span>
+<span class="sd">        data: DataFrame</span>
+<span class="sd">            Data loaded from the file.</span>
+<span class="sd">        log: Logger</span>
+<span class="sd">            Logger object to be used. If no object is specified, no logging</span>
+<span class="sd">            is performed.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    FileNotFoundError</span>
+<span class="sd">        If the filepath is invalid.</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If the file is not a CSV.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">log</span><span class="p">:</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">msg</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Loading data from </span><span class="si">{</span><span class="n">filepath</span><span class="si">}</span><span class="s1">...&#39;</span><span class="p">)</span>
+
+    <span class="c1"># check if the filepath is valid</span>
+    <span class="n">filepath_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">filepath_path</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s1">&#39;The filepath provided does not point to an existing &#39;</span>
+            <span class="sa">f</span><span class="s1">&#39;file: </span><span class="si">{</span><span class="n">filepath_path</span><span class="si">}</span><span class="s1">&#39;</span>
+        <span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">filepath_path</span><span class="o">.</span><span class="n">suffix</span> <span class="o">==</span> <span class="s1">&#39;.csv&#39;</span><span class="p">:</span>
+        <span class="c1"># load the contents of the csv into a DataFrame</span>
+
+        <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
+            <span class="n">filepath_path</span><span class="p">,</span>
+            <span class="n">header</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+            <span class="n">index_col</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+            <span class="n">low_memory</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">encoding_errors</span><span class="o">=</span><span class="s1">&#39;replace&#39;</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">log</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">msg</span><span class="p">(</span><span class="s1">&#39;File successfully opened.&#39;</span><span class="p">,</span> <span class="n">prepend_timestamp</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s1">&#39;Unexpected file type received when trying &#39;</span>
+            <span class="sa">f</span><span class="s1">&#39;to load from csv: </span><span class="si">{</span><span class="n">filepath_path</span><span class="si">}</span><span class="s1">&#39;</span>
+        <span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">data</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Leland Stanford Junior University and The Regents of the University of California.</p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+    <!-- Theme Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-158130480-7"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'UA-158130480-7', {
+          'anonymize_ip': false,
+      });
+    </script> 
+
+</body>
+</html>

@@ -1,0 +1,30 @@
+pelicun.tests.dl\_calculation.rulesets.BuildingClassRulesets
+============================================================
+
+.. automodule:: pelicun.tests.dl_calculation.rulesets.BuildingClassRulesets
+   :members:
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      building_class
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

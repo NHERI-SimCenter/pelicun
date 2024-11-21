@@ -1,0 +1,30 @@
+pelicun.tests.dl\_calculation.rulesets.WindMHRulesets
+=====================================================
+
+.. automodule:: pelicun.tests.dl_calculation.rulesets.WindMHRulesets
+   :members:
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      MH_config
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

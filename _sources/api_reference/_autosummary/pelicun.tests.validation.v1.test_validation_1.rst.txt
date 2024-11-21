@@ -1,0 +1,30 @@
+pelicun.tests.validation.v1.test\_validation\_1
+===============================================
+
+.. automodule:: pelicun.tests.validation.v1.test_validation_1
+   :members:
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      test_validation_ds_probabilities
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

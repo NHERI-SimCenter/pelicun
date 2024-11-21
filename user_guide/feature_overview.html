@@ -1,0 +1,290 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>3. Overview of pelicun features &mdash; pelicun  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=f9bf6728" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../_static/design-tabs.js?v=f930bc37"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="4. Damage and loss library" href="damage_and_loss_library.html" />
+    <link rel="prev" title="2. The Pelicun Framework" href="pelicun_framework.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #F2F2F2" >
+
+          
+          
+          <a href="../index.html">
+            
+              <img src="../_static/pelicun-Logo-grey.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">About</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../about/license.html">1. Copyright and license</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../about/cite.html">2. Citing pelicun</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../about/cite.html#logo">3. Logo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../about/acknowledgments.html">4. Acknowledgments</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../about/acknowledgments.html#national-science-foundation">4.1. National Science Foundation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../about/acknowledgments.html#contributors">4.2. Contributors</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../release_notes/index.html">5. Release Notes</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../release_notes/index.html#version-3-0">5.1. Version 3.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release_notes/index.html#version-2-0">5.2. Version 2.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release_notes/index.html#version-1-0">5.3. Version 1.0</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="install.html">1. Getting started</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="install.html#staying-up-to-date">1.1. Staying up to date</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="pelicun_framework.html">2. The Pelicun Framework</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pelicun_framework.html#abbreviations">2.1. Abbreviations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pelicun_framework.html#introduction-to-pelicun">2.2. Introduction to Pelicun</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pelicun_framework.html#overview">2.3. Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pelicun_framework.html#performance-assessment-workflow">2.4. Performance Assessment Workflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pelicun_framework.html#response-model">2.5. Response Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pelicun_framework.html#performance-model">2.6. Performance Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pelicun_framework.html#damage-model">2.7. Damage Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pelicun_framework.html#loss-model">2.8. Loss Model</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">3. Overview of pelicun features</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#saving-loading-samples">3.1. Saving/loading samples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#logging-support">3.2. Logging support</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#uncertainty-quantification">3.3. Uncertainty quantification</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#assessment-types">3.4. Assessment types</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#demand-simulation">3.5. Demand simulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#damage-estimation">3.6. Damage estimation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#loss-estimation">3.7. Loss estimation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#command-line-support">3.8. Command-line support</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#standalone-tools">3.9. Standalone tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#feature-overview-and-examples">3.10. Feature overview and examples</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="damage_and_loss_library.html">4. Damage and loss library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bug_reports_and_feature_requests.html">5. Bug reports and feature requests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="resources_for_new_python_users.html">6. Resources for new python users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples/index.html">7. Examples</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../examples/index.html#complete-list">7.1. Complete list</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/index.html#grouped-by-feature">7.2. Grouped by feature</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../api_reference/index.html">8. API Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../api_reference/_autosummary/pelicun.html">8.1. pelicun</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../developer_guide/getting_started.html">1. Getting started</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../developer_guide/getting_started.html#code-of-conduct">1.1. Code of conduct</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../developer_guide/getting_started.html#how-to-contribute">1.2. How to contribute</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../developer_guide/development_environment.html">2. Setting up a development environment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developer_guide/code_quality.html">3. Coding practice</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../developer_guide/code_quality.html#code-quality-assurance">3.1. Code quality assurance</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../developer_guide/code_quality.html#unit-tests">3.2. Unit tests</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../developer_guide/code_quality.html#documentation">3.3. Documentation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../developer_guide/internals.html">4. Package architecture</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../developer_guide/internals.html#overview-of-files">4.1. Overview of files</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #F2F2F2" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">pelicun</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active"><span class="section-number">3. </span>Overview of pelicun features</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="overview-of-pelicun-features">
+<span id="feature-overview"></span><h1><span class="section-number">3. </span>Overview of pelicun features<a class="headerlink" href="#overview-of-pelicun-features" title="Link to this heading"></a></h1>
+<div class="admonition-coming-soon admonition">
+<p class="admonition-title">Coming soon.</p>
+<p>This section is under construction.</p>
+</div>
+<section id="saving-loading-samples">
+<span id="fo-saving"></span><h2><span class="section-number">3.1. </span>Saving/loading samples<a class="headerlink" href="#saving-loading-samples" title="Link to this heading"></a></h2>
+<p>All demand, asset, damage, and loss samples can be either computed from other inputs or directly loaded form previously computed and saved samples.</p>
+</section>
+<section id="logging-support">
+<span id="fo-logging"></span><h2><span class="section-number">3.2. </span>Logging support<a class="headerlink" href="#logging-support" title="Link to this heading"></a></h2>
+<p>Pelicun produces detailed log files that can be used to document the execution of an assessment as well as information on the host machine and the execution environment.
+These logs can be useful for debugging purposes.
+Pelicun emits detailed warnings whenever appropriate, notifying the user of potentially problematic or inconsistent inputs, evaluation settings, or deprecated syntax.</p>
+</section>
+<section id="uncertainty-quantification">
+<span id="fo-uq"></span><h2><span class="section-number">3.3. </span>Uncertainty quantification<a class="headerlink" href="#uncertainty-quantification" title="Link to this heading"></a></h2>
+<p>Damage and loss estimation is inherently uncertain and treated as a stochastic problem.
+Uncertainty quantification lies at the core of all computations in pelicun.
+Pelicun supports a variety of common parametric univariate random variable distributions.
+With the help of random variable registries, it also supports multivariate distributions, joined with Gaussian copula.</p>
+</section>
+<section id="assessment-types">
+<span id="fo-assessment-types"></span><h2><span class="section-number">3.4. </span>Assessment types<a class="headerlink" href="#assessment-types" title="Link to this heading"></a></h2>
+<p>Pelicun supports scenario-based assessments. That is, losses conditioned on a specific value of an Intensity Measure (IM).</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Support for time-based assessments is currently in progress.</p>
+</div>
+</section>
+<section id="demand-simulation">
+<h2><span class="section-number">3.5. </span>Demand simulation<a class="headerlink" href="#demand-simulation" title="Link to this heading"></a></h2>
+<section id="model-calibration">
+<span id="fo-calibration"></span><h3><span class="section-number">3.5.1. </span>Model calibration<a class="headerlink" href="#model-calibration" title="Link to this heading"></a></h3>
+</section>
+<section id="sampling-methods">
+<span id="fo-sampling"></span><h3><span class="section-number">3.5.2. </span>Sampling methods<a class="headerlink" href="#sampling-methods" title="Link to this heading"></a></h3>
+</section>
+<section id="rid-pid-inference">
+<span id="fo-pidrid"></span><h3><span class="section-number">3.5.3. </span>RID|PID inference<a class="headerlink" href="#rid-pid-inference" title="Link to this heading"></a></h3>
+</section>
+<section id="sample-expansion">
+<span id="fo-sample-expansion"></span><h3><span class="section-number">3.5.4. </span>Sample expansion<a class="headerlink" href="#sample-expansion" title="Link to this heading"></a></h3>
+</section>
+<section id="demand-cloning">
+<span id="fo-demand-cloning"></span><h3><span class="section-number">3.5.5. </span>Demand cloning<a class="headerlink" href="#demand-cloning" title="Link to this heading"></a></h3>
+</section>
+</section>
+<section id="damage-estimation">
+<h2><span class="section-number">3.6. </span>Damage estimation<a class="headerlink" href="#damage-estimation" title="Link to this heading"></a></h2>
+<section id="damage-processes">
+<span id="fo-damage-process"></span><h3><span class="section-number">3.6.1. </span>Damage processes<a class="headerlink" href="#damage-processes" title="Link to this heading"></a></h3>
+</section>
+</section>
+<section id="loss-estimation">
+<h2><span class="section-number">3.7. </span>Loss estimation<a class="headerlink" href="#loss-estimation" title="Link to this heading"></a></h2>
+<section id="loss-maps">
+<span id="fo-loss-maps"></span><h3><span class="section-number">3.7.1. </span>Loss maps<a class="headerlink" href="#loss-maps" title="Link to this heading"></a></h3>
+</section>
+<section id="active-decision-variables">
+<span id="fo-active-dvs"></span><h3><span class="section-number">3.7.2. </span>Active decision variables<a class="headerlink" href="#active-decision-variables" title="Link to this heading"></a></h3>
+</section>
+<section id="consequence-scaling">
+<span id="fo-consequence-scaling"></span><h3><span class="section-number">3.7.3. </span>Consequence scaling<a class="headerlink" href="#consequence-scaling" title="Link to this heading"></a></h3>
+</section>
+<section id="loss-aggregation">
+<span id="fo-loss-aggregation"></span><h3><span class="section-number">3.7.4. </span>Loss aggregation<a class="headerlink" href="#loss-aggregation" title="Link to this heading"></a></h3>
+<p>Also talk about replacement thresholds here.</p>
+</section>
+</section>
+<section id="command-line-support">
+<span id="fo-cli"></span><h2><span class="section-number">3.8. </span>Command-line support<a class="headerlink" href="#command-line-support" title="Link to this heading"></a></h2>
+<p>Pelicun can be ran from the command line.
+Installing the package enables the <code class="docutils literal notranslate"><span class="pre">pelicun</span></code> entry point, which points to <code class="docutils literal notranslate"><span class="pre">tools/DL_calculation.py</span></code>.
+<code class="docutils literal notranslate"><span class="pre">DL_calculation.py</span></code> is a script that conducts a performance evaluation using command-line inputs.
+Some of those inputs are paths to required input files, including a JSON file that provides most evaluation options.</p>
+<section id="input-file-auto-population">
+<span id="fo-autopop"></span><h3><span class="section-number">3.8.1. </span>Input file auto-population<a class="headerlink" href="#input-file-auto-population" title="Link to this heading"></a></h3>
+<p>It is possible for the JSON input file to be auto-populated (extended to include more entries) using either default or user-defined auto-population scripts.</p>
+</section>
+</section>
+<section id="standalone-tools">
+<h2><span class="section-number">3.9. </span>Standalone tools<a class="headerlink" href="#standalone-tools" title="Link to this heading"></a></h2>
+<section id="unit-conversion">
+<span id="fo-convert-units"></span><h3><span class="section-number">3.9.1. </span>Unit conversion<a class="headerlink" href="#unit-conversion" title="Link to this heading"></a></h3>
+</section>
+<section id="fit-distribution-to-sample-or-percentiles">
+<span id="fo-fit"></span><h3><span class="section-number">3.9.2. </span>Fit distribution to sample or percentiles<a class="headerlink" href="#fit-distribution-to-sample-or-percentiles" title="Link to this heading"></a></h3>
+</section>
+<section id="random-variable-classes">
+<span id="fo-rvs"></span><h3><span class="section-number">3.9.3. </span>Random variable classes<a class="headerlink" href="#random-variable-classes" title="Link to this heading"></a></h3>
+</section>
+</section>
+<section id="feature-overview-and-examples">
+<h2><span class="section-number">3.10. </span>Feature overview and examples<a class="headerlink" href="#feature-overview-and-examples" title="Link to this heading"></a></h2>
+<p>A series of examples, organized by feature, demonstrate the capabilities supported by pelicun.</p>
+<p><a class="sd-sphinx-override sd-btn sd-text-wrap sd-btn-primary sd-shadow-sm reference external" href="../examples/index.html"><span>Visit the examples</span></a></p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Leland Stanford Junior University and The Regents of the University of California.</p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+    <!-- Theme Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-158130480-7"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'UA-158130480-7', {
+          'anonymize_ip': false,
+      });
+    </script> 
+
+</body>
+</html>

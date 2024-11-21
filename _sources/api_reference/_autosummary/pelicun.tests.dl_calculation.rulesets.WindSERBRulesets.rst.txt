@@ -1,0 +1,30 @@
+pelicun.tests.dl\_calculation.rulesets.WindSERBRulesets
+=======================================================
+
+.. automodule:: pelicun.tests.dl_calculation.rulesets.WindSERBRulesets
+   :members:
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      SERB_config
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

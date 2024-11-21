@@ -1,0 +1,30 @@
+pelicun.tests.dl\_calculation.rulesets.WindMetaVarRulesets
+==========================================================
+
+.. automodule:: pelicun.tests.dl_calculation.rulesets.WindMetaVarRulesets
+   :members:
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      parse_BIM
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

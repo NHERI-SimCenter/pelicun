@@ -1,0 +1,39 @@
+pelicun.tests.basic.test\_damage\_model
+=======================================
+
+.. automodule:: pelicun.tests.basic.test_damage_model
+   :members:
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      test__is_for_ds_model
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+      :template: custom-class-template.rst
+   
+      TestDamageModel
+      TestDamageModel_Base
+      TestDamageModel_DS
+   
+   
+
+   
+   
+   
+
+
+

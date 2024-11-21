@@ -1,0 +1,30 @@
+pelicun.tests.dl\_calculation.e9.custom\_pop
+============================================
+
+.. automodule:: pelicun.tests.dl_calculation.e9.custom_pop
+   :members:
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      auto_populate
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

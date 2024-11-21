@@ -1,0 +1,30 @@
+pelicun.tests.validation.inactive.pandas\_convert\_speed
+========================================================
+
+.. automodule:: pelicun.tests.validation.inactive.pandas_convert_speed
+   :members:
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      benchmark
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

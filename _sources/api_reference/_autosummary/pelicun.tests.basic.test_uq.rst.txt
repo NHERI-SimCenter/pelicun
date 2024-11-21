@@ -1,0 +1,70 @@
+pelicun.tests.basic.test\_uq
+============================
+
+.. automodule:: pelicun.tests.basic.test_uq
+   :members:
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      test_DeterministicRandomVariable_inverse_transform
+      test_EmpiricalRandomVariable_inverse_transform
+      test_LogNormalRandomVariable_cdf
+      test_LogNormalRandomVariable_inverse_transform
+      test_MultilinearCDFRandomVariable
+      test_MultilinearCDFRandomVariable_cdf
+      test_MultilinearCDFRandomVariable_inverse_transform
+      test_MultinomialRandomVariable
+      test_NormalRandomVariable
+      test_NormalRandomVariable_cdf
+      test_NormalRandomVariable_inverse_transform
+      test_Normal_COV
+      test_Normal_COV_cdf
+      test_Normal_COV_inverse_transform
+      test_Normal_STD
+      test_Normal_STD_cdf
+      test_Normal_STD_inverse_transform
+      test_RandomVariableRegistry_generate_sample
+      test_RandomVariable_Set
+      test_RandomVariable_Set_apply_correlation
+      test_RandomVariable_Set_apply_correlation_special
+      test_RandomVariable_Set_orthotope_density
+      test_RandomVariable_perfect_correlation
+      test_UniformRandomVariable_cdf
+      test_UniformRandomVariable_inverse_transform
+      test_WeibullRandomVariable
+      test_WeibullRandomVariable_cdf
+      test_WeibullRandomVariable_inverse_transform
+      test__OLS_percentiles
+      test__get_limit_probs
+      test__get_std_corr_matrix
+      test__get_std_samples
+      test__get_theta
+      test__mvn_scale
+      test__neg_log_likelihood
+      test_fit_distribution_to_percentiles
+      test_fit_distribution_to_sample_multivariate
+      test_fit_distribution_to_sample_univariate
+      test_mvn_orthotope_density
+      test_rv_class_map
+      test_scale_distribution
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

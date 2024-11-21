@@ -1,0 +1,31 @@
+pelicun.tests.dl\_calculation.e6.test\_e6
+=========================================
+
+.. automodule:: pelicun.tests.dl_calculation.e6.test_e6
+   :members:
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      obtain_temp_dir
+      test_dl_calculation_6
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

@@ -1,0 +1,336 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>3. Coding practice &mdash; pelicun  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=f9bf6728" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../_static/design-tabs.js?v=f930bc37"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="4. Package architecture" href="internals.html" />
+    <link rel="prev" title="2. Setting up a development environment" href="development_environment.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #F2F2F2" >
+
+          
+          
+          <a href="../index.html">
+            
+              <img src="../_static/pelicun-Logo-grey.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">About</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../about/license.html">1. Copyright and license</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../about/cite.html">2. Citing pelicun</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../about/cite.html#logo">3. Logo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../about/acknowledgments.html">4. Acknowledgments</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../about/acknowledgments.html#national-science-foundation">4.1. National Science Foundation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../about/acknowledgments.html#contributors">4.2. Contributors</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../release_notes/index.html">5. Release Notes</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../release_notes/index.html#version-3-0">5.1. Version 3.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release_notes/index.html#version-2-0">5.2. Version 2.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release_notes/index.html#version-1-0">5.3. Version 1.0</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/install.html">1. Getting started</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/install.html#staying-up-to-date">1.1. Staying up to date</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/pelicun_framework.html">2. The Pelicun Framework</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/pelicun_framework.html#abbreviations">2.1. Abbreviations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/pelicun_framework.html#introduction-to-pelicun">2.2. Introduction to Pelicun</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/pelicun_framework.html#overview">2.3. Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/pelicun_framework.html#performance-assessment-workflow">2.4. Performance Assessment Workflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/pelicun_framework.html#response-model">2.5. Response Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/pelicun_framework.html#performance-model">2.6. Performance Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/pelicun_framework.html#damage-model">2.7. Damage Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/pelicun_framework.html#loss-model">2.8. Loss Model</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/feature_overview.html">3. Overview of pelicun features</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/feature_overview.html#saving-loading-samples">3.1. Saving/loading samples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/feature_overview.html#logging-support">3.2. Logging support</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/feature_overview.html#uncertainty-quantification">3.3. Uncertainty quantification</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/feature_overview.html#assessment-types">3.4. Assessment types</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/feature_overview.html#demand-simulation">3.5. Demand simulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/feature_overview.html#damage-estimation">3.6. Damage estimation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/feature_overview.html#loss-estimation">3.7. Loss estimation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/feature_overview.html#command-line-support">3.8. Command-line support</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/feature_overview.html#standalone-tools">3.9. Standalone tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/feature_overview.html#feature-overview-and-examples">3.10. Feature overview and examples</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/damage_and_loss_library.html">4. Damage and loss library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/bug_reports_and_feature_requests.html">5. Bug reports and feature requests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/resources_for_new_python_users.html">6. Resources for new python users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples/index.html">7. Examples</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../examples/index.html#complete-list">7.1. Complete list</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/index.html#grouped-by-feature">7.2. Grouped by feature</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../api_reference/index.html">8. API Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../api_reference/_autosummary/pelicun.html">8.1. pelicun</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer Guide</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">1. Getting started</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="getting_started.html#code-of-conduct">1.1. Code of conduct</a></li>
+<li class="toctree-l2"><a class="reference internal" href="getting_started.html#how-to-contribute">1.2. How to contribute</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="development_environment.html">2. Setting up a development environment</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">3. Coding practice</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#code-quality-assurance">3.1. Code quality assurance</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#unit-tests">3.2. Unit tests</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#documentation">3.3. Documentation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="internals.html">4. Package architecture</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="internals.html#overview-of-files">4.1. Overview of files</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #F2F2F2" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">pelicun</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active"><span class="section-number">3. </span>Coding practice</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="coding-practice">
+<span id="code-quality"></span><h1><span class="section-number">3. </span>Coding practice<a class="headerlink" href="#coding-practice" title="Link to this heading"></a></h1>
+<section id="code-quality-assurance">
+<h2><span class="section-number">3.1. </span>Code quality assurance<a class="headerlink" href="#code-quality-assurance" title="Link to this heading"></a></h2>
+<p>We use <a class="reference external" href="https://docs.astral.sh/ruff/">Ruff</a>, <a class="reference external" href="https://mypy-lang.org/">mypy</a> and <a class="reference external" href="https://github.com/codespell-project/codespell">Codespell</a> to maintain a high level of quality of the pelicun code.
+Our objective is to always use the latest mature coding practice recommendations emerging from the Python community to ease adaptation to changes in its dependencies or even Python itself.</p>
+<p>We use the <a class="reference external" href="https://numpydoc.readthedocs.io/en/latest/format.html">numpy docstring style</a>, and include comments in the code explaining the ideas behind various operations.
+We are making an effort to use unambiguous variable and class/method/function names.
+Especially for newer code, we are mindful of the complexity of methods/functions and break them down when they start to become too large, by extracting appropriate groups of lines and turning them into appropriately named hidden methods/functions.</p>
+<p>All code checking tools should be available when <a class="reference internal" href="development_environment.html#development-environment"><span class="std std-ref">installing pelicun under a developer setup</span></a>.
+The most straight-forward way to run those tools is via the command-line.
+All of the following commands are assumed to be executed from the package root directory (the one containing <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code>).</p>
+<section id="linting-and-formatting-with-ruff">
+<h3><span class="section-number">3.1.1. </span>Linting and formatting with Ruff<a class="headerlink" href="#linting-and-formatting-with-ruff" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>ruff<span class="w"> </span>check<span class="w">   </span><span class="c1"># Lint all files in the current directory.</span>
+ruff<span class="w"> </span>format<span class="w">  </span><span class="c1"># Format all files in the current directory.</span>
+</pre></div>
+</div>
+<p>Ruff can automatically fix certain warnings when it is safe to do so. See also <a class="reference external" href="https://docs.astral.sh/ruff/linter/#fixes">Fixes</a>.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ruff</span> <span class="n">check</span> <span class="o">--</span><span class="n">fix</span>
+</pre></div>
+</div>
+<p>Warnings can also be automatically suppressed by adding #noqa directives. See <a class="reference external" href="https://docs.astral.sh/ruff/linter/#inserting-necessary-suppression-comments">here</a>.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>ruff<span class="w"> </span>check<span class="w"> </span>--add-noqa
+</pre></div>
+</div>
+<section id="editor-integration">
+<h4><span class="section-number">3.1.1.1. </span>Editor integration<a class="headerlink" href="#editor-integration" title="Link to this heading"></a></h4>
+<p>Like most code checkers, Ruff can be integrated with several editors to enable on-the-fly checks and auto-formatting.
+Under <a class="reference external" href="https://docs.astral.sh/ruff/editors/">Editor Integration</a>, their documentation describes the steps to enable this for VS Code, Neovim, Vim, Helix, Kate, Sublime Text, PyCharm, Emacs, TextMate, and Zed.</p>
+</section>
+</section>
+<section id="type-checking-with-mypy">
+<h3><span class="section-number">3.1.2. </span>Type checking with mypy<a class="headerlink" href="#type-checking-with-mypy" title="Link to this heading"></a></h3>
+<p>Pelicun code is type hinted.
+We use <code class="docutils literal notranslate"><span class="pre">mypy</span></code> for type checking.
+Use the following command to type-check the code:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>mypy<span class="w"> </span>pelicun<span class="w"> </span>--no-namespace-packages
+</pre></div>
+</div>
+<p>Type checking warnings can be silenced by adding <code class="docutils literal notranslate"><span class="pre">#type:</span> <span class="pre">ignore</span></code> at the lines that trigger them.
+Please avoid silencing warnings in newly added code.</p>
+</section>
+<section id="spell-checking-with-codespell">
+<h3><span class="section-number">3.1.3. </span>Spell checking with Codespell<a class="headerlink" href="#spell-checking-with-codespell" title="Link to this heading"></a></h3>
+<p>Codespell is a Python package used to check for common spelling mistakes in text files, particularly source code. It is available on PyPI, configured via pyproject.toml, and is executed as follows:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>codespell<span class="w"> </span>.
+</pre></div>
+</div>
+<p>False positives can be placed in a dedicated file (we currently call it <code class="docutils literal notranslate"><span class="pre">ignore_words.txt</span></code>) to be ignored.
+Please avoid using variable names that trigger codespell.
+This is easy when variable names are long and explicit.
+E.g., <code class="docutils literal notranslate"><span class="pre">response_spectrum_target</span></code> instead of <code class="docutils literal notranslate"><span class="pre">resptr</span></code>.</p>
+</section>
+</section>
+<section id="unit-tests">
+<h2><span class="section-number">3.2. </span>Unit tests<a class="headerlink" href="#unit-tests" title="Link to this heading"></a></h2>
+<p>We use <a class="reference external" href="https://docs.pytest.org/en/stable/">pytest</a> to write unit tests for pelicun.
+The tests can be executed with the following command.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>pytest<span class="w"> </span>pelicun/tests<span class="w"> </span>--cov<span class="o">=</span>pelicun<span class="w"> </span>--cov-report<span class="w"> </span>html
+</pre></div>
+</div>
+<p>When the test runs finish, visit <code class="docutils literal notranslate"><span class="pre">htmlcov/index.html</span></code> for a comprehensive view of code coverage.</p>
+<p>The tests can be debugged like any other Python code, by inserting <code class="docutils literal notranslate"><span class="pre">breakpoint()</span></code> at any line and executing the line above.
+When the breakpoint is reached you will gain access to <code class="docutils literal notranslate"><span class="pre">PDB</span></code>, the Python Debugger.</p>
+<p>Please extend the test suite whenever you introduce new pelicun code, and update it if needed when making changes to the existing code.
+Avoid opening pull requests with changes that reduce code coverage by not writing tests for your code.</p>
+</section>
+<section id="documentation">
+<h2><span class="section-number">3.3. </span>Documentation<a class="headerlink" href="#documentation" title="Link to this heading"></a></h2>
+<p>We use <a class="reference external" href="https://www.sphinx-doc.org/en/master/">sphinx</a> with the <a class="reference external" href="https://sphinx-rtd-theme.readthedocs.io/en/stable/">Read the Docs theme</a> to generate our documentation pages.</p>
+<p>We use the following extensions:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://nbsphinx.readthedocs.io/en/0.9.5/">nbsphinx</a> to integrate jupyter notebooks into the documentation, particularly for the pelicun examples.
+In the source code they are stored as python files with special syntax defining individual cells, and we use <a class="reference external" href="https://jupytext.readthedocs.io/en/latest/">jupytext</a> to automatically turn them into notebooks when the documentation is compiled (see <code class="docutils literal notranslate"><span class="pre">nbsphinx_custom_formats</span></code> in <code class="docutils literal notranslate"><span class="pre">conf.py</span></code>).</p></li>
+<li><p><a class="reference external" href="https://sphinx-design.readthedocs.io/en/latest/">Sphinx design</a> for cards and drop-downs.</p></li>
+<li><p><a class="reference external" href="https://www.sphinx-doc.org/en/master/usage/extensions/math.html">sphinx.ext.mathjax</a> for math support.</p></li>
+<li><p><a class="reference external" href="https://www.sphinx-doc.org/en/master/usage/extensions/doctest.html">sphinx.ext.doctest</a> to actively test examples included in docstrings.</p></li>
+<li><p><a class="reference external" href="https://numpydoc.readthedocs.io/en/latest/">numpydoc</a> and <a class="reference external" href="https://www.sphinx-doc.org/en/master/usage/extensions/autodoc.html">autodoc</a> to generate the API documentation from the docstrings in the source code.</p></li>
+<li><p><a class="reference external" href="https://www.sphinx-doc.org/en/master/usage/extensions/autosummary.html">sphinx.ext.autosummary</a> for the API docs.</p></li>
+<li><p><a class="reference external" href="https://www.sphinx-doc.org/en/master/usage/extensions/viewcode.html">sphinx.ext.viewcode</a> to add links that point to the source code in the API docs.</p></li>
+<li><p><a class="reference external" href="https://www.sphinx-doc.org/en/master/usage/extensions/intersphinx.html">sphinx.ext.intersphinx</a> to link to other projects’ documentation.</p></li>
+<li><p><a class="reference external" href="https://www.sphinx-doc.org/en/master/usage/extensions/githubpages.html">sphinx.ext.githubpages</a> for publishing in GitHub pages.</p></li>
+</ul>
+<section id="building-the-documentation">
+<h3><span class="section-number">3.3.1. </span>Building the documentation<a class="headerlink" href="#building-the-documentation" title="Link to this heading"></a></h3>
+<p>To build the documentation, navigate to <cite>doc</cite> and run the following command:</p>
+<div class="sd-tab-set docutils">
+<input checked="checked" id="sd-tab-item-0" name="sd-tab-set-0" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-0">
+Linux &amp; Mac</label><div class="sd-tab-content docutils">
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make<span class="w"> </span>html
+</pre></div>
+</div>
+</div>
+<input id="sd-tab-item-1" name="sd-tab-set-0" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-1">
+Windows</label><div class="sd-tab-content docutils">
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>.<span class="se">\m</span>ake.bat<span class="w"> </span>html
+</pre></div>
+</div>
+</div>
+</div>
+<p>To see more options:</p>
+<div class="sd-tab-set docutils">
+<input checked="checked" id="sd-tab-item-2" name="sd-tab-set-1" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-2">
+Linux &amp; Mac</label><div class="sd-tab-content docutils">
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make
+</pre></div>
+</div>
+</div>
+<input id="sd-tab-item-3" name="sd-tab-set-1" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-3">
+Windows</label><div class="sd-tab-content docutils">
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>.<span class="se">\m</span>ake.bat
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="extending-the-documentation">
+<h3><span class="section-number">3.3.2. </span>Extending the documentation<a class="headerlink" href="#extending-the-documentation" title="Link to this heading"></a></h3>
+<p>Extending the documentation can be done in several ways:</p>
+<ul class="simple">
+<li><p>By adding content to <code class="docutils literal notranslate"><span class="pre">.rst</span></code> files or adding more such files.
+See the structure of the <code class="docutils literal notranslate"><span class="pre">doc/source</span></code> directory and look at the <code class="docutils literal notranslate"><span class="pre">index.rst</span></code> files to gain familiarity with the structure of the documentation.
+When a page is added it will need to be included in a <code class="docutils literal notranslate"><span class="pre">toctree</span></code> directive in order for it to be registered and have a way of being accessed.</p></li>
+<li><p>By adding or modifying example notebooks under <code class="docutils literal notranslate"><span class="pre">doc/examples/notebooks</span></code>.
+When a new notebook is added, it needs to be included in <code class="docutils literal notranslate"><span class="pre">doc/examples/index.rst</span></code>.
+Please review that index file and how other notebooks are listed to become familiar with our approach.</p></li>
+</ul>
+<p>After making a change you can simply rebuild the documentation with the command above.
+Once the documentation pages are built, please verify no Sphinx warnings are reported.
+A warning count is shown after “build succeeded”, close to the last output line:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>[...]
+dumping object inventory... done
+<span class="hll">build succeeded, 1 warning.
+</span>
+The HTML pages are in build/html.
+</pre></div>
+</div>
+<p>If there are warnings, please address them before contributing your changes.</p>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Leland Stanford Junior University and The Regents of the University of California.</p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+    <!-- Theme Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-158130480-7"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'UA-158130480-7', {
+          'anonymize_ip': false,
+      });
+    </script> 
+
+</body>
+</html>

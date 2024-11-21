@@ -1,0 +1,30 @@
+pelicun.auto
+============
+
+.. automodule:: pelicun.auto
+   :members:
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      auto_populate
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

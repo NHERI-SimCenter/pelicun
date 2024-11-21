@@ -1,7 +1,0 @@
-include README.md
-include LICENSE
-recursive-include pelicun *.json *.xlsx *.hdf *.out *.py *.xml 
-exclude pelicun/lab.py
-exclude pelicun/tests/EDP?data/EDP_table_test_H01.out
-exclude pelicun/tests/input?data/DL_input_test_FULL.json
-exclude pelicun/tests/input?data/DL_input_test_H01.json

@@ -1,0 +1,751 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pelicun.model.asset_model &mdash; pelicun  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=f9bf6728" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #F2F2F2" >
+
+          
+          
+          <a href="../../../index.html">
+            
+              <img src="../../../_static/pelicun-Logo-grey.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">About</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../about/license.html">1. Copyright and license</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../about/cite.html">2. Citing pelicun</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../about/cite.html#logo">3. Logo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../about/acknowledgments.html">4. Acknowledgments</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../about/acknowledgments.html#national-science-foundation">4.1. National Science Foundation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../about/acknowledgments.html#contributors">4.2. Contributors</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../release_notes/index.html">5. Release Notes</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../release_notes/index.html#version-3-0">5.1. Version 3.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../release_notes/index.html#version-2-0">5.2. Version 2.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../release_notes/index.html#version-1-0">5.3. Version 1.0</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_guide/install.html">1. Getting started</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/install.html#staying-up-to-date">1.1. Staying up to date</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_guide/pelicun_framework.html">2. The Pelicun Framework</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/pelicun_framework.html#abbreviations">2.1. Abbreviations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/pelicun_framework.html#introduction-to-pelicun">2.2. Introduction to Pelicun</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/pelicun_framework.html#overview">2.3. Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/pelicun_framework.html#performance-assessment-workflow">2.4. Performance Assessment Workflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/pelicun_framework.html#response-model">2.5. Response Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/pelicun_framework.html#performance-model">2.6. Performance Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/pelicun_framework.html#damage-model">2.7. Damage Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/pelicun_framework.html#loss-model">2.8. Loss Model</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_guide/feature_overview.html">3. Overview of pelicun features</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/feature_overview.html#saving-loading-samples">3.1. Saving/loading samples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/feature_overview.html#logging-support">3.2. Logging support</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/feature_overview.html#uncertainty-quantification">3.3. Uncertainty quantification</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/feature_overview.html#assessment-types">3.4. Assessment types</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/feature_overview.html#demand-simulation">3.5. Demand simulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/feature_overview.html#damage-estimation">3.6. Damage estimation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/feature_overview.html#loss-estimation">3.7. Loss estimation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/feature_overview.html#command-line-support">3.8. Command-line support</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/feature_overview.html#standalone-tools">3.9. Standalone tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/feature_overview.html#feature-overview-and-examples">3.10. Feature overview and examples</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_guide/damage_and_loss_library.html">4. Damage and loss library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_guide/bug_reports_and_feature_requests.html">5. Bug reports and feature requests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_guide/resources_for_new_python_users.html">6. Resources for new python users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples/index.html">7. Examples</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../examples/index.html#complete-list">7.1. Complete list</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../examples/index.html#grouped-by-feature">7.2. Grouped by feature</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api_reference/index.html">8. API Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../api_reference/_autosummary/pelicun.html">8.1. pelicun</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../developer_guide/getting_started.html">1. Getting started</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../developer_guide/getting_started.html#code-of-conduct">1.1. Code of conduct</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../developer_guide/getting_started.html#how-to-contribute">1.2. How to contribute</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developer_guide/development_environment.html">2. Setting up a development environment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developer_guide/code_quality.html">3. Coding practice</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../developer_guide/code_quality.html#code-quality-assurance">3.1. Code quality assurance</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../developer_guide/code_quality.html#unit-tests">3.2. Unit tests</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../developer_guide/code_quality.html#documentation">3.3. Documentation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developer_guide/internals.html">4. Package architecture</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../developer_guide/internals.html#overview-of-files">4.1. Overview of files</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #F2F2F2" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">pelicun</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">pelicun.model.asset_model</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for pelicun.model.asset_model</h1><div class="highlight"><pre>
+<span></span><span class="c1">#</span>
+<span class="c1"># Copyright (c) 2018 Leland Stanford Junior University</span>
+<span class="c1"># Copyright (c) 2018 The Regents of the University of California</span>
+<span class="c1">#</span>
+<span class="c1"># This file is part of pelicun.</span>
+<span class="c1">#</span>
+<span class="c1"># Redistribution and use in source and binary forms, with or without</span>
+<span class="c1"># modification, are permitted provided that the following conditions are met:</span>
+<span class="c1">#</span>
+<span class="c1"># 1. Redistributions of source code must retain the above copyright notice,</span>
+<span class="c1"># this list of conditions and the following disclaimer.</span>
+<span class="c1">#</span>
+<span class="c1"># 2. Redistributions in binary form must reproduce the above copyright notice,</span>
+<span class="c1"># this list of conditions and the following disclaimer in the documentation</span>
+<span class="c1"># and/or other materials provided with the distribution.</span>
+<span class="c1">#</span>
+<span class="c1"># 3. Neither the name of the copyright holder nor the names of its contributors</span>
+<span class="c1"># may be used to endorse or promote products derived from this software without</span>
+<span class="c1"># specific prior written permission.</span>
+<span class="c1">#</span>
+<span class="c1"># THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS &quot;AS IS&quot;</span>
+<span class="c1"># AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE</span>
+<span class="c1"># IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE</span>
+<span class="c1"># ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE</span>
+<span class="c1"># LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR</span>
+<span class="c1"># CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF</span>
+<span class="c1"># SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS</span>
+<span class="c1"># INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN</span>
+<span class="c1"># CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)</span>
+<span class="c1"># ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE</span>
+<span class="c1"># POSSIBILITY OF SUCH DAMAGE.</span>
+<span class="c1">#</span>
+<span class="c1"># You should have received a copy of the BSD 3-Clause License along with</span>
+<span class="c1"># pelicun. If not, see &lt;http://www.opensource.org/licenses/&gt;.</span>
+<span class="c1">#</span>
+<span class="c1"># Contributors:</span>
+<span class="c1"># Adam Zsarnóczay</span>
+<span class="c1"># John Vouvakis Manousakis</span>
+
+
+<span class="sd">&quot;&quot;&quot;AssetModel object and methods.&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">product</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+
+<span class="kn">from</span> <span class="nn">pelicun</span> <span class="kn">import</span> <span class="n">base</span><span class="p">,</span> <span class="n">file_io</span><span class="p">,</span> <span class="n">uq</span>
+<span class="kn">from</span> <span class="nn">pelicun.model.pelicun_model</span> <span class="kn">import</span> <span class="n">PelicunModel</span>
+
+<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">pelicun.assessment</span> <span class="kn">import</span> <span class="n">AssessmentBase</span>
+
+<span class="n">idx</span> <span class="o">=</span> <span class="n">base</span><span class="o">.</span><span class="n">idx</span>
+
+
+<div class="viewcode-block" id="AssetModel">
+<a class="viewcode-back" href="../../../api_reference/_autosummary/pelicun.model.asset_model.html#pelicun.model.asset_model.AssetModel">[docs]</a>
+<span class="k">class</span> <span class="nc">AssetModel</span><span class="p">(</span><span class="n">PelicunModel</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Asset information used in assessments.&quot;&quot;&quot;</span>
+
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;_cmp_RVs&#39;</span><span class="p">,</span> <span class="s1">&#39;cmp_marginal_params&#39;</span><span class="p">,</span> <span class="s1">&#39;cmp_sample&#39;</span><span class="p">,</span> <span class="s1">&#39;cmp_units&#39;</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">assessment</span><span class="p">:</span> <span class="n">AssessmentBase</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize an Asset model.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        assessment: AssessmentBase</span>
+<span class="sd">            Parent assessment object.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">assessment</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">cmp_marginal_params</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cmp_units</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cmp_sample</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cmp_RVs</span><span class="p">:</span> <span class="n">uq</span><span class="o">.</span><span class="n">RandomVariableRegistry</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="AssetModel.save_cmp_sample">
+<a class="viewcode-back" href="../../../api_reference/_autosummary/pelicun.model.asset_model.html#pelicun.model.asset_model.AssetModel.save_cmp_sample">[docs]</a>
+    <span class="k">def</span> <span class="nf">save_cmp_sample</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">save_units</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Save or retrieve component quantity sample.</span>
+
+<span class="sd">        Saves the component quantity sample to a CSV file or returns</span>
+<span class="sd">        it as a DataFrame with optional units.  This method handles</span>
+<span class="sd">        the storage of a sample of component quantities, which can</span>
+<span class="sd">        either be saved directly to a file or returned as a DataFrame</span>
+<span class="sd">        for further manipulation. When saving to a file, additional</span>
+<span class="sd">        information such as unit conversion factors and column units</span>
+<span class="sd">        can be included. If the data is not being saved to a file, the</span>
+<span class="sd">        method can return the DataFrame with or without units as</span>
+<span class="sd">        specified.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        filepath: str, optional</span>
+<span class="sd">            The path to the file where the component quantity sample</span>
+<span class="sd">            should be saved. If not provided, the sample is not saved</span>
+<span class="sd">            to disk but returned.</span>
+<span class="sd">        save_units: bool, default: False</span>
+<span class="sd">            Indicates whether to include a row with unit information</span>
+<span class="sd">            in the returned DataFrame. This parameter is ignored if a</span>
+<span class="sd">            file path is provided.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        None or tuple</span>
+<span class="sd">            If `filepath` is provided, the function returns None after</span>
+<span class="sd">            saving the data.</span>
+<span class="sd">            If no `filepath` is specified, returns:</span>
+<span class="sd">            * DataFrame containing the component quantity sample.</span>
+<span class="sd">            * Optionally, a Series containing the units for each</span>
+<span class="sd">            column if `save_units` is True.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        The function utilizes internal logging to notify the start and</span>
+<span class="sd">        completion of the saving process. It adjusts index types and</span>
+<span class="sd">        handles unit conversions based on assessment configurations.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">div</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">filepath</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">msg</span><span class="p">(</span><span class="s1">&#39;Saving asset components sample...&#39;</span><span class="p">)</span>
+
+        <span class="c1"># prepare a units array</span>
+        <span class="n">sample</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cmp_sample</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">sample</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span>
+
+        <span class="n">units</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;Units&#39;</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">sample</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">object</span><span class="p">)</span>
+
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">cmp_units</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="k">for</span> <span class="n">cmp_id</span><span class="p">,</span> <span class="n">unit_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">cmp_units</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">units</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">cmp_id</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">unit_name</span>  <span class="c1"># type: ignore</span>
+
+        <span class="n">res</span> <span class="o">=</span> <span class="n">file_io</span><span class="o">.</span><span class="n">save_to_csv</span><span class="p">(</span>
+            <span class="n">sample</span><span class="p">,</span>
+            <span class="n">Path</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span> <span class="k">if</span> <span class="n">filepath</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">units</span><span class="o">=</span><span class="n">units</span><span class="p">,</span>
+            <span class="n">unit_conversion_factors</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_asmnt</span><span class="o">.</span><span class="n">unit_conversion_factors</span><span class="p">,</span>
+            <span class="n">use_simpleindex</span><span class="o">=</span><span class="p">(</span><span class="n">filepath</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">),</span>
+            <span class="n">log</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_asmnt</span><span class="o">.</span><span class="n">log</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">filepath</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">msg</span><span class="p">(</span>
+                <span class="s1">&#39;Asset components sample successfully saved.&#39;</span><span class="p">,</span>
+                <span class="n">prepend_timestamp</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="c1"># else:</span>
+
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">res</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span>
+
+        <span class="n">units_part</span> <span class="o">=</span> <span class="n">res</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s1">&#39;Units&#39;</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">units_part</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">)</span>
+        <span class="n">units</span> <span class="o">=</span> <span class="n">units_part</span>
+
+        <span class="n">res</span> <span class="o">=</span> <span class="n">res</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="s1">&#39;Units&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">save_units</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">res</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">),</span> <span class="n">units</span>
+
+        <span class="k">return</span> <span class="n">res</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="AssetModel.load_cmp_sample">
+<a class="viewcode-back" href="../../../api_reference/_autosummary/pelicun.model.asset_model.html#pelicun.model.asset_model.AssetModel.load_cmp_sample">[docs]</a>
+    <span class="k">def</span> <span class="nf">load_cmp_sample</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Load a component quantity sample from a specified CSV file.</span>
+
+<span class="sd">        This method reads a CSV file that contains component quantity</span>
+<span class="sd">        samples, setting up the necessary DataFrame structures within</span>
+<span class="sd">        the application. It also handles unit conversions using</span>
+<span class="sd">        predefined conversion factors and captures the units of each</span>
+<span class="sd">        component quantity from the CSV file.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        filepath: str</span>
+<span class="sd">            The path to the CSV file from which to load the component</span>
+<span class="sd">            quantity sample.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">          If the columns have an invalid number of levels.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        Upon successful loading, the method sets the component sample</span>
+<span class="sd">        and units as internal attributes of the class, making them</span>
+<span class="sd">        readily accessible for further operations. It also sets</span>
+<span class="sd">        appropriate column names for the DataFrame to match expected</span>
+<span class="sd">        indexing levels such as component (&#39;cmp&#39;), location (&#39;loc&#39;),</span>
+<span class="sd">        direction (&#39;dir&#39;), and unique identifier (&#39;uid&#39;).</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        Assuming the filepath to the component sample CSV is known and</span>
+<span class="sd">        accessible:</span>
+
+<span class="sd">        &gt;&gt;&gt; model.load_cmp_sample(&#39;path/to/component_sample.csv&#39;)</span>
+<span class="sd">        # This will load the component quantity sample into the model</span>
+<span class="sd">        # from the specified file.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">div</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">msg</span><span class="p">(</span><span class="s1">&#39;Loading asset components sample...&#39;</span><span class="p">)</span>
+
+        <span class="n">sample</span><span class="p">,</span> <span class="n">units</span> <span class="o">=</span> <span class="n">file_io</span><span class="o">.</span><span class="n">load_data</span><span class="p">(</span>
+            <span class="n">filepath</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_asmnt</span><span class="o">.</span><span class="n">unit_conversion_factors</span><span class="p">,</span>
+            <span class="n">return_units</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">log</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_asmnt</span><span class="o">.</span><span class="n">log</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">sample</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">units</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">)</span>
+
+        <span class="c1"># Check if a `uid` level was passed</span>
+        <span class="n">num_levels</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">sample</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">names</span><span class="p">)</span>
+        <span class="n">num_levels_without_uid</span> <span class="o">=</span> <span class="mi">3</span>
+        <span class="n">num_levels_with_uid</span> <span class="o">=</span> <span class="n">num_levels_without_uid</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="k">if</span> <span class="n">num_levels</span> <span class="o">==</span> <span class="n">num_levels_without_uid</span><span class="p">:</span>
+            <span class="c1"># No `uid`, add one.</span>
+            <span class="n">sample</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">names</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;cmp&#39;</span><span class="p">,</span> <span class="s1">&#39;loc&#39;</span><span class="p">,</span> <span class="s1">&#39;dir&#39;</span><span class="p">]</span>
+            <span class="n">sample</span> <span class="o">=</span> <span class="n">base</span><span class="o">.</span><span class="n">dedupe_index</span><span class="p">(</span><span class="n">sample</span><span class="o">.</span><span class="n">T</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+        <span class="k">elif</span> <span class="n">num_levels</span> <span class="o">==</span> <span class="n">num_levels_with_uid</span><span class="p">:</span>
+            <span class="n">sample</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">names</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;cmp&#39;</span><span class="p">,</span> <span class="s1">&#39;loc&#39;</span><span class="p">,</span> <span class="s1">&#39;dir&#39;</span><span class="p">,</span> <span class="s1">&#39;uid&#39;</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="sa">f</span><span class="s1">&#39;Invalid component sample: Column MultiIndex &#39;</span>
+                <span class="sa">f</span><span class="s1">&#39;has an unexpected length: </span><span class="si">{</span><span class="n">num_levels</span><span class="si">}</span><span class="s1">&#39;</span>
+            <span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">cmp_sample</span> <span class="o">=</span> <span class="n">sample</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">cmp_units</span> <span class="o">=</span> <span class="n">units</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+
+        <span class="c1"># Add marginal parameters with Blocks information (later calls</span>
+        <span class="c1"># rely on that attribute being defined)</span>
+        <span class="c1"># Obviously we can&#39;t trace back the distributions and their</span>
+        <span class="c1"># parameters, those columns are left undefined.</span>
+        <span class="n">cmp_marginal_params</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cmp_sample</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">to_list</span><span class="p">(),</span> <span class="n">columns</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cmp_sample</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">names</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+        <span class="n">cmp_marginal_params</span><span class="p">[</span><span class="s1">&#39;Blocks&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">cmp_marginal_params</span> <span class="o">=</span> <span class="n">cmp_marginal_params</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span>
+            <span class="p">[</span><span class="s1">&#39;cmp&#39;</span><span class="p">,</span> <span class="s1">&#39;loc&#39;</span><span class="p">,</span> <span class="s1">&#39;dir&#39;</span><span class="p">,</span> <span class="s1">&#39;uid&#39;</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cmp_marginal_params</span> <span class="o">=</span> <span class="n">cmp_marginal_params</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">msg</span><span class="p">(</span>
+            <span class="s1">&#39;Asset components sample successfully loaded.&#39;</span><span class="p">,</span> <span class="n">prepend_timestamp</span><span class="o">=</span><span class="kc">False</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="AssetModel.load_cmp_model">
+<a class="viewcode-back" href="../../../api_reference/_autosummary/pelicun.model.asset_model.html#pelicun.model.asset_model.AssetModel.load_cmp_model">[docs]</a>
+    <span class="k">def</span> <span class="nf">load_cmp_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_source</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Load the asset model from a specified data source.</span>
+
+<span class="sd">        This function is responsible for loading data related to the</span>
+<span class="sd">        component model of an asset. It supports loading from multiple</span>
+<span class="sd">        types of data sources. If the data source is a string, it is</span>
+<span class="sd">        treated as a prefix to filenames that contain the necessary</span>
+<span class="sd">        data. If it is a dictionary, it directly contains the data as</span>
+<span class="sd">        DataFrames.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        data_source: str or dict</span>
+<span class="sd">            The source from where to load the component model data. If</span>
+<span class="sd">            it&#39;s a string, it should be the prefix for three files:</span>
+<span class="sd">            one for marginal distributions (`&lt;prefix&gt;_marginals.csv`),</span>
+<span class="sd">            one for empirical data (`&lt;prefix&gt;_empirical.csv`), and one</span>
+<span class="sd">            for correlation data (`&lt;prefix&gt;_correlation.csv`). If it&#39;s</span>
+<span class="sd">            a dictionary, it should have keys &#39;marginals&#39;,</span>
+<span class="sd">            &#39;empirical&#39;, and &#39;correlation&#39;, with each key associated</span>
+<span class="sd">            with a DataFrame containing the corresponding data.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        The function utilizes helper functions to handle complex</span>
+<span class="sd">        location strings that can describe single locations, ranges,</span>
+<span class="sd">        lists, or special keywords like &#39;all&#39;, &#39;top&#39;, and</span>
+<span class="sd">        &#39;roof&#39;. These are used to specify which parts of the asset the</span>
+<span class="sd">        data pertains to, especially useful in buildings with multiple</span>
+<span class="sd">        stories or sections.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        To load data using file prefixes:</span>
+
+<span class="sd">        &gt;&gt;&gt; model.load_cmp_model(&#39;path/to/data_prefix&#39;)</span>
+
+<span class="sd">        To load data using a dictionary of DataFrames:</span>
+
+<span class="sd">        &gt;&gt;&gt; data_dict = {</span>
+<span class="sd">            &#39;marginals&#39;: df_marginals,</span>
+<span class="sd">            &#39;empirical&#39;: df_empirical,</span>
+<span class="sd">            &#39;correlation&#39;: df_correlation</span>
+<span class="sd">        }</span>
+<span class="sd">        &gt;&gt;&gt; model.load_cmp_model(data_dict)</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">div</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">msg</span><span class="p">(</span><span class="s1">&#39;Loading component model...&#39;</span><span class="p">)</span>
+
+        <span class="c1"># Currently, we assume independent component distributions are defined</span>
+        <span class="c1"># throughout the building. Correlations may be added afterward or this</span>
+        <span class="c1"># method can be extended to read correlation matrices too if needed.</span>
+
+        <span class="c1"># prepare the marginal data source variable to load the data</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="n">marginal_data_source</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">data_source</span><span class="p">[</span><span class="s1">&#39;marginals&#39;</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">marginal_data_source</span> <span class="o">=</span> <span class="n">data_source</span> <span class="o">+</span> <span class="s1">&#39;_marginals.csv&#39;</span>
+
+        <span class="n">marginal_params</span><span class="p">,</span> <span class="n">units</span> <span class="o">=</span> <span class="n">file_io</span><span class="o">.</span><span class="n">load_data</span><span class="p">(</span>
+            <span class="n">marginal_data_source</span><span class="p">,</span>
+            <span class="kc">None</span><span class="p">,</span>
+            <span class="n">orientation</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+            <span class="n">reindex</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">return_units</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">log</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_asmnt</span><span class="o">.</span><span class="n">log</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">marginal_params</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">units</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">)</span>
+
+        <span class="c1"># group units by cmp id to avoid redundant entries</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cmp_units</span> <span class="o">=</span> <span class="n">units</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+
+        <span class="n">marginal_params</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">marginal_params</span><span class="p">,</span> <span class="n">units</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="n">cmp_marginal_param_dct</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;Family&#39;</span><span class="p">:</span> <span class="p">[],</span>
+            <span class="s1">&#39;Theta_0&#39;</span><span class="p">:</span> <span class="p">[],</span>
+            <span class="s1">&#39;Theta_1&#39;</span><span class="p">:</span> <span class="p">[],</span>
+            <span class="s1">&#39;Theta_2&#39;</span><span class="p">:</span> <span class="p">[],</span>
+            <span class="s1">&#39;TruncateLower&#39;</span><span class="p">:</span> <span class="p">[],</span>
+            <span class="s1">&#39;TruncateUpper&#39;</span><span class="p">:</span> <span class="p">[],</span>
+            <span class="s1">&#39;Blocks&#39;</span><span class="p">:</span> <span class="p">[],</span>
+            <span class="s1">&#39;Units&#39;</span><span class="p">:</span> <span class="p">[],</span>
+        <span class="p">}</span>
+        <span class="n">index_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">marginal_params</span><span class="o">.</span><span class="n">itertuples</span><span class="p">():</span>
+            <span class="n">locs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_locations</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">Location</span><span class="p">))</span>
+            <span class="n">dirs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_directions</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">Direction</span><span class="p">))</span>
+            <span class="n">indices</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">product</span><span class="p">((</span><span class="n">row</span><span class="o">.</span><span class="n">Index</span><span class="p">,),</span> <span class="n">locs</span><span class="p">,</span> <span class="n">dirs</span><span class="p">))</span>
+            <span class="n">num_vals</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">indices</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">col</span><span class="p">,</span> <span class="n">cmp_marginal_param</span> <span class="ow">in</span> <span class="n">cmp_marginal_param_dct</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">col</span> <span class="o">==</span> <span class="s1">&#39;Blocks&#39;</span><span class="p">:</span>
+                    <span class="n">cmp_marginal_param</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
+                        <span class="p">[</span>
+                            <span class="nb">int</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">Blocks</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
+                            <span class="k">if</span> <span class="p">(</span><span class="s1">&#39;Blocks&#39;</span> <span class="ow">in</span> <span class="nb">dir</span><span class="p">(</span><span class="n">row</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">pd</span><span class="o">.</span><span class="n">isna</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">Blocks</span><span class="p">))</span>
+                            <span class="k">else</span> <span class="mi">1</span><span class="p">,</span>
+                        <span class="p">]</span>
+                        <span class="o">*</span> <span class="n">num_vals</span>
+                    <span class="p">)</span>
+                <span class="k">elif</span> <span class="n">col</span> <span class="o">==</span> <span class="s1">&#39;Units&#39;</span><span class="p">:</span>
+                    <span class="n">cmp_marginal_param</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">cmp_units</span><span class="p">[</span><span class="n">row</span><span class="o">.</span><span class="n">Index</span><span class="p">]]</span> <span class="o">*</span> <span class="n">num_vals</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">col</span> <span class="o">==</span> <span class="s1">&#39;Family&#39;</span><span class="p">:</span>
+                    <span class="n">cmp_marginal_param</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="nb">getattr</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">col</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)]</span> <span class="o">*</span> <span class="n">num_vals</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">cmp_marginal_param</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
+                        <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">col</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">))]</span> <span class="o">*</span> <span class="n">num_vals</span>
+                    <span class="p">)</span>
+            <span class="n">index_list</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">indices</span><span class="p">)</span>
+        <span class="n">index</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">MultiIndex</span><span class="o">.</span><span class="n">from_tuples</span><span class="p">(</span><span class="n">index_list</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;cmp&#39;</span><span class="p">,</span> <span class="s1">&#39;loc&#39;</span><span class="p">,</span> <span class="s1">&#39;dir&#39;</span><span class="p">])</span>
+        <span class="n">dtypes</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;Family&#39;</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span>
+            <span class="s1">&#39;Theta_0&#39;</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+            <span class="s1">&#39;Theta_1&#39;</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+            <span class="s1">&#39;Theta_2&#39;</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+            <span class="s1">&#39;TruncateLower&#39;</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+            <span class="s1">&#39;TruncateUpper&#39;</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+            <span class="s1">&#39;Blocks&#39;</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+            <span class="s1">&#39;Units&#39;</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="n">cmp_marginal_param_series</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">col</span><span class="p">,</span> <span class="n">cmp_marginal_param</span> <span class="ow">in</span> <span class="n">cmp_marginal_param_dct</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">cmp_marginal_param_series</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span>
+                    <span class="n">cmp_marginal_param</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtypes</span><span class="p">[</span><span class="n">col</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="n">col</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">index</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="n">cmp_marginal_params</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">cmp_marginal_param_series</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="k">assert</span> <span class="ow">not</span> <span class="p">(</span>
+            <span class="n">cmp_marginal_params</span><span class="p">[</span><span class="s1">&#39;Theta_0&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">isna</span><span class="p">()</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span><span class="o">.</span><span class="n">any</span><span class="p">()</span>  <span class="c1"># type: ignore</span>
+        <span class="p">)</span>
+
+        <span class="n">cmp_marginal_params</span> <span class="o">=</span> <span class="n">cmp_marginal_params</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s1">&#39;all&#39;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">msg</span><span class="p">(</span>
+            <span class="s1">&#39;Model parameters successfully parsed. &#39;</span>
+            <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">cmp_marginal_params</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s1"> performance groups identified&#39;</span><span class="p">,</span>
+            <span class="n">prepend_timestamp</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Now we can take care of converting the values to base units</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">msg</span><span class="p">(</span>
+            <span class="s1">&#39;Converting model parameters to internal units...&#39;</span><span class="p">,</span>
+            <span class="n">prepend_timestamp</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="c1"># ensure that the index has unique entries by introducing an</span>
+        <span class="c1"># internal component uid</span>
+        <span class="n">cmp_marginal_params</span> <span class="o">=</span> <span class="n">base</span><span class="o">.</span><span class="n">dedupe_index</span><span class="p">(</span><span class="n">cmp_marginal_params</span><span class="p">)</span>
+
+        <span class="n">cmp_marginal_params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_convert_marginal_params</span><span class="p">(</span>
+            <span class="n">cmp_marginal_params</span><span class="p">,</span> <span class="n">cmp_marginal_params</span><span class="p">[</span><span class="s1">&#39;Units&#39;</span><span class="p">]</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">cmp_marginal_params</span> <span class="o">=</span> <span class="n">cmp_marginal_params</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="s1">&#39;Units&#39;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">msg</span><span class="p">(</span>
+            <span class="s1">&#39;Model parameters successfully loaded.&#39;</span><span class="p">,</span> <span class="n">prepend_timestamp</span><span class="o">=</span><span class="kc">False</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">msg</span><span class="p">(</span>
+            <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Component model marginal distributions:</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">cmp_marginal_params</span><span class="p">),</span>
+            <span class="n">prepend_timestamp</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+        <span class="c1"># the empirical data and correlation files can be added later, if needed</span>
+
+<div class="viewcode-block" id="AssetModel.list_unique_component_ids">
+<a class="viewcode-back" href="../../../api_reference/_autosummary/pelicun.model.asset_model.html#pelicun.model.asset_model.AssetModel.list_unique_component_ids">[docs]</a>
+    <span class="k">def</span> <span class="nf">list_unique_component_ids</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Obtain unique component IDs.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list | set</span>
+<span class="sd">            Unique components in the asset model.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">cmp_marginal_params</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">cmp_marginal_params</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">to_list</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="AssetModel.generate_cmp_sample">
+<a class="viewcode-back" href="../../../api_reference/_autosummary/pelicun.model.asset_model.html#pelicun.model.asset_model.AssetModel.generate_cmp_sample">[docs]</a>
+    <span class="k">def</span> <span class="nf">generate_cmp_sample</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sample_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generate a component sample.</span>
+
+<span class="sd">        Generates a sample of component quantity realizations based on</span>
+<span class="sd">        predefined model parameters and optionally specified sample</span>
+<span class="sd">        size.  If no sample size is provided, the function attempts to</span>
+<span class="sd">        use the sample size from an associated demand model.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        sample_size: int, optional</span>
+<span class="sd">            The number of realizations to generate. If not specified,</span>
+<span class="sd">            the sample size is taken from the demand model associated</span>
+<span class="sd">            with the assessment.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If the model parameters are not loaded before sample</span>
+<span class="sd">            generation, or if neither sample size is specified nor can</span>
+<span class="sd">            be determined from the demand model.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cmp_marginal_params</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="s1">&#39;Model parameters have not been specified. Load &#39;</span>
+                <span class="s1">&#39;parameters from a file before generating a &#39;</span>
+                <span class="s1">&#39;sample.&#39;</span>
+            <span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">div</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">msg</span><span class="p">(</span><span class="s1">&#39;Generating sample from component quantity variables...&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">sample_size</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_asmnt</span><span class="o">.</span><span class="n">demand</span><span class="o">.</span><span class="n">sample</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="s1">&#39;Sample size was not specified, &#39;</span>
+                    <span class="s1">&#39;and it cannot be determined from &#39;</span>
+                    <span class="s1">&#39;the demand model.&#39;</span>
+                <span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+            <span class="n">sample_size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_asmnt</span><span class="o">.</span><span class="n">demand</span><span class="o">.</span><span class="n">sample</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_create_cmp_RVs</span><span class="p">()</span>
+
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cmp_RVs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_asmnt</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">sampling_method</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cmp_RVs</span><span class="o">.</span><span class="n">generate_sample</span><span class="p">(</span>
+            <span class="n">sample_size</span><span class="o">=</span><span class="n">sample_size</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_asmnt</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">sampling_method</span>
+        <span class="p">)</span>
+
+        <span class="n">cmp_sample</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cmp_RVs</span><span class="o">.</span><span class="n">RV_sample</span><span class="p">)</span>
+        <span class="n">cmp_sample</span> <span class="o">=</span> <span class="n">cmp_sample</span><span class="o">.</span><span class="n">sort_index</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">cmp_sample</span> <span class="o">=</span> <span class="n">cmp_sample</span><span class="o">.</span><span class="n">sort_index</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">cmp_sample_mi</span> <span class="o">=</span> <span class="n">base</span><span class="o">.</span><span class="n">convert_to_MultiIndex</span><span class="p">(</span><span class="n">cmp_sample</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)[</span><span class="s1">&#39;CMP&#39;</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cmp_sample_mi</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span>
+        <span class="n">cmp_sample</span> <span class="o">=</span> <span class="n">cmp_sample_mi</span>
+        <span class="n">cmp_sample</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">names</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;cmp&#39;</span><span class="p">,</span> <span class="s1">&#39;loc&#39;</span><span class="p">,</span> <span class="s1">&#39;dir&#39;</span><span class="p">,</span> <span class="s1">&#39;uid&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cmp_sample</span> <span class="o">=</span> <span class="n">cmp_sample</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">msg</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Successfully generated </span><span class="si">{</span><span class="n">sample_size</span><span class="si">}</span><span class="s1"> realizations.&#39;</span><span class="p">,</span>
+            <span class="n">prepend_timestamp</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+    <span class="k">def</span> <span class="nf">_create_cmp_RVs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># noqa: N802</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Define the RVs used for sampling component quantities.&quot;&quot;&quot;</span>
+        <span class="c1"># initialize the registry</span>
+        <span class="n">rv_reg</span> <span class="o">=</span> <span class="n">uq</span><span class="o">.</span><span class="n">RandomVariableRegistry</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_asmnt</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">rng</span><span class="p">)</span>
+
+        <span class="c1"># add a random variable for each component quantity variable</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">cmp_marginal_params</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="k">for</span> <span class="n">rv_params</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">cmp_marginal_params</span><span class="o">.</span><span class="n">itertuples</span><span class="p">():</span>
+            <span class="n">cmp</span> <span class="o">=</span> <span class="n">rv_params</span><span class="o">.</span><span class="n">Index</span>
+
+            <span class="c1"># create a random variable and add it to the registry</span>
+            <span class="n">family</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">rv_params</span><span class="p">,</span> <span class="s1">&#39;Family&#39;</span><span class="p">,</span> <span class="s1">&#39;deterministic&#39;</span><span class="p">)</span>
+            <span class="n">rv_reg</span><span class="o">.</span><span class="n">add_RV</span><span class="p">(</span>
+                <span class="n">uq</span><span class="o">.</span><span class="n">rv_class_map</span><span class="p">(</span><span class="n">family</span><span class="p">)(</span>
+                    <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;CMP-</span><span class="si">{</span><span class="n">cmp</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s1">-</span><span class="si">{</span><span class="n">cmp</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s1">-</span><span class="si">{</span><span class="n">cmp</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="si">}</span><span class="s1">-</span><span class="si">{</span><span class="n">cmp</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>  <span class="c1"># type: ignore</span>
+                    <span class="n">theta</span><span class="o">=</span><span class="p">[</span>  <span class="c1"># type: ignore</span>
+                        <span class="nb">getattr</span><span class="p">(</span><span class="n">rv_params</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;Theta_</span><span class="si">{</span><span class="n">t_i</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+                        <span class="k">for</span> <span class="n">t_i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+                    <span class="p">],</span>
+                    <span class="n">truncation_limits</span><span class="o">=</span><span class="p">[</span>
+                        <span class="nb">getattr</span><span class="p">(</span><span class="n">rv_params</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;Truncate</span><span class="si">{</span><span class="n">side</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+                        <span class="k">for</span> <span class="n">side</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;Lower&#39;</span><span class="p">,</span> <span class="s1">&#39;Upper&#39;</span><span class="p">)</span>
+                    <span class="p">],</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">msg</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">&#39;</span><span class="se">\n</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">cmp_marginal_params</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s1"> random variables created.&#39;</span><span class="p">,</span>
+            <span class="n">prepend_timestamp</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cmp_RVs</span> <span class="o">=</span> <span class="n">rv_reg</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Leland Stanford Junior University and The Regents of the University of California.</p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+    <!-- Theme Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-158130480-7"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'UA-158130480-7', {
+          'anonymize_ip': false,
+      });
+    </script> 
+
+</body>
+</html>

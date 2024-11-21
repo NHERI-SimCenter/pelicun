@@ -1,0 +1,31 @@
+pelicun.tests.code\_repetition\_checker
+=======================================
+
+.. automodule:: pelicun.tests.code_repetition_checker
+   :members:
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      all_test_files
+      main
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

@@ -1,0 +1,395 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>1. Getting started &mdash; pelicun  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=f9bf6728" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../_static/design-tabs.js?v=f930bc37"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="2. Setting up a development environment" href="development_environment.html" />
+    <link rel="prev" title="8.1.9. pelicun.uq" href="../api_reference/_autosummary/pelicun.uq.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #F2F2F2" >
+
+          
+          
+          <a href="../index.html">
+            
+              <img src="../_static/pelicun-Logo-grey.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">About</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../about/license.html">1. Copyright and license</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../about/cite.html">2. Citing pelicun</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../about/cite.html#logo">3. Logo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../about/acknowledgments.html">4. Acknowledgments</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../about/acknowledgments.html#national-science-foundation">4.1. National Science Foundation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../about/acknowledgments.html#contributors">4.2. Contributors</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../release_notes/index.html">5. Release Notes</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../release_notes/index.html#version-3-0">5.1. Version 3.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release_notes/index.html#version-2-0">5.2. Version 2.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release_notes/index.html#version-1-0">5.3. Version 1.0</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/install.html">1. Getting started</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/install.html#staying-up-to-date">1.1. Staying up to date</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/pelicun_framework.html">2. The Pelicun Framework</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/pelicun_framework.html#abbreviations">2.1. Abbreviations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/pelicun_framework.html#introduction-to-pelicun">2.2. Introduction to Pelicun</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/pelicun_framework.html#overview">2.3. Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/pelicun_framework.html#performance-assessment-workflow">2.4. Performance Assessment Workflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/pelicun_framework.html#response-model">2.5. Response Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/pelicun_framework.html#performance-model">2.6. Performance Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/pelicun_framework.html#damage-model">2.7. Damage Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/pelicun_framework.html#loss-model">2.8. Loss Model</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/feature_overview.html">3. Overview of pelicun features</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/feature_overview.html#saving-loading-samples">3.1. Saving/loading samples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/feature_overview.html#logging-support">3.2. Logging support</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/feature_overview.html#uncertainty-quantification">3.3. Uncertainty quantification</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/feature_overview.html#assessment-types">3.4. Assessment types</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/feature_overview.html#demand-simulation">3.5. Demand simulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/feature_overview.html#damage-estimation">3.6. Damage estimation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/feature_overview.html#loss-estimation">3.7. Loss estimation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/feature_overview.html#command-line-support">3.8. Command-line support</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/feature_overview.html#standalone-tools">3.9. Standalone tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/feature_overview.html#feature-overview-and-examples">3.10. Feature overview and examples</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/damage_and_loss_library.html">4. Damage and loss library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/bug_reports_and_feature_requests.html">5. Bug reports and feature requests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/resources_for_new_python_users.html">6. Resources for new python users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples/index.html">7. Examples</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../examples/index.html#complete-list">7.1. Complete list</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/index.html#grouped-by-feature">7.2. Grouped by feature</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../api_reference/index.html">8. API Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../api_reference/_autosummary/pelicun.html">8.1. pelicun</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer Guide</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">1. Getting started</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#code-of-conduct">1.1. Code of conduct</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#how-to-contribute">1.2. How to contribute</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="development_environment.html">2. Setting up a development environment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="code_quality.html">3. Coding practice</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="code_quality.html#code-quality-assurance">3.1. Code quality assurance</a></li>
+<li class="toctree-l2"><a class="reference internal" href="code_quality.html#unit-tests">3.2. Unit tests</a></li>
+<li class="toctree-l2"><a class="reference internal" href="code_quality.html#documentation">3.3. Documentation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="internals.html">4. Package architecture</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="internals.html#overview-of-files">4.1. Overview of files</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #F2F2F2" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">pelicun</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active"><span class="section-number">1. </span>Getting started</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <p>Welcome to the pelicun developer guide.
+The following pages contain information on setting up a development environment, our code quality requirements, our code of conduct, and information on the submission process.
+Thank you for your interest in extending pelicun.
+We are looking forward to your contributions!</p>
+<section id="getting-started">
+<h1><span class="section-number">1. </span>Getting started<a class="headerlink" href="#getting-started" title="Link to this heading"></a></h1>
+<section id="code-of-conduct">
+<h2><span class="section-number">1.1. </span>Code of conduct<a class="headerlink" href="#code-of-conduct" title="Link to this heading"></a></h2>
+<section id="our-pledge">
+<h3><span class="section-number">1.1.1. </span>Our pledge<a class="headerlink" href="#our-pledge" title="Link to this heading"></a></h3>
+<p>We as members, contributors, and leaders pledge to make participation in our community a harassment-free experience for everyone, regardless of age, body size, visible or invisible disability, ethnicity, sex characteristics, gender identity and expression, level of experience, education, socioeconomic status, nationality, personal appearance, race, caste, color, religion, or sexual identity and orientation.</p>
+<p>We pledge to act and interact in ways that contribute to an open, welcoming, diverse, inclusive, and healthy community.</p>
+</section>
+<section id="our-standards">
+<h3><span class="section-number">1.1.2. </span>Our standards<a class="headerlink" href="#our-standards" title="Link to this heading"></a></h3>
+<p>Examples of behavior that contributes to a positive environment for our community include:</p>
+<ul class="simple">
+<li><p>Demonstrating empathy and kindness toward other people.</p></li>
+<li><p>Being respectful of differing opinions, viewpoints, and experiences.</p></li>
+<li><p>Giving and gracefully accepting constructive feedback.</p></li>
+<li><p>Accepting responsibility and apologizing to those affected by our mistakes, and learning from the experience.</p></li>
+<li><p>Focusing on what is best not just for us as individuals, but for the overall community.</p></li>
+</ul>
+<p>Examples of unacceptable behavior include:</p>
+<ul class="simple">
+<li><p>The use of sexualized language or imagery, and sexual attention or advances of any kind.</p></li>
+<li><p>Trolling, insulting or derogatory comments, and personal or political attacks.</p></li>
+<li><p>Public or private harassment.</p></li>
+<li><p>Publishing others’ private information, such as a physical or email address, without their explicit permission.</p></li>
+<li><p>Other conduct which could reasonably be considered inappropriate in a professional setting.</p></li>
+</ul>
+</section>
+<section id="enforcement-responsibilities">
+<h3><span class="section-number">1.1.3. </span>Enforcement responsibilities<a class="headerlink" href="#enforcement-responsibilities" title="Link to this heading"></a></h3>
+<p>Community leaders are responsible for clarifying and enforcing our standards of acceptable behavior and will take appropriate and fair corrective action in response to any behavior that they deem inappropriate, threatening, offensive, or harmful.</p>
+<p>Community leaders have the right and responsibility to remove, edit, or reject comments, commits, code, wiki edits, issues, and other contributions that are not aligned to this Code of Conduct, and will communicate reasons for moderation decisions when appropriate.</p>
+</section>
+<section id="scope">
+<h3><span class="section-number">1.1.4. </span>Scope<a class="headerlink" href="#scope" title="Link to this heading"></a></h3>
+<p>This Code of Conduct applies within all community spaces, and also applies when an individual is officially representing the community in public spaces.
+Examples of representing our community include using an official email address, posting via an official social media account, or acting as an appointed representative at an online or offline event.</p>
+</section>
+<section id="enforcement">
+<h3><span class="section-number">1.1.5. </span>Enforcement<a class="headerlink" href="#enforcement" title="Link to this heading"></a></h3>
+<p>Instances of abusive, harassing, or otherwise unacceptable behavior may be reported to the community leader responsible for enforcement at <code class="docutils literal notranslate"><span class="pre">adamzs&#64;stanford.edu</span></code>.
+All complaints will be reviewed and investigated promptly and fairly.</p>
+<p>All community leaders are obligated to respect the privacy and security of the reporter of any incident.</p>
+</section>
+<section id="enforcement-guidelines">
+<h3><span class="section-number">1.1.6. </span>Enforcement guidelines<a class="headerlink" href="#enforcement-guidelines" title="Link to this heading"></a></h3>
+<p>Community leaders will follow these Community Impact Guidelines in determining the consequences for any action they deem in violation of this Code of Conduct:</p>
+<section id="correction">
+<h4><span class="section-number">1.1.6.1. </span>1. Correction<a class="headerlink" href="#correction" title="Link to this heading"></a></h4>
+<p><strong>Community Impact</strong>: Use of inappropriate language or other behavior deemed unprofessional or unwelcome in the community.</p>
+<p><strong>Consequence</strong>: A private, written warning from community leaders, providing clarity around the nature of the violation and an explanation of why the behavior was inappropriate.
+A public apology may be requested.</p>
+</section>
+<section id="warning">
+<h4><span class="section-number">1.1.6.2. </span>2. Warning<a class="headerlink" href="#warning" title="Link to this heading"></a></h4>
+<p><strong>Community Impact</strong>: A violation through a single incident or series of actions.</p>
+<p><strong>Consequence</strong>: A warning with consequences for continued behavior.
+No interaction with the people involved, including unsolicited interaction with those enforcing the Code of Conduct, for a specified period of time.
+This includes avoiding interactions in community spaces as well as external channels like social media.
+Violating these terms may lead to a temporary or permanent ban.</p>
+</section>
+<section id="temporary-ban">
+<h4><span class="section-number">1.1.6.3. </span>3. Temporary ban<a class="headerlink" href="#temporary-ban" title="Link to this heading"></a></h4>
+<p><strong>Community Impact</strong>: A serious violation of community standards, including sustained inappropriate behavior.</p>
+<p><strong>Consequence</strong>: A temporary ban from any sort of interaction or public communication with the community for a specified period of time.
+No public or private interaction with the people involved, including unsolicited interaction with those enforcing the Code of Conduct, is allowed during this period.
+Violating these terms may lead to a permanent ban.</p>
+</section>
+<section id="permanent-ban">
+<h4><span class="section-number">1.1.6.4. </span>4. Permanent Ban<a class="headerlink" href="#permanent-ban" title="Link to this heading"></a></h4>
+<p><strong>Community Impact</strong>: Demonstrating a pattern of violation of community standards, including sustained inappropriate behavior, harassment of an individual, or aggression toward or disparagement of classes of individuals.</p>
+<p><strong>Consequence</strong>: A permanent ban from any sort of public interaction within the community.</p>
+</section>
+</section>
+<section id="attribution">
+<h3><span class="section-number">1.1.7. </span>Attribution<a class="headerlink" href="#attribution" title="Link to this heading"></a></h3>
+<p>This Code of Conduct is adapted from the <a class="reference external" href="https://www.contributor-covenant.org">Contributor Covenant</a>, version 2.1, available at <a class="reference external" href="https://www.contributor-covenant.org/version/2/1/code_of_conduct.html">https://www.contributor-covenant.org/version/2/1/code_of_conduct.html</a>.</p>
+<p>Community Impact Guidelines were inspired by <a class="reference external" href="https://github.com/mozilla/diversity">Mozilla’s code of conduct enforcement ladder</a>.</p>
+<p>For answers to common questions about this code of conduct, see the FAQ at <a class="reference external" href="https://www.contributor-covenant.org/faq">https://www.contributor-covenant.org/faq</a>.
+Translations are available at <a class="reference external" href="https://www.contributor-covenant.org/translations">https://www.contributor-covenant.org/translations</a>.</p>
+</section>
+</section>
+<section id="how-to-contribute">
+<span id="contributing"></span><h2><span class="section-number">1.2. </span>How to contribute<a class="headerlink" href="#how-to-contribute" title="Link to this heading"></a></h2>
+<section id="prerequisites">
+<h3><span class="section-number">1.2.1. </span>Prerequisites<a class="headerlink" href="#prerequisites" title="Link to this heading"></a></h3>
+<p>Contributing to pelicun requires being familiar with the following:</p>
+<details class="sd-sphinx-override sd-dropdown sd-card sd-mb-3">
+<summary class="sd-summary-title sd-card-header">
+<span class="sd-summary-text">Python Programming</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
+<p class="sd-card-text">Being familiar with object-oriented programming in Python, the PDB debugger, and having familiarity with Numpy and Pandas to handle arrays and DataFrames.</p>
+<p class="sd-card-text">The following resources may be helpful:</p>
+<ul class="simple">
+<li><p class="sd-card-text"><a class="reference external" href="https://docs.python.org/3/tutorial/index.html">python.org tutorial</a></p></li>
+<li><p class="sd-card-text"><a class="reference external" href="https://numpy.org/doc/stable/user/absolute_beginners.html">numpy beginner’s guide</a></p></li>
+<li><p class="sd-card-text"><a class="reference external" href="https://numpy.org/doc/stable/user/index.html#user">numpy user guide</a></p></li>
+<li><p class="sd-card-text"><a class="reference external" href="https://pandas.pydata.org/docs/getting_started/index.html#getting-started">pandas beginner’s guide</a></p></li>
+<li><p class="sd-card-text"><a class="reference external" href="https://pandas.pydata.org/docs/user_guide/index.html#user-guide">pandas user guide</a></p></li>
+</ul>
+</div>
+</details><details class="sd-sphinx-override sd-dropdown sd-card sd-mb-3">
+<summary class="sd-summary-title sd-card-header">
+<span class="sd-summary-text">Virtual Environments</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
+<p class="sd-card-text">Managing a development environment, installing and removing packages.</p>
+<p class="sd-card-text">The following resources may be helpful:</p>
+<ul class="simple">
+<li><p class="sd-card-text"><a class="reference external" href="https://docs.python.org/3/tutorial/venv.html">Python: Virtual Environments and Packages</a></p></li>
+<li><p class="sd-card-text"><a class="reference external" href="https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html">Conda: Managing environments</a></p></li>
+<li><p class="sd-card-text"><a class="reference external" href="https://mamba.readthedocs.io/en/latest/user_guide/micromamba.html">Micromamba User Guide</a></p></li>
+</ul>
+</div>
+</details><details class="sd-sphinx-override sd-dropdown sd-card sd-mb-3">
+<summary class="sd-summary-title sd-card-header">
+<span class="sd-summary-text">reStructured Text Markup</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
+<p class="sd-card-text">Being able to extend the documentation by reviewing the existing files and following the same pattern, without introducing compilation warnings.</p>
+<p class="sd-card-text">The following resources may be helpful:</p>
+<ul class="simple">
+<li><p class="sd-card-text"><a class="reference external" href="https://docutils.sourceforge.io/rst.html">reStructuredText documentation</a></p></li>
+<li><p class="sd-card-text"><a class="reference external" href="https://www.sphinx-doc.org/en/master/usage/index.html">Sphinx User Guide: Using Sphinx</a></p></li>
+</ul>
+</div>
+</details><details class="sd-sphinx-override sd-dropdown sd-card sd-mb-3">
+<summary class="sd-summary-title sd-card-header">
+<span class="sd-summary-text">Git for Version Control</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
+<p class="sd-card-text">Knowing how to clone a repository, create and checkout branches, review commit logs, commit well-documented changes, or stashing them for later use.
+The following may be useful:</p>
+<p class="sd-card-text"><a class="reference external" href="https://git-scm.com/docs">git reference manual</a></p>
+</div>
+</details><details class="sd-sphinx-override sd-dropdown sd-card sd-mb-3">
+<summary class="sd-summary-title sd-card-header">
+<span class="sd-summary-text">Command Line</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
+<p class="sd-card-text">Being able to set up and call command-line programs beyond Git, including the linting and formatting tools we use.</p>
+<p class="sd-card-text">The following resources may be useful:</p>
+<div class="sd-tab-set docutils">
+<input checked="checked" id="sd-tab-item-0" name="sd-tab-set-0" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-0">
+Linux &amp; Mac</label><div class="sd-tab-content docutils">
+<p class="sd-card-text"><a class="reference external" href="https://www.gnu.org/software/bash/manual/html_node/index.html">Bash Reference Manual</a></p>
+</div>
+<input id="sd-tab-item-1" name="sd-tab-set-0" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-1">
+Windows</label><div class="sd-tab-content docutils">
+<p class="sd-card-text"><a class="reference external" href="https://learn.microsoft.com/en-us/powershell/">PowerShell Documentation</a></p>
+</div>
+</div>
+</div>
+</details><details class="sd-sphinx-override sd-dropdown sd-card sd-mb-3">
+<summary class="sd-summary-title sd-card-header">
+<span class="sd-summary-text">Pattern-matching</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
+<p class="sd-card-text">Ultimately, we learn by example.
+The files already present in the pelicun source code offer an existing template that can help you understand what any potential additions should look like.
+Actively exploring the existing files, tinkering them and breaking things is a great way to gain a deeper understanding of the package.</p>
+</div>
+</details></section>
+<section id="contributing-workflow">
+<h3><span class="section-number">1.2.2. </span>Contributing workflow<a class="headerlink" href="#contributing-workflow" title="Link to this heading"></a></h3>
+<p>The development of pelicun is done via Pull Requests (PR) on GitHub.
+Contributors need to carry out the following steps to submit a successful PR:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/signup">Create a GitHub account</a>, if you don’t already have one.</p></li>
+<li><p><a class="reference external" href="https://github.com/NHERI-SimCenter/pelicun/fork">Fork the primary pelicun repository</a>.</p></li>
+<li><p>On the fork, create a feature branch with an appropriate starting point.</p></li>
+<li><p>Make and commit changes to the branch.</p></li>
+<li><p>Push to your remote repository.</p></li>
+<li><p>Open a well-documented PR on the GitHub website.</p></li>
+</ul>
+<p>If you are working on multiple features, please use multiple dedicated feature branches with the same starting point instead of lumping them into a single branch.
+This approach substantially simplifies the review process, and changes on multiple fronts can be easily merged after being reviewed.
+On each feature branch, please commit changes often and include meaningful commit titles and messages.</p>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>Consider taking advantage of advanced Git clients, which enable selective, partial staging of hunks, helping organize commits.</p>
+<details class="sd-sphinx-override sd-dropdown sd-card sd-mb-3">
+<summary class="sd-summary-title sd-card-header">
+<span class="sd-summary-text">Potential options</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
+<ul class="simple">
+<li><p class="sd-card-text"><a class="reference external" href="https://magit.vc/manual/magit.html">Emacs Magit</a>, for Emacs users. Tried and true, used by our development team.</p></li>
+<li><p class="sd-card-text"><a class="reference external" href="https://www.sublimemerge.com/">Sublime Merge</a>, also used by our development team.</p></li>
+<li><p class="sd-card-text"><a class="reference external" href="https://github.com/apps/desktop">GitHub Desktop</a>, convenient and user-friendly.</p></li>
+</ul>
+</div>
+</details></div>
+</section>
+<section id="code-review-process">
+<h3><span class="section-number">1.2.3. </span>Code review process<a class="headerlink" href="#code-review-process" title="Link to this heading"></a></h3>
+<p>After you submit your PR, we are going to promptly review your commits, offer feedback and request changes.
+All contributions code need to be comprehensive.
+That is, inclusion of new objects, methods, or functions should be accompanied by unit tests having reasonable coverage, and extension of the documentation pages as appropriate.
+We will direct you to extend your changes to cover those areas if you haven’t done so.
+After the review process, the PR will either be merged to the main repository or rejected with sufficient justification.</p>
+<p>We will accept any contribution that we believe ultimately improves pelicun, no matter how big or small.
+You are welcome to open a PR even for a single typo.</p>
+</section>
+<section id="identifying-contribution-opportunities">
+<h3><span class="section-number">1.2.4. </span>Identifying contribution opportunities<a class="headerlink" href="#identifying-contribution-opportunities" title="Link to this heading"></a></h3>
+<p>The <a class="reference external" href="https://github.com/NHERI-SimCenter/pelicun/issues">Issues</a> page on GitHub documents areas needing improvement.
+If you are interested in becoming a contributor but don’t have a specific change in mind, feel free to work on addressing any of the issues listed.
+If you would like to offer a contribution that extends the fundamental framework, please begin by <a class="reference external" href="https://github.com/orgs/NHERI-SimCenter/discussions/new?category=pelicun">initiating a discussion</a> before you work on changes to avoid making unnecessary effort.</p>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Leland Stanford Junior University and The Regents of the University of California.</p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+    <!-- Theme Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-158130480-7"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'UA-158130480-7', {
+          'anonymize_ip': false,
+      });
+    </script> 
+
+</body>
+</html>

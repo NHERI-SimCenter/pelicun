@@ -1,0 +1,30 @@
+pelicun.tests.dl\_calculation.rulesets.WindCERBRulesets
+=======================================================
+
+.. automodule:: pelicun.tests.dl_calculation.rulesets.WindCERBRulesets
+   :members:
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      CERB_config
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

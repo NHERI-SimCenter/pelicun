@@ -1,0 +1,32 @@
+pelicun.pelicun\_warnings
+=========================
+
+.. automodule:: pelicun.pelicun_warnings
+   :members:
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Exceptions
+
+   .. autosummary::
+   
+      InconsistentUnitsError
+      PelicunInvalidConfigError
+      PelicunWarning
+   
+   
+
+
+

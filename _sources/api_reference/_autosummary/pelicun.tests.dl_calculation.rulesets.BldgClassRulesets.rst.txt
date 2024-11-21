@@ -1,0 +1,30 @@
+pelicun.tests.dl\_calculation.rulesets.BldgClassRulesets
+========================================================
+
+.. automodule:: pelicun.tests.dl_calculation.rulesets.BldgClassRulesets
+   :members:
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      building_class
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

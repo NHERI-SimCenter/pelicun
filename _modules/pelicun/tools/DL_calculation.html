@@ -1,0 +1,1764 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pelicun.tools.DL_calculation &mdash; pelicun  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=f9bf6728" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #F2F2F2" >
+
+          
+          
+          <a href="../../../index.html">
+            
+              <img src="../../../_static/pelicun-Logo-grey.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">About</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../about/license.html">1. Copyright and license</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../about/cite.html">2. Citing pelicun</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../about/cite.html#logo">3. Logo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../about/acknowledgments.html">4. Acknowledgments</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../about/acknowledgments.html#national-science-foundation">4.1. National Science Foundation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../about/acknowledgments.html#contributors">4.2. Contributors</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../release_notes/index.html">5. Release Notes</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../release_notes/index.html#version-3-0">5.1. Version 3.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../release_notes/index.html#version-2-0">5.2. Version 2.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../release_notes/index.html#version-1-0">5.3. Version 1.0</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_guide/install.html">1. Getting started</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/install.html#staying-up-to-date">1.1. Staying up to date</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_guide/pelicun_framework.html">2. The Pelicun Framework</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/pelicun_framework.html#abbreviations">2.1. Abbreviations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/pelicun_framework.html#introduction-to-pelicun">2.2. Introduction to Pelicun</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/pelicun_framework.html#overview">2.3. Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/pelicun_framework.html#performance-assessment-workflow">2.4. Performance Assessment Workflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/pelicun_framework.html#response-model">2.5. Response Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/pelicun_framework.html#performance-model">2.6. Performance Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/pelicun_framework.html#damage-model">2.7. Damage Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/pelicun_framework.html#loss-model">2.8. Loss Model</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_guide/feature_overview.html">3. Overview of pelicun features</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/feature_overview.html#saving-loading-samples">3.1. Saving/loading samples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/feature_overview.html#logging-support">3.2. Logging support</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/feature_overview.html#uncertainty-quantification">3.3. Uncertainty quantification</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/feature_overview.html#assessment-types">3.4. Assessment types</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/feature_overview.html#demand-simulation">3.5. Demand simulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/feature_overview.html#damage-estimation">3.6. Damage estimation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/feature_overview.html#loss-estimation">3.7. Loss estimation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/feature_overview.html#command-line-support">3.8. Command-line support</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/feature_overview.html#standalone-tools">3.9. Standalone tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/feature_overview.html#feature-overview-and-examples">3.10. Feature overview and examples</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_guide/damage_and_loss_library.html">4. Damage and loss library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_guide/bug_reports_and_feature_requests.html">5. Bug reports and feature requests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_guide/resources_for_new_python_users.html">6. Resources for new python users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples/index.html">7. Examples</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../examples/index.html#complete-list">7.1. Complete list</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../examples/index.html#grouped-by-feature">7.2. Grouped by feature</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api_reference/index.html">8. API Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../api_reference/_autosummary/pelicun.html">8.1. pelicun</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../developer_guide/getting_started.html">1. Getting started</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../developer_guide/getting_started.html#code-of-conduct">1.1. Code of conduct</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../developer_guide/getting_started.html#how-to-contribute">1.2. How to contribute</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developer_guide/development_environment.html">2. Setting up a development environment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developer_guide/code_quality.html">3. Coding practice</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../developer_guide/code_quality.html#code-quality-assurance">3.1. Code quality assurance</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../developer_guide/code_quality.html#unit-tests">3.2. Unit tests</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../developer_guide/code_quality.html#documentation">3.3. Documentation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developer_guide/internals.html">4. Package architecture</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../developer_guide/internals.html#overview-of-files">4.1. Overview of files</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #F2F2F2" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">pelicun</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">pelicun.tools.DL_calculation</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for pelicun.tools.DL_calculation</h1><div class="highlight"><pre>
+<span></span><span class="c1">#  # noqa: N999</span>
+<span class="c1"># Copyright (c) 2018 Leland Stanford Junior University</span>
+<span class="c1"># Copyright (c) 2018 The Regents of the University of California</span>
+<span class="c1">#</span>
+<span class="c1"># This file is part of pelicun.</span>
+<span class="c1">#</span>
+<span class="c1"># Redistribution and use in source and binary forms, with or without</span>
+<span class="c1"># modification, are permitted provided that the following conditions are met:</span>
+<span class="c1">#</span>
+<span class="c1"># 1. Redistributions of source code must retain the above copyright notice,</span>
+<span class="c1"># this list of conditions and the following disclaimer.</span>
+<span class="c1">#</span>
+<span class="c1"># 2. Redistributions in binary form must reproduce the above copyright notice,</span>
+<span class="c1"># this list of conditions and the following disclaimer in the documentation</span>
+<span class="c1"># and/or other materials provided with the distribution.</span>
+<span class="c1">#</span>
+<span class="c1"># 3. Neither the name of the copyright holder nor the names of its contributors</span>
+<span class="c1"># may be used to endorse or promote products derived from this software without</span>
+<span class="c1"># specific prior written permission.</span>
+<span class="c1">#</span>
+<span class="c1"># THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS &quot;AS IS&quot;</span>
+<span class="c1"># AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE</span>
+<span class="c1"># IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE</span>
+<span class="c1"># ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE</span>
+<span class="c1"># LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR</span>
+<span class="c1"># CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF</span>
+<span class="c1"># SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS</span>
+<span class="c1"># INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN</span>
+<span class="c1"># CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)</span>
+<span class="c1"># ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE</span>
+<span class="c1"># POSSIBILITY OF SUCH DAMAGE.</span>
+<span class="c1">#</span>
+<span class="c1"># You should have received a copy of the BSD 3-Clause License along with</span>
+<span class="c1"># pelicun. If not, see &lt;http://www.opensource.org/licenses/&gt;.</span>
+<span class="c1">#</span>
+<span class="c1"># Contributors:</span>
+<span class="c1"># Adam Zsarnóczay</span>
+<span class="c1"># John Vouvakis Manousakis</span>
+
+<span class="sd">&quot;&quot;&quot;Main functionality to run a pelicun calculation from the command line.&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span> <span class="nn">argparse</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span> <span class="nn">time</span> <span class="kn">import</span> <span class="n">gmtime</span><span class="p">,</span> <span class="n">strftime</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Hashable</span>
+
+<span class="kn">import</span> <span class="nn">colorama</span>
+<span class="kn">import</span> <span class="nn">jsonschema</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">colorama</span> <span class="kn">import</span> <span class="n">Fore</span><span class="p">,</span> <span class="n">Style</span>
+<span class="kn">from</span> <span class="nn">jsonschema</span> <span class="kn">import</span> <span class="n">validate</span>
+
+<span class="kn">from</span> <span class="nn">pelicun</span> <span class="kn">import</span> <span class="n">base</span>
+<span class="kn">from</span> <span class="nn">pelicun.assessment</span> <span class="kn">import</span> <span class="n">DLCalculationAssessment</span>
+<span class="kn">from</span> <span class="nn">pelicun.auto</span> <span class="kn">import</span> <span class="n">auto_populate</span>
+<span class="kn">from</span> <span class="nn">pelicun.base</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">convert_to_MultiIndex</span><span class="p">,</span>
+    <span class="n">convert_to_SimpleIndex</span><span class="p">,</span>
+    <span class="n">describe</span><span class="p">,</span>
+    <span class="n">get</span><span class="p">,</span>
+    <span class="n">is_specified</span><span class="p">,</span>
+    <span class="n">is_unspecified</span><span class="p">,</span>
+    <span class="n">str2bool</span><span class="p">,</span>
+    <span class="n">update</span><span class="p">,</span>
+    <span class="n">update_vals</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">pelicun.pelicun_warnings</span> <span class="kn">import</span> <span class="n">PelicunInvalidConfigError</span>
+
+<span class="n">colorama</span><span class="o">.</span><span class="n">init</span><span class="p">()</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">absolute</span><span class="p">()</span><span class="o">.</span><span class="n">as_posix</span><span class="p">())</span>
+
+
+<div class="viewcode-block" id="log_msg">
+<a class="viewcode-back" href="../../../api_reference/_autosummary/pelicun.tools.DL_calculation.html#pelicun.tools.DL_calculation.log_msg">[docs]</a>
+<span class="k">def</span> <span class="nf">log_msg</span><span class="p">(</span><span class="n">msg</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">color_codes</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Print a formatted log message with a timestamp.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    msg : str</span>
+<span class="sd">        The message to print.</span>
+<span class="sd">    color_codes : tuple, optional</span>
+<span class="sd">        Color codes for formatting the message. Default is None.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">color_codes</span><span class="p">:</span>
+        <span class="n">cpref</span><span class="p">,</span> <span class="n">csuff</span> <span class="o">=</span> <span class="n">color_codes</span>
+        <span class="nb">print</span><span class="p">(</span>  <span class="c1"># noqa: T201</span>
+            <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">T%H:%M:%SZ&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">gmtime</span><span class="p">())</span><span class="si">}</span><span class="s1"> &#39;</span>
+            <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">cpref</span><span class="si">}</span><span class="s1">&#39;</span>
+            <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">msg</span><span class="si">}</span><span class="s1">&#39;</span>
+            <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">csuff</span><span class="si">}</span><span class="s1">&#39;</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">T%H:%M:%SZ&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">gmtime</span><span class="p">())</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="n">msg</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>  <span class="c1"># noqa: T201</span></div>
+
+
+
+<span class="c1"># list of output files help perform safe initialization of output dir</span>
+<span class="n">known_output_files</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s1">&#39;DEM_sample.zip&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;DEM_stats.csv&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;CMP_sample.zip&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;CMP_stats.csv&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;DMG_sample.zip&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;DMG_stats.csv&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;DMG_grp.zip&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;DMG_grp_stats.csv&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;DV_repair_sample.zip&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;DV_repair_stats.csv&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;DV_repair_grp.zip&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;DV_repair_grp_stats.csv&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;DV_repair_agg.zip&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;DV_repair_agg_stats.csv&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;DL_summary.csv&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;DL_summary_stats.csv&#39;</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="n">full_out_config</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;Demand&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;Sample&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s1">&#39;Statistics&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span>
+    <span class="s1">&#39;Asset&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;Sample&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s1">&#39;Statistics&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span>
+    <span class="s1">&#39;Damage&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s1">&#39;Sample&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="s1">&#39;Statistics&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="s1">&#39;GroupedSample&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="s1">&#39;GroupedStatistics&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s1">&#39;Loss&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s1">&#39;Repair&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">&#39;Sample&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="s1">&#39;Statistics&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="s1">&#39;GroupedSample&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="s1">&#39;GroupedStatistics&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="s1">&#39;AggregateSample&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="s1">&#39;AggregateStatistics&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="p">},</span>
+    <span class="s1">&#39;Format&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;CSV&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s1">&#39;JSON&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span>
+<span class="p">}</span>
+
+<span class="n">regional_out_config</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;Demand&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;Sample&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s1">&#39;Statistics&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">},</span>
+    <span class="s1">&#39;Asset&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;Sample&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s1">&#39;Statistics&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">},</span>
+    <span class="s1">&#39;Damage&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s1">&#39;Sample&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s1">&#39;Statistics&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s1">&#39;GroupedSample&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="s1">&#39;GroupedStatistics&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s1">&#39;Loss&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s1">&#39;Repair&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">&#39;Sample&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="s1">&#39;Statistics&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="s1">&#39;GroupedSample&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="s1">&#39;GroupedStatistics&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="s1">&#39;AggregateSample&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="s1">&#39;AggregateStatistics&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="p">},</span>
+    <span class="s1">&#39;Format&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;CSV&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="s1">&#39;JSON&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span>
+    <span class="s1">&#39;Settings&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s1">&#39;CondenseDS&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="s1">&#39;SimpleIndexInJSON&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="s1">&#39;AggregateColocatedComponentResults&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="p">},</span>
+<span class="p">}</span>
+
+<span class="n">pbe_settings</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;CondenseDS&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="s1">&#39;SimpleIndexInJSON&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="s1">&#39;AggregateColocatedComponentResults&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+<span class="p">}</span>
+
+
+<div class="viewcode-block" id="convert_df_to_dict">
+<a class="viewcode-back" href="../../../api_reference/_autosummary/pelicun.tools.DL_calculation.html#pelicun.tools.DL_calculation.convert_df_to_dict">[docs]</a>
+<span class="k">def</span> <span class="nf">convert_df_to_dict</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span> <span class="n">axis</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert a pandas DataFrame to a dictionary.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    data : pd.DataFrame</span>
+<span class="sd">        The DataFrame to be converted.</span>
+<span class="sd">    axis : int, optional</span>
+<span class="sd">        The axis to consider for the conversion.</span>
+<span class="sd">        * If 1 (default), the DataFrame is used as-is.</span>
+<span class="sd">        * If 0, the DataFrame is transposed before conversion.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dict</span>
+<span class="sd">        A dictionary representation of the DataFrame. The structure of</span>
+<span class="sd">        the dictionary depends on the levels in the DataFrame&#39;s</span>
+<span class="sd">        MultiIndex columns.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If the axis is not 0 or 1.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    * If the columns have multiple levels, the function will</span>
+<span class="sd">      recursively convert sub-DataFrames.</span>
+<span class="sd">    * If the column labels at any level are numeric, they will be</span>
+<span class="sd">      converted to a list of floats.</span>
+<span class="sd">    * If the column labels are non-numeric, a dictionary will be</span>
+<span class="sd">      created with the index labels as keys and the corresponding data</span>
+<span class="sd">      as values.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">out_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">Hashable</span><span class="p">,</span> <span class="nb">object</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">if</span> <span class="n">axis</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">df_in</span> <span class="o">=</span> <span class="n">data</span>
+    <span class="k">elif</span> <span class="n">axis</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">df_in</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">T</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="s1">&#39;`axis` must be `0` or `1`&#39;</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+    <span class="n">multiindex</span> <span class="o">=</span> <span class="n">df_in</span><span class="o">.</span><span class="n">columns</span>
+
+    <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">multiindex</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="n">out_dict</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">label</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">})</span>
+
+        <span class="n">sub_df</span> <span class="o">=</span> <span class="n">df_in</span><span class="p">[</span><span class="n">label</span><span class="p">]</span>
+
+        <span class="n">skip_sub</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="k">if</span> <span class="n">multiindex</span><span class="o">.</span><span class="n">nlevels</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">skip_sub</span> <span class="o">=</span> <span class="kc">False</span>
+
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">sub_df</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span>
+                <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">sub_df</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">sub_df</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>  <span class="c1"># noqa: PLC1901</span>
+            <span class="p">):</span>
+                <span class="n">skip_sub</span> <span class="o">=</span> <span class="kc">True</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">skip_sub</span><span class="p">:</span>
+                <span class="n">out_dict</span><span class="p">[</span><span class="n">label</span><span class="p">]</span> <span class="o">=</span> <span class="n">convert_df_to_dict</span><span class="p">(</span><span class="n">sub_df</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">skip_sub</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">sub_df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">isnumeric</span><span class="p">()):</span>
+                <span class="n">out_dict_label</span> <span class="o">=</span> <span class="n">df_in</span><span class="p">[</span><span class="n">label</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+                <span class="n">out_dict</span><span class="p">[</span><span class="n">label</span><span class="p">]</span> <span class="o">=</span> <span class="n">out_dict_label</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">out_dict</span><span class="p">[</span><span class="n">label</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">sub_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">sub_df</span><span class="o">.</span><span class="n">index</span><span class="p">}</span>
+
+    <span class="k">return</span> <span class="n">out_dict</span></div>
+
+
+
+<div class="viewcode-block" id="run_pelicun">
+<a class="viewcode-back" href="../../../api_reference/_autosummary/pelicun.tools.DL_calculation.html#pelicun.tools.DL_calculation.run_pelicun">[docs]</a>
+<span class="k">def</span> <span class="nf">run_pelicun</span><span class="p">(</span>
+    <span class="n">config_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">demand_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">output_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">realizations</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">auto_script_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">custom_model_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">output_format</span><span class="p">:</span> <span class="nb">list</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">detailed_results</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+    <span class="n">coupled_edp</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Use settings in the config JSON to prepare and run a Pelicun calculation.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    config_path: string</span>
+<span class="sd">        Path pointing to the location of the JSON configuration file.</span>
+<span class="sd">    demand_file: string</span>
+<span class="sd">        Path pointing to the location of a CSV file with the demand data.</span>
+<span class="sd">    output_path: string, optional</span>
+<span class="sd">        Path pointing to the location where results shall be saved.</span>
+<span class="sd">    realizations: int, optional</span>
+<span class="sd">        Number of realizations to generate.</span>
+<span class="sd">    auto_script_path: string, optional</span>
+<span class="sd">        Path pointing to the location of a Python script with an auto_populate</span>
+<span class="sd">        method that automatically creates the performance model using data</span>
+<span class="sd">        provided in the AIM JSON file.</span>
+<span class="sd">    custom_model_dir: string, optional</span>
+<span class="sd">        Path pointing to a directory with files that define user-provided model</span>
+<span class="sd">        parameters for a customized damage and loss assessment.</span>
+<span class="sd">    output_format: list, optional.</span>
+<span class="sd">        Type of output format, JSON or CSV.</span>
+<span class="sd">        Valid options: [&#39;csv&#39;, &#39;json&#39;], [&#39;csv&#39;], [&#39;json&#39;], [], None</span>
+<span class="sd">    detailed_results: bool, optional</span>
+<span class="sd">        If False, only the main statistics are saved.</span>
+<span class="sd">    coupled_edp: bool, optional</span>
+<span class="sd">        If True, EDPs are not resampled and processed in order.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Initial setup -----------------------------------------------------------</span>
+
+    <span class="c1"># get the absolute path to the config file</span>
+    <span class="n">config_path_p</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">config_path</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
+
+    <span class="c1"># If the output path was not specified, results are saved in the</span>
+    <span class="c1"># directory of the input file.</span>
+    <span class="k">if</span> <span class="n">output_path</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">output_path_p</span> <span class="o">=</span> <span class="n">config_path_p</span><span class="o">.</span><span class="n">parents</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">output_path_p</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">output_path</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
+    <span class="c1"># create the directory if it does not exist</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">output_path_p</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="n">output_path_p</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1"># parse the config file</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="n">_parse_config_file</span><span class="p">(</span>
+        <span class="n">config_path_p</span><span class="p">,</span>
+        <span class="n">output_path_p</span><span class="p">,</span>
+        <span class="n">Path</span><span class="p">(</span><span class="n">auto_script_path</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span> <span class="k">if</span> <span class="n">auto_script_path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">demand_file</span><span class="p">,</span>
+        <span class="n">realizations</span><span class="p">,</span>
+        <span class="n">output_format</span><span class="p">,</span>
+        <span class="n">coupled_edp</span><span class="o">=</span><span class="n">coupled_edp</span><span class="p">,</span>
+        <span class="n">detailed_results</span><span class="o">=</span><span class="n">detailed_results</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># List to keep track of the generated output files.</span>
+    <span class="n">out_files</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="n">_remove_existing_files</span><span class="p">(</span><span class="n">output_path_p</span><span class="p">,</span> <span class="n">known_output_files</span><span class="p">)</span>
+
+    <span class="c1"># Run the assessment</span>
+    <span class="n">assessment</span> <span class="o">=</span> <span class="n">DLCalculationAssessment</span><span class="p">(</span><span class="n">config_options</span><span class="o">=</span><span class="n">get</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s1">&#39;DL/Options&#39;</span><span class="p">))</span>
+
+    <span class="n">assessment</span><span class="o">.</span><span class="n">calculate_demand</span><span class="p">(</span>
+        <span class="n">demand_path</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="n">get</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s1">&#39;DL/Demands/DemandFilePath&#39;</span><span class="p">))</span><span class="o">.</span><span class="n">resolve</span><span class="p">(),</span>
+        <span class="n">collapse_limits</span><span class="o">=</span><span class="n">get</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s1">&#39;DL/Demands/CollapseLimits&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">),</span>
+        <span class="n">length_unit</span><span class="o">=</span><span class="n">get</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s1">&#39;GeneralInformation/units/length&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">),</span>
+        <span class="n">demand_calibration</span><span class="o">=</span><span class="n">get</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s1">&#39;DL/Demands/Calibration&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">),</span>
+        <span class="n">sample_size</span><span class="o">=</span><span class="n">get</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s1">&#39;DL/Options/Sampling/SampleSize&#39;</span><span class="p">),</span>
+        <span class="n">demand_cloning</span><span class="o">=</span><span class="n">get</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s1">&#39;DL/Demands/DemandCloning&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">),</span>
+        <span class="n">residual_drift_inference</span><span class="o">=</span><span class="n">get</span><span class="p">(</span>
+            <span class="n">config</span><span class="p">,</span> <span class="s1">&#39;DL/Demands/InferResidualDrift&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span>
+        <span class="p">),</span>
+        <span class="n">coupled_demands</span><span class="o">=</span><span class="n">get</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s1">&#39;DL/Demands/CoupledDemands&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+    <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">is_specified</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s1">&#39;DL/Asset&#39;</span><span class="p">):</span>
+        <span class="n">assessment</span><span class="o">.</span><span class="n">calculate_asset</span><span class="p">(</span>
+            <span class="n">num_stories</span><span class="o">=</span><span class="n">get</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s1">&#39;DL/Asset/NumberOfStories&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">),</span>
+            <span class="n">component_assignment_file</span><span class="o">=</span><span class="n">get</span><span class="p">(</span>
+                <span class="n">config</span><span class="p">,</span> <span class="s1">&#39;DL/Asset/ComponentAssignmentFile&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span>
+            <span class="p">),</span>
+            <span class="n">collapse_fragility_demand_type</span><span class="o">=</span><span class="n">get</span><span class="p">(</span>
+                <span class="n">config</span><span class="p">,</span> <span class="s1">&#39;DL/Damage/CollapseFragility/DemandType&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span>
+            <span class="p">),</span>
+            <span class="n">component_sample_file</span><span class="o">=</span><span class="n">get</span><span class="p">(</span>
+                <span class="n">config</span><span class="p">,</span> <span class="s1">&#39;DL/Asset/ComponentSampleFile&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span>
+            <span class="p">),</span>
+            <span class="n">add_irreparable_damage_columns</span><span class="o">=</span><span class="n">get</span><span class="p">(</span>
+                <span class="n">config</span><span class="p">,</span> <span class="s1">&#39;DL/Damage/IrreparableDamage&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span>
+            <span class="p">),</span>
+        <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">is_specified</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s1">&#39;DL/Damage&#39;</span><span class="p">):</span>
+        <span class="n">assessment</span><span class="o">.</span><span class="n">calculate_damage</span><span class="p">(</span>
+            <span class="n">length_unit</span><span class="o">=</span><span class="n">get</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s1">&#39;GeneralInformation/units/length&#39;</span><span class="p">),</span>
+            <span class="n">component_database</span><span class="o">=</span><span class="n">get</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s1">&#39;DL/Asset/ComponentDatabase&#39;</span><span class="p">),</span>
+            <span class="n">component_database_path</span><span class="o">=</span><span class="n">get</span><span class="p">(</span>
+                <span class="n">config</span><span class="p">,</span> <span class="s1">&#39;DL/Asset/ComponentDatabasePath&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span>
+            <span class="p">),</span>
+            <span class="n">collapse_fragility</span><span class="o">=</span><span class="n">get</span><span class="p">(</span>
+                <span class="n">config</span><span class="p">,</span> <span class="s1">&#39;DL/Damage/CollapseFragility&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span>
+            <span class="p">),</span>
+            <span class="n">irreparable_damage</span><span class="o">=</span><span class="n">get</span><span class="p">(</span>
+                <span class="n">config</span><span class="p">,</span> <span class="s1">&#39;DL/Damage/IrreparableDamage&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span>
+            <span class="p">),</span>
+            <span class="n">damage_process_approach</span><span class="o">=</span><span class="n">get</span><span class="p">(</span>
+                <span class="n">config</span><span class="p">,</span> <span class="s1">&#39;DL/Damage/DamageProcess&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span>
+            <span class="p">),</span>
+            <span class="n">damage_process_file_path</span><span class="o">=</span><span class="n">get</span><span class="p">(</span>
+                <span class="n">config</span><span class="p">,</span> <span class="s1">&#39;DL/Damage/DamageProcessFilePath&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span>
+            <span class="p">),</span>
+            <span class="n">custom_model_dir</span><span class="o">=</span><span class="n">custom_model_dir</span><span class="p">,</span>
+            <span class="n">scaling_specification</span><span class="o">=</span><span class="n">get</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s1">&#39;DL/Damage/ScalingSpecification&#39;</span><span class="p">),</span>
+            <span class="n">is_for_water_network_assessment</span><span class="o">=</span><span class="n">is_specified</span><span class="p">(</span>
+                <span class="n">config</span><span class="p">,</span> <span class="s1">&#39;DL/Asset/ComponentDatabase/Water&#39;</span>
+            <span class="p">),</span>
+        <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">is_unspecified</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s1">&#39;DL/Losses/Repair&#39;</span><span class="p">):</span>
+        <span class="n">agg_repair</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># Currently we only support `Repair` consequences.</span>
+        <span class="c1"># We will need to make changes here when we start to include</span>
+        <span class="c1"># more consequences.</span>
+
+        <span class="n">agg_repair</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">assessment</span><span class="o">.</span><span class="n">calculate_loss</span><span class="p">(</span>
+            <span class="n">loss_map_approach</span><span class="o">=</span><span class="n">get</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s1">&#39;DL/Losses/Repair/MapApproach&#39;</span><span class="p">),</span>
+            <span class="n">occupancy_type</span><span class="o">=</span><span class="n">get</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s1">&#39;DL/Asset/OccupancyType&#39;</span><span class="p">),</span>
+            <span class="n">consequence_database</span><span class="o">=</span><span class="n">get</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s1">&#39;DL/Losses/Repair/ConsequenceDatabase&#39;</span><span class="p">),</span>
+            <span class="n">consequence_database_path</span><span class="o">=</span><span class="n">get</span><span class="p">(</span>
+                <span class="n">config</span><span class="p">,</span> <span class="s1">&#39;DL/Losses/Repair/ConsequenceDatabasePath&#39;</span>
+            <span class="p">),</span>
+            <span class="n">custom_model_dir</span><span class="o">=</span><span class="n">custom_model_dir</span><span class="p">,</span>
+            <span class="n">damage_process_approach</span><span class="o">=</span><span class="n">get</span><span class="p">(</span>
+                <span class="n">config</span><span class="p">,</span> <span class="s1">&#39;DL/Damage/DamageProcess&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s1">&#39;User Defined&#39;</span>
+            <span class="p">),</span>
+            <span class="n">replacement_cost_parameters</span><span class="o">=</span><span class="n">get</span><span class="p">(</span>
+                <span class="n">config</span><span class="p">,</span> <span class="s1">&#39;DL/Losses/Repair/ReplacementCost&#39;</span>
+            <span class="p">),</span>
+            <span class="n">replacement_time_parameters</span><span class="o">=</span><span class="n">get</span><span class="p">(</span>
+                <span class="n">config</span><span class="p">,</span> <span class="s1">&#39;DL/Losses/Repair/ReplacementTime&#39;</span>
+            <span class="p">),</span>
+            <span class="n">replacement_carbon_parameters</span><span class="o">=</span><span class="n">get</span><span class="p">(</span>
+                <span class="n">config</span><span class="p">,</span> <span class="s1">&#39;DL/Losses/Repair/ReplacementCarbon&#39;</span>
+            <span class="p">),</span>
+            <span class="n">replacement_energy_parameters</span><span class="o">=</span><span class="n">get</span><span class="p">(</span>
+                <span class="n">config</span><span class="p">,</span> <span class="s1">&#39;DL/Losses/Repair/ReplacementEnergy&#39;</span>
+            <span class="p">),</span>
+            <span class="n">loss_map_path</span><span class="o">=</span><span class="n">get</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s1">&#39;DL/Losses/Repair/MapFilePath&#39;</span><span class="p">),</span>
+            <span class="n">decision_variables</span><span class="o">=</span><span class="n">_parse_decision_variables</span><span class="p">(</span><span class="n">config</span><span class="p">),</span>
+        <span class="p">)</span>
+
+    <span class="n">summary</span><span class="p">,</span> <span class="n">summary_stats</span> <span class="o">=</span> <span class="n">_result_summary</span><span class="p">(</span><span class="n">assessment</span><span class="p">,</span> <span class="n">agg_repair</span><span class="p">)</span>
+
+    <span class="c1"># Save the results into files</span>
+
+    <span class="k">if</span> <span class="n">is_specified</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s1">&#39;DL/Outputs/Demand&#39;</span><span class="p">):</span>
+        <span class="n">output_config</span> <span class="o">=</span> <span class="n">get</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s1">&#39;DL/Outputs/Demand&#39;</span><span class="p">)</span>
+        <span class="n">_demand_save</span><span class="p">(</span><span class="n">output_config</span><span class="p">,</span> <span class="n">assessment</span><span class="p">,</span> <span class="n">output_path_p</span><span class="p">,</span> <span class="n">out_files</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">is_specified</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s1">&#39;DL/Outputs/Asset&#39;</span><span class="p">):</span>
+        <span class="n">output_config</span> <span class="o">=</span> <span class="n">get</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s1">&#39;DL/Outputs/Asset&#39;</span><span class="p">)</span>
+        <span class="n">_asset_save</span><span class="p">(</span>
+            <span class="n">output_config</span><span class="p">,</span>
+            <span class="n">assessment</span><span class="p">,</span>
+            <span class="n">output_path_p</span><span class="p">,</span>
+            <span class="n">out_files</span><span class="p">,</span>
+            <span class="n">aggregate_colocated</span><span class="o">=</span><span class="n">get</span><span class="p">(</span>
+                <span class="n">config</span><span class="p">,</span>
+                <span class="s1">&#39;DL/Outputs/Settings/AggregateColocatedComponentResults&#39;</span><span class="p">,</span>
+                <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="p">),</span>
+        <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">is_specified</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s1">&#39;DL/Outputs/Damage&#39;</span><span class="p">):</span>
+        <span class="n">output_config</span> <span class="o">=</span> <span class="n">get</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s1">&#39;DL/Outputs/Damage&#39;</span><span class="p">)</span>
+        <span class="n">_damage_save</span><span class="p">(</span>
+            <span class="n">output_config</span><span class="p">,</span>
+            <span class="n">assessment</span><span class="p">,</span>
+            <span class="n">output_path_p</span><span class="p">,</span>
+            <span class="n">out_files</span><span class="p">,</span>
+            <span class="n">aggregate_colocated</span><span class="o">=</span><span class="n">get</span><span class="p">(</span>
+                <span class="n">config</span><span class="p">,</span>
+                <span class="s1">&#39;DL/Outputs/Settings/AggregateColocatedComponentResults&#39;</span><span class="p">,</span>
+                <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="n">condense_ds</span><span class="o">=</span><span class="n">get</span><span class="p">(</span>
+                <span class="n">config</span><span class="p">,</span>
+                <span class="s1">&#39;DL/Outputs/Settings/CondenseDS&#39;</span><span class="p">,</span>
+                <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="p">),</span>
+        <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">is_specified</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s1">&#39;DL/Outputs/Loss/Repair&#39;</span><span class="p">):</span>
+        <span class="n">output_config</span> <span class="o">=</span> <span class="n">get</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s1">&#39;DL/Outputs/Loss/Repair&#39;</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">agg_repair</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="n">_loss_save</span><span class="p">(</span>
+            <span class="n">output_config</span><span class="p">,</span>
+            <span class="n">assessment</span><span class="p">,</span>
+            <span class="n">output_path_p</span><span class="p">,</span>
+            <span class="n">out_files</span><span class="p">,</span>
+            <span class="n">agg_repair</span><span class="p">,</span>
+            <span class="n">aggregate_colocated</span><span class="o">=</span><span class="n">get</span><span class="p">(</span>
+                <span class="n">config</span><span class="p">,</span>
+                <span class="s1">&#39;DL/Outputs/Settings/AggregateColocatedComponentResults&#39;</span><span class="p">,</span>
+                <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="p">),</span>
+        <span class="p">)</span>
+    <span class="n">_summary_save</span><span class="p">(</span><span class="n">summary</span><span class="p">,</span> <span class="n">summary_stats</span><span class="p">,</span> <span class="n">output_path_p</span><span class="p">,</span> <span class="n">out_files</span><span class="p">)</span>
+    <span class="n">_create_json_files_if_requested</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">out_files</span><span class="p">,</span> <span class="n">output_path_p</span><span class="p">)</span>
+    <span class="n">_remove_csv_files_if_not_requested</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">out_files</span><span class="p">,</span> <span class="n">output_path_p</span><span class="p">)</span></div>
+
+
+
+<span class="k">def</span> <span class="nf">_parse_decision_variables</span><span class="p">(</span><span class="n">config</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Parse decision variables from the config file.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    config : dict</span>
+<span class="sd">        The configuration dictionary.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    list</span>
+<span class="sd">        List of decision variables.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">decision_variables</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">if</span> <span class="n">get</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s1">&#39;DL/Losses/Repair/DecisionVariables&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">False</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">dv_i</span><span class="p">,</span> <span class="n">dv_status</span> <span class="ow">in</span> <span class="n">get</span><span class="p">(</span>
+            <span class="n">config</span><span class="p">,</span> <span class="s1">&#39;DL/Losses/Repair/DecisionVariables&#39;</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">dv_status</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+                <span class="n">decision_variables</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dv_i</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">decision_variables</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_remove_csv_files_if_not_requested</span><span class="p">(</span>
+    <span class="n">config</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">out_files</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">output_path</span><span class="p">:</span> <span class="n">Path</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Remove CSV files if not requested in config.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    config : dict</span>
+<span class="sd">        Configuration dictionary.</span>
+<span class="sd">    out_files : list</span>
+<span class="sd">        List of output file names.</span>
+<span class="sd">    output_path : Path</span>
+<span class="sd">        Path to the output directory.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Don&#39;t proceed if CSV files were requested.</span>
+    <span class="k">if</span> <span class="n">get</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s1">&#39;DL/Outputs/Format/CSV&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="k">return</span>
+
+    <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">out_files</span><span class="p">:</span>
+        <span class="c1"># keep the DL_summary and DL_summary_stats files</span>
+        <span class="k">if</span> <span class="s1">&#39;DL_summary&#39;</span> <span class="ow">in</span> <span class="n">filename</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">Path</span><span class="p">(</span><span class="n">output_path</span> <span class="o">/</span> <span class="n">filename</span><span class="p">)</span><span class="o">.</span><span class="n">unlink</span><span class="p">()</span>
+
+
+<span class="k">def</span> <span class="nf">_summary_save</span><span class="p">(</span>
+    <span class="n">summary</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">summary_stats</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">output_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
+    <span class="n">out_files</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Save summary results to CSV files.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    summary : pd.DataFrame</span>
+<span class="sd">        Summary DataFrame.</span>
+<span class="sd">    summary_stats : pd.DataFrame</span>
+<span class="sd">        Summary statistics DataFrame.</span>
+<span class="sd">    output_path : Path</span>
+<span class="sd">        Path to the output directory.</span>
+<span class="sd">    out_files : list</span>
+<span class="sd">        List of output file names.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># save summary sample</span>
+    <span class="k">if</span> <span class="n">summary</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">summary</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">output_path</span> <span class="o">/</span> <span class="s1">&#39;DL_summary.csv&#39;</span><span class="p">,</span> <span class="n">index_label</span><span class="o">=</span><span class="s1">&#39;#&#39;</span><span class="p">)</span>
+        <span class="n">out_files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;DL_summary.csv&#39;</span><span class="p">)</span>
+
+    <span class="c1"># save summary statistics</span>
+    <span class="k">if</span> <span class="n">summary_stats</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">summary_stats</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">output_path</span> <span class="o">/</span> <span class="s1">&#39;DL_summary_stats.csv&#39;</span><span class="p">)</span>
+        <span class="n">out_files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;DL_summary_stats.csv&#39;</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_parse_config_file</span><span class="p">(</span>  <span class="c1"># noqa: C901</span>
+    <span class="n">config_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
+    <span class="n">output_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
+    <span class="n">auto_script_path</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">demand_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">realizations</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">output_format</span><span class="p">:</span> <span class="nb">list</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">coupled_edp</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+    <span class="n">detailed_results</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">object</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Parse and validate the config file for Pelicun.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    config_path : str</span>
+<span class="sd">        Path to the configuration file.</span>
+<span class="sd">    output_path : Path</span>
+<span class="sd">        Directory for output files.</span>
+<span class="sd">    auto_script_path : str</span>
+<span class="sd">        Path to the auto-generation script.</span>
+<span class="sd">    demand_file : str</span>
+<span class="sd">        Path to the demand data file.</span>
+<span class="sd">    realizations : int</span>
+<span class="sd">        Number of realizations.</span>
+<span class="sd">    coupled_EDP : bool</span>
+<span class="sd">        Whether to consider coupled EDPs.</span>
+<span class="sd">    detailed_results : bool</span>
+<span class="sd">        Whether to generate detailed results.</span>
+<span class="sd">    output_format : str</span>
+<span class="sd">        Output format (CSV, JSON).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dict</span>
+<span class="sd">        Parsed and validated configuration.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    PelicunInvalidConfigError</span>
+<span class="sd">      If the provided config file does not conform to the schema or</span>
+<span class="sd">      there are issues with the specified values.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># open the config file and parse it</span>
+    <span class="k">with</span> <span class="n">Path</span><span class="p">(</span><span class="n">config_path</span><span class="p">)</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+
+    <span class="c1"># load the schema</span>
+    <span class="k">with</span> <span class="n">Path</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">base</span><span class="o">.</span><span class="n">pelicun_path</span><span class="si">}</span><span class="s1">/settings/input_schema.json&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">open</span><span class="p">(</span>
+        <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span>
+    <span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">schema</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+
+    <span class="c1"># Validate the configuration against the schema</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">validate</span><span class="p">(</span><span class="n">instance</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">schema</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">jsonschema</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">ValidationError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="s1">&#39;The provided config file does not conform to the schema.&#39;</span>
+        <span class="k">raise</span> <span class="n">PelicunInvalidConfigError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span> <span class="kn">from</span> <span class="nn">exc</span>
+
+    <span class="k">if</span> <span class="n">is_unspecified</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s1">&#39;DL&#39;</span><span class="p">):</span>
+        <span class="n">log_msg</span><span class="p">(</span><span class="s1">&#39;Damage and Loss configuration missing from config file. &#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">auto_script_path</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="s1">&#39;No `DL` entry in config file.&#39;</span>
+            <span class="k">raise</span> <span class="n">PelicunInvalidConfigError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+        <span class="n">log_msg</span><span class="p">(</span><span class="s1">&#39;Trying to auto-populate&#39;</span><span class="p">)</span>
+
+        <span class="n">config_ap</span><span class="p">,</span> <span class="n">comp</span> <span class="o">=</span> <span class="n">auto_populate</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">auto_script_path</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">is_unspecified</span><span class="p">(</span><span class="n">config_ap</span><span class="p">,</span> <span class="s1">&#39;DL&#39;</span><span class="p">):</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="s1">&#39;No `DL` entry in config file, and &#39;</span>
+                <span class="s1">&#39;the prescribed auto-population script failed to identify &#39;</span>
+                <span class="s1">&#39;a valid damage and loss configuration for this asset. &#39;</span>
+            <span class="p">)</span>
+            <span class="k">raise</span> <span class="n">PelicunInvalidConfigError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+        <span class="c1"># look for possibly specified assessment options</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">assessment_options</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;Applications&#39;</span><span class="p">][</span><span class="s1">&#39;DL&#39;</span><span class="p">][</span><span class="s1">&#39;ApplicationData&#39;</span><span class="p">][</span>
+                <span class="s1">&#39;Options&#39;</span>
+            <span class="p">]</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="n">assessment_options</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">if</span> <span class="n">assessment_options</span><span class="p">:</span>
+            <span class="c1"># extend options defined via the auto-population script to</span>
+            <span class="c1"># include those in the original `config`</span>
+            <span class="n">config_ap</span><span class="p">[</span><span class="s1">&#39;Applications&#39;</span><span class="p">][</span><span class="s1">&#39;DL&#39;</span><span class="p">][</span><span class="s1">&#39;ApplicationData&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;Options&#39;</span><span class="p">)</span>
+            <span class="n">update_vals</span><span class="p">(</span>
+                <span class="n">config_ap</span><span class="p">[</span><span class="s1">&#39;DL&#39;</span><span class="p">][</span><span class="s1">&#39;Options&#39;</span><span class="p">],</span>
+                <span class="n">assessment_options</span><span class="p">,</span>
+                <span class="s2">&quot;config_ap[&#39;DL&#39;][&#39;Options&#39;]&quot;</span><span class="p">,</span>
+                <span class="s1">&#39;assessment_options&#39;</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="c1"># add the demand information</span>
+        <span class="n">update</span><span class="p">(</span><span class="n">config_ap</span><span class="p">,</span> <span class="s1">&#39;/DL/Demands/DemandFilePath&#39;</span><span class="p">,</span> <span class="n">demand_file</span><span class="p">)</span>
+        <span class="n">update</span><span class="p">(</span><span class="n">config_ap</span><span class="p">,</span> <span class="s1">&#39;/DL/Demands/SampleSize&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">realizations</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="n">coupled_edp</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">update</span><span class="p">(</span><span class="n">config_ap</span><span class="p">,</span> <span class="s1">&#39;DL/Demands/CoupledDemands&#39;</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">update</span><span class="p">(</span>
+                <span class="n">config_ap</span><span class="p">,</span>
+                <span class="s1">&#39;DL/Demands/Calibration&#39;</span><span class="p">,</span>
+                <span class="p">{</span><span class="s1">&#39;ALL&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;DistributionFamily&#39;</span><span class="p">:</span> <span class="s1">&#39;lognormal&#39;</span><span class="p">}},</span>
+            <span class="p">)</span>
+
+        <span class="c1"># save the component data</span>
+        <span class="n">comp</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">output_path</span> <span class="o">/</span> <span class="s1">&#39;CMP_QNT.csv&#39;</span><span class="p">)</span>
+
+        <span class="c1"># update the config file with the location</span>
+        <span class="n">update</span><span class="p">(</span>
+            <span class="n">config_ap</span><span class="p">,</span>
+            <span class="s1">&#39;DL/Asset/ComponentAssignmentFile&#39;</span><span class="p">,</span>
+            <span class="nb">str</span><span class="p">(</span><span class="n">output_path</span> <span class="o">/</span> <span class="s1">&#39;CMP_QNT.csv&#39;</span><span class="p">),</span>
+        <span class="p">)</span>
+
+        <span class="c1"># if detailed results are not requested, add a lean output config</span>
+        <span class="k">if</span> <span class="n">detailed_results</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+            <span class="n">update</span><span class="p">(</span><span class="n">config_ap</span><span class="p">,</span> <span class="s1">&#39;DL/Outputs&#39;</span><span class="p">,</span> <span class="n">regional_out_config</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">update</span><span class="p">(</span><span class="n">config_ap</span><span class="p">,</span> <span class="s1">&#39;DL/Outputs&#39;</span><span class="p">,</span> <span class="n">full_out_config</span><span class="p">)</span>
+            <span class="c1"># add output settings from regional output config</span>
+            <span class="k">if</span> <span class="n">is_unspecified</span><span class="p">(</span><span class="n">config_ap</span><span class="p">,</span> <span class="s1">&#39;DL/Outputs/Settings&#39;</span><span class="p">):</span>
+                <span class="n">update</span><span class="p">(</span><span class="n">config_ap</span><span class="p">,</span> <span class="s1">&#39;DL/Outputs/Settings&#39;</span><span class="p">,</span> <span class="p">{})</span>
+
+            <span class="n">config_ap</span><span class="p">[</span><span class="s1">&#39;DL&#39;</span><span class="p">][</span><span class="s1">&#39;Outputs&#39;</span><span class="p">][</span><span class="s1">&#39;Settings&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+                <span class="n">regional_out_config</span><span class="p">[</span><span class="s1">&#39;Settings&#39;</span><span class="p">]</span>
+            <span class="p">)</span>
+
+        <span class="c1"># save the extended config to a file</span>
+        <span class="n">config_ap_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">config_path</span><span class="o">.</span><span class="n">stem</span> <span class="o">+</span> <span class="s1">&#39;_ap.json&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
+
+        <span class="k">with</span> <span class="n">Path</span><span class="p">(</span><span class="n">config_ap_path</span><span class="p">)</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s1">&#39;w&#39;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">config_ap</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+        <span class="n">update</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s1">&#39;DL&#39;</span><span class="p">,</span> <span class="n">get</span><span class="p">(</span><span class="n">config_ap</span><span class="p">,</span> <span class="s1">&#39;DL&#39;</span><span class="p">))</span>
+
+    <span class="c1"># sample size</span>
+    <span class="n">sample_size_str</span> <span class="o">=</span> <span class="n">get</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s1">&#39;DL/Options/Sampling/SampleSize&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">sample_size_str</span><span class="p">:</span>
+        <span class="n">sample_size_str</span> <span class="o">=</span> <span class="n">get</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s1">&#39;DL/Demands/SampleSize&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">sample_size_str</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="s1">&#39;Sample size not provided in config file.&#39;</span>
+            <span class="k">raise</span> <span class="n">PelicunInvalidConfigError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+    <span class="n">update</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s1">&#39;DL/Options/Sampling/SampleSize&#39;</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">sample_size_str</span><span class="p">))</span>
+
+    <span class="c1"># provide all outputs if the files are not specified</span>
+    <span class="k">if</span> <span class="n">is_unspecified</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s1">&#39;DL/Outputs&#39;</span><span class="p">):</span>
+        <span class="n">update</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s1">&#39;DL/Outputs&#39;</span><span class="p">,</span> <span class="n">full_out_config</span><span class="p">)</span>
+
+    <span class="c1"># provide outputs in CSV by default</span>
+    <span class="k">if</span> <span class="n">is_unspecified</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s1">&#39;DL/Outputs/Format&#39;</span><span class="p">):</span>
+        <span class="n">update</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s1">&#39;DL/Outputs/Format&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;CSV&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s1">&#39;JSON&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">})</span>
+
+    <span class="c1"># override file format specification if the output_format is</span>
+    <span class="c1"># provided</span>
+    <span class="k">if</span> <span class="n">output_format</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">update</span><span class="p">(</span>
+            <span class="n">config</span><span class="p">,</span>
+            <span class="s1">&#39;DL/Outputs/Format&#39;</span><span class="p">,</span>
+            <span class="p">{</span>
+                <span class="s1">&#39;CSV&#39;</span><span class="p">:</span> <span class="s1">&#39;csv&#39;</span> <span class="ow">in</span> <span class="n">output_format</span><span class="p">,</span>
+                <span class="s1">&#39;JSON&#39;</span><span class="p">:</span> <span class="s1">&#39;json&#39;</span> <span class="ow">in</span> <span class="n">output_format</span><span class="p">,</span>
+            <span class="p">},</span>
+        <span class="p">)</span>
+
+    <span class="c1"># add empty Settings to output config to simplify code below</span>
+    <span class="k">if</span> <span class="n">is_unspecified</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s1">&#39;DL/Outputs/Settings&#39;</span><span class="p">):</span>
+        <span class="n">update</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s1">&#39;DL/Outputs/Settings&#39;</span><span class="p">,</span> <span class="n">pbe_settings</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">is_unspecified</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s1">&#39;DL/Demands&#39;</span><span class="p">):</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="s1">&#39;Demand configuration missing.&#39;</span>
+        <span class="k">raise</span> <span class="n">PelicunInvalidConfigError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">is_unspecified</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s1">&#39;DL/Asset&#39;</span><span class="p">):</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="s1">&#39;Asset configuration missing.&#39;</span>
+        <span class="k">raise</span> <span class="n">PelicunInvalidConfigError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+    <span class="n">update</span><span class="p">(</span>
+        <span class="n">config</span><span class="p">,</span>
+        <span class="s1">&#39;DL/Options/LogFile&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;pelicun_log.txt&#39;</span><span class="p">,</span>
+        <span class="n">only_if_empty_or_none</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">update</span><span class="p">(</span>
+        <span class="n">config</span><span class="p">,</span>
+        <span class="s1">&#39;DL/Options/Verbose&#39;</span><span class="p">,</span>
+        <span class="n">value</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">only_if_empty_or_none</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># if the user did not prescribe anything for ListAllDamageStates,</span>
+    <span class="c1"># then use True as default for DL_calculations regardless of what</span>
+    <span class="c1"># the Pelicun default is.</span>
+    <span class="n">update</span><span class="p">(</span>
+        <span class="n">config</span><span class="p">,</span>
+        <span class="s1">&#39;DL/Options/ListAllDamageStates&#39;</span><span class="p">,</span>
+        <span class="n">value</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">only_if_empty_or_none</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># if the demand file location is not specified in the config file</span>
+    <span class="c1"># assume there is a `response.csv` file next to the config file.</span>
+    <span class="n">update</span><span class="p">(</span>
+        <span class="n">config</span><span class="p">,</span>
+        <span class="s1">&#39;DL/Demands/DemandFilePath&#39;</span><span class="p">,</span>
+        <span class="n">config_path</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="s1">&#39;response.csv&#39;</span><span class="p">,</span>
+        <span class="n">only_if_empty_or_none</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -</span>
+    <span class="c1"># backwards-compatibility for v3.2 and earlier | remove after v4.0</span>
+    <span class="k">if</span> <span class="n">get</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s1">&#39;DL/Losses/BldgRepair&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="n">update</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s1">&#39;DL/Losses/Repair&#39;</span><span class="p">,</span> <span class="n">get</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s1">&#39;DL/Losses/BldgRepair&#39;</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">get</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s1">&#39;DL/Outputs/Loss/BldgRepair&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="n">update</span><span class="p">(</span>
+            <span class="n">config</span><span class="p">,</span>
+            <span class="s1">&#39;DL/Outputs/Loss/Repair&#39;</span><span class="p">,</span>
+            <span class="n">get</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s1">&#39;DL/Outputs/Loss/BldgRepair&#39;</span><span class="p">),</span>
+        <span class="p">)</span>
+    <span class="c1"># - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -</span>
+
+    <span class="c1"># Cast NumberOfStories to int</span>
+    <span class="k">if</span> <span class="n">is_specified</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s1">&#39;DL/Asset/NumberOfStories&#39;</span><span class="p">):</span>
+        <span class="n">update</span><span class="p">(</span>
+            <span class="n">config</span><span class="p">,</span>
+            <span class="s1">&#39;DL/Asset/NumberOfStories&#39;</span><span class="p">,</span>
+            <span class="nb">int</span><span class="p">(</span><span class="n">get</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s1">&#39;DL/Asset/NumberOfStories&#39;</span><span class="p">)),</span>
+        <span class="p">)</span>
+
+    <span class="c1"># Ensure `DL/Demands/InferResidualDrift` contains a `method`</span>
+    <span class="k">if</span> <span class="n">is_specified</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s1">&#39;DL/Demands/InferResidualDrift&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">is_unspecified</span><span class="p">(</span>
+        <span class="n">config</span><span class="p">,</span> <span class="s1">&#39;DL/Demands/InferResidualDrift/method&#39;</span>
+    <span class="p">):</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="s1">&#39;No method is specified in residual drift inference configuration.&#39;</span>
+        <span class="k">raise</span> <span class="n">PelicunInvalidConfigError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+    <span class="c1"># Ensure `DL/Damage/CollapseFragility` contains all required keys.</span>
+    <span class="k">if</span> <span class="n">is_specified</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s1">&#39;DL/Damage/CollapseFragility&#39;</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">thing</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;CapacityDistribution&#39;</span><span class="p">,</span> <span class="s1">&#39;CapacityMedian&#39;</span><span class="p">,</span> <span class="s1">&#39;Theta_1&#39;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">is_unspecified</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;DL/Damage/CollapseFragility/</span><span class="si">{</span><span class="n">thing</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">):</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="sa">f</span><span class="s1">&#39;`</span><span class="si">{</span><span class="n">thing</span><span class="si">}</span><span class="s1">` is missing from DL/Damage/CollapseFragility&#39;</span>
+                    <span class="sa">f</span><span class="s1">&#39; in the configuration file.&#39;</span>
+                <span class="p">)</span>
+                <span class="k">raise</span> <span class="n">PelicunInvalidConfigError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+    <span class="c1"># Ensure `DL/Damage/IrreparableDamage` contains all required keys.</span>
+    <span class="k">if</span> <span class="n">is_specified</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s1">&#39;DL/Damage/IrreparableDamage&#39;</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">thing</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;DriftCapacityMedian&#39;</span><span class="p">,</span> <span class="s1">&#39;DriftCapacityLogStd&#39;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">is_unspecified</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;DL/Damage/IrreparableDamage/</span><span class="si">{</span><span class="n">thing</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">):</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="sa">f</span><span class="s1">&#39;`</span><span class="si">{</span><span class="n">thing</span><span class="si">}</span><span class="s1">` is missing from DL/Damage/IrreparableDamage&#39;</span>
+                    <span class="sa">f</span><span class="s1">&#39; in the configuration file.&#39;</span>
+                <span class="p">)</span>
+                <span class="k">raise</span> <span class="n">PelicunInvalidConfigError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+    <span class="c1"># If the damage process approach is `User Defined` there needs to</span>
+    <span class="c1"># be a damage process file path.</span>
+    <span class="k">if</span> <span class="n">get</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s1">&#39;DL/Damage/DamageProcess&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="s1">&#39;User Defined&#39;</span> <span class="ow">and</span> <span class="n">is_unspecified</span><span class="p">(</span>
+        <span class="n">config</span><span class="p">,</span> <span class="s1">&#39;DL/Damage/DamageProcessFilePath&#39;</span>
+    <span class="p">):</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s1">&#39;When `DL/Damage/DamageProcess` is set to `User Defined`, &#39;</span>
+            <span class="s1">&#39;a path needs to be specified under &#39;</span>
+            <span class="s1">&#39;`DL/Damage/DamageProcessFilePath`.&#39;</span>
+        <span class="p">)</span>
+        <span class="k">raise</span> <span class="n">PelicunInvalidConfigError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+    <span class="c1"># Getting results requires running the calculations.</span>
+    <span class="k">if</span> <span class="n">is_specified</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s1">&#39;DL/Outputs/Asset&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">is_unspecified</span><span class="p">(</span>
+        <span class="n">config</span><span class="p">,</span> <span class="s1">&#39;DL/Asset&#39;</span>
+    <span class="p">):</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s1">&#39;No asset data specified in config file. &#39;</span>
+            <span class="s1">&#39;Cannot generate asset model outputs.&#39;</span>
+        <span class="p">)</span>
+        <span class="k">raise</span> <span class="n">PelicunInvalidConfigError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">is_specified</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s1">&#39;DL/Outputs/Damage&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">is_unspecified</span><span class="p">(</span>
+        <span class="n">config</span><span class="p">,</span> <span class="s1">&#39;DL/Damage&#39;</span>
+    <span class="p">):</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s1">&#39;No damage data specified in config file. &#39;</span>
+            <span class="s1">&#39;Cannot generate damage model outputs.&#39;</span>
+        <span class="p">)</span>
+        <span class="k">raise</span> <span class="n">PelicunInvalidConfigError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">is_specified</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s1">&#39;DL/Outputs/Loss&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">is_unspecified</span><span class="p">(</span>
+        <span class="n">config</span><span class="p">,</span> <span class="s1">&#39;DL/Losses&#39;</span>
+    <span class="p">):</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s1">&#39;No loss data specified in config file. &#39;</span>
+            <span class="s1">&#39;Cannot generate loss model outputs.&#39;</span>
+        <span class="p">)</span>
+        <span class="k">raise</span> <span class="n">PelicunInvalidConfigError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+    <span class="c1"># Ensure only one of `component_assignment_file` or</span>
+    <span class="c1"># `component_sample_file` is provided.</span>
+    <span class="k">if</span> <span class="n">is_specified</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s1">&#39;DL/Asset&#39;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="p">(</span><span class="n">get</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s1">&#39;DL/Asset/ComponentAssignmentFile&#39;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="ow">and</span> <span class="p">(</span><span class="n">get</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s1">&#39;DL/Asset/ComponentSampleFile&#39;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="p">)</span> <span class="ow">or</span> <span class="p">(</span>
+            <span class="p">(</span><span class="n">get</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s1">&#39;DL/Asset/ComponentAssignmentFile&#39;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="ow">and</span> <span class="p">(</span><span class="n">get</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s1">&#39;DL/Asset/ComponentSampleFile&#39;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="p">):</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="s1">&#39;In the asset model configuration, it is &#39;</span>
+                <span class="s1">&#39;required to specify one of `component_assignment_file` &#39;</span>
+                <span class="s1">&#39;or `component_sample_file`, but not both.&#39;</span>
+            <span class="p">)</span>
+            <span class="k">raise</span> <span class="n">PelicunInvalidConfigError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">config</span>
+
+
+<span class="k">def</span> <span class="nf">_create_json_files_if_requested</span><span class="p">(</span>
+    <span class="n">config</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">out_files</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">output_path</span><span class="p">:</span> <span class="n">Path</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create JSON files if requested in the config.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    config : dict</span>
+<span class="sd">        Configuration dictionary.</span>
+<span class="sd">    out_files : list</span>
+<span class="sd">        List of output file names.</span>
+<span class="sd">    output_path : Path</span>
+<span class="sd">        Path to the output directory.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># If not requested, simply return</span>
+    <span class="k">if</span> <span class="n">get</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s1">&#39;DL/Outputs/Format/JSON&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+        <span class="k">return</span>
+
+    <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">out_files</span><span class="p">:</span>
+        <span class="n">filename_json</span> <span class="o">=</span> <span class="n">filename</span><span class="p">[:</span><span class="o">-</span><span class="mi">3</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;json&#39;</span>
+
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="n">get</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s1">&#39;DL/Outputs/Settings/SimpleIndexInJSON&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="ow">is</span> <span class="kc">True</span>
+        <span class="p">):</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">output_path</span> <span class="o">/</span> <span class="n">filename</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">convert_to_MultiIndex</span><span class="p">(</span>
+                <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">output_path</span> <span class="o">/</span> <span class="n">filename</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="s1">&#39;Units&#39;</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">index</span><span class="p">:</span>
+            <span class="n">df_units</span> <span class="o">=</span> <span class="n">convert_to_SimpleIndex</span><span class="p">(</span>
+                <span class="n">data</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s1">&#39;Units&#39;</span><span class="p">,</span> <span class="p">:]</span><span class="o">.</span><span class="n">to_frame</span><span class="p">()</span><span class="o">.</span><span class="n">T</span><span class="p">,</span>  <span class="c1"># type: ignore</span>
+                <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+            <span class="p">)</span>
+
+            <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="s1">&#39;Units&#39;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+            <span class="n">out_dict</span> <span class="o">=</span> <span class="n">convert_df_to_dict</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+            <span class="n">out_dict</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+                <span class="p">{</span>
+                    <span class="s1">&#39;Units&#39;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="n">col</span><span class="p">:</span> <span class="n">df_units</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s1">&#39;Units&#39;</span><span class="p">,</span> <span class="n">col</span><span class="p">]</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">df_units</span><span class="o">.</span><span class="n">columns</span>
+                    <span class="p">}</span>
+                <span class="p">}</span>
+            <span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">out_dict</span> <span class="o">=</span> <span class="n">convert_df_to_dict</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+        <span class="k">with</span> <span class="n">Path</span><span class="p">(</span><span class="n">output_path</span> <span class="o">/</span> <span class="n">filename_json</span><span class="p">)</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s1">&#39;w&#39;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">out_dict</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_result_summary</span><span class="p">(</span>
+    <span class="n">assessment</span><span class="p">:</span> <span class="n">DLCalculationAssessment</span><span class="p">,</span> <span class="n">agg_repair</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generate a summary of the results.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    assessment : AssessmentBase</span>
+<span class="sd">        The assessment object.</span>
+<span class="sd">    agg_repair : pd.DataFrame</span>
+<span class="sd">        Aggregate repair data.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    tuple</span>
+<span class="sd">        Summary DataFrame and summary statistics DataFrame.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">damage_sample</span> <span class="o">=</span> <span class="n">assessment</span><span class="o">.</span><span class="n">damage</span><span class="o">.</span><span class="n">save_sample</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">damage_sample</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">agg_repair</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(),</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">damage_sample</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span>
+    <span class="n">damage_sample</span> <span class="o">=</span> <span class="n">damage_sample</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;cmp&#39;</span><span class="p">,</span> <span class="s1">&#39;ds&#39;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>  <span class="c1"># type: ignore</span>
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">damage_sample</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span>
+    <span class="n">damage_sample_s</span> <span class="o">=</span> <span class="n">convert_to_SimpleIndex</span><span class="p">(</span><span class="n">damage_sample</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="s1">&#39;collapse-1&#39;</span> <span class="ow">in</span> <span class="n">damage_sample_s</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="n">damage_sample_s</span><span class="p">[</span><span class="s1">&#39;collapse&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">damage_sample_s</span><span class="p">[</span><span class="s1">&#39;collapse-1&#39;</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">damage_sample_s</span><span class="p">[</span><span class="s1">&#39;collapse&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">damage_sample_s</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+    <span class="k">if</span> <span class="s1">&#39;irreparable-1&#39;</span> <span class="ow">in</span> <span class="n">damage_sample_s</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="n">damage_sample_s</span><span class="p">[</span><span class="s1">&#39;irreparable&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">damage_sample_s</span><span class="p">[</span><span class="s1">&#39;irreparable-1&#39;</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">damage_sample_s</span><span class="p">[</span><span class="s1">&#39;irreparable&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">damage_sample_s</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+    <span class="k">if</span> <span class="n">agg_repair</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">agg_repair_s</span> <span class="o">=</span> <span class="n">convert_to_SimpleIndex</span><span class="p">(</span><span class="n">agg_repair</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">agg_repair_s</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+
+    <span class="n">summary</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
+        <span class="p">[</span><span class="n">agg_repair_s</span><span class="p">,</span> <span class="n">damage_sample_s</span><span class="p">[[</span><span class="s1">&#39;collapse&#39;</span><span class="p">,</span> <span class="s1">&#39;irreparable&#39;</span><span class="p">]]],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span>
+    <span class="p">)</span>
+
+    <span class="n">summary_stats</span> <span class="o">=</span> <span class="n">describe</span><span class="p">(</span><span class="n">summary</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">summary</span><span class="p">,</span> <span class="n">summary_stats</span>
+
+
+<span class="k">def</span> <span class="nf">_parse_requested_output_file_names</span><span class="p">(</span><span class="n">output_config</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Parse the output file names from the output configuration.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    output_config : dict</span>
+<span class="sd">        Configuration for output files.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    set</span>
+<span class="sd">        Set of requested output file names.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">out_reqs</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">out</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">output_config</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">val</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">out_reqs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">set</span><span class="p">(</span><span class="n">out_reqs</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_demand_save</span><span class="p">(</span>
+    <span class="n">output_config</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
+    <span class="n">assessment</span><span class="p">:</span> <span class="n">DLCalculationAssessment</span><span class="p">,</span>
+    <span class="n">output_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
+    <span class="n">out_files</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Save demand results to files based on the output config.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    output_config : dict</span>
+<span class="sd">        Configuration for output files.</span>
+<span class="sd">    assessment : AssessmentBase</span>
+<span class="sd">        The assessment object.</span>
+<span class="sd">    output_path : Path</span>
+<span class="sd">        Path to the output directory.</span>
+<span class="sd">    out_files : list</span>
+<span class="sd">        List of output file names.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">out_reqs</span> <span class="o">=</span> <span class="n">_parse_requested_output_file_names</span><span class="p">(</span><span class="n">output_config</span><span class="p">)</span>
+
+    <span class="n">demand_sample</span><span class="p">,</span> <span class="n">demand_units_series</span> <span class="o">=</span> <span class="n">assessment</span><span class="o">.</span><span class="n">demand</span><span class="o">.</span><span class="n">save_sample</span><span class="p">(</span>
+        <span class="n">save_units</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">demand_sample</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">demand_units_series</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">)</span>
+    <span class="n">demand_units</span> <span class="o">=</span> <span class="n">demand_units_series</span><span class="o">.</span><span class="n">to_frame</span><span class="p">()</span><span class="o">.</span><span class="n">T</span>
+
+    <span class="k">if</span> <span class="s1">&#39;Sample&#39;</span> <span class="ow">in</span> <span class="n">out_reqs</span><span class="p">:</span>
+        <span class="n">demand_sample_s</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">demand_sample</span><span class="p">,</span> <span class="n">demand_units</span><span class="p">])</span>
+        <span class="n">demand_sample_s</span> <span class="o">=</span> <span class="n">convert_to_SimpleIndex</span><span class="p">(</span><span class="n">demand_sample_s</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">demand_sample_s</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span>
+            <span class="n">output_path</span> <span class="o">/</span> <span class="s1">&#39;DEM_sample.zip&#39;</span><span class="p">,</span>
+            <span class="n">index_label</span><span class="o">=</span><span class="n">demand_sample_s</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="n">compression</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;method&#39;</span><span class="p">:</span> <span class="s1">&#39;zip&#39;</span><span class="p">,</span> <span class="s1">&#39;archive_name&#39;</span><span class="p">:</span> <span class="s1">&#39;DEM_sample.csv&#39;</span><span class="p">},</span>
+        <span class="p">)</span>
+        <span class="n">out_files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;DEM_sample.zip&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="s1">&#39;Statistics&#39;</span> <span class="ow">in</span> <span class="n">out_reqs</span><span class="p">:</span>
+        <span class="n">demand_stats</span> <span class="o">=</span> <span class="n">describe</span><span class="p">(</span><span class="n">demand_sample</span><span class="p">)</span>
+        <span class="n">demand_stats</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">demand_stats</span><span class="p">,</span> <span class="n">demand_units</span><span class="p">])</span>
+        <span class="n">demand_stats</span> <span class="o">=</span> <span class="n">convert_to_SimpleIndex</span><span class="p">(</span><span class="n">demand_stats</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">demand_stats</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span>
+            <span class="n">output_path</span> <span class="o">/</span> <span class="s1">&#39;DEM_stats.csv&#39;</span><span class="p">,</span>
+            <span class="n">index_label</span><span class="o">=</span><span class="n">demand_stats</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">out_files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;DEM_stats.csv&#39;</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_asset_save</span><span class="p">(</span>
+    <span class="n">output_config</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
+    <span class="n">assessment</span><span class="p">:</span> <span class="n">DLCalculationAssessment</span><span class="p">,</span>
+    <span class="n">output_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
+    <span class="n">out_files</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">aggregate_colocated</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Save asset results to files based on the output config.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    output_config : dict</span>
+<span class="sd">        Configuration for output files.</span>
+<span class="sd">    assessment : AssessmentBase</span>
+<span class="sd">        The assessment object.</span>
+<span class="sd">    output_path : Path</span>
+<span class="sd">        Path to the output directory.</span>
+<span class="sd">    out_files : list</span>
+<span class="sd">        List of output file names.</span>
+<span class="sd">    aggregate_colocated : bool, optional</span>
+<span class="sd">        Whether to aggregate colocated components. Default is False.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">output</span> <span class="o">=</span> <span class="n">assessment</span><span class="o">.</span><span class="n">asset</span><span class="o">.</span><span class="n">save_cmp_sample</span><span class="p">(</span><span class="n">save_units</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)</span>
+    <span class="n">cmp_sample</span><span class="p">,</span> <span class="n">cmp_units_series</span> <span class="o">=</span> <span class="n">output</span>
+    <span class="n">cmp_units</span> <span class="o">=</span> <span class="n">cmp_units_series</span><span class="o">.</span><span class="n">to_frame</span><span class="p">()</span><span class="o">.</span><span class="n">T</span>
+
+    <span class="k">if</span> <span class="n">aggregate_colocated</span><span class="p">:</span>
+        <span class="n">cmp_units</span> <span class="o">=</span> <span class="n">cmp_units</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;cmp&#39;</span><span class="p">,</span> <span class="s1">&#39;loc&#39;</span><span class="p">,</span> <span class="s1">&#39;dir&#39;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>  <span class="c1"># type: ignore</span>
+        <span class="n">cmp_groupby_uid</span> <span class="o">=</span> <span class="n">cmp_sample</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;cmp&#39;</span><span class="p">,</span> <span class="s1">&#39;loc&#39;</span><span class="p">,</span> <span class="s1">&#39;dir&#39;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
+        <span class="n">cmp_sample</span> <span class="o">=</span> <span class="n">cmp_groupby_uid</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">mask</span><span class="p">(</span><span class="n">cmp_groupby_uid</span><span class="o">.</span><span class="n">count</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+
+    <span class="n">out_reqs</span> <span class="o">=</span> <span class="n">_parse_requested_output_file_names</span><span class="p">(</span><span class="n">output_config</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="s1">&#39;Sample&#39;</span> <span class="ow">in</span> <span class="n">out_reqs</span><span class="p">:</span>
+        <span class="n">cmp_sample_s</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">cmp_sample</span><span class="p">,</span> <span class="n">cmp_units</span><span class="p">])</span>
+
+        <span class="n">cmp_sample_s</span> <span class="o">=</span> <span class="n">convert_to_SimpleIndex</span><span class="p">(</span><span class="n">cmp_sample_s</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">cmp_sample_s</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span>
+            <span class="n">output_path</span> <span class="o">/</span> <span class="s1">&#39;CMP_sample.zip&#39;</span><span class="p">,</span>
+            <span class="n">index_label</span><span class="o">=</span><span class="n">cmp_sample_s</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="n">compression</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;method&#39;</span><span class="p">:</span> <span class="s1">&#39;zip&#39;</span><span class="p">,</span> <span class="s1">&#39;archive_name&#39;</span><span class="p">:</span> <span class="s1">&#39;CMP_sample.csv&#39;</span><span class="p">},</span>
+        <span class="p">)</span>
+        <span class="n">out_files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;CMP_sample.zip&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="s1">&#39;Statistics&#39;</span> <span class="ow">in</span> <span class="n">out_reqs</span><span class="p">:</span>
+        <span class="n">cmp_stats</span> <span class="o">=</span> <span class="n">describe</span><span class="p">(</span><span class="n">cmp_sample</span><span class="p">)</span>
+        <span class="n">cmp_stats</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">cmp_stats</span><span class="p">,</span> <span class="n">cmp_units</span><span class="p">])</span>
+
+        <span class="n">cmp_stats</span> <span class="o">=</span> <span class="n">convert_to_SimpleIndex</span><span class="p">(</span><span class="n">cmp_stats</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">cmp_stats</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span>
+            <span class="n">output_path</span> <span class="o">/</span> <span class="s1">&#39;CMP_stats.csv&#39;</span><span class="p">,</span> <span class="n">index_label</span><span class="o">=</span><span class="n">cmp_stats</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">name</span>
+        <span class="p">)</span>
+        <span class="n">out_files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;CMP_stats.csv&#39;</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_damage_save</span><span class="p">(</span>
+    <span class="n">output_config</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
+    <span class="n">assessment</span><span class="p">:</span> <span class="n">DLCalculationAssessment</span><span class="p">,</span>
+    <span class="n">output_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
+    <span class="n">out_files</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">aggregate_colocated</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">condense_ds</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Save damage results to files based on the output config.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    output_config : dict</span>
+<span class="sd">        Configuration for output files.</span>
+<span class="sd">    assessment : AssessmentBase</span>
+<span class="sd">        The assessment object.</span>
+<span class="sd">    output_path : Path</span>
+<span class="sd">        Path to the output directory.</span>
+<span class="sd">    out_files : list</span>
+<span class="sd">        List of output file names.</span>
+<span class="sd">    aggregate_colocated : bool, optional</span>
+<span class="sd">        Whether to aggregate colocated components. Default is False.</span>
+<span class="sd">    condense_ds : bool, optional</span>
+<span class="sd">        Whether to condense damage states. Default is False.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">output</span> <span class="o">=</span> <span class="n">assessment</span><span class="o">.</span><span class="n">damage</span><span class="o">.</span><span class="n">save_sample</span><span class="p">(</span><span class="n">save_units</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)</span>
+    <span class="n">damage_sample</span><span class="p">,</span> <span class="n">damage_units_series</span> <span class="o">=</span> <span class="n">output</span>
+    <span class="n">damage_units</span> <span class="o">=</span> <span class="n">damage_units_series</span><span class="o">.</span><span class="n">to_frame</span><span class="p">()</span><span class="o">.</span><span class="n">T</span>
+
+    <span class="k">if</span> <span class="n">aggregate_colocated</span><span class="p">:</span>
+        <span class="n">damage_units</span> <span class="o">=</span> <span class="n">damage_units</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span>  <span class="c1"># type: ignore</span>
+            <span class="n">level</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;cmp&#39;</span><span class="p">,</span> <span class="s1">&#39;loc&#39;</span><span class="p">,</span> <span class="s1">&#39;dir&#39;</span><span class="p">,</span> <span class="s1">&#39;ds&#39;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+        <span class="n">damage_groupby_uid</span> <span class="o">=</span> <span class="n">damage_sample</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span>  <span class="c1"># type: ignore</span>
+            <span class="n">level</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;cmp&#39;</span><span class="p">,</span> <span class="s1">&#39;loc&#39;</span><span class="p">,</span> <span class="s1">&#39;dir&#39;</span><span class="p">,</span> <span class="s1">&#39;ds&#39;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span>
+        <span class="p">)</span>
+        <span class="n">damage_sample</span> <span class="o">=</span> <span class="n">damage_groupby_uid</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">mask</span><span class="p">(</span>
+            <span class="n">damage_groupby_uid</span><span class="o">.</span><span class="n">count</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        <span class="p">)</span>
+
+    <span class="n">out_reqs</span> <span class="o">=</span> <span class="n">_parse_requested_output_file_names</span><span class="p">(</span><span class="n">output_config</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="s1">&#39;Sample&#39;</span> <span class="ow">in</span> <span class="n">out_reqs</span><span class="p">:</span>
+        <span class="n">damage_sample_s</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">damage_sample</span><span class="p">,</span> <span class="n">damage_units</span><span class="p">])</span>
+
+        <span class="n">damage_sample_s</span> <span class="o">=</span> <span class="n">convert_to_SimpleIndex</span><span class="p">(</span><span class="n">damage_sample_s</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">damage_sample_s</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span>
+            <span class="n">output_path</span> <span class="o">/</span> <span class="s1">&#39;DMG_sample.zip&#39;</span><span class="p">,</span>
+            <span class="n">index_label</span><span class="o">=</span><span class="n">damage_sample_s</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="n">compression</span><span class="o">=</span><span class="p">{</span>
+                <span class="s1">&#39;method&#39;</span><span class="p">:</span> <span class="s1">&#39;zip&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;archive_name&#39;</span><span class="p">:</span> <span class="s1">&#39;DMG_sample.csv&#39;</span><span class="p">,</span>
+            <span class="p">},</span>
+        <span class="p">)</span>
+        <span class="n">out_files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;DMG_sample.zip&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="s1">&#39;Statistics&#39;</span> <span class="ow">in</span> <span class="n">out_reqs</span><span class="p">:</span>
+        <span class="n">damage_stats</span> <span class="o">=</span> <span class="n">describe</span><span class="p">(</span><span class="n">damage_sample</span><span class="p">)</span>
+        <span class="n">damage_stats</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">damage_stats</span><span class="p">,</span> <span class="n">damage_units</span><span class="p">])</span>
+
+        <span class="n">damage_stats</span> <span class="o">=</span> <span class="n">convert_to_SimpleIndex</span><span class="p">(</span><span class="n">damage_stats</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">damage_stats</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span>
+            <span class="n">output_path</span> <span class="o">/</span> <span class="s1">&#39;DMG_stats.csv&#39;</span><span class="p">,</span>
+            <span class="n">index_label</span><span class="o">=</span><span class="n">damage_stats</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">out_files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;DMG_stats.csv&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">out_reqs</span><span class="o">.</span><span class="n">intersection</span><span class="p">({</span><span class="s1">&#39;GroupedSample&#39;</span><span class="p">,</span> <span class="s1">&#39;GroupedStatistics&#39;</span><span class="p">}):</span>
+        <span class="n">damage_groupby</span> <span class="o">=</span> <span class="n">damage_sample</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;cmp&#39;</span><span class="p">,</span> <span class="s1">&#39;loc&#39;</span><span class="p">,</span> <span class="s1">&#39;ds&#39;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
+        <span class="n">damage_units</span> <span class="o">=</span> <span class="n">damage_units</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span>
+            <span class="n">level</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;cmp&#39;</span><span class="p">,</span> <span class="s1">&#39;loc&#39;</span><span class="p">,</span> <span class="s1">&#39;ds&#39;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>  <span class="c1"># type: ignore</span>
+
+        <span class="n">grp_damage</span> <span class="o">=</span> <span class="n">damage_groupby</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">mask</span><span class="p">(</span><span class="n">damage_groupby</span><span class="o">.</span><span class="n">count</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+
+        <span class="c1"># if requested, condense DS output</span>
+        <span class="k">if</span> <span class="n">condense_ds</span><span class="p">:</span>
+            <span class="c1"># replace non-zero values with 1</span>
+            <span class="n">grp_damage</span> <span class="o">=</span> <span class="n">grp_damage</span><span class="o">.</span><span class="n">mask</span><span class="p">(</span>
+                <span class="n">grp_damage</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span>
+            <span class="p">)</span>
+
+            <span class="c1"># get the corresponding DS for each column</span>
+            <span class="n">ds_list</span> <span class="o">=</span> <span class="n">grp_damage</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s1">&#39;ds&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+
+            <span class="c1"># replace ones with the corresponding DS in each cell</span>
+            <span class="n">grp_damage</span> <span class="o">=</span> <span class="n">grp_damage</span><span class="o">.</span><span class="n">mul</span><span class="p">(</span><span class="n">ds_list</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+            <span class="c1"># aggregate across damage state indices</span>
+            <span class="n">damage_groupby_2</span> <span class="o">=</span> <span class="n">grp_damage</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;cmp&#39;</span><span class="p">,</span> <span class="s1">&#39;loc&#39;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+            <span class="c1"># choose the max value</span>
+            <span class="c1"># i.e., the governing DS for each comp-loc pair</span>
+            <span class="n">grp_damage</span> <span class="o">=</span> <span class="n">damage_groupby_2</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="o">.</span><span class="n">mask</span><span class="p">(</span>
+                <span class="n">damage_groupby_2</span><span class="o">.</span><span class="n">count</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+            <span class="p">)</span>
+
+            <span class="c1"># aggregate units to the same format</span>
+            <span class="c1"># assume identical units across locations for each comp</span>
+            <span class="n">damage_units</span> <span class="o">=</span> <span class="n">damage_units</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;cmp&#39;</span><span class="p">,</span> <span class="s1">&#39;loc&#39;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>  <span class="c1"># type: ignore</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># otherwise, aggregate damage quantities for each comp</span>
+            <span class="n">damage_groupby_2</span> <span class="o">=</span> <span class="n">grp_damage</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="s1">&#39;cmp&#39;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+            <span class="c1"># preserve NaNs</span>
+            <span class="n">grp_damage</span> <span class="o">=</span> <span class="n">damage_groupby_2</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">mask</span><span class="p">(</span>
+                <span class="n">damage_groupby_2</span><span class="o">.</span><span class="n">count</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+            <span class="p">)</span>
+
+            <span class="c1"># and aggregate units to the same format</span>
+            <span class="n">damage_units</span> <span class="o">=</span> <span class="n">damage_units</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="s1">&#39;cmp&#39;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>  <span class="c1"># type: ignore</span>
+
+        <span class="k">if</span> <span class="s1">&#39;GroupedSample&#39;</span> <span class="ow">in</span> <span class="n">out_reqs</span><span class="p">:</span>
+            <span class="n">grp_damage_s</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">grp_damage</span><span class="p">,</span> <span class="n">damage_units</span><span class="p">])</span>
+
+            <span class="n">grp_damage_s</span> <span class="o">=</span> <span class="n">convert_to_SimpleIndex</span><span class="p">(</span><span class="n">grp_damage_s</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">grp_damage_s</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span>
+                <span class="n">output_path</span> <span class="o">/</span> <span class="s1">&#39;DMG_grp.zip&#39;</span><span class="p">,</span>
+                <span class="n">index_label</span><span class="o">=</span><span class="n">grp_damage_s</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                <span class="n">compression</span><span class="o">=</span><span class="p">{</span>
+                    <span class="s1">&#39;method&#39;</span><span class="p">:</span> <span class="s1">&#39;zip&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;archive_name&#39;</span><span class="p">:</span> <span class="s1">&#39;DMG_grp.csv&#39;</span><span class="p">,</span>
+                <span class="p">},</span>
+            <span class="p">)</span>
+            <span class="n">out_files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;DMG_grp.zip&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="s1">&#39;GroupedStatistics&#39;</span> <span class="ow">in</span> <span class="n">out_reqs</span><span class="p">:</span>
+            <span class="n">grp_stats</span> <span class="o">=</span> <span class="n">describe</span><span class="p">(</span><span class="n">grp_damage</span><span class="p">)</span>
+            <span class="n">grp_stats</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">grp_stats</span><span class="p">,</span> <span class="n">damage_units</span><span class="p">])</span>
+
+            <span class="n">grp_stats</span> <span class="o">=</span> <span class="n">convert_to_SimpleIndex</span><span class="p">(</span><span class="n">grp_stats</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">grp_stats</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span>
+                <span class="n">output_path</span> <span class="o">/</span> <span class="s1">&#39;DMG_grp_stats.csv&#39;</span><span class="p">,</span>
+                <span class="n">index_label</span><span class="o">=</span><span class="n">grp_stats</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">out_files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;DMG_grp_stats.csv&#39;</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_loss_save</span><span class="p">(</span>
+    <span class="n">output_config</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
+    <span class="n">assessment</span><span class="p">:</span> <span class="n">DLCalculationAssessment</span><span class="p">,</span>
+    <span class="n">output_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
+    <span class="n">out_files</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="n">agg_repair</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">aggregate_colocated</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Save loss results to files based on the output config.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    output_config : dict</span>
+<span class="sd">        Configuration for output files.</span>
+<span class="sd">    assessment : AssessmentBase</span>
+<span class="sd">        The assessment object.</span>
+<span class="sd">    output_path : Path</span>
+<span class="sd">        Path to the output directory.</span>
+<span class="sd">    out_files : list</span>
+<span class="sd">        List of output file names.</span>
+<span class="sd">    agg_repair : pd.DataFrame</span>
+<span class="sd">        Aggregate repair data.</span>
+<span class="sd">    aggregate_colocated : bool, optional</span>
+<span class="sd">        Whether to aggregate colocated components. Default is False.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="n">assessment</span><span class="o">.</span><span class="n">loss</span><span class="o">.</span><span class="n">ds_model</span><span class="o">.</span><span class="n">save_sample</span><span class="p">(</span><span class="n">save_units</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)</span>
+    <span class="n">repair_sample</span><span class="p">,</span> <span class="n">repair_units_series</span> <span class="o">=</span> <span class="n">out</span>
+    <span class="n">repair_units</span> <span class="o">=</span> <span class="n">repair_units_series</span><span class="o">.</span><span class="n">to_frame</span><span class="p">()</span><span class="o">.</span><span class="n">T</span>
+
+    <span class="k">if</span> <span class="n">aggregate_colocated</span><span class="p">:</span>
+        <span class="n">repair_units</span> <span class="o">=</span> <span class="n">repair_units</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span>  <span class="c1"># type: ignore</span>
+            <span class="n">level</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;dv&#39;</span><span class="p">,</span> <span class="s1">&#39;loss&#39;</span><span class="p">,</span> <span class="s1">&#39;dmg&#39;</span><span class="p">,</span> <span class="s1">&#39;ds&#39;</span><span class="p">,</span> <span class="s1">&#39;loc&#39;</span><span class="p">,</span> <span class="s1">&#39;dir&#39;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+        <span class="n">repair_groupby_uid</span> <span class="o">=</span> <span class="n">repair_sample</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span>  <span class="c1"># type: ignore</span>
+            <span class="n">level</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;dv&#39;</span><span class="p">,</span> <span class="s1">&#39;loss&#39;</span><span class="p">,</span> <span class="s1">&#39;dmg&#39;</span><span class="p">,</span> <span class="s1">&#39;ds&#39;</span><span class="p">,</span> <span class="s1">&#39;loc&#39;</span><span class="p">,</span> <span class="s1">&#39;dir&#39;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span>
+        <span class="p">)</span>
+        <span class="n">repair_sample</span> <span class="o">=</span> <span class="n">repair_groupby_uid</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">mask</span><span class="p">(</span>
+            <span class="n">repair_groupby_uid</span><span class="o">.</span><span class="n">count</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        <span class="p">)</span>
+
+    <span class="n">out_reqs</span> <span class="o">=</span> <span class="n">_parse_requested_output_file_names</span><span class="p">(</span><span class="n">output_config</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="s1">&#39;Sample&#39;</span> <span class="ow">in</span> <span class="n">out_reqs</span><span class="p">:</span>
+        <span class="n">repair_sample_s</span> <span class="o">=</span> <span class="n">repair_sample</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">repair_sample_s</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">repair_sample_s</span><span class="p">,</span> <span class="n">repair_units</span><span class="p">])</span>
+
+        <span class="n">repair_sample_s</span> <span class="o">=</span> <span class="n">convert_to_SimpleIndex</span><span class="p">(</span><span class="n">repair_sample_s</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">repair_sample_s</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span>
+            <span class="n">output_path</span> <span class="o">/</span> <span class="s1">&#39;DV_repair_sample.zip&#39;</span><span class="p">,</span>
+            <span class="n">index_label</span><span class="o">=</span><span class="n">repair_sample_s</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="n">compression</span><span class="o">=</span><span class="p">{</span>
+                <span class="s1">&#39;method&#39;</span><span class="p">:</span> <span class="s1">&#39;zip&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;archive_name&#39;</span><span class="p">:</span> <span class="s1">&#39;DV_repair_sample.csv&#39;</span><span class="p">,</span>
+            <span class="p">},</span>
+        <span class="p">)</span>
+        <span class="n">out_files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;DV_repair_sample.zip&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="s1">&#39;Statistics&#39;</span> <span class="ow">in</span> <span class="n">out_reqs</span><span class="p">:</span>
+        <span class="n">repair_stats</span> <span class="o">=</span> <span class="n">describe</span><span class="p">(</span><span class="n">repair_sample</span><span class="p">)</span>
+        <span class="n">repair_stats</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">repair_stats</span><span class="p">,</span> <span class="n">repair_units</span><span class="p">])</span>
+
+        <span class="n">repair_stats</span> <span class="o">=</span> <span class="n">convert_to_SimpleIndex</span><span class="p">(</span><span class="n">repair_stats</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">repair_stats</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span>
+            <span class="n">output_path</span> <span class="o">/</span> <span class="s1">&#39;DV_repair_stats.csv&#39;</span><span class="p">,</span>
+            <span class="n">index_label</span><span class="o">=</span><span class="n">repair_stats</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">out_files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;DV_repair_stats.csv&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">out_reqs</span><span class="o">.</span><span class="n">intersection</span><span class="p">({</span><span class="s1">&#39;GroupedSample&#39;</span><span class="p">,</span> <span class="s1">&#39;GroupedStatistics&#39;</span><span class="p">}):</span>
+        <span class="n">repair_groupby</span> <span class="o">=</span> <span class="n">repair_sample</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;dv&#39;</span><span class="p">,</span> <span class="s1">&#39;loss&#39;</span><span class="p">,</span> <span class="s1">&#39;dmg&#39;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
+        <span class="n">repair_units</span> <span class="o">=</span> <span class="n">repair_units</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span>  <span class="c1"># type: ignore</span>
+            <span class="n">level</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;dv&#39;</span><span class="p">,</span> <span class="s1">&#39;loss&#39;</span><span class="p">,</span> <span class="s1">&#39;dmg&#39;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+        <span class="n">grp_repair</span> <span class="o">=</span> <span class="n">repair_groupby</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">mask</span><span class="p">(</span><span class="n">repair_groupby</span><span class="o">.</span><span class="n">count</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="s1">&#39;GroupedSample&#39;</span> <span class="ow">in</span> <span class="n">out_reqs</span><span class="p">:</span>
+            <span class="n">grp_repair_s</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">grp_repair</span><span class="p">,</span> <span class="n">repair_units</span><span class="p">])</span>
+
+            <span class="n">grp_repair_s</span> <span class="o">=</span> <span class="n">convert_to_SimpleIndex</span><span class="p">(</span><span class="n">grp_repair_s</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">grp_repair_s</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span>
+                <span class="n">output_path</span> <span class="o">/</span> <span class="s1">&#39;DV_repair_grp.zip&#39;</span><span class="p">,</span>
+                <span class="n">index_label</span><span class="o">=</span><span class="n">grp_repair_s</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                <span class="n">compression</span><span class="o">=</span><span class="p">{</span>
+                    <span class="s1">&#39;method&#39;</span><span class="p">:</span> <span class="s1">&#39;zip&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;archive_name&#39;</span><span class="p">:</span> <span class="s1">&#39;DV_repair_grp.csv&#39;</span><span class="p">,</span>
+                <span class="p">},</span>
+            <span class="p">)</span>
+            <span class="n">out_files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;DV_repair_grp.zip&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="s1">&#39;GroupedStatistics&#39;</span> <span class="ow">in</span> <span class="n">out_reqs</span><span class="p">:</span>
+            <span class="n">grp_stats</span> <span class="o">=</span> <span class="n">describe</span><span class="p">(</span><span class="n">grp_repair</span><span class="p">)</span>
+            <span class="n">grp_stats</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">grp_stats</span><span class="p">,</span> <span class="n">repair_units</span><span class="p">])</span>
+
+            <span class="n">grp_stats</span> <span class="o">=</span> <span class="n">convert_to_SimpleIndex</span><span class="p">(</span><span class="n">grp_stats</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">grp_stats</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span>
+                <span class="n">output_path</span> <span class="o">/</span> <span class="s1">&#39;DV_repair_grp_stats.csv&#39;</span><span class="p">,</span>
+                <span class="n">index_label</span><span class="o">=</span><span class="n">grp_stats</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">out_files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;DV_repair_grp_stats.csv&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">out_reqs</span><span class="o">.</span><span class="n">intersection</span><span class="p">({</span><span class="s1">&#39;AggregateSample&#39;</span><span class="p">,</span> <span class="s1">&#39;AggregateStatistics&#39;</span><span class="p">}):</span>
+        <span class="k">if</span> <span class="s1">&#39;AggregateSample&#39;</span> <span class="ow">in</span> <span class="n">out_reqs</span><span class="p">:</span>
+            <span class="n">agg_repair_s</span> <span class="o">=</span> <span class="n">convert_to_SimpleIndex</span><span class="p">(</span><span class="n">agg_repair</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">agg_repair_s</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span>
+                <span class="n">output_path</span> <span class="o">/</span> <span class="s1">&#39;DV_repair_agg.zip&#39;</span><span class="p">,</span>
+                <span class="n">index_label</span><span class="o">=</span><span class="n">agg_repair_s</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                <span class="n">compression</span><span class="o">=</span><span class="p">{</span>
+                    <span class="s1">&#39;method&#39;</span><span class="p">:</span> <span class="s1">&#39;zip&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;archive_name&#39;</span><span class="p">:</span> <span class="s1">&#39;DV_repair_agg.csv&#39;</span><span class="p">,</span>
+                <span class="p">},</span>
+            <span class="p">)</span>
+            <span class="n">out_files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;DV_repair_agg.zip&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="s1">&#39;AggregateStatistics&#39;</span> <span class="ow">in</span> <span class="n">out_reqs</span><span class="p">:</span>
+            <span class="n">agg_stats</span> <span class="o">=</span> <span class="n">convert_to_SimpleIndex</span><span class="p">(</span><span class="n">describe</span><span class="p">(</span><span class="n">agg_repair</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">agg_stats</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span>
+                <span class="n">output_path</span> <span class="o">/</span> <span class="s1">&#39;DV_repair_agg_stats.csv&#39;</span><span class="p">,</span>
+                <span class="n">index_label</span><span class="o">=</span><span class="n">agg_stats</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">out_files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;DV_repair_agg_stats.csv&#39;</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_remove_existing_files</span><span class="p">(</span><span class="n">output_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">known_output_files</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Remove known existing files from the specified output path.</span>
+
+<span class="sd">    This function initializes the output folder by removing files that</span>
+<span class="sd">    already exist in the `known_output_files` list.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    output_path : Path</span>
+<span class="sd">        The path to the output folder where files are located.</span>
+<span class="sd">    known_output_files : list of str</span>
+<span class="sd">        A list of filenames that are expected to exist and should be</span>
+<span class="sd">        removed from the output folder.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    OSError</span>
+<span class="sd">        If an error occurs while attempting to remove a file, an</span>
+<span class="sd">        OSError will be raised with the specific details of the</span>
+<span class="sd">        failure.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Initialize the output folder - i.e., remove existing output files from</span>
+    <span class="c1"># there</span>
+    <span class="n">files</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">output_path</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">known_output_files</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="p">(</span><span class="n">output_path</span> <span class="o">/</span> <span class="n">filename</span><span class="p">)</span><span class="o">.</span><span class="n">unlink</span><span class="p">()</span>
+            <span class="k">except</span> <span class="ne">OSError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="sa">f</span><span class="s1">&#39;Error occurred while removing &#39;</span>
+                    <span class="sa">f</span><span class="s1">&#39;`</span><span class="si">{</span><span class="n">output_path</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">filename</span><span class="si">}</span><span class="s1">`: </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s1">&#39;</span>
+                <span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">OSError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span> <span class="kn">from</span> <span class="nn">exc</span>
+
+
+<div class="viewcode-block" id="main">
+<a class="viewcode-back" href="../../../api_reference/_autosummary/pelicun.tools.DL_calculation.html#pelicun.tools.DL_calculation.main">[docs]</a>
+<span class="k">def</span> <span class="nf">main</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Parse arguments and run the pelicun calculation.&quot;&quot;&quot;</span>
+    <span class="n">args_list</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">()</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s1">&#39;-c&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;--filenameDL&#39;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Path to the damage and loss (DL) configuration file.&#39;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s1">&#39;-d&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;--demandFile&#39;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Path to the file containing demand data.&#39;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s1">&#39;-s&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;--Realizations&#39;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Number of realizations to run in the probabilistic model.&#39;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s1">&#39;--dirnameOutput&#39;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Directory where output files will be stored.&#39;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s1">&#39;--detailed_results&#39;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="n">str2bool</span><span class="p">,</span>
+        <span class="n">nargs</span><span class="o">=</span><span class="s1">&#39;?&#39;</span><span class="p">,</span>
+        <span class="n">const</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Generate detailed results (True/False). Defaults to True.&#39;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s1">&#39;--coupled_EDP&#39;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="n">str2bool</span><span class="p">,</span>
+        <span class="n">nargs</span><span class="o">=</span><span class="s1">&#39;?&#39;</span><span class="p">,</span>
+        <span class="n">const</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="p">(</span>
+            <span class="s1">&#39;Consider coupled Engineering Demand Parameters (EDPs) &#39;</span>
+            <span class="s1">&#39;in calculations (True/False). Defaults to False.&#39;</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s1">&#39;--log_file&#39;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="n">str2bool</span><span class="p">,</span>
+        <span class="n">nargs</span><span class="o">=</span><span class="s1">&#39;?&#39;</span><span class="p">,</span>
+        <span class="n">const</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Generate a log file (True/False). Defaults to True.&#39;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s1">&#39;--auto_script&#39;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Optional path to a config auto-generation script.&#39;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s1">&#39;--custom_model_dir&#39;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Directory containing custom model data.&#39;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s1">&#39;--output_format&#39;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Desired output format for the results.&#39;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="c1"># TODO(JVM): fix color warnings</span>
+    <span class="c1"># parser.add_argument(</span>
+    <span class="c1">#     &#39;--color_warnings&#39;,</span>
+    <span class="c1">#     default=False,</span>
+    <span class="c1">#     type=str2bool,</span>
+    <span class="c1">#     nargs=&#39;?&#39;,</span>
+    <span class="c1">#     const=False,</span>
+    <span class="c1">#     help=(</span>
+    <span class="c1">#         &#39;Enable colored warnings in the console &#39;</span>
+    <span class="c1">#         &#39;output (True/False). Defaults to False.&#39;</span>
+    <span class="c1">#     ),</span>
+    <span class="c1"># )</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s1">&#39;--ground_failure&#39;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="n">str2bool</span><span class="p">,</span>
+        <span class="n">nargs</span><span class="o">=</span><span class="s1">&#39;?&#39;</span><span class="p">,</span>
+        <span class="n">const</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Currently not used. Soon to be deprecated.&#39;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s1">&#39;--regional&#39;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="n">str2bool</span><span class="p">,</span>
+        <span class="n">nargs</span><span class="o">=</span><span class="s1">&#39;?&#39;</span><span class="p">,</span>
+        <span class="n">const</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Currently not used. Soon to be deprecated.&#39;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--resource_dir&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">args_list</span><span class="p">:</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">print_help</span><span class="p">()</span>
+        <span class="k">return</span>
+
+    <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="n">args_list</span><span class="p">)</span>
+
+    <span class="n">log_msg</span><span class="p">(</span><span class="s1">&#39;Initializing pelicun calculation.&#39;</span><span class="p">)</span>
+
+    <span class="n">run_pelicun</span><span class="p">(</span>
+        <span class="n">config_path</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">filenameDL</span><span class="p">,</span>
+        <span class="n">demand_file</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">demandFile</span><span class="p">,</span>
+        <span class="n">output_path</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">dirnameOutput</span><span class="p">,</span>
+        <span class="n">realizations</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">Realizations</span><span class="p">,</span>
+        <span class="n">auto_script_path</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">auto_script</span><span class="p">,</span>
+        <span class="n">custom_model_dir</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">custom_model_dir</span><span class="p">,</span>
+        <span class="n">output_format</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">output_format</span><span class="p">,</span>
+        <span class="n">detailed_results</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">detailed_results</span><span class="p">,</span>
+        <span class="n">coupled_edp</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">coupled_EDP</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">log_msg</span><span class="p">(</span><span class="s1">&#39;pelicun calculation completed.&#39;</span><span class="p">)</span></div>
+
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Leland Stanford Junior University and The Regents of the University of California.</p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+    <!-- Theme Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-158130480-7"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'UA-158130480-7', {
+          'anonymize_ip': false,
+      });
+    </script> 
+
+</body>
+</html>

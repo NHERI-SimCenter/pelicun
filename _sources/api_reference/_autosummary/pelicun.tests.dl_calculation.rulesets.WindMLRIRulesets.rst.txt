@@ -1,0 +1,30 @@
+pelicun.tests.dl\_calculation.rulesets.WindMLRIRulesets
+=======================================================
+
+.. automodule:: pelicun.tests.dl_calculation.rulesets.WindMLRIRulesets
+   :members:
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      MLRI_config
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

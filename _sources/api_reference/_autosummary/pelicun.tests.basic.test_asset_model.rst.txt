@@ -1,0 +1,31 @@
+pelicun.tests.basic.test\_asset\_model
+======================================
+
+.. automodule:: pelicun.tests.basic.test_asset_model
+   :members:
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+      :template: custom-class-template.rst
+   
+      TestAssetModel
+   
+   
+
+   
+   
+   
+
+
+
