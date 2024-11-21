@@ -1333,7 +1333,8 @@ class RandomVariable(BaseRandomVariable):
           True if the parameters are constant, false otherwise.
 
         """
-        assert self.theta is not None
+        if self.theta is None:
+            return True
         assert self.theta.ndim in {1, 2}
         return self.theta.ndim == 1
 
