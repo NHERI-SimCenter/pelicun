@@ -1261,7 +1261,7 @@ class RandomVariable(BaseRandomVariable):
           Set of parameters that define the Cumulative Distribution
           Function (CDF) of the variable: E.g., mean and coefficient
           of variation. Actual parameters depend on the distribution.
-          A 1D `theta` array represents fixed parameters and results
+          A 1D `theta` array represents constant parameters and results
           in realizations that are all from the same distribution.
           A 2D `theta` array represents variable parameters, meaning
           that each realization will be sampled from the distribution
@@ -1309,7 +1309,7 @@ class RandomVariable(BaseRandomVariable):
             1,
             2,
         }, 'Parameter `truncation_limits` can only be a 1D or 2D array.'
-        # 1D corresponds to fixed parameters.
+        # 1D corresponds to constant parameters.
         # 2D corresponds to variable parameters (different in each
         # realization).
 
@@ -1331,7 +1331,7 @@ class RandomVariable(BaseRandomVariable):
         Returns
         -------
         bool
-          True if the parameters are fixed, false otherwise.
+          True if the parameters are constant, false otherwise.
 
         """
         assert self.theta is not None
