@@ -1173,7 +1173,7 @@ def test_LogNormalRandomVariable_cdf() -> None:
 
 
 def test_LogNormalRandomVariable_variable_theta_cdf() -> None:
-    rv = uq.NormalRandomVariable(
+    rv = uq.LogNormalRandomVariable(
         'test_rv',
         theta=np.array(((0.1, 1.0), (1.0, 1.0), (2.0, 1.0))),
         truncation_limits=np.array((0.20, 3.0)),
@@ -1184,12 +1184,12 @@ def test_LogNormalRandomVariable_variable_theta_cdf() -> None:
     cdf = rv.cdf(x)
 
     # assert that CDF values are correct
-    expected_cdf = (0.0, 0.12631675, 0.57618745)
+    expected_cdf = (0.0, 0.23491926, 0.75659125)
 
     assert np.allclose(cdf, expected_cdf, rtol=1e-5)
 
     # repeat without truncation limits
-    rv = uq.NormalRandomVariable(
+    rv = uq.LogNormalRandomVariable(
         'test_rv',
         theta=np.array(((0.01, 1.0), (1.0, 1.0), (2.0, 1.0))),
     )
@@ -1198,7 +1198,7 @@ def test_LogNormalRandomVariable_variable_theta_cdf() -> None:
     cdf = rv.cdf(x)
 
     # assert that CDF values are correct
-    expected_cdf = (0.15624765, 0.30853754, 0.5)
+    expected_cdf = (0.0, 0.2441086, 0.5)
     assert np.allclose(cdf, expected_cdf, rtol=1e-5)
 
 
@@ -1241,7 +1241,7 @@ def test_LogNormalRandomVariable_inverse_transform() -> None:
 
 
 def test_LogNormalRandomVariable_variable_theta_inverse_transform() -> None:
-    rv = uq.NormalRandomVariable(
+    rv = uq.LogNormalRandomVariable(
         'test_rv',
         theta=np.array(
             (
@@ -1258,9 +1258,7 @@ def test_LogNormalRandomVariable_variable_theta_inverse_transform() -> None:
     rv.uni_sample = np.array((0.5, 0.5, 0.5, 0.0, 1.0, 0.20, 0.80))
     rv.inverse_transform_sampling()
     inverse_transform = rv.sample
-    expected_result = np.array(
-        (0.1, 1.0, 2.0, -np.inf, np.inf, 0.15837877, 1.84162123)
-    )
+    expected_result = np.array((0.1, 1.0, 2.0, 0.0, np.inf, 0.43101119, 2.32012539))
     assert inverse_transform is not None
     assert np.allclose(inverse_transform, expected_result, rtol=1e-5)
 
