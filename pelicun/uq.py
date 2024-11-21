@@ -57,6 +57,7 @@ if TYPE_CHECKING:
     from pelicun.base import Logger
 
 colorama.init()
+SMALL_NUMBER = 1.0e-10
 
 
 def scale_distribution(
@@ -328,7 +329,6 @@ def _get_limit_probs(
         sig = theta[1] if distribution != 'normal_COV' else np.abs(mu) * theta[1]
 
         p_a = 0.0 if np.isnan(a) else norm.cdf((a - mu) / sig)
-
         p_b = 1.0 if np.isnan(b) else norm.cdf((b - mu) / sig)
 
     else:
@@ -516,8 +516,7 @@ def _mvn_scale(x: np.ndarray, rho: np.ndarray) -> np.ndarray:
     rho_0 = np.eye(n_dims, n_dims)
 
     a = mvn.pdf(x, mean=np.zeros(n_dims), cov=rho_0)
-    small_num = 1.0e-10
-    a[a < small_num] = small_num
+    a[a < SMALL_NUMBER] = SMALL_NUMBER
 
     b = mvn.pdf(x, mean=np.zeros(n_dims), cov=rho)
 
@@ -1416,6 +1415,29 @@ class RandomVariable(BaseRandomVariable):
             truncation_limits = np.tile(truncation_limits, (theta.shape[0], 1))
         return theta, truncation_limits
 
+    @staticmethod
+    def _ensure_positive_probability_difference(
+        p_b: np.ndarray, p_a: np.ndarray
+    ) -> None:
+        """
+        Ensure that all probability differences are positive.
+
+        Raises
+        ------
+        ValueError
+          If a negative probability difference is found.
+
+        """
+        if np.any((p_b - p_a) < SMALL_NUMBER):
+            msg = (
+                'The probability mass within the truncation limits is '
+                'too small and the truncated distribution cannot be '
+                'sampled with sufficiently high accuracy. This is most '
+                'probably due to incorrect truncation limits set for '
+                'the distribution.'
+            )
+            raise ValueError(msg)
+
     @abstractmethod
     def inverse_transform(self, values: np.ndarray) -> np.ndarray:
         """
@@ -1546,6 +1568,7 @@ class NormalRandomVariable(RandomVariable):
             b = np.nan_to_num(b, nan=np.inf)
 
             p_a, p_b = (norm.cdf((lim - mu) / sig) for lim in (a, b))
+            self._ensure_positive_probability_difference(p_b, p_a)
 
             # cap the values at the truncation limits
             values = np.minimum(np.maximum(values, a), b)
@@ -1579,12 +1602,6 @@ class NormalRandomVariable(RandomVariable):
         ndarray
           Inverse CDF values
 
-        Raises
-        ------
-        ValueError
-          If the probability mass within the truncation limits is
-          too small
-
         """
         theta, truncation_limits = self._prepare_theta_and_truncation_limit_arrays(
             values
@@ -1599,16 +1616,7 @@ class NormalRandomVariable(RandomVariable):
             b = np.nan_to_num(b, nan=np.inf)
 
             p_a, p_b = (norm.cdf((lim - mu) / sig) for lim in (a, b))
-
-            if p_b - p_a == 0:
-                msg = (
-                    'The probability mass within the truncation limits is '
-                    'too small and the truncated distribution cannot be '
-                    'sampled with sufficiently high accuracy. This is most '
-                    'probably due to incorrect truncation limits set for '
-                    'the distribution.'
-                )
-                raise ValueError(msg)
+            self._ensure_positive_probability_difference(p_b, p_a)
 
             result = norm.ppf(values * (p_b - p_a) + p_a, loc=mu, scale=sig)
 
@@ -1739,6 +1747,7 @@ class LogNormalRandomVariable(RandomVariable):
             p_a, p_b = (
                 norm.cdf((np.log(lim) - np.log(theta)) / beta) for lim in (a, b)
             )
+            self._ensure_positive_probability_difference(p_b, p_a)
 
             # cap the values at the truncation limits
             values = np.minimum(np.maximum(values, a), b)
@@ -1790,6 +1799,7 @@ class LogNormalRandomVariable(RandomVariable):
             p_a, p_b = (
                 norm.cdf((np.log(lim) - np.log(theta)) / beta) for lim in (a, b)
             )
+            self._ensure_positive_probability_difference(p_b, p_a)
 
             result = np.exp(
                 norm.ppf(values * (p_b - p_a) + p_a, loc=np.log(theta), scale=beta)
@@ -1971,6 +1981,7 @@ class WeibullRandomVariable(RandomVariable):
                 b = np.inf
 
             p_a, p_b = (weibull_min.cdf(lim, kappa, scale=lambda_) for lim in (a, b))
+            self._ensure_positive_probability_difference(p_b, p_a)
 
             # cap the values at the truncation limits
             values = np.minimum(np.maximum(values, a), b)
@@ -2023,6 +2034,7 @@ class WeibullRandomVariable(RandomVariable):
                 b = np.inf
 
             p_a, p_b = (weibull_min.cdf(lim, kappa, scale=lambda_) for lim in (a, b))
+            self._ensure_positive_probability_difference(p_b, p_a)
 
             result = weibull_min.ppf(
                 values * (p_b - p_a) + p_a, kappa, scale=lambda_
