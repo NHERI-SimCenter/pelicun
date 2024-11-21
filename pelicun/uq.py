@@ -1338,7 +1338,57 @@ class RandomVariable(BaseRandomVariable):
         assert self.theta.ndim in {1, 2}
         return self.theta.ndim == 1
 
-    def _prepare_arrays(self, values: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+    def _prepare_theta_and_truncation_limit_arrays(
+        self, values: np.ndarray
+    ) -> tuple[np.ndarray, np.ndarray]:
+        """
+        Prepare the `theta` and `truncation_limits` arrays.
+
+        Prepare the `theta` and `truncation_limits` arrays for use in
+        calculations. This method adjusts the shape and size of the
+        `theta` and `truncation_limits` attributes to ensure
+        compatibility with the provided `values` array. The
+        adjustments enable support for two approaches:
+        * Constant parameters: The parameters remain the same
+        across all realizations.
+        * Variable parameters: The parameters vary across
+        realizations.
+
+        Depending on whether the random variable uses constant or
+        variable parameters, the method ensures that the arrays are
+        correctly sized and broadcasted as needed.
+
+        Parameters
+        ----------
+        values : np.ndarray
+            Array of values for which the `theta` and
+            `truncation_limits` need to be prepared. The size of
+            `values` determines how the attributes are adjusted.
+
+        Returns
+        -------
+        tuple
+            A tuple containing:
+            * `theta` (np.ndarray): Adjusted array of parameters.
+            * `truncation_limits` (np.ndarray): Adjusted array of
+            truncation limits.
+
+        Raises
+        ------
+        ValueError
+            If the number of elements in `values` does not match the
+            number of rows of the `theta` attribute or if the
+            `truncation_limits` array is incompatible with the `theta`
+            array.
+
+        Notes
+        -----
+        The method ensures that `truncation_limits` are broadcasted to
+        match the shape of `theta` if needed. For constant parameters,
+        a single-row `theta` is expanded to a 2D array. For variable
+        parameters, the number of rows in `theta` must match the size
+        of `values`.
+        """
         theta = self.theta
         assert theta is not None
         truncation_limits = self.truncation_limits
@@ -1483,7 +1533,9 @@ class NormalRandomVariable(RandomVariable):
           1D float ndarray containing CDF values
 
         """
-        theta, truncation_limits = self._prepare_arrays(values)
+        theta, truncation_limits = self._prepare_theta_and_truncation_limit_arrays(
+            values
+        )
         mu, sig = theta.T
 
         if np.any(~np.isnan(self.truncation_limits)):
@@ -1534,7 +1586,9 @@ class NormalRandomVariable(RandomVariable):
           too small
 
         """
-        theta, truncation_limits = self._prepare_arrays(values)
+        theta, truncation_limits = self._prepare_theta_and_truncation_limit_arrays(
+            values
+        )
         mu, sig = theta.T
 
         if np.any(~np.isnan(self.truncation_limits)):
@@ -1670,7 +1724,9 @@ class LogNormalRandomVariable(RandomVariable):
           1D float ndarray containing CDF values
 
         """
-        theta, truncation_limits = self._prepare_arrays(values)
+        theta, truncation_limits = self._prepare_theta_and_truncation_limit_arrays(
+            values
+        )
         theta, beta = theta.T
 
         if np.any(~np.isnan(self.truncation_limits)):
@@ -1718,7 +1774,9 @@ class LogNormalRandomVariable(RandomVariable):
           Inverse CDF values
 
         """
-        theta, truncation_limits = self._prepare_arrays(values)
+        theta, truncation_limits = self._prepare_theta_and_truncation_limit_arrays(
+            values
+        )
         theta, beta = theta.T
 
         if np.any(~np.isnan(self.truncation_limits)):
