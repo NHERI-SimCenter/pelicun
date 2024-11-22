@@ -903,9 +903,10 @@ class DamageModel_DS(DamageModel_Base):
             return initial_value * other_value
         if operation == '/':
             return initial_value / other_value
-        raise ValueError(f'Invalid operation: {operation}')
-    
-    def _handle_operation_list(self, initial_value, operations):
+        msg = f'Invalid operation: `{operation}`'
+        raise ValueError(msg)
+
+    def _handle_operation_list(self, initial_value: float, operations: list[tuple[str, float]]) -> np.ndarray:
         if len(operations) == 1:
             return np.array(
                 [
@@ -914,13 +915,11 @@ class DamageModel_DS(DamageModel_Base):
                     )
                 ]
             )
-        else:
-            new_values = []
-            for operation in operations:
-                new_values.append(
-                    self._handle_operation(initial_value, operation[0], operation[1])
-                )
-            return np.array(new_values)
+        new_values = [
+            self._handle_operation(initial_value, operation[0], operation[1])
+            for operation in operations
+        ]
+        return np.array(new_values)
 
 
     def _create_dmg_RVs(self, PGB, scaling_specification=None, demand_dict=None):
@@ -1196,7 +1195,7 @@ class DamageModel_DS(DamageModel_Base):
             If there are any issues with the types of the data in the
             input DataFrame.
 
-        """
+        """  # noqa: DOC502
 
         def assign_lsds(
             ds_weights: str | None,
@@ -1330,31 +1329,39 @@ class DamageModel_DS(DamageModel_Base):
                     parsed_scaling_specification[key] = {}
                 if 'ALL' in value:
                     if len(value) > 1:
-                        raise ValueError(
+                        msg = (
                             f'Invalid entry in scaling_specification: '
                             f'{value}. It should only have one entry for `ALL`.'
                         )
-                    value = value['ALL']
-                for LS, specifics in value.items():
+                        raise ValueError(
+                            msg
+                        )
+                    value = value['ALL']  # noqa: PLW2901
+                for LS, specifics in value.items():  # noqa: N806
                     css = 'capacity adjustment specification'
                     if not isinstance(specifics, list):
-                        specifics = [specifics]
+                        specifics = [specifics]  # noqa: PLW2901
                     for spec in specifics:
                         if not isinstance(spec, str):
-                            raise ValueError(
+                            msg = (
                                 f'Invalud entry in {css}: {spec}. It has to be a string. '
                                 f'See docstring of DamageModel._create_dmg_RVs.'
                             )
+                            raise ValueError(  # noqa: TRY004
+                                msg
+                            )
                         capacity_adjustment_operation = spec[0]
                         number = spec[1::]
-                        if capacity_adjustment_operation not in ('+', '-', '*', '/'):
+                        if capacity_adjustment_operation not in ('+', '-', '*', '/'):  # noqa: PLR6201
+                            msg = f'Invalid operation in {css}: '
                             raise ValueError(
-                                f'Invalid operation in {css}: '
-                                f'{capacity_adjustment_operation}'
+                                msg
+                                # f'{capacity_adjustment_operation}'
                             )
                         fnumber = base.float_or_None(number)
                         if fnumber is None:
-                            raise ValueError(f'Invalid number in {css}: {number}')
+                            msg = f'Invalid number in {css}: {number}'
+                            raise ValueError(msg)
                         if LS not in parsed_scaling_specification[key]:
                             parsed_scaling_specification[key][LS] = []
                         parsed_scaling_specification[key][LS].append(
@@ -1364,7 +1371,7 @@ class DamageModel_DS(DamageModel_Base):
             scaling_specification = parsed_scaling_specification
 
         # get the component sample and blocks from the asset model
-        for pg in pgb.index:
+        for pg in pgb.index:  # noqa: PLR1702
             # determine demand capacity adjustment operation, if required
             cmp_loc_dir = '-'.join(pg[0:3])
             capacity_adjustment_operation = scaling_specification.get(  # type: ignore

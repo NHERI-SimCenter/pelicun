@@ -40,13 +40,12 @@
 from __future__ import annotations
 
 import json
+from pathlib import Path
 
+import numpy as np
 import pandas as pd
 
 import pelicun
-import numpy as np
-from pathlib import Path
-
 import pelicun.file_io
 
 ap_design_level = {1940: 'LC', 1975: 'MC', 2100: 'HC'}
@@ -414,19 +413,25 @@ def getHAZUSBridgeSlightDamageModifier(hazus_class, aim):
     demands = pelicun.file_io.load_data(raw_demands)
     edp_types = demands.columns.get_level_values(1)
     if (edp_types == 'SA_0.3').sum() != 1:
-        raise ValueError(
+        msg = (
             'The demand file does not contain the required EDP type SA_0.3'
             ' or contains multiple instances of it.'
         )
-    sa_0p3 = demands.loc[
+        raise ValueError(
+            msg
+        )
+    sa_0p3 = demands.loc[  # noqa: PD011
         :, demands.columns.get_level_values(1) == 'SA_0.3'
     ].values.flatten()
     if (edp_types == 'SA_1.0').sum() != 1:
-        raise ValueError(
+        msg = (
             'The demand file does not contain the required EDP type SA_1.0'
             ' or contains multiple instances of it.'
         )
-    sa_1p0 = demands.loc[
+        raise ValueError(
+            msg
+        )
+    sa_1p0 = demands.loc[  # noqa: PD011
         :, demands.columns.get_level_values(1) == 'SA_1.0'
     ].values.flatten()
 
@@ -598,9 +603,9 @@ def auto_populate(aim):  # noqa: C901
             k_shape = getHAZUSBridgeSlightDamageModifier(bt, aim)
             scaling_specification = {
                 f'HWB.GS.{bt[3:]}-1-1': {
-                    'LS2': f'*{k_skew*k_3d}',
-                    'LS3': f'*{k_skew*k_3d}',
-                    'LS4': f'*{k_skew*k_3d}',
+                    'LS2': f'*{k_skew * k_3d}',
+                    'LS3': f'*{k_skew * k_3d}',
+                    'LS4': f'*{k_skew * k_3d}',
                 }
             }
             if k_shape is not None:
