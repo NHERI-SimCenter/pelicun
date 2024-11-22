@@ -57,7 +57,7 @@ if TYPE_CHECKING:
     from pelicun.base import Logger
 
 colorama.init()
-FIRST_POSITIVE_NUMBER = 1.0e-10
+FIRST_POSITIVE_NUMBER = np.nextafter(0,1)
 
 
 def scale_distribution(
