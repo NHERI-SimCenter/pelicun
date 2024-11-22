@@ -908,11 +908,19 @@ class DamageModel_DS(DamageModel_Base):
 
     def _handle_operation_list(self, initial_value, operations):
         if len(operations) == 1:
-            return np.array([self._handle_operation(initial_value, operations[0][0], operations[0][1])])
+            return np.array(
+                [
+                    self._handle_operation(
+                        initial_value, operations[0][0], operations[0][1]
+                    )
+                ]
+            )
         else:
             new_values = []
             for operation in operations:
-                new_values.append(self._handle_operation(initial_value, operation[0], operation[1]))
+                new_values.append(
+                    self._handle_operation(initial_value, operation[0], operation[1])
+                )
             return np.array(new_values)
 
     def _generate_dmg_sample(
@@ -1356,8 +1364,8 @@ class DamageModel_DS(DamageModel_Base):
                             parsed_scaling_specification[key][LS] = []
                         parsed_scaling_specification[key][LS].append(
                             (capacity_adjustment_operation, fnumber)
-                            )
-                    
+                        )
+
             scaling_specification = parsed_scaling_specification
 
         # get the component sample and blocks from the asset model
@@ -1438,7 +1446,7 @@ class DamageModel_DS(DamageModel_Base):
                                     # Repeat the theta values new_theta_0.size times along axis 0
                                     # and 1 time along axis 1
                                     theta = np.tile(theta, (new_theta_0.size, 1))
-                                    theta[:,0] = new_theta_0
+                                    theta[:, 0] = new_theta_0
                         else:
                             self.log.warning(
                                 f'Capacity adjustment is only supported '
