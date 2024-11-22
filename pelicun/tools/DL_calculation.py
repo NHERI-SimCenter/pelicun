@@ -634,6 +634,10 @@ def _parse_config_file(  # noqa: C901
 
         log_msg('Trying to auto-populate')
 
+        # Add the demandFile to the config dict to allow demand dependent auto-population
+        update(config, '/DL/Demands/DemandFilePath', demand_file)
+        update(config, '/DL/Demands/SampleSize', str(realizations))
+        
         config_ap, comp = auto_populate(config, auto_script_path)
 
         if is_unspecified(config_ap, 'DL'):
