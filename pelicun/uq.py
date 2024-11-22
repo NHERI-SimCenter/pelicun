@@ -57,7 +57,7 @@ if TYPE_CHECKING:
     from pelicun.base import Logger
 
 colorama.init()
-FIRST_POSITIVE_NUMBER = np.nextafter(0,1)
+FIRST_POSITIVE_NUMBER = np.nextafter(0, 1)
 
 
 def scale_distribution(
@@ -1426,10 +1426,10 @@ class RandomVariable(BaseRandomVariable):
         Parameters
         ----------
         p_b: float
-          The probability of not exceeding the upper truncation limit 
+          The probability of not exceeding the upper truncation limit
           based on the CDF of the random variable.
         p_a: float
-          The probability of not exceeding the lower truncation limit 
+          The probability of not exceeding the lower truncation limit
           based on the CDF of the random variable.
 
         Raises
