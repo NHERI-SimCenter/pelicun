@@ -18,6 +18,8 @@ pelicun.tests.basic.test\_uq
       test_EmpiricalRandomVariable_inverse_transform
       test_LogNormalRandomVariable_cdf
       test_LogNormalRandomVariable_inverse_transform
+      test_LogNormalRandomVariable_variable_theta_cdf
+      test_LogNormalRandomVariable_variable_theta_inverse_transform
       test_MultilinearCDFRandomVariable
       test_MultilinearCDFRandomVariable_cdf
       test_MultilinearCDFRandomVariable_inverse_transform
@@ -25,6 +27,8 @@ pelicun.tests.basic.test\_uq
       test_NormalRandomVariable
       test_NormalRandomVariable_cdf
       test_NormalRandomVariable_inverse_transform
+      test_NormalRandomVariable_variable_theta_cdf
+      test_NormalRandomVariable_variable_theta_inverse_transform
       test_Normal_COV
       test_Normal_COV_cdf
       test_Normal_COV_inverse_transform

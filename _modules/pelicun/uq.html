@@ -208,6 +208,7 @@
     <span class="kn">from</span> <span class="nn">pelicun.base</span> <span class="kn">import</span> <span class="n">Logger</span>
 
 <span class="n">colorama</span><span class="o">.</span><span class="n">init</span><span class="p">()</span>
+<span class="n">FIRST_POSITIVE_NUMBER</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nextafter</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="scale_distribution">
@@ -485,7 +486,6 @@
         <span class="n">sig</span> <span class="o">=</span> <span class="n">theta</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="n">distribution</span> <span class="o">!=</span> <span class="s1">&#39;normal_COV&#39;</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">mu</span><span class="p">)</span> <span class="o">*</span> <span class="n">theta</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
 
         <span class="n">p_a</span> <span class="o">=</span> <span class="mf">0.0</span> <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="k">else</span> <span class="n">norm</span><span class="o">.</span><span class="n">cdf</span><span class="p">((</span><span class="n">a</span> <span class="o">-</span> <span class="n">mu</span><span class="p">)</span> <span class="o">/</span> <span class="n">sig</span><span class="p">)</span>
-
         <span class="n">p_b</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">b</span><span class="p">)</span> <span class="k">else</span> <span class="n">norm</span><span class="o">.</span><span class="n">cdf</span><span class="p">((</span><span class="n">b</span> <span class="o">-</span> <span class="n">mu</span><span class="p">)</span> <span class="o">/</span> <span class="n">sig</span><span class="p">)</span>
 
     <span class="k">else</span><span class="p">:</span>
@@ -673,8 +673,7 @@
     <span class="n">rho_0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">n_dims</span><span class="p">,</span> <span class="n">n_dims</span><span class="p">)</span>
 
     <span class="n">a</span> <span class="o">=</span> <span class="n">mvn</span><span class="o">.</span><span class="n">pdf</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">mean</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n_dims</span><span class="p">),</span> <span class="n">cov</span><span class="o">=</span><span class="n">rho_0</span><span class="p">)</span>
-    <span class="n">small_num</span> <span class="o">=</span> <span class="mf">1.0e-10</span>
-    <span class="n">a</span><span class="p">[</span><span class="n">a</span> <span class="o">&lt;</span> <span class="n">small_num</span><span class="p">]</span> <span class="o">=</span> <span class="n">small_num</span>
+    <span class="n">a</span><span class="p">[</span><span class="n">a</span> <span class="o">&lt;</span> <span class="n">FIRST_POSITIVE_NUMBER</span><span class="p">]</span> <span class="o">=</span> <span class="n">FIRST_POSITIVE_NUMBER</span>
 
     <span class="n">b</span> <span class="o">=</span> <span class="n">mvn</span><span class="o">.</span><span class="n">pdf</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">mean</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n_dims</span><span class="p">),</span> <span class="n">cov</span><span class="o">=</span><span class="n">rho</span><span class="p">)</span>
 
@@ -1408,13 +1407,12 @@
 <span class="k">class</span> <span class="nc">RandomVariable</span><span class="p">(</span><span class="n">BaseRandomVariable</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Random variable that needs `values` in `inverse_transform`.&quot;&quot;&quot;</span>
 
-    <span class="vm">__slots__</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="vm">__slots__</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;theta&#39;</span><span class="p">,</span> <span class="s1">&#39;truncation_limits&#39;</span><span class="p">]</span>
 
-    <span class="nd">@abstractmethod</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-        <span class="n">theta</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+        <span class="n">theta</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">truncation_limits</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">f_map</span><span class="p">:</span> <span class="n">Callable</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">anchor</span><span class="p">:</span> <span class="n">BaseRandomVariable</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -1426,10 +1424,16 @@
 <span class="sd">        ----------</span>
 <span class="sd">        name: string</span>
 <span class="sd">            A unique string that identifies the random variable.</span>
-<span class="sd">        theta: 2-element float ndarray</span>
+<span class="sd">        theta: float ndarray</span>
 <span class="sd">          Set of parameters that define the Cumulative Distribution</span>
-<span class="sd">          Function (CDF) of the variable: Mean, coefficient of</span>
-<span class="sd">          variation.</span>
+<span class="sd">          Function (CDF) of the variable: E.g., mean and coefficient</span>
+<span class="sd">          of variation. Actual parameters depend on the distribution.</span>
+<span class="sd">          A 1D `theta` array represents constant parameters and results</span>
+<span class="sd">          in realizations that are all from the same distribution.</span>
+<span class="sd">          A 2D `theta` array represents variable parameters, meaning</span>
+<span class="sd">          that each realization will be sampled from the distribution</span>
+<span class="sd">          family that the object represents, but with the parameters</span>
+<span class="sd">          set for that realization.</span>
 <span class="sd">        truncation_limits: float ndarray, optional</span>
 <span class="sd">          Defines the np.array((a, b)) truncation limits for the</span>
 <span class="sd">          distribution. Use np.nan to assign no limit in one direction,</span>
@@ -1446,11 +1450,174 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">truncation_limits</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">truncation_limits</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">))</span>
+
+        <span class="c1"># For backwards compatibility, cast to a numpy array if</span>
+        <span class="c1"># given a tuple or list.</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">theta</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
+            <span class="n">theta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">truncation_limits</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
+            <span class="n">truncation_limits</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">truncation_limits</span><span class="p">)</span>
+
+        <span class="c1"># Verify type</span>
+        <span class="k">if</span> <span class="n">theta</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span>
+                <span class="n">theta</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+            <span class="p">),</span> <span class="s1">&#39;Parameter `theta` should be a numpy array.&#39;</span>
+            <span class="k">assert</span> <span class="n">theta</span><span class="o">.</span><span class="n">ndim</span> <span class="ow">in</span> <span class="p">{</span>
+                <span class="mi">1</span><span class="p">,</span>
+                <span class="mi">2</span><span class="p">,</span>
+            <span class="p">},</span> <span class="s1">&#39;Parameter `theta` can only be a 1D or 2D array.&#39;</span>
+            <span class="n">theta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">atleast_1d</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span>
+
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span>
+            <span class="n">truncation_limits</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+        <span class="p">),</span> <span class="s1">&#39;Parameter `truncation_limits` should be a numpy array.&#39;</span>
+        <span class="k">assert</span> <span class="n">truncation_limits</span><span class="o">.</span><span class="n">ndim</span> <span class="ow">in</span> <span class="p">{</span>
+            <span class="mi">1</span><span class="p">,</span>
+            <span class="mi">2</span><span class="p">,</span>
+        <span class="p">},</span> <span class="s1">&#39;Parameter `truncation_limits` can only be a 1D or 2D array.&#39;</span>
+        <span class="c1"># 1D corresponds to constant parameters.</span>
+        <span class="c1"># 2D corresponds to variable parameters (different in each</span>
+        <span class="c1"># realization).</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">theta</span> <span class="o">=</span> <span class="n">theta</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">truncation_limits</span> <span class="o">=</span> <span class="n">truncation_limits</span>
+
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
             <span class="n">f_map</span><span class="o">=</span><span class="n">f_map</span><span class="p">,</span>
             <span class="n">anchor</span><span class="o">=</span><span class="n">anchor</span><span class="p">,</span>
         <span class="p">)</span>
+
+<div class="viewcode-block" id="RandomVariable.constant_parameters">
+<a class="viewcode-back" href="../../api_reference/_autosummary/pelicun.uq.html#pelicun.uq.RandomVariable.constant_parameters">[docs]</a>
+    <span class="k">def</span> <span class="nf">constant_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        If the RV has constant or variable parameters.</span>
+
+<span class="sd">        Constant parameters are the same in each realization.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">          True if the parameters are constant, false otherwise.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">theta</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">theta</span><span class="o">.</span><span class="n">ndim</span> <span class="ow">in</span> <span class="p">{</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">}</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">theta</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">1</span></div>
+
+
+    <span class="k">def</span> <span class="nf">_prepare_theta_and_truncation_limit_arrays</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">values</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Prepare the `theta` and `truncation_limits` arrays.</span>
+
+<span class="sd">        Prepare the `theta` and `truncation_limits` arrays for use in</span>
+<span class="sd">        calculations. This method adjusts the shape and size of the</span>
+<span class="sd">        `theta` and `truncation_limits` attributes to ensure</span>
+<span class="sd">        compatibility with the provided `values` array. The</span>
+<span class="sd">        adjustments enable support for two approaches:</span>
+<span class="sd">        * Constant parameters: The parameters remain the same</span>
+<span class="sd">        across all realizations.</span>
+<span class="sd">        * Variable parameters: The parameters vary across</span>
+<span class="sd">        realizations.</span>
+
+<span class="sd">        Depending on whether the random variable uses constant or</span>
+<span class="sd">        variable parameters, the method ensures that the arrays are</span>
+<span class="sd">        correctly sized and broadcasted as needed.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        values : np.ndarray</span>
+<span class="sd">            Array of values for which the `theta` and</span>
+<span class="sd">            `truncation_limits` need to be prepared. The size of</span>
+<span class="sd">            `values` determines how the attributes are adjusted.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        tuple</span>
+<span class="sd">            A tuple containing:</span>
+<span class="sd">            * `theta` (np.ndarray): Adjusted array of parameters.</span>
+<span class="sd">            * `truncation_limits` (np.ndarray): Adjusted array of</span>
+<span class="sd">            truncation limits.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If the number of elements in `values` does not match the</span>
+<span class="sd">            number of rows of the `theta` attribute or if the</span>
+<span class="sd">            `truncation_limits` array is incompatible with the `theta`</span>
+<span class="sd">            array.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        The method ensures that `truncation_limits` are broadcasted to</span>
+<span class="sd">        match the shape of `theta` if needed. For constant parameters,</span>
+<span class="sd">        a single-row `theta` is expanded to a 2D array. For variable</span>
+<span class="sd">        parameters, the number of rows in `theta` must match the size</span>
+<span class="sd">        of `values`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">theta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">theta</span>
+        <span class="k">assert</span> <span class="n">theta</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="n">truncation_limits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">truncation_limits</span>
+        <span class="k">assert</span> <span class="n">truncation_limits</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">constant_parameters</span><span class="p">():</span>
+            <span class="n">theta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">atleast_2d</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span>
+            <span class="k">assert</span> <span class="n">theta</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">values</span><span class="p">)</span> <span class="o">!=</span> <span class="n">theta</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="s1">&#39;Number of elements in `values` variable should &#39;</span>
+                <span class="s1">&#39;match the number of rows of the parameter &#39;</span>
+                <span class="s1">&#39;attribute `theta`.&#39;</span>
+            <span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+        <span class="c1"># Broadcast truncation limits to match shape</span>
+        <span class="n">truncation_limits</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">atleast_2d</span><span class="p">(</span><span class="n">truncation_limits</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">truncation_limits</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+
+        <span class="k">if</span> <span class="n">truncation_limits</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="n">theta</span><span class="o">.</span><span class="n">shape</span><span class="p">:</span>
+            <span class="c1"># Number of rows should match</span>
+            <span class="k">if</span> <span class="n">truncation_limits</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="n">theta</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="s1">&#39;Incompatible `truncation_limits` value.&#39;</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+            <span class="n">truncation_limits</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="n">truncation_limits</span><span class="p">,</span> <span class="p">(</span><span class="n">theta</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">theta</span><span class="p">,</span> <span class="n">truncation_limits</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_ensure_positive_probability_difference</span><span class="p">(</span>
+        <span class="n">p_b</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">p_a</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Ensure there is probability mass between the truncation limits.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        p_b: float</span>
+<span class="sd">          The probability of not exceeding the upper truncation limit</span>
+<span class="sd">          based on the CDF of the random variable.</span>
+<span class="sd">        p_a: float</span>
+<span class="sd">          The probability of not exceeding the lower truncation limit</span>
+<span class="sd">          based on the CDF of the random variable.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">          If a negative probability difference is found.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">((</span><span class="n">p_b</span> <span class="o">-</span> <span class="n">p_a</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">FIRST_POSITIVE_NUMBER</span><span class="p">):</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="s1">&#39;The probability mass within the truncation limits is &#39;</span>
+                <span class="s1">&#39;too small and the truncated distribution cannot be &#39;</span>
+                <span class="s1">&#39;sampled with sufficiently high accuracy. This is most &#39;</span>
+                <span class="s1">&#39;probably due to incorrect truncation limits set for &#39;</span>
+                <span class="s1">&#39;the distribution.&#39;</span>
+            <span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
 
 <div class="viewcode-block" id="RandomVariable.inverse_transform">
 <a class="viewcode-back" href="../../api_reference/_autosummary/pelicun.uq.html#pelicun.uq.RandomVariable.inverse_transform">[docs]</a>
@@ -1549,7 +1716,7 @@
 <span class="k">class</span> <span class="nc">NormalRandomVariable</span><span class="p">(</span><span class="n">RandomVariable</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Normal random variable.&quot;&quot;&quot;</span>
 
-    <span class="vm">__slots__</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;theta&#39;</span><span class="p">,</span> <span class="s1">&#39;truncation_limits&#39;</span><span class="p">]</span>
+    <span class="vm">__slots__</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -1569,9 +1736,8 @@
             <span class="n">f_map</span><span class="o">=</span><span class="n">f_map</span><span class="p">,</span>
             <span class="n">anchor</span><span class="o">=</span><span class="n">anchor</span><span class="p">,</span>
         <span class="p">)</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">theta</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s1">&#39;`theta` is required for Normal RVs&#39;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">distribution</span> <span class="o">=</span> <span class="s1">&#39;normal&#39;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">theta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">atleast_1d</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">truncation_limits</span> <span class="o">=</span> <span class="n">truncation_limits</span>
 
 <div class="viewcode-block" id="NormalRandomVariable.cdf">
 <a class="viewcode-back" href="../../api_reference/_autosummary/pelicun.uq.html#pelicun.uq.NormalRandomVariable.cdf">[docs]</a>
@@ -1590,17 +1756,20 @@
 <span class="sd">          1D float ndarray containing CDF values</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">mu</span><span class="p">,</span> <span class="n">sig</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">theta</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span>
+        <span class="n">theta</span><span class="p">,</span> <span class="n">truncation_limits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prepare_theta_and_truncation_limit_arrays</span><span class="p">(</span>
+            <span class="n">values</span>
+        <span class="p">)</span>
+        <span class="n">mu</span><span class="p">,</span> <span class="n">sig</span> <span class="o">=</span> <span class="n">theta</span><span class="o">.</span><span class="n">T</span>
 
         <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">truncation_limits</span><span class="p">)):</span>
-            <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">truncation_limits</span>
+            <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="o">=</span> <span class="n">truncation_limits</span><span class="o">.</span><span class="n">T</span>
 
-            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">a</span><span class="p">):</span>
-                <span class="n">a</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span>
-            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">b</span><span class="p">):</span>
-                <span class="n">b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span>
+            <span class="c1"># Replace NaN values</span>
+            <span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan_to_num</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">nan</span><span class="o">=-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">)</span>
+            <span class="n">b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan_to_num</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">nan</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">)</span>
 
             <span class="n">p_a</span><span class="p">,</span> <span class="n">p_b</span> <span class="o">=</span> <span class="p">(</span><span class="n">norm</span><span class="o">.</span><span class="n">cdf</span><span class="p">((</span><span class="n">lim</span> <span class="o">-</span> <span class="n">mu</span><span class="p">)</span> <span class="o">/</span> <span class="n">sig</span><span class="p">)</span> <span class="k">for</span> <span class="n">lim</span> <span class="ow">in</span> <span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_ensure_positive_probability_difference</span><span class="p">(</span><span class="n">p_b</span><span class="p">,</span> <span class="n">p_a</span><span class="p">)</span>
 
             <span class="c1"># cap the values at the truncation limits</span>
             <span class="n">values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">a</span><span class="p">),</span> <span class="n">b</span><span class="p">)</span>
@@ -1637,34 +1806,21 @@
 <span class="sd">        ndarray</span>
 <span class="sd">          Inverse CDF values</span>
 
-<span class="sd">        Raises</span>
-<span class="sd">        ------</span>
-<span class="sd">        ValueError</span>
-<span class="sd">          If the probability mass within the truncation limits is</span>
-<span class="sd">          too small</span>
-
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">mu</span><span class="p">,</span> <span class="n">sig</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">theta</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span>
+        <span class="n">theta</span><span class="p">,</span> <span class="n">truncation_limits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prepare_theta_and_truncation_limit_arrays</span><span class="p">(</span>
+            <span class="n">values</span>
+        <span class="p">)</span>
+        <span class="n">mu</span><span class="p">,</span> <span class="n">sig</span> <span class="o">=</span> <span class="n">theta</span><span class="o">.</span><span class="n">T</span>
 
         <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">truncation_limits</span><span class="p">)):</span>
-            <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">truncation_limits</span>
+            <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="o">=</span> <span class="n">truncation_limits</span><span class="o">.</span><span class="n">T</span>
 
-            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">a</span><span class="p">):</span>
-                <span class="n">a</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span>
-            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">b</span><span class="p">):</span>
-                <span class="n">b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span>
+            <span class="c1"># Replace NaN values</span>
+            <span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan_to_num</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">nan</span><span class="o">=-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">)</span>
+            <span class="n">b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan_to_num</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">nan</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">)</span>
 
             <span class="n">p_a</span><span class="p">,</span> <span class="n">p_b</span> <span class="o">=</span> <span class="p">(</span><span class="n">norm</span><span class="o">.</span><span class="n">cdf</span><span class="p">((</span><span class="n">lim</span> <span class="o">-</span> <span class="n">mu</span><span class="p">)</span> <span class="o">/</span> <span class="n">sig</span><span class="p">)</span> <span class="k">for</span> <span class="n">lim</span> <span class="ow">in</span> <span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">))</span>
-
-            <span class="k">if</span> <span class="n">p_b</span> <span class="o">-</span> <span class="n">p_a</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
-                    <span class="s1">&#39;The probability mass within the truncation limits is &#39;</span>
-                    <span class="s1">&#39;too small and the truncated distribution cannot be &#39;</span>
-                    <span class="s1">&#39;sampled with sufficiently high accuracy. This is most &#39;</span>
-                    <span class="s1">&#39;probably due to incorrect truncation limits set for &#39;</span>
-                    <span class="s1">&#39;the distribution.&#39;</span>
-                <span class="p">)</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_ensure_positive_probability_difference</span><span class="p">(</span><span class="n">p_b</span><span class="p">,</span> <span class="n">p_a</span><span class="p">)</span>
 
             <span class="n">result</span> <span class="o">=</span> <span class="n">norm</span><span class="o">.</span><span class="n">ppf</span><span class="p">(</span><span class="n">values</span> <span class="o">*</span> <span class="p">(</span><span class="n">p_b</span> <span class="o">-</span> <span class="n">p_a</span><span class="p">)</span> <span class="o">+</span> <span class="n">p_a</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="n">mu</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="n">sig</span><span class="p">)</span>
 
@@ -1752,7 +1908,7 @@
 <span class="k">class</span> <span class="nc">LogNormalRandomVariable</span><span class="p">(</span><span class="n">RandomVariable</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Lognormal random variable.&quot;&quot;&quot;</span>
 
-    <span class="vm">__slots__</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;theta&#39;</span><span class="p">,</span> <span class="s1">&#39;truncation_limits&#39;</span><span class="p">]</span>
+    <span class="vm">__slots__</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -1772,9 +1928,8 @@
             <span class="n">f_map</span><span class="o">=</span><span class="n">f_map</span><span class="p">,</span>
             <span class="n">anchor</span><span class="o">=</span><span class="n">anchor</span><span class="p">,</span>
         <span class="p">)</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">theta</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s1">&#39;`theta` is required for LogNormal RVs&#39;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">distribution</span> <span class="o">=</span> <span class="s1">&#39;lognormal&#39;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">theta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">atleast_1d</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">truncation_limits</span> <span class="o">=</span> <span class="n">truncation_limits</span>
 
 <div class="viewcode-block" id="LogNormalRandomVariable.cdf">
 <a class="viewcode-back" href="../../api_reference/_autosummary/pelicun.uq.html#pelicun.uq.LogNormalRandomVariable.cdf">[docs]</a>
@@ -1793,19 +1948,22 @@
 <span class="sd">          1D float ndarray containing CDF values</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">theta</span><span class="p">,</span> <span class="n">beta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">theta</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span>
+        <span class="n">theta</span><span class="p">,</span> <span class="n">truncation_limits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prepare_theta_and_truncation_limit_arrays</span><span class="p">(</span>
+            <span class="n">values</span>
+        <span class="p">)</span>
+        <span class="n">theta</span><span class="p">,</span> <span class="n">beta</span> <span class="o">=</span> <span class="n">theta</span><span class="o">.</span><span class="n">T</span>
 
         <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">truncation_limits</span><span class="p">)):</span>
-            <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">truncation_limits</span>
+            <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="o">=</span> <span class="n">truncation_limits</span><span class="o">.</span><span class="n">T</span>
 
-            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">a</span><span class="p">):</span>
-                <span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nextafter</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">b</span><span class="p">):</span>
-                <span class="n">b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span>
+            <span class="c1"># Replace NaN values</span>
+            <span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan_to_num</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">nan</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">nextafter</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+            <span class="n">b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan_to_num</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">nan</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">)</span>
 
             <span class="n">p_a</span><span class="p">,</span> <span class="n">p_b</span> <span class="o">=</span> <span class="p">(</span>
                 <span class="n">norm</span><span class="o">.</span><span class="n">cdf</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">lim</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">theta</span><span class="p">))</span> <span class="o">/</span> <span class="n">beta</span><span class="p">)</span> <span class="k">for</span> <span class="n">lim</span> <span class="ow">in</span> <span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
             <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_ensure_positive_probability_difference</span><span class="p">(</span><span class="n">p_b</span><span class="p">,</span> <span class="n">p_a</span><span class="p">)</span>
 
             <span class="c1"># cap the values at the truncation limits</span>
             <span class="n">values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">a</span><span class="p">),</span> <span class="n">b</span><span class="p">)</span>
@@ -1844,22 +2002,23 @@
 <span class="sd">          Inverse CDF values</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">theta</span><span class="p">,</span> <span class="n">beta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">theta</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span>
+        <span class="n">theta</span><span class="p">,</span> <span class="n">truncation_limits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prepare_theta_and_truncation_limit_arrays</span><span class="p">(</span>
+            <span class="n">values</span>
+        <span class="p">)</span>
+        <span class="n">theta</span><span class="p">,</span> <span class="n">beta</span> <span class="o">=</span> <span class="n">theta</span><span class="o">.</span><span class="n">T</span>
 
         <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">truncation_limits</span><span class="p">)):</span>
-            <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">truncation_limits</span>
+            <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="o">=</span> <span class="n">truncation_limits</span><span class="o">.</span><span class="n">T</span>
 
-            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">a</span><span class="p">):</span>
-                <span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nextafter</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nextafter</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">a</span><span class="p">)</span>
-
-            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">b</span><span class="p">):</span>
-                <span class="n">b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span>
+            <span class="c1"># Replace NaN values</span>
+            <span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan_to_num</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">nan</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">nextafter</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+            <span class="n">a</span><span class="p">[</span><span class="n">a</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nextafter</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan_to_num</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">nan</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">)</span>
 
             <span class="n">p_a</span><span class="p">,</span> <span class="n">p_b</span> <span class="o">=</span> <span class="p">(</span>
                 <span class="n">norm</span><span class="o">.</span><span class="n">cdf</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">lim</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">theta</span><span class="p">))</span> <span class="o">/</span> <span class="n">beta</span><span class="p">)</span> <span class="k">for</span> <span class="n">lim</span> <span class="ow">in</span> <span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
             <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_ensure_positive_probability_difference</span><span class="p">(</span><span class="n">p_b</span><span class="p">,</span> <span class="n">p_a</span><span class="p">)</span>
 
             <span class="n">result</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span>
                 <span class="n">norm</span><span class="o">.</span><span class="n">ppf</span><span class="p">(</span><span class="n">values</span> <span class="o">*</span> <span class="p">(</span><span class="n">p_b</span> <span class="o">-</span> <span class="n">p_a</span><span class="p">)</span> <span class="o">+</span> <span class="n">p_a</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">theta</span><span class="p">),</span> <span class="n">scale</span><span class="o">=</span><span class="n">beta</span><span class="p">)</span>
@@ -1878,7 +2037,7 @@
 <span class="k">class</span> <span class="nc">UniformRandomVariable</span><span class="p">(</span><span class="n">RandomVariable</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Uniform random variable.&quot;&quot;&quot;</span>
 
-    <span class="vm">__slots__</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;theta&#39;</span><span class="p">,</span> <span class="s1">&#39;truncation_limits&#39;</span><span class="p">]</span>
+    <span class="vm">__slots__</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -1888,7 +2047,15 @@
         <span class="n">f_map</span><span class="p">:</span> <span class="n">Callable</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">anchor</span><span class="p">:</span> <span class="n">BaseRandomVariable</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Instantiate a Uniform random variable.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Instantiate a Uniform random variable.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">          If variable parameters are specified.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">truncation_limits</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">truncation_limits</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">))</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
@@ -1898,9 +2065,15 @@
             <span class="n">f_map</span><span class="o">=</span><span class="n">f_map</span><span class="p">,</span>
             <span class="n">anchor</span><span class="o">=</span><span class="n">anchor</span><span class="p">,</span>
         <span class="p">)</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">theta</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s1">&#39;`theta` is required for Uniform RVs&#39;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">distribution</span> <span class="o">=</span> <span class="s1">&#39;uniform&#39;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">theta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">atleast_1d</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">truncation_limits</span> <span class="o">=</span> <span class="n">truncation_limits</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">theta</span><span class="o">.</span><span class="n">ndim</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="s1">&#39;Variable parameters are currently not supported for &#39;</span>
+                <span class="s1">&#39;Uniform random variables.&#39;</span>
+            <span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
 
 <div class="viewcode-block" id="UniformRandomVariable.cdf">
 <a class="viewcode-back" href="../../api_reference/_autosummary/pelicun.uq.html#pelicun.uq.UniformRandomVariable.cdf">[docs]</a>
@@ -1919,6 +2092,7 @@
 <span class="sd">          1D float ndarray containing CDF values</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">theta</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
         <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">theta</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span>
 
         <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">a</span><span class="p">):</span>
@@ -1952,6 +2126,7 @@
 <span class="sd">          Inverse CDF values</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">theta</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
         <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">theta</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span>
 
         <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">a</span><span class="p">):</span>
@@ -1972,7 +2147,7 @@
 <span class="k">class</span> <span class="nc">WeibullRandomVariable</span><span class="p">(</span><span class="n">RandomVariable</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Weibull random variable.&quot;&quot;&quot;</span>
 
-    <span class="vm">__slots__</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;theta&#39;</span><span class="p">,</span> <span class="s1">&#39;truncation_limits&#39;</span><span class="p">]</span>
+    <span class="vm">__slots__</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -1982,7 +2157,15 @@
         <span class="n">f_map</span><span class="p">:</span> <span class="n">Callable</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">anchor</span><span class="p">:</span> <span class="n">BaseRandomVariable</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Instantiate a Weibull random variable.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Instantiate a Weibull random variable.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">          If variable parameters are specified.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">truncation_limits</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">truncation_limits</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">))</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
@@ -1992,9 +2175,15 @@
             <span class="n">f_map</span><span class="o">=</span><span class="n">f_map</span><span class="p">,</span>
             <span class="n">anchor</span><span class="o">=</span><span class="n">anchor</span><span class="p">,</span>
         <span class="p">)</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">theta</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s1">&#39;`theta` is required for Weibull RVs&#39;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">distribution</span> <span class="o">=</span> <span class="s1">&#39;weibull&#39;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">theta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">atleast_1d</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">truncation_limits</span> <span class="o">=</span> <span class="n">truncation_limits</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">theta</span><span class="o">.</span><span class="n">ndim</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="s1">&#39;Variable parameters are currently not supported for &#39;</span>
+                <span class="s1">&#39;Weibull random variables.&#39;</span>
+            <span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
 
 <div class="viewcode-block" id="WeibullRandomVariable.cdf">
 <a class="viewcode-back" href="../../api_reference/_autosummary/pelicun.uq.html#pelicun.uq.WeibullRandomVariable.cdf">[docs]</a>
@@ -2013,6 +2202,7 @@
 <span class="sd">          1D float ndarray containing CDF values</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">theta</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
         <span class="n">lambda_</span><span class="p">,</span> <span class="n">kappa</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">theta</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span>
 
         <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">truncation_limits</span><span class="p">)):</span>
@@ -2025,6 +2215,7 @@
                 <span class="n">b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span>
 
             <span class="n">p_a</span><span class="p">,</span> <span class="n">p_b</span> <span class="o">=</span> <span class="p">(</span><span class="n">weibull_min</span><span class="o">.</span><span class="n">cdf</span><span class="p">(</span><span class="n">lim</span><span class="p">,</span> <span class="n">kappa</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="n">lambda_</span><span class="p">)</span> <span class="k">for</span> <span class="n">lim</span> <span class="ow">in</span> <span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_ensure_positive_probability_difference</span><span class="p">(</span><span class="n">p_b</span><span class="p">,</span> <span class="n">p_a</span><span class="p">)</span>
 
             <span class="c1"># cap the values at the truncation limits</span>
             <span class="n">values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">a</span><span class="p">),</span> <span class="n">b</span><span class="p">)</span>
@@ -2065,6 +2256,7 @@
 <span class="sd">          Inverse CDF values</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">theta</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
         <span class="n">lambda_</span><span class="p">,</span> <span class="n">kappa</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">theta</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span>
 
         <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">truncation_limits</span><span class="p">)):</span>
@@ -2079,6 +2271,7 @@
                 <span class="n">b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span>
 
             <span class="n">p_a</span><span class="p">,</span> <span class="n">p_b</span> <span class="o">=</span> <span class="p">(</span><span class="n">weibull_min</span><span class="o">.</span><span class="n">cdf</span><span class="p">(</span><span class="n">lim</span><span class="p">,</span> <span class="n">kappa</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="n">lambda_</span><span class="p">)</span> <span class="k">for</span> <span class="n">lim</span> <span class="ow">in</span> <span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_ensure_positive_probability_difference</span><span class="p">(</span><span class="n">p_b</span><span class="p">,</span> <span class="n">p_a</span><span class="p">)</span>
 
             <span class="n">result</span> <span class="o">=</span> <span class="n">weibull_min</span><span class="o">.</span><span class="n">ppf</span><span class="p">(</span>
                 <span class="n">values</span> <span class="o">*</span> <span class="p">(</span><span class="n">p_b</span> <span class="o">-</span> <span class="n">p_a</span><span class="p">)</span> <span class="o">+</span> <span class="n">p_a</span><span class="p">,</span> <span class="n">kappa</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="n">lambda_</span>
@@ -2104,7 +2297,7 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="vm">__slots__</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;theta&#39;</span><span class="p">]</span>
+    <span class="vm">__slots__</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -2134,6 +2327,7 @@
             <span class="n">f_map</span><span class="o">=</span><span class="n">f_map</span><span class="p">,</span>
             <span class="n">anchor</span><span class="o">=</span><span class="n">anchor</span><span class="p">,</span>
         <span class="p">)</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">theta</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s1">&#39;`theta` is required for MultilinearCDF RVs&#39;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">distribution</span> <span class="o">=</span> <span class="s1">&#39;multilinear_CDF&#39;</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">truncation_limits</span><span class="p">)):</span>
@@ -2178,7 +2372,8 @@
             <span class="p">)</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">theta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">atleast_1d</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span>
+        <span class="n">required_ndim</span> <span class="o">=</span> <span class="mi">2</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">theta</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="n">required_ndim</span><span class="p">,</span> <span class="s1">&#39;Invalid `theta` dimensions.&#39;</span>
 
 <div class="viewcode-block" id="MultilinearCDFRandomVariable.cdf">
 <a class="viewcode-back" href="../../api_reference/_autosummary/pelicun.uq.html#pelicun.uq.MultilinearCDFRandomVariable.cdf">[docs]</a>
@@ -2197,6 +2392,7 @@
 <span class="sd">          1D float ndarray containing CDF values</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">theta</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
         <span class="n">x_i</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">theta</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">]</span>
         <span class="n">y_i</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.00</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">theta</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="mf">1.00</span><span class="p">]</span>
 
@@ -2224,6 +2420,7 @@
 <span class="sd">          Inverse CDF values</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">theta</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
         <span class="n">x_i</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">theta</span><span class="p">]</span>
         <span class="n">y_i</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">theta</span><span class="p">]</span>
 
@@ -2259,7 +2456,7 @@
             <span class="n">truncation_limits</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">))</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
-            <span class="n">theta</span><span class="o">=</span><span class="n">theta</span><span class="p">,</span>
+            <span class="n">theta</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
             <span class="n">truncation_limits</span><span class="o">=</span><span class="n">truncation_limits</span><span class="p">,</span>
             <span class="n">f_map</span><span class="o">=</span><span class="n">f_map</span><span class="p">,</span>
             <span class="n">anchor</span><span class="o">=</span><span class="n">anchor</span><span class="p">,</span>
@@ -2478,7 +2675,7 @@
 <span class="k">class</span> <span class="nc">MultinomialRandomVariable</span><span class="p">(</span><span class="n">RandomVariable</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Multinomial random variable.&quot;&quot;&quot;</span>
 
-    <span class="vm">__slots__</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;theta&#39;</span><span class="p">]</span>
+    <span class="vm">__slots__</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -2511,6 +2708,7 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">truncation_limits</span><span class="p">)):</span>
             <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">distribution</span><span class="si">}</span><span class="s1"> RVs do not support truncation&#39;</span>
             <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">theta</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s1">&#39;`theta` is required for Multinomial RVs&#39;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">distribution</span> <span class="o">=</span> <span class="s1">&#39;multinomial&#39;</span>
         <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mf">1.00</span><span class="p">:</span>
             <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
@@ -2520,8 +2718,6 @@
                 <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">theta</span><span class="si">}</span><span class="s1"> .&#39;</span>
             <span class="p">)</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">theta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">atleast_1d</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span>
 
 <div class="viewcode-block" id="MultinomialRandomVariable.inverse_transform">
 <a class="viewcode-back" href="../../api_reference/_autosummary/pelicun.uq.html#pelicun.uq.MultinomialRandomVariable.inverse_transform">[docs]</a>
@@ -2546,6 +2742,7 @@
 <span class="sd">          Discrete events corresponding to the input values.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">theta</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
         <span class="n">p_cum</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">theta</span><span class="p">)[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
 
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">p_i</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">p_cum</span><span class="p">):</span>
@@ -2984,30 +3181,34 @@
 
 <div class="viewcode-block" id="rv_class_map">
 <a class="viewcode-back" href="../../api_reference/_autosummary/pelicun.uq.html#pelicun.uq.rv_class_map">[docs]</a>
-<span class="k">def</span> <span class="nf">rv_class_map</span><span class="p">(</span><span class="n">distribution_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">type</span><span class="p">[</span><span class="n">BaseRandomVariable</span><span class="p">]:</span>
+<span class="k">def</span> <span class="nf">rv_class_map</span><span class="p">(</span>
+    <span class="n">distribution_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">type</span><span class="p">[</span><span class="n">RandomVariable</span> <span class="o">|</span> <span class="n">UtilityRandomVariable</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Map convenient distributions to their corresponding class.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    distribution_name: str</span>
-<span class="sd">      The name of a distribution.</span>
+<span class="sd">        The name of a distribution.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    RandomVariable</span>
-<span class="sd">      RandomVariable class.</span>
+<span class="sd">    type[RandomVariable | UtilityRandomVariable]</span>
+<span class="sd">        The class of the corresponding random variable.</span>
 
 <span class="sd">    Raises</span>
 <span class="sd">    ------</span>
 <span class="sd">    ValueError</span>
-<span class="sd">      If the given distribution name does not correspond to a</span>
-<span class="sd">      distribution class.</span>
+<span class="sd">        If the given distribution name does not correspond to a</span>
+<span class="sd">        distribution class.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">pd</span><span class="o">.</span><span class="n">isna</span><span class="p">(</span><span class="n">distribution_name</span><span class="p">):</span>
         <span class="n">distribution_name</span> <span class="o">=</span> <span class="s1">&#39;deterministic&#39;</span>
-    <span class="n">distribution_map</span> <span class="o">=</span> <span class="p">{</span>
+
+    <span class="c1"># Mapping for RandomVariable subclasses</span>
+    <span class="n">random_variable_map</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">type</span><span class="p">[</span><span class="n">RandomVariable</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s1">&#39;normal&#39;</span><span class="p">:</span> <span class="n">Normal_COV</span><span class="p">,</span>
         <span class="s1">&#39;normal_std&#39;</span><span class="p">:</span> <span class="n">Normal_STD</span><span class="p">,</span>
         <span class="s1">&#39;normal_cov&#39;</span><span class="p">:</span> <span class="n">Normal_COV</span><span class="p">,</span>
@@ -3016,14 +3217,21 @@
         <span class="s1">&#39;weibull&#39;</span><span class="p">:</span> <span class="n">WeibullRandomVariable</span><span class="p">,</span>
         <span class="s1">&#39;multilinear_CDF&#39;</span><span class="p">:</span> <span class="n">MultilinearCDFRandomVariable</span><span class="p">,</span>
         <span class="s1">&#39;empirical&#39;</span><span class="p">:</span> <span class="n">EmpiricalRandomVariable</span><span class="p">,</span>
-        <span class="s1">&#39;coupled_empirical&#39;</span><span class="p">:</span> <span class="n">CoupledEmpiricalRandomVariable</span><span class="p">,</span>
-        <span class="s1">&#39;deterministic&#39;</span><span class="p">:</span> <span class="n">DeterministicRandomVariable</span><span class="p">,</span>
         <span class="s1">&#39;multinomial&#39;</span><span class="p">:</span> <span class="n">MultinomialRandomVariable</span><span class="p">,</span>
     <span class="p">}</span>
-    <span class="k">if</span> <span class="n">distribution_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">distribution_map</span><span class="p">:</span>
-        <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;Unsupported distribution: </span><span class="si">{</span><span class="n">distribution_name</span><span class="si">}</span><span class="s1">&#39;</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">distribution_map</span><span class="p">[</span><span class="n">distribution_name</span><span class="p">]</span></div>
+
+    <span class="c1"># Mapping for UtilityRandomVariable subclasses</span>
+    <span class="n">utility_random_variable_map</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">type</span><span class="p">[</span><span class="n">UtilityRandomVariable</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;coupled_empirical&#39;</span><span class="p">:</span> <span class="n">CoupledEmpiricalRandomVariable</span><span class="p">,</span>
+        <span class="s1">&#39;deterministic&#39;</span><span class="p">:</span> <span class="n">DeterministicRandomVariable</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="k">if</span> <span class="n">distribution_name</span> <span class="ow">in</span> <span class="n">random_variable_map</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">random_variable_map</span><span class="p">[</span><span class="n">distribution_name</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">distribution_name</span> <span class="ow">in</span> <span class="n">utility_random_variable_map</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">utility_random_variable_map</span><span class="p">[</span><span class="n">distribution_name</span><span class="p">]</span>
+    <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;Unsupported distribution: </span><span class="si">{</span><span class="n">distribution_name</span><span class="si">}</span><span class="s1">&#39;</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span></div>
 
 </pre></div>
 

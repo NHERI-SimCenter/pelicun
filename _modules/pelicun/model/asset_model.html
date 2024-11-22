@@ -693,14 +693,20 @@
             <span class="n">rv_reg</span><span class="o">.</span><span class="n">add_RV</span><span class="p">(</span>
                 <span class="n">uq</span><span class="o">.</span><span class="n">rv_class_map</span><span class="p">(</span><span class="n">family</span><span class="p">)(</span>
                     <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;CMP-</span><span class="si">{</span><span class="n">cmp</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s1">-</span><span class="si">{</span><span class="n">cmp</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s1">-</span><span class="si">{</span><span class="n">cmp</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="si">}</span><span class="s1">-</span><span class="si">{</span><span class="n">cmp</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>  <span class="c1"># type: ignore</span>
-                    <span class="n">theta</span><span class="o">=</span><span class="p">[</span>  <span class="c1"># type: ignore</span>
-                        <span class="nb">getattr</span><span class="p">(</span><span class="n">rv_params</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;Theta_</span><span class="si">{</span><span class="n">t_i</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
-                        <span class="k">for</span> <span class="n">t_i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
-                    <span class="p">],</span>
-                    <span class="n">truncation_limits</span><span class="o">=</span><span class="p">[</span>
-                        <span class="nb">getattr</span><span class="p">(</span><span class="n">rv_params</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;Truncate</span><span class="si">{</span><span class="n">side</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
-                        <span class="k">for</span> <span class="n">side</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;Lower&#39;</span><span class="p">,</span> <span class="s1">&#39;Upper&#39;</span><span class="p">)</span>
-                    <span class="p">],</span>
+                    <span class="n">theta</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+                        <span class="p">[</span>
+                            <span class="n">value</span>
+                            <span class="k">for</span> <span class="n">t_i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+                            <span class="k">if</span> <span class="p">(</span><span class="n">value</span> <span class="o">:=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">rv_params</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;Theta_</span><span class="si">{</span><span class="n">t_i</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span>
+                            <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+                        <span class="p">]</span>
+                    <span class="p">),</span>
+                    <span class="n">truncation_limits</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+                        <span class="p">[</span>
+                            <span class="nb">getattr</span><span class="p">(</span><span class="n">rv_params</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;Truncate</span><span class="si">{</span><span class="n">side</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+                            <span class="k">for</span> <span class="n">side</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;Lower&#39;</span><span class="p">,</span> <span class="s1">&#39;Upper&#39;</span><span class="p">)</span>
+                        <span class="p">]</span>
+                    <span class="p">),</span>
                 <span class="p">)</span>
             <span class="p">)</span>
 
