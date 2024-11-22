@@ -2187,10 +2187,11 @@ class RepairModel_DS(RepairModel_Base):
 
                     ds_family = parameters.get((f'DS{ds}', 'Family'))
                     ds_theta = [
-                        parameters.get((f'DS{ds}', f'Theta_{t_i}'), np.nan)
+                        theta
                         for t_i in range(3)
+                        if (theta := parameters.get((f'DS{ds}', f'Theta_{t_i}')))
+                        is not None
                     ]
-
                     # If there is no RV family we don't need an RV
                     if ds_family is None:
                         continue
@@ -2211,8 +2212,8 @@ class RepairModel_DS(RepairModel_Base):
                                     f'{decision_variable}-{component}-'
                                     f'{ds}-{loc}-{direction}-{uid}'
                                 ),
-                                theta=ds_theta,
-                                truncation_limits=[0.0, np.nan],
+                                theta=np.array(ds_theta),
+                                truncation_limits=np.array([0.0, np.nan]),
                             )
                         )
                         rv_count += 1
@@ -2754,10 +2755,11 @@ class RepairModel_LF(RepairModel_Base):
                 continue
             family = parameters.loc['LossFunction', 'Family']
             theta = [
-                parameters.get(('LossFunction', f'Theta_{t_i}'), np.nan)
+                theta_value
                 for t_i in range(3)
+                if (theta_value := parameters.get(('LossFunction', f'Theta_{t_i}')))
+                is not None
             ]
-
             # If there is no RV family we don't need an RV
             if pd.isna(family):
                 continue
@@ -2765,7 +2767,7 @@ class RepairModel_LF(RepairModel_Base):
             # Since the first parameter is controlled by a function,
             # we use 1.0 in its place and will scale the results in a
             # later step.
-            theta[0] = 1.0
+            theta[0] = 1.0  # type: ignore
 
             # assign RVs
             rv_reg.add_RV(
@@ -2774,8 +2776,8 @@ class RepairModel_LF(RepairModel_Base):
                         f'{decision_variable}-{consequence}-'
                         f'{component}-{location}-{direction}-{uid}-{block}'
                     ),
-                    theta=theta,
-                    truncation_limits=[0.0, np.nan],
+                    theta=np.array(theta),
+                    truncation_limits=np.array([0.0, np.nan]),
                 )
             )
             rv_count += 1
