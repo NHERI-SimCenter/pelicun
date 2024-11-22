@@ -107,24 +107,60 @@ def convertUnits(value, unit_in, unit_out):
         return None
     return value * scale_map[unit_in] / scale_map[unit_out]
 
+
 def getHAZUSBridgeK3DModifier(hazus_class, aim):
     # In HAZUS, the K_3D for HWB28 is undefined, so we return 1, i.e., no scaling
     # The K-3D factors for HWB3 and HWB4 are defined as EQ1, which leads to division by zero
     # This is an error in the HAZUS documentation, and we assume that the factors are 1 for these classes
-    mapping = {'HWB1':1, 'HWB2':1, 'HWB3':1, 'HWB4':1, 'HWB5':1, 'HWB6':1,\
-               'HWB7':1, 'HWB8':2, 'HWB9':3, 'HWB10':2, 'HWB11':3, 'HWB12':4,\
-               'HWB13':4, 'HWB14':1, 'HWB15':5, 'HWB16':3, 'HWB17':1, 'HWB18':1,\
-               'HWB19':1, 'HWB20':2, 'HWB21':3, 'HWB22':2, 'HWB23':3, 'HWB24':6,\
-               'HWB25':6, 'HWB26':7, 'HWB27':7, 'HWB28':8}
-    factors = {1:(0.25, 1), 2:(0.33, 0), 3:(0.33, 1), 4:(0.09, 1), 5:(0.05, 0),\
-               6:(0.2, 1), 7:(0.1, 0)}
+    mapping = {
+        'HWB1': 1,
+        'HWB2': 1,
+        'HWB3': 1,
+        'HWB4': 1,
+        'HWB5': 1,
+        'HWB6': 1,
+        'HWB7': 1,
+        'HWB8': 2,
+        'HWB9': 3,
+        'HWB10': 2,
+        'HWB11': 3,
+        'HWB12': 4,
+        'HWB13': 4,
+        'HWB14': 1,
+        'HWB15': 5,
+        'HWB16': 3,
+        'HWB17': 1,
+        'HWB18': 1,
+        'HWB19': 1,
+        'HWB20': 2,
+        'HWB21': 3,
+        'HWB22': 2,
+        'HWB23': 3,
+        'HWB24': 6,
+        'HWB25': 6,
+        'HWB26': 7,
+        'HWB27': 7,
+        'HWB28': 8,
+    }
+    factors = {
+        1: (0.25, 1),
+        2: (0.33, 0),
+        3: (0.33, 1),
+        4: (0.09, 1),
+        5: (0.05, 0),
+        6: (0.2, 1),
+        7: (0.1, 0),
+    }
     if hazus_class in ['HWB3', 'HWB4', 'HWB28']:
         return 1
     else:
         n = aim['NumOfSpans']
         a = factors[mapping[hazus_class]][0]
         b = factors[mapping[hazus_class]][1]
-        return 1 + a/(n-b) # This is the original form in Mander and Basoz (1999)
+        return 1 + a / (
+            n - b
+        )  # This is the original form in Mander and Basoz (1999)
+
 
 def convertBridgeToHAZUSclass(aim):  # noqa: C901
     # TODO: replace labels in AIM with standard CamelCase versions
@@ -235,41 +271,49 @@ def convertBridgeToHAZUSclass(aim):  # noqa: C901
 
     return bridge_class
 
+
 def getHAZUSBridgePGDModifier(hazus_class, aim):
     # This is the original modifier in HAZUS, which gives inf if Skew is 0
     # modifier1 = 0.5*AIM['StructureLength']/(AIM['DeckWidth']*AIM['NumOfSpans']*np.sin(AIM['Skew']/180.0*np.pi))
     # Use the modifier that is corrected from HAZUS manual to achieve the asymptotic behavior
     # Where longer bridges, narrower bridges, less span and higher skew leads to lower modifier (i.e., more fragile bridges)
-    modifier1 = aim['DeckWidth'] * aim['NumOfSpans'] * np.sin((90-aim['Skew'])/180.0*np.pi) / (aim['StructureLength']*0.5)
-    modifier2 = np.sin((90-aim['Skew'])/180.0*np.pi)
-    mapping = {'HWB1':(1,1),
-               'HWB2':(1,1),
-               'HWB3':(1,1),
-               'HWB4':(1,1),
-               'HWB5':(modifier1,modifier1),
-               'HWB6':(modifier1,modifier1),
-               'HWB7':(modifier1,modifier1),
-               'HWB8':(1,modifier2),
-               'HWB9':(1,modifier2),
-               'HWB10':(1,modifier2),
-               'HWB11':(1,modifier2),
-               'HWB12':(modifier1,modifier1),
-               'HWB13':(modifier1,modifier1),
-               'HWB14':(modifier1,modifier1),
-               'HWB15':(1,modifier2),
-               'HWB16':(1,modifier2),
-               'HWB17':(modifier1,modifier1),
-               'HWB18':(modifier1,modifier1),
-               'HWB19':(modifier1,modifier1),
-               'HWB20':(1,modifier2),
-               'HWB21':(1,modifier2),
-               'HWB22':(modifier1,modifier1),
-               'HWB23':(modifier1,modifier1),
-               'HWB24':(modifier1,modifier1),
-               'HWB25':(modifier1,modifier1),
-               'HWB26':(1,modifier2),
-               'HWB27':(1,modifier2),
-               'HWB28':(1,1)}
+    modifier1 = (
+        aim['DeckWidth']
+        * aim['NumOfSpans']
+        * np.sin((90 - aim['Skew']) / 180.0 * np.pi)
+        / (aim['StructureLength'] * 0.5)
+    )
+    modifier2 = np.sin((90 - aim['Skew']) / 180.0 * np.pi)
+    mapping = {
+        'HWB1': (1, 1),
+        'HWB2': (1, 1),
+        'HWB3': (1, 1),
+        'HWB4': (1, 1),
+        'HWB5': (modifier1, modifier1),
+        'HWB6': (modifier1, modifier1),
+        'HWB7': (modifier1, modifier1),
+        'HWB8': (1, modifier2),
+        'HWB9': (1, modifier2),
+        'HWB10': (1, modifier2),
+        'HWB11': (1, modifier2),
+        'HWB12': (modifier1, modifier1),
+        'HWB13': (modifier1, modifier1),
+        'HWB14': (modifier1, modifier1),
+        'HWB15': (1, modifier2),
+        'HWB16': (1, modifier2),
+        'HWB17': (modifier1, modifier1),
+        'HWB18': (modifier1, modifier1),
+        'HWB19': (modifier1, modifier1),
+        'HWB20': (1, modifier2),
+        'HWB21': (1, modifier2),
+        'HWB22': (modifier1, modifier1),
+        'HWB23': (modifier1, modifier1),
+        'HWB24': (modifier1, modifier1),
+        'HWB25': (modifier1, modifier1),
+        'HWB26': (1, modifier2),
+        'HWB27': (1, modifier2),
+        'HWB28': (1, 1),
+    }
     return mapping[hazus_class][0], mapping[hazus_class][1]
 
 
@@ -301,7 +345,7 @@ def convert_story_rise(structure_type, stories):
         rise = None
 
     else:
-        rise = None # Default value
+        rise = None  # Default value
         # First, check if we have valid story information
         try:
             stories = int(stories)
@@ -340,10 +384,29 @@ def convert_story_rise(structure_type, stories):
                 rise = 'H'
 
     return rise
+
+
 def getHAZUSBridgeSlightDamageModifier(hazus_class, aim):
-    if hazus_class in ['HWB1', 'HWB2', 'HWB5', 'HWB6', 'HWB7', 'HWB8', 'HWB9',
-                       'HWB12', 'HWB13', 'HWB14', 'HWB17', 'HWB18', 'HWB19',
-                       'HWB20', 'HWB21', 'HWB24', 'HWB25', 'HWB28']:
+    if hazus_class in [
+        'HWB1',
+        'HWB2',
+        'HWB5',
+        'HWB6',
+        'HWB7',
+        'HWB8',
+        'HWB9',
+        'HWB12',
+        'HWB13',
+        'HWB14',
+        'HWB17',
+        'HWB18',
+        'HWB19',
+        'HWB20',
+        'HWB21',
+        'HWB24',
+        'HWB25',
+        'HWB28',
+    ]:
         return None
     demand_path = Path(aim['DL']['Demands']['DemandFilePath']).resolve()
     sample_size = int(aim['DL']['Demands']['SampleSize'])
@@ -351,13 +414,21 @@ def getHAZUSBridgeSlightDamageModifier(hazus_class, aim):
     demands = pelicun.file_io.load_data(raw_demands)
     edp_types = demands.columns.get_level_values(1)
     if (edp_types == 'SA_0.3').sum() != 1:
-        raise ValueError('The demand file does not contain the required EDP type SA_0.3'
-                         ' or contains multiple instances of it.')
-    sa_0p3 = demands.loc[:, demands.columns.get_level_values(1) == 'SA_0.3'].values.flatten()
+        raise ValueError(
+            'The demand file does not contain the required EDP type SA_0.3'
+            ' or contains multiple instances of it.'
+        )
+    sa_0p3 = demands.loc[
+        :, demands.columns.get_level_values(1) == 'SA_0.3'
+    ].values.flatten()
     if (edp_types == 'SA_1.0').sum() != 1:
-        raise ValueError('The demand file does not contain the required EDP type SA_1.0'
-                         ' or contains multiple instances of it.')
-    sa_1p0 = demands.loc[:, demands.columns.get_level_values(1) == 'SA_1.0'].values.flatten()
+        raise ValueError(
+            'The demand file does not contain the required EDP type SA_1.0'
+            ' or contains multiple instances of it.'
+        )
+    sa_1p0 = demands.loc[
+        :, demands.columns.get_level_values(1) == 'SA_1.0'
+    ].values.flatten()
 
     ratio = 2.5 * sa_1p0 / sa_0p3
     operation = []
@@ -366,10 +437,11 @@ def getHAZUSBridgeSlightDamageModifier(hazus_class, aim):
             ratio[i] = 1.0
         operation.append(f'*{ratio[i]}')
     # Repeat the operation until the sample size is reached
-    operation = operation * (sample_size // len(ratio)) + operation[:sample_size % len(ratio)]
+    operation = (
+        operation * (sample_size // len(ratio))
+        + operation[: sample_size % len(ratio)]
+    )
     return operation
-
-
 
 
 def auto_populate(aim):  # noqa: C901
@@ -528,7 +600,7 @@ def auto_populate(aim):  # noqa: C901
                 f'HWB.GS.{bt[3:]}-1-1': {
                     'LS2': f'*{k_skew*k_3d}',
                     'LS3': f'*{k_skew*k_3d}',
-                    'LS4': f'*{k_skew*k_3d}'
+                    'LS4': f'*{k_skew*k_3d}',
                 }
             }
             if k_shape is not None:
@@ -546,23 +618,27 @@ def auto_populate(aim):  # noqa: C901
 
                 f1, f2 = getHAZUSBridgePGDModifier(bt, GI)
 
-                scaling_specification.update({
-                    "HWB.GF-1-1": {
-                                    "LS2": f'*{f1}',
-                                    "LS3": f'*{f1}',
-                                    "LS4": f'*{f2}',
-                                }
-                })
+                scaling_specification.update(
+                    {
+                        'HWB.GF-1-1': {
+                            'LS2': f'*{f1}',
+                            'LS3': f'*{f1}',
+                            'LS4': f'*{f2}',
+                        }
+                    }
+                )
 
             dl_ap = {
-                "Asset": {
-                    "ComponentAssignmentFile": "CMP_QNT.csv",
-                    "ComponentDatabase": "Hazus Earthquake - Transportation",
-                    "BridgeHazusClass": bt,
-                    "PlanArea": "1"
+                'Asset': {
+                    'ComponentAssignmentFile': 'CMP_QNT.csv',
+                    'ComponentDatabase': 'Hazus Earthquake - Transportation',
+                    'BridgeHazusClass': bt,
+                    'PlanArea': '1',
                 },
-                'Damage': {'DamageProcess': 'Hazus Earthquake',
-                           'ScalingSpecification': scaling_specification},
+                'Damage': {
+                    'DamageProcess': 'Hazus Earthquake',
+                    'ScalingSpecification': scaling_specification,
+                },
                 'Demands': {},
                 'Losses': {
                     'Repair': {
