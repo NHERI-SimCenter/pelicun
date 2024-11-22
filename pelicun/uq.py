@@ -1409,7 +1409,7 @@ class RandomVariable(BaseRandomVariable):
         assert truncation_limits is not None
 
         if truncation_limits.shape != theta.shape:
-            # Number of columns should match
+            # Number of rows should match
             if truncation_limits.shape[1] != theta.shape[1]:
                 msg = 'Incompatible `truncation_limits` value.'
                 raise ValueError(msg)
@@ -1421,7 +1421,16 @@ class RandomVariable(BaseRandomVariable):
         p_b: np.ndarray, p_a: np.ndarray
     ) -> None:
         """
-        Ensure that all probability differences are positive.
+        Ensure there is probability mass between the truncation limits.
+
+        Parameters
+        ----------
+        p_b: float
+          The probability of not exceeding the upper truncation limit 
+          based on the CDF of the random variable.
+        p_a: float
+          The probability of not exceeding the lower truncation limit 
+          based on the CDF of the random variable.
 
         Raises
         ------
