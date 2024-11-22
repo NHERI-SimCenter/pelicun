@@ -57,7 +57,7 @@ if TYPE_CHECKING:
     from pelicun.base import Logger
 
 colorama.init()
-SMALL_NUMBER = 1.0e-10
+FIRST_POSITIVE_NUMBER = 1.0e-10
 
 
 def scale_distribution(
@@ -516,7 +516,7 @@ def _mvn_scale(x: np.ndarray, rho: np.ndarray) -> np.ndarray:
     rho_0 = np.eye(n_dims, n_dims)
 
     a = mvn.pdf(x, mean=np.zeros(n_dims), cov=rho_0)
-    a[a < SMALL_NUMBER] = SMALL_NUMBER
+    a[a < FIRST_POSITIVE_NUMBER] = FIRST_POSITIVE_NUMBER
 
     b = mvn.pdf(x, mean=np.zeros(n_dims), cov=rho)
 
@@ -1429,7 +1429,7 @@ class RandomVariable(BaseRandomVariable):
           If a negative probability difference is found.
 
         """
-        if np.any((p_b - p_a) < SMALL_NUMBER):
+        if np.any((p_b - p_a) < FIRST_POSITIVE_NUMBER):
             msg = (
                 'The probability mass within the truncation limits is '
                 'too small and the truncated distribution cannot be '
