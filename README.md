@@ -1,5 +1,5 @@
 <p align="center">
-	<img src="https://raw.githubusercontent.com/NHERI-SimCenter/pelicun/gh-pages/doc_src/common/figures/pelicun-Logo-white.png"
+	<img src="https://raw.githubusercontent.com/NHERI-SimCenter/pelicun/master/doc/source/_static/pelicun-Logo-white.png"
 		alt="pelicun" align="middle" height="200"/>
 </p>
 
