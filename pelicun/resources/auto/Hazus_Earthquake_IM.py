@@ -417,9 +417,7 @@ def getHAZUSBridgeSlightDamageModifier(hazus_class, aim):
             'The demand file does not contain the required EDP type SA_0.3'
             ' or contains multiple instances of it.'
         )
-        raise ValueError(
-            msg
-        )
+        raise ValueError(msg)
     sa_0p3 = demands.loc[  # noqa: PD011
         :, demands.columns.get_level_values(1) == 'SA_0.3'
     ].values.flatten()
@@ -428,9 +426,7 @@ def getHAZUSBridgeSlightDamageModifier(hazus_class, aim):
             'The demand file does not contain the required EDP type SA_1.0'
             ' or contains multiple instances of it.'
         )
-        raise ValueError(
-            msg
-        )
+        raise ValueError(msg)
     sa_1p0 = demands.loc[  # noqa: PD011
         :, demands.columns.get_level_values(1) == 'SA_1.0'
     ].values.flatten()

@@ -906,7 +906,9 @@ class DamageModel_DS(DamageModel_Base):
         msg = f'Invalid operation: `{operation}`'
         raise ValueError(msg)
 
-    def _handle_operation_list(self, initial_value: float, operations: list[tuple[str, float]]) -> np.ndarray:
+    def _handle_operation_list(
+        self, initial_value: float, operations: list[tuple[str, float]]
+    ) -> np.ndarray:
         if len(operations) == 1:
             return np.array(
                 [
@@ -1337,9 +1339,7 @@ class DamageModel_DS(DamageModel_Base):
                             f'Invalid entry in scaling_specification: '
                             f'{value}. It should only have one entry for `ALL`.'
                         )
-                        raise ValueError(
-                            msg
-                        )
+                        raise ValueError(msg)
                     value = value['ALL']  # noqa: PLW2901
                 for LS, specifics in value.items():  # noqa: N806
                     css = 'capacity adjustment specification'
