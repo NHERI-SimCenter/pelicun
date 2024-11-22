@@ -239,7 +239,7 @@ def convertBridgeToHAZUSclass(aim):  # noqa: C901
 def getHAZUSBridgePGDModifier(hazus_class, aim):
     # This is the original modifier in HAZUS, which gives inf if Skew is 0
     # modifier1 = 0.5*AIM['StructureLength']/(AIM['DeckWidth']*AIM['NumOfSpans']*np.sin(AIM['Skew']/180.0*np.pi))
-    # Use the modifier that is corrected from HAZUS manual to achive the asymptotic behavior
+    # Use the modifier that is corrected from HAZUS manual to achieve the asymptotic behavior
     # Where longer bridges, narrower bridges, less span and higher skew leads to lower modifier (i.e., more fragile bridges)
     modifier1 = aim['DeckWidth'] * aim['NumOfSpans'] * np.sin((90-aim['Skew'])/180.0*np.pi) / (aim['StructureLength']*0.5)
     modifier2 = np.sin((90-aim['Skew'])/180.0*np.pi)
