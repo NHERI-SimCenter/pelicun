@@ -1,0 +1,4 @@
+ID,Incomplete,Demand-Type,Demand-Unit,Demand-Offset,Demand-Directional,LS1-Family,LS1-Theta_0,LS1-Theta_1,LS2-Family,LS2-Theta_0,LS2-Theta_1,LS3-Family,LS3-Theta_0,LS3-Theta_1
+building.1,0,Peak Inundation Height,m,0,0,lognormal,0.159,0.8196,lognormal,0.8881,0.8391,lognormal,1.6578,0.8948
+building.2,0,Peak Inundation Height,m,0,0,lognormal,0.1979,0.745,lognormal,0.925,0.692,lognormal,1.7814,0.7196
+building.3andAbove,0,Peak Inundation Height,m,0,0,lognormal,0.1489,0.66,lognormal,1.1408,0.7981,lognormal,2.3491,0.7898

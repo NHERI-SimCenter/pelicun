@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # Copyright (c) 2023 Leland Stanford Junior University
 # Copyright (c) 2023 The Regents of the University of California
@@ -37,15 +36,17 @@
 # Contributors:
 # Adam Zsarnóczay
 
+from __future__ import annotations
+
 import pandas as pd
 
-ap_DesignLevel = {1940: 'LC', 1975: 'MC', 2100: 'HC'}
+ap_design_level = {1940: 'LC', 1975: 'MC', 2100: 'HC'}
 # ap_DesignLevel = {1940: 'PC', 1940: 'LC', 1975: 'MC', 2100: 'HC'}
 
-ap_DesignLevel_W1 = {0: 'LC', 1975: 'MC', 2100: 'HC'}
+ap_design_level_w1 = {0: 'LC', 1975: 'MC', 2100: 'HC'}
 # ap_DesignLevel_W1 = {0: 'PC', 0: 'LC', 1975: 'MC', 2100: 'HC'}
 
-ap_Occupancy = {
+ap_occupancy = {
     'Other/Unknown': 'RES3',
     'Residential - Single-Family': 'RES1',
     'Residential - Town-Home': 'RES3',
@@ -69,7 +70,7 @@ convert_design_level = {
 }
 
 
-def story_scale(stories, comp_type):
+def story_scale(stories, comp_type):  # noqa: C901
     if comp_type == 'NSA':
         if stories == 1:
             return 1.00
@@ -107,11 +108,7 @@ def story_scale(stories, comp_type):
             return 2.75
         elif stories == 5:
             return 3.00
-        elif stories == 6:
-            return 3.50
-        elif stories == 7:
-            return 3.50
-        elif stories == 8:
+        elif stories in (6, 7, 8):
             return 3.50
         elif stories == 9:
             return 4.50
@@ -121,9 +118,10 @@ def story_scale(stories, comp_type):
             return 7.30
         else:
             return 1.0
+    return None
 
 
-def auto_populate(AIM):
+def auto_populate(aim):
     """
     Automatically creates a performance model for story EDP-based Hazus EQ analysis.
 
@@ -147,73 +145,70 @@ def auto_populate(AIM):
     CMP: DataFrame
         Component assignment - Defines the components (in rows) and their
         location, direction, and quantity (in columns).
+
     """
-
     # extract the General Information
-    GI = AIM.get('GeneralInformation', None)
+    gi = aim.get('GeneralInformation', None)
 
-    if GI is None:
+    if gi is None:
         # TODO: show an error message
         pass
 
     # initialize the auto-populated GI
-    GI_ap = GI.copy()
+    gi_ap = gi.copy()
 
-    assetType = AIM["assetType"]
-    ground_failure = AIM["Applications"]["DL"]["ApplicationData"]["ground_failure"]
+    asset_type = aim['assetType']
+    ground_failure = aim['Applications']['DL']['ApplicationData']['ground_failure']
 
-    if assetType == "Buildings":
+    if asset_type == 'Buildings':
         # get the building parameters
-        bt = GI['StructureType']  # building type
+        bt = gi['StructureType']  # building type
 
         # get the design level
-        dl = GI.get('DesignLevel', None)
+        dl = gi.get('DesignLevel', None)
 
         if dl is None:
             # If there is no DesignLevel provided, we assume that the YearBuilt is
             # available
-            year_built = GI['YearBuilt']
+            year_built = gi['YearBuilt']
 
-            if 'W1' in bt:
-                DesignL = ap_DesignLevel_W1
-            else:
-                DesignL = ap_DesignLevel
+            design_l = ap_design_level_w1 if 'W1' in bt else ap_design_level
 
-            for year in sorted(DesignL.keys()):
+            for year in sorted(design_l.keys()):
                 if year_built <= year:
-                    dl = DesignL[year]
+                    dl = design_l[year]
                     break
 
-            GI_ap['DesignLevel'] = dl
+            gi_ap['DesignLevel'] = dl
 
         # get the number of stories / height
-        stories = GI.get('NumberOfStories', None)
+        stories = gi.get('NumberOfStories', None)
 
-        FG_S = f'STR.{bt}.{dl}'
-        FG_NSD = 'NSD'
-        FG_NSA = f'NSA.{dl}'
+        fg_s = f'STR.{bt}.{dl}'
+        fg_nsd = 'NSD'
+        fg_nsa = f'NSA.{dl}'
 
-        CMP = pd.DataFrame(
+        comp = pd.DataFrame(
             {
-                f'{FG_S}': [
+                f'{fg_s}': [
                     'ea',
                     'all',
                     '1, 2',
-                    f"{story_scale(stories, 'S')/stories/2.}",
+                    f"{story_scale(stories, 'S') / stories / 2.}",
                     'N/A',
                 ],
-                f'{FG_NSA}': [
+                f'{fg_nsa}': [
                     'ea',
                     'all',
                     0,
-                    f"{story_scale(stories, 'NSA')/stories}",
+                    f"{story_scale(stories, 'NSA') / stories}",
                     'N/A',
                 ],
-                f'{FG_NSD}': [
+                f'{fg_nsd}': [
                     'ea',
                     'all',
                     '1, 2',
-                    f"{story_scale(stories, 'NSD')/stories/2.}",
+                    f"{story_scale(stories, 'NSD') / stories / 2.}",
                     'N/A',
                 ],
             },
@@ -224,57 +219,57 @@ def auto_populate(AIM):
         if ground_failure:
             foundation_type = 'S'
 
-            # fmt: off
-            FG_GF_H = f'GF.H.{foundation_type}'                                        # noqa
-            FG_GF_V = f'GF.V.{foundation_type}'                                        # noqa
-            CMP_GF = pd.DataFrame(                                                     # noqa
-                {f'{FG_GF_H}':[  'ea',         1,          1,        1,   'N/A'],      # noqa
-                 f'{FG_GF_V}':[  'ea',         1,          3,        1,   'N/A']},     # noqa
-                index = [     'Units','Location','Direction','Theta_0','Family']       # noqa
-            ).T                                                                        # noqa
-            # fmt: on
+            FG_GF_H = f'GF.H.{foundation_type}'
+            FG_GF_V = f'GF.V.{foundation_type}'
+            CMP_GF = pd.DataFrame(
+                {
+                    f'{FG_GF_H}': ['ea', 1, 1, 1, 'N/A'],
+                    f'{FG_GF_V}': ['ea', 1, 3, 1, 'N/A'],
+                },
+                index=['Units', 'Location', 'Direction', 'Theta_0', 'Family'],
+            ).T
 
-            CMP = pd.concat([CMP, CMP_GF], axis=0)
+            comp = pd.concat([comp, CMP_GF], axis=0)
 
         # get the occupancy class
-        if GI['OccupancyClass'] in ap_Occupancy.keys():
-            ot = ap_Occupancy[GI['OccupancyClass']]
+        if gi['OccupancyClass'] in ap_occupancy:
+            occupancy_type = ap_occupancy[gi['OccupancyClass']]
         else:
-            ot = GI['OccupancyClass']
+            occupancy_type = gi['OccupancyClass']
 
-        plan_area = GI.get('PlanArea', 1.0)
+        plan_area = gi.get('PlanArea', 1.0)
 
         repair_config = {
-            "ConsequenceDatabase": "Hazus Earthquake - Stories",
-            "MapApproach": "Automatic",
-            "DecisionVariables": {
-                "Cost": True,
-                "Carbon": False,
-                "Energy": False,
-                "Time": False,
+            'ConsequenceDatabase': 'Hazus Earthquake - Stories',
+            'MapApproach': 'Automatic',
+            'DecisionVariables': {
+                'Cost': True,
+                'Carbon': False,
+                'Energy': False,
+                'Time': False,
             },
         }
 
-        DL_ap = {
-            "Asset": {
-                "ComponentAssignmentFile": "CMP_QNT.csv",
-                "ComponentDatabase": "Hazus Earthquake - Stories",
-                "NumberOfStories": f"{stories}",
-                "OccupancyType": f"{ot}",
-                "PlanArea": str(plan_area),
+        dl_ap = {
+            'Asset': {
+                'ComponentAssignmentFile': 'CMP_QNT.csv',
+                'ComponentDatabase': 'Hazus Earthquake - Stories',
+                'NumberOfStories': f'{stories}',
+                'OccupancyType': f'{occupancy_type}',
+                'PlanArea': str(plan_area),
             },
-            "Damage": {"DamageProcess": "Hazus Earthquake"},
-            "Demands": {},
-            "Losses": {"Repair": repair_config},
-            "Options": {
-                "NonDirectionalMultipliers": {"ALL": 1.0},
+            'Damage': {'DamageProcess': 'Hazus Earthquake'},
+            'Demands': {},
+            'Losses': {'Repair': repair_config},
+            'Options': {
+                'NonDirectionalMultipliers': {'ALL': 1.0},
             },
         }
 
     else:
         print(
-            f"AssetType: {assetType} is not supported "
-            f"in Hazus Earthquake Story-based DL method"
+            f'AssetType: {asset_type} is not supported '
+            f'in Hazus Earthquake Story-based DL method'
         )
 
-    return GI_ap, DL_ap, CMP
+    return gi_ap, dl_ap, comp

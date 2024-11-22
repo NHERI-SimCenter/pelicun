@@ -1,0 +1,3 @@
+ID,Demand-Directional,Demand-Offset,Demand-Type,Incomplete-,LS1-DamageStateWeights,LS1-Family,LS1-Theta_0,LS1-Theta_1,LS2-DamageStateWeights,LS2-Family,LS2-Theta_0,LS2-Theta_1,LS3-DamageStateWeights,LS3-Family,LS3-Theta_0,LS3-Theta_1,LS4-DamageStateWeights,LS4-Family,LS4-Theta_0,LS4-Theta_1
+many.ds,0,0,Peak Floor Acceleration,0,0.350000 | 0.150000 | 0.500000,lognormal,29.41995,0.5,,,,,,,,,,,,
+single.ds,0,0,Peak Floor Acceleration,0,,lognormal,29.41995,0.5,,,,,,,,,,,,

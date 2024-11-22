@@ -1,0 +1,45 @@
+[tool.ruff]
+line-length = 85
+exclude = [
+  "rulesets", 
+  "pelicun/tests/dl_calculation/e7/auto_HU_NJ.py",
+  "pelicun/tests/dl_calculation/e8/auto_HU_LA.py",
+  "pelicun/tests/dl_calculation/e9/custom_pop.py"
+]
+
+[tool.ruff.lint]
+# Enable all known categories
+select = ["ALL"]
+ignore = ["ANN101", "D211", "D212", "Q000", "Q003", "COM812", "D203", "ISC001", "E501", "ERA001", "PGH003", "FIX002", "TD003", "S101", "N801", "S311", "G004", "SIM102", "SIM108", "NPY002", "F401"]
+preview = true
+
+[tool.ruff.lint.pydocstyle]
+convention = "numpy"
+
+[tool.ruff.lint.pylint]
+max-args=15
+max-locals=50
+max-returns=11
+max-branches=50
+max-statements=150
+max-bool-expr=5
+
+[tool.ruff.lint.per-file-ignores]
+"pelicun/tests/*" = ["D", "N802", "SLF001", "PLR2004", "PLR6301"]
+"pelicun/resources/auto/*" = ['PLR', 'T', 'N', 'ANN', 'D', 'PTH', 'INP', 'DOC', 'RET', 'TD']
+"pelicun/tools/HDF_to_CSV.py" = ["ALL"]
+"pelicun/tests/validation/inactive/*" = ["T201", "B018", "ANN", "PD"]
+"pelicun/tests/dl_calculation/rulesets/*" = ["N999"]
+"doc/source/examples/notebooks/*" = ["INP001", "CPY001", "D400", "B018", "F821", "T201", "T203"]
+
+[tool.ruff.format]
+quote-style = "single"
+
+[tool.codespell]
+ignore-words = ["ignore_words.txt"]
+skip = ["*.html", "./htmlcov/*", "./doc_src/build/*", "./pelicun.egg-info/*", "./doc_src/*", "./doc/build/*", "*/rulesets/*", "custom_pop.py", "*/SimCenterDBDL/*", "auto_HU_NJ.py", "auto_HU_LA.py", "custom_pop.py"]
+
+[tool.mypy]
+ignore_missing_imports = true
+exclude = "flycheck"
+namespace_packages = false

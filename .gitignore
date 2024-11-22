@@ -37,3 +37,8 @@ __pycache__
 .cov2emacs.log
 flycheck*.py
 /notes/
+/.ropeproject/
+
+/doc_src/
+/doc/build/
+/doc/source/api_reference/_autosummary

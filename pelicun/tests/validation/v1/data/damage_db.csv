@@ -1,0 +1,2 @@
+ID,Demand-Directional,Demand-Offset,Demand-Type,Demand-Unit,LS1-Family,LS1-Theta_0,LS1-Theta_1,LS2-Family,LS2-Theta_0,LS2-Theta_1
+cmp.A,1,0,Story Drift Ratio,rad,lognormal,0.015,0.5,lognormal,0.02,0.5
