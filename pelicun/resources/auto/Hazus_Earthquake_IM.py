@@ -108,7 +108,7 @@ def convertUnits(value, unit_in, unit_out):
         return None
     return value * scale_map[unit_in] / scale_map[unit_out]
 
-def getHAZUSBridgeK3DModifier(hazus_class, AIM):
+def getHAZUSBridgeK3DModifier(hazus_class, aim):
     # In HAZUS, the K_3D for HWB28 is undefined, so we return 1, i.e., no scaling
     # The K-3D factors for HWB3 and HWB4 are defined as EQ1, which leads to division by zero
     # This is an error in the HAZUS documentation, and we assume that the factors are 1 for these classes
@@ -122,10 +122,10 @@ def getHAZUSBridgeK3DModifier(hazus_class, AIM):
     if hazus_class in ['HWB3', 'HWB4', 'HWB28']:
         return 1
     else:
-        N = AIM['NumOfSpans']
-        A = factors[mapping[hazus_class]][0]
-        B = factors[mapping[hazus_class]][1]
-        return 1 + A/(N-B) # This is the original form in Mander and Basoz (1999)
+        n = aim['NumOfSpans']
+        a = factors[mapping[hazus_class]][0]
+        b = factors[mapping[hazus_class]][1]
+        return 1 + a/(n-b) # This is the original form in Mander and Basoz (1999)
 
 def convertBridgeToHAZUSclass(aim):  # noqa: C901
     # TODO: replace labels in AIM with standard CamelCase versions
@@ -236,13 +236,13 @@ def convertBridgeToHAZUSclass(aim):  # noqa: C901
 
     return bridge_class
 
-def getHAZUSBridgePGDModifier(hazus_class, AIM):
+def getHAZUSBridgePGDModifier(hazus_class, aim):
     # This is the original modifier in HAZUS, which gives inf if Skew is 0
     # modifier1 = 0.5*AIM['StructureLength']/(AIM['DeckWidth']*AIM['NumOfSpans']*np.sin(AIM['Skew']/180.0*np.pi))
     # Use the modifier that is corrected from HAZUS manual to achive the asymptotic behavior
     # Where longer bridges, narrower bridges, less span and higher skew leads to lower modifier (i.e., more fragile bridges)
-    modifier1 = AIM['DeckWidth'] * AIM['NumOfSpans'] * np.sin((90-AIM['Skew'])/180.0*np.pi) / (AIM['StructureLength']*0.5)
-    modifier2 = np.sin((90-AIM['Skew'])/180.0*np.pi)
+    modifier1 = aim['DeckWidth'] * aim['NumOfSpans'] * np.sin((90-aim['Skew'])/180.0*np.pi) / (aim['StructureLength']*0.5)
+    modifier2 = np.sin((90-aim['Skew'])/180.0*np.pi)
     mapping = {'HWB1':(1,1),
                'HWB2':(1,1),
                'HWB3':(1,1),
@@ -341,12 +341,13 @@ def convert_story_rise(structure_type, stories):
                 rise = 'H'
 
     return rise
-def getHAZUSBridgeSlightDamageModifier(hazus_class, AIM):
+def getHAZUSBridgeSlightDamageModifier(hazus_class, aim):
     if hazus_class in ['HWB1', 'HWB2', 'HWB5', 'HWB6', 'HWB7', 'HWB8', 'HWB9',
                        'HWB12', 'HWB13', 'HWB14', 'HWB17', 'HWB18', 'HWB19',
                        'HWB20', 'HWB21', 'HWB24', 'HWB25', 'HWB28']:
         return None
-    demand_path = Path(AIM['DL']['Demands']['DemandFilePath']).resolve()
+    demand_path = Path(aim['DL']['Demands']['DemandFilePath']).resolve()
+    sample_size = int(aim['DL']['Demands']['SampleSize'])
     raw_demands = pd.read_csv(demand_path, index_col=0)
     demands = pelicun.file_io.load_data(raw_demands)
     edp_types = demands.columns.get_level_values(1)
@@ -365,6 +366,8 @@ def getHAZUSBridgeSlightDamageModifier(hazus_class, AIM):
         if ratio[i] > 1.0:
             ratio[i] = 1.0
         operation.append(f'*{ratio[i]}')
+    # Repeat the operation until the sample size is reached
+    operation = operation * (sample_size // len(ratio)) + operation[:sample_size % len(ratio)]
     return operation
 
 def auto_populate(aim):  # noqa: C901
@@ -516,9 +519,9 @@ def auto_populate(aim):  # noqa: C901
             # fmt: on
 
             # scaling_specification
-            k_skew = np.sqrt(np.sin((90 - GI['Skew']) * np.pi / 180.0))
-            k_3d = getHAZUSBridgeK3DModifier(bt, GI)
-            k_shape = getHAZUSBridgeSlightDamageModifier(bt, AIM)
+            k_skew = np.sqrt(np.sin((90 - gi['Skew']) * np.pi / 180.0))
+            k_3d = getHAZUSBridgeK3DModifier(bt, gi)
+            k_shape = getHAZUSBridgeSlightDamageModifier(bt, aim)
             scaling_specification = {
                 f'HWB.GS.{bt[3:]}-1-1': {
                     'LS2': f'*{k_skew*k_3d}',
@@ -549,7 +552,7 @@ def auto_populate(aim):  # noqa: C901
                                 }
                 })
 
-            DL_ap = {
+            dl_ap = {
                 "Asset": {
                     "ComponentAssignmentFile": "CMP_QNT.csv",
                     "ComponentDatabase": "Hazus Earthquake - Transportation",
@@ -557,7 +560,7 @@ def auto_populate(aim):  # noqa: C901
                     "PlanArea": "1"
                 },
                 'Damage': {'DamageProcess': 'Hazus Earthquake',
-                           'scaling_specification': scaling_specification},
+                           'ScalingSpecification': scaling_specification},
                 'Demands': {},
                 'Losses': {
                     'Repair': {

@@ -42,3 +42,6 @@ flycheck*.py
 /doc_src/
 /doc/build/
 /doc/source/api_reference/_autosummary
+.DS_Store
+.vscode/launch.json
+testFolder*

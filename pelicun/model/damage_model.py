@@ -908,12 +908,12 @@ class DamageModel_DS(DamageModel_Base):
 
     def _handle_operation_list(self, initial_value, operations):
         if len(operations) == 1:
-            return self._handle_operation(initial_value, operations[0][0], operations[0][1])
+            return np.array([self._handle_operation(initial_value, operations[0][0], operations[0][1])])
         else:
             new_values = []
             for operation in operations:
                 new_values.append(self._handle_operation(initial_value, operation[0], operation[1]))
-            return new_values
+            return np.array(new_values)
 
     def _generate_dmg_sample(
         self,
@@ -1420,16 +1420,25 @@ class DamageModel_DS(DamageModel_Base):
                         if family in {'normal', 'lognormal', 'deterministic'}:
                             # Only scale the median value if ls_id is defined in capacity_adjustment_operation
                             # Otherwise, use the original value
+                            new_theta_0 = None
                             if 'ALL' in capacity_adjustment_operation:
-                                theta[0] = self._handle_operation_list(
+                                new_theta_0 = self._handle_operation_list(
                                     theta[0],
                                     capacity_adjustment_operation['ALL'][0],
                                 )
                             elif f'LS{ls_id}' in capacity_adjustment_operation:
-                                theta[0] = self._handle_operation_list(
+                                new_theta_0 = self._handle_operation_list(
                                     theta[0],
                                     capacity_adjustment_operation[f'LS{ls_id}'],
                                 )
+                            if new_theta_0 is not None:
+                                if new_theta_0.size == 1:
+                                    theta[0] = new_theta_0[0]
+                                else:
+                                    # Repeat the theta values new_theta_0.size times along axis 0
+                                    # and 1 time along axis 1
+                                    theta = np.tile(theta, (new_theta_0.size, 1))
+                                    theta[:,0] = new_theta_0
                         else:
                             self.log.warning(
                                 f'Capacity adjustment is only supported '
