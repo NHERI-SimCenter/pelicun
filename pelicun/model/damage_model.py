@@ -1192,16 +1192,7 @@ class DamageModel_DS(DamageModel_Base):
             one for the capacity random variables and one for the LSDS
             assignments.
 
-        Raises
-        ------
-        ValueError
-            Raises an error if the scaling specification is invalid or
-            if the input DataFrame does not meet the expected format.
-        TypeError
-            If there are any issues with the types of the data in the
-            input DataFrame.
-
-        """  # noqa: DOC502
+        """
 
         def assign_lsds(
             ds_weights: str | None,
@@ -1313,18 +1304,27 @@ class DamageModel_DS(DamageModel_Base):
 
             return ds_id
 
-        if self._asmnt.log.verbose:
-            self.log.msg('Generating capacity variables ...', prepend_timestamp=True)
+        def parse_scaling_specification(scaling_specification: dict) -> dict:  # noqa: C901
+            """
+            Parse and validate the scaling specification.
 
-        # initialize the registry
-        capacity_rv_reg = uq.RandomVariableRegistry(self._asmnt.options.rng)
-        lsds_rv_reg = uq.RandomVariableRegistry(self._asmnt.options.rng)
+            Parameters
+            ----------
+            scaling_specification : dict
+                The scaling specification to be parsed and validated.
 
-        # capacity adjustment:
-        # ensure the scaling_specification is a dictionary
-        if not scaling_specification:
-            scaling_specification = {}
-        else:
+            Returns
+            -------
+            dict
+                The parsed and validated scaling specification.
+
+            Raises
+            ------
+            ValueError
+                If the scaling specification is invalid.
+            TypeError
+                If the type of an entry is invalid.
+            """
             # if there are contents, ensure they are valid.
             # See docstring for an example of what is expected.
             parsed_scaling_specification = {}
@@ -1340,23 +1340,22 @@ class DamageModel_DS(DamageModel_Base):
                             f'{value}. It should only have one entry for `ALL`.'
                         )
                         raise ValueError(msg)
-                    value = value['ALL']  # noqa: PLW2901
                 for LS, specifics in value.items():  # noqa: N806
                     css = 'capacity adjustment specification'
                     if not isinstance(specifics, list):
-                        specifics = [specifics]  # noqa: PLW2901
-                    for spec in specifics:
+                        specifics_list = [specifics]
+                    else:
+                        specifics_list = specifics
+                    for spec in specifics_list:
                         if not isinstance(spec, str):
                             msg = (
                                 f'Invalud entry in {css}: {spec}. It has to be a string. '
                                 f'See docstring of DamageModel._create_dmg_RVs.'
                             )
-                            raise ValueError(  # noqa: TRY004
-                                msg
-                            )
+                            raise TypeError(msg)
                         capacity_adjustment_operation = spec[0]
                         number = spec[1::]
-                        if capacity_adjustment_operation not in ('+', '-', '*', '/'):  # noqa: PLR6201
+                        if capacity_adjustment_operation not in {'+', '-', '*', '/'}:
                             msg = f'Invalid operation in {css}: '
                             raise ValueError(
                                 msg
@@ -1371,8 +1370,23 @@ class DamageModel_DS(DamageModel_Base):
                         parsed_scaling_specification[key][LS].append(
                             (capacity_adjustment_operation, fnumber)
                         )
+            return parsed_scaling_specification
 
-            scaling_specification = parsed_scaling_specification
+        if self._asmnt.log.verbose:
+            self.log.msg('Generating capacity variables ...', prepend_timestamp=True)
+
+        # initialize the registry
+        capacity_rv_reg = uq.RandomVariableRegistry(self._asmnt.options.rng)
+        lsds_rv_reg = uq.RandomVariableRegistry(self._asmnt.options.rng)
+
+        # capacity adjustment:
+        # ensure the scaling_specification is a dictionary
+        if not scaling_specification:
+            scaling_specification = {}
+        else:
+            scaling_specification = parse_scaling_specification(
+                scaling_specification
+            )
 
         # get the component sample and blocks from the asset model
         for pg in pgb.index:  # noqa: PLR1702
@@ -1438,7 +1452,7 @@ class DamageModel_DS(DamageModel_Base):
                             if 'ALL' in capacity_adjustment_operation:
                                 new_theta_0 = self._handle_operation_list(
                                     theta[0],
-                                    capacity_adjustment_operation['ALL'][0],
+                                    capacity_adjustment_operation['ALL'],
                                 )
                             elif f'LS{ls_id}' in capacity_adjustment_operation:
                                 new_theta_0 = self._handle_operation_list(
