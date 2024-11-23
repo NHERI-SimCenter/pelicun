@@ -511,6 +511,7 @@ class TestDamageModel_DS(TestDamageModel_Base):
             index=pd.MultiIndex.from_tuples(
                 [
                     ('cmp.A', '1', '2', '3'),
+                    ('cmp.B', '1', '2', '3'),
                 ],
                 names=['cmp', 'loc', 'dir', 'uid'],
             ),
@@ -518,25 +519,32 @@ class TestDamageModel_DS(TestDamageModel_Base):
 
         damage_params = pd.DataFrame(
             {
-                ('Demand', 'Directional'): [0.0],
-                ('Demand', 'Offset'): [0.0],
-                ('Demand', 'Type'): ['Peak Floor Acceleration'],
-                ('Incomplete', ''): [0],
+                ('Demand', 'Directional'): [0.0, 0.0],
+                ('Demand', 'Offset'): [0.0, 0.0],
+                ('Demand', 'Type'): [
+                    'Peak Floor Acceleration',
+                    'Peak Floor Acceleration',
+                ],
+                ('Incomplete', ''): [0, 0],
                 ('LS1', 'DamageStateWeights'): [
                     '0.40 | 0.10 | 0.50',
+                    '0.40 | 0.10 | 0.50',
                 ],
-                ('LS1', 'Family'): ['lognormal'],
-                ('LS1', 'Theta_0'): [30.00],
-                ('LS1', 'Theta_1'): [0.5],
+                ('LS1', 'Family'): ['lognormal', 'lognormal'],
+                ('LS1', 'Theta_0'): [30.00, 30.00],
+                ('LS1', 'Theta_1'): [0.5, 0.5],
             },
-            index=['cmp.A'],
+            index=['cmp.A', 'cmp.B'],
         ).rename_axis('ID')
 
         # Attach this DataFrame to the damage model instance
         damage_model.damage_params = damage_params
 
         # Define a scaling specification
-        scaling_specification = {'cmp.A-1-2': '*1.20'}
+        scaling_specification = {
+            'cmp.A-1-2': {'LS1': '*1.20'},
+            'cmp.B-1-2': {'LS1': ['*1.20']},
+        }
 
         # Execute the method under test
         capacity_rv_reg, lsds_rv_reg = damage_model._create_dmg_RVs(
@@ -549,14 +557,24 @@ class TestDamageModel_DS(TestDamageModel_Base):
         # Example check for presence and properties of a
         # RandomVariable in the registry:
         assert 'FRG-cmp.A-1-2-3-1-1' in capacity_rv_reg.RV
+        assert 'FRG-cmp.B-1-2-3-1-1' in capacity_rv_reg.RV
         assert isinstance(
             capacity_rv_reg.RV['FRG-cmp.A-1-2-3-1-1'],
             uq.LogNormalRandomVariable,
         )
+        assert isinstance(
+            capacity_rv_reg.RV['FRG-cmp.B-1-2-3-1-1'],
+            uq.LogNormalRandomVariable,
+        )
 
         assert 'LSDS-cmp.A-1-2-3-1-1' in lsds_rv_reg.RV
+        assert 'LSDS-cmp.B-1-2-3-1-1' in lsds_rv_reg.RV
         assert isinstance(
             lsds_rv_reg.RV['LSDS-cmp.A-1-2-3-1-1'],
+            uq.MultinomialRandomVariable,
+        )
+        assert isinstance(
+            lsds_rv_reg.RV['LSDS-cmp.B-1-2-3-1-1'],
             uq.MultinomialRandomVariable,
         )
 
