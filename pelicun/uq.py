@@ -1823,10 +1823,6 @@ class LogNormalRandomVariable(RandomVariable):
             )
 
         else:
-            # repead theta and beta in order until their length is equal to the length of values
-            if isinstance(theta, np.ndarray):
-                theta = np.tile(theta, len(values) // len(theta) + 1)[: len(values)]
-                beta = np.tile(beta, len(values) // len(beta) + 1)[: len(values)]
             result = np.exp(norm.ppf(values, loc=np.log(theta), scale=beta))
 
         return result
