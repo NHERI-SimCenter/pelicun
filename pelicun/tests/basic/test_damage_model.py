@@ -48,6 +48,7 @@ from typing import TYPE_CHECKING
 import numpy as np
 import pandas as pd
 import pytest
+from scipy.stats import norm
 
 from pelicun import base, uq
 from pelicun.base import ensure_value
@@ -541,12 +542,13 @@ class TestDamageModel_DS(TestDamageModel_Base):
         damage_model.damage_params = damage_params
 
         # Define a scaling specification
+        operation_list = ['*1.20', '+0.10', '/1.20', '-0.10', '*1.10']
         scaling_specification = {
             'cmp.A-1-2': {'LS1': '*1.20'},
-            'cmp.B-1-2': {'LS1': ['*1.20']},
+            'cmp.B-1-2': {'LS1': operation_list},
         }
 
-        # Execute the method under test
+        # Create random variables based on the damage parameters
         capacity_rv_reg, lsds_rv_reg = damage_model._create_dmg_RVs(
             pgb, scaling_specification
         )
@@ -577,6 +579,27 @@ class TestDamageModel_DS(TestDamageModel_Base):
             lsds_rv_reg.RV['LSDS-cmp.B-1-2-3-1-1'],
             uq.MultinomialRandomVariable,
         )
+
+        # Validate the scaling of the random variables are correct
+        # Use the midpoint method to generate samples for validating that
+        # theta_0 is scaled correctly
+        capacity_rv_reg.generate_sample(
+            sample_size=len(operation_list), method='LHS'
+        )
+        cmp_b_scaled_theta0 = np.array([30.0 * 1.20, 30.0 + 0.10, 30.0 / 1.20, 30.0 - 0.10, 30.0 * 1.10])
+        for rv_name, rv in capacity_rv_reg.RV.items():
+            uniform_sample = rv._uni_sample
+            sample = rv.sample
+            for i in range(len(operation_list)):
+                # test for cmp.A
+                if rv_name == 'FRG-cmp.A-1-2-3-1-1':
+                    theta = 1.20 * 30.0
+                    beta = 0.5
+                    assert sample[i] == np.exp(norm.ppf(uniform_sample[i], loc=np.log(theta), scale=beta))
+                elif rv_name == 'FRG-cmp.B-1-2-3-1-1':
+                    theta = cmp_b_scaled_theta0[i]
+                    beta = 0.5
+                    assert sample[i] == np.exp(norm.ppf(uniform_sample[i], loc=np.log(theta), scale=beta))
 
     def test__evaluate_damage_state(self, assessment_instance: Assessment) -> None:
         # We define a single component with 3 limit states.
