@@ -586,7 +586,9 @@ class TestDamageModel_DS(TestDamageModel_Base):
         capacity_rv_reg.generate_sample(
             sample_size=len(operation_list), method='LHS'
         )
-        cmp_b_scaled_theta0 = np.array([30.0 * 1.20, 30.0 + 0.10, 30.0 / 1.20, 30.0 - 0.10, 30.0 * 1.10])
+        cmp_b_scaled_theta0 = np.array(
+            [30.0 * 1.20, 30.0 + 0.10, 30.0 / 1.20, 30.0 - 0.10, 30.0 * 1.10]
+        )
         for rv_name, rv in capacity_rv_reg.RV.items():
             uniform_sample = rv._uni_sample
             sample = rv.sample
@@ -595,11 +597,15 @@ class TestDamageModel_DS(TestDamageModel_Base):
                 if rv_name == 'FRG-cmp.A-1-2-3-1-1':
                     theta = 1.20 * 30.0
                     beta = 0.5
-                    assert sample[i] == np.exp(norm.ppf(uniform_sample[i], loc=np.log(theta), scale=beta))
+                    assert sample[i] == np.exp(
+                        norm.ppf(uniform_sample[i], loc=np.log(theta), scale=beta)
+                    )
                 elif rv_name == 'FRG-cmp.B-1-2-3-1-1':
                     theta = cmp_b_scaled_theta0[i]
                     beta = 0.5
-                    assert sample[i] == np.exp(norm.ppf(uniform_sample[i], loc=np.log(theta), scale=beta))
+                    assert sample[i] == np.exp(
+                        norm.ppf(uniform_sample[i], loc=np.log(theta), scale=beta)
+                    )
 
     def test__evaluate_damage_state(self, assessment_instance: Assessment) -> None:
         # We define a single component with 3 limit states.

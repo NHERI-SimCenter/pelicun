@@ -421,10 +421,8 @@ def getHAZUSBridgeSlightDamageModifier(hazus_class, aim):
         demand_cloning=None,
         residual_drift_inference=None,
         coupled_demands=coupled_demands,
-        )
-    demand_sample, _ = assessment.demand.save_sample(
-        save_units=True
     )
+    demand_sample, _ = assessment.demand.save_sample(save_units=True)
     edp_types = demand_sample.columns.get_level_values(level='type')
     if (edp_types == 'SA_0.3').sum() != 1:
         msg = (
@@ -446,7 +444,9 @@ def getHAZUSBridgeSlightDamageModifier(hazus_class, aim):
     ].values.flatten()
 
     ratio = 2.5 * sa_1p0 / sa_0p3
-    operation = [f'*{ratio[i]}' if ratio[i] <= 1.0 else 1.0 for i in range(len(ratio))]
+    operation = [
+        f'*{ratio[i]}' if ratio[i] <= 1.0 else 1.0 for i in range(len(ratio))
+    ]
 
     assert len(operation) == sample_size
 
