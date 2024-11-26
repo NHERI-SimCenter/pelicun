@@ -46,7 +46,7 @@ import numpy as np
 import pandas as pd
 
 import pelicun
-import pelicun.file_io
+from pelicun.assessment import DLCalculationAssessment
 
 ap_design_level = {1940: 'LC', 1975: 'MC', 2100: 'HC'}
 # original:
@@ -409,17 +409,31 @@ def getHAZUSBridgeSlightDamageModifier(hazus_class, aim):
         return None
     demand_path = Path(aim['DL']['Demands']['DemandFilePath']).resolve()
     sample_size = int(aim['DL']['Demands']['SampleSize'])
-    raw_demands = pd.read_csv(demand_path, index_col=0)
-    demands = pelicun.file_io.load_data(raw_demands)
-    edp_types = demands.columns.get_level_values(1)
+    length_unit = aim['GeneralInformation']['units']['length']
+    coupled_demands = aim['Applications']['DL']['ApplicationData']['coupled_EDP']
+    assessment = DLCalculationAssessment(config_options=None)
+    assessment.calculate_demand(
+        demand_path=demand_path,
+        collapse_limits=None,
+        length_unit=length_unit,
+        demand_calibration=None,
+        sample_size=sample_size,
+        demand_cloning=None,
+        residual_drift_inference=None,
+        coupled_demands=coupled_demands,
+        )
+    demand_sample, _ = assessment.demand.save_sample(
+        save_units=True
+    )
+    edp_types = demand_sample.columns.get_level_values(level='type')
     if (edp_types == 'SA_0.3').sum() != 1:
         msg = (
             'The demand file does not contain the required EDP type SA_0.3'
             ' or contains multiple instances of it.'
         )
         raise ValueError(msg)
-    sa_0p3 = demands.loc[  # noqa: PD011
-        :, demands.columns.get_level_values(1) == 'SA_0.3'
+    sa_0p3 = demand_sample.loc[  # noqa: PD011
+        :, demand_sample.columns.get_level_values(level='type') == 'SA_0.3'
     ].values.flatten()
     if (edp_types == 'SA_1.0').sum() != 1:
         msg = (
@@ -427,8 +441,8 @@ def getHAZUSBridgeSlightDamageModifier(hazus_class, aim):
             ' or contains multiple instances of it.'
         )
         raise ValueError(msg)
-    sa_1p0 = demands.loc[  # noqa: PD011
-        :, demands.columns.get_level_values(1) == 'SA_1.0'
+    sa_1p0 = demand_sample.loc[  # noqa: PD011
+        :, demand_sample.columns.get_level_values(level='type') == 'SA_1.0'
     ].values.flatten()
 
     ratio = 2.5 * sa_1p0 / sa_0p3
