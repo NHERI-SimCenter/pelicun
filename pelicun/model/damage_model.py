@@ -42,6 +42,7 @@
 
 from __future__ import annotations
 
+from collections import defaultdict
 from functools import partial
 from pathlib import Path
 from typing import TYPE_CHECKING
@@ -1356,12 +1357,12 @@ class DamageModel_DS(DamageModel_Base):
             """
             # if there are contents, ensure they are valid.
             # See docstring for an example of what is expected.
-            parsed_scaling_specification = {}
+            parsed_scaling_specification = defaultdict(dict)
             # validate contents
             for key, value in scaling_specification.items():
                 # loop through limit states
                 if key not in parsed_scaling_specification:
-                    parsed_scaling_specification[key] = {}
+                    parsed_scaling_specification[key] = defaultdict(list)
                 if 'ALL' in value:
                     if len(value) > 1:
                         msg = (
@@ -1394,8 +1395,6 @@ class DamageModel_DS(DamageModel_Base):
                         if fnumber is None:
                             msg = f'Invalid number in {css}: {number}'
                             raise ValueError(msg)
-                        if LS not in parsed_scaling_specification[key]:
-                            parsed_scaling_specification[key][LS] = []
                         parsed_scaling_specification[key][LS].append(
                             (capacity_adjustment_operation, fnumber)
                         )
