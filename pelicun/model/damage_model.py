@@ -1194,13 +1194,18 @@ class DamageModel_DS(DamageModel_Base):
             A DataFrame that groups performance groups into batches
             for efficient damage assessment.
         scaling_specification: dict, optional
-            A dictionary defining the shift in median.
-            Example: {'CMP-1-1': '*1.2', 'CMP-1-2': '/1.4'}
-            The keys are individual components that should be present
-            in the `capacity_sample`.  The values should be strings
-            containing an operation followed by the value formatted as
-            a float.  The operation can be '+' for addition, '-' for
-            subtraction, '*' for multiplication, and '/' for division.
+                A dictionary defining the shift in median.
+                Example: {'CMP-1-1': {'LS1':['*1.2'. '*0.8'], 'LS2':'*1.2'},
+                'CMP-1-2': {'ALL':'/1.4'}} The first level keys are individual
+                components that should be present in the `capacity_sample`. The
+                second level key is the limit state to apply the scaling to. The
+                values should be strings or list of strings. The strings should
+                containing an operation followed by the value formatted as
+                a float.  The operation can be '+' for addition, '-' for
+                subtraction, '*' for multiplication, and '/' for division. If
+                different operations are required for different realizations, a
+                list of strings can be provided. When 'ALL' is used as the key,
+                the operation will be applied to all limit states.
 
         Returns
         -------
@@ -1323,12 +1328,23 @@ class DamageModel_DS(DamageModel_Base):
 
         def parse_scaling_specification(scaling_specification: dict) -> dict:  # noqa: C901
             """
-            Parse and validate the scaling specification.
+            Parse and validate the scaling specification, used in the '_create_dmg_RVs' method.
 
             Parameters
             ----------
-            scaling_specification : dict
-                The scaling specification to be parsed and validated.
+            scaling_specification: dict, optional
+                A dictionary defining the shift in median.
+                Example: {'CMP-1-1': {'LS1':['*1.2'. '*0.8'], 'LS2':'*1.2'},
+                'CMP-1-2': {'ALL':'/1.4'}} The first level keys are individual
+                components that should be present in the `capacity_sample`. The
+                second level key is the limit state to apply the scaling to. The
+                values should be strings or list of strings. The strings should
+                containing an operation followed by the value formatted as
+                a float.  The operation can be '+' for addition, '-' for
+                subtraction, '*' for multiplication, and '/' for division. If
+                different operations are required for different realizations, a
+                list of strings can be provided. When 'ALL' is used as the key,
+                the operation will be applied to all limit states.
 
             Returns
             -------
