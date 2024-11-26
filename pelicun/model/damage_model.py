@@ -1367,10 +1367,19 @@ class DamageModel_DS(DamageModel_Base):
                     if len(value) > 1:
                         msg = (
                             f'Invalid entry in scaling_specification: '
-                            f'{value}. It should only have one entry for `ALL`.'
+                            f"{value}. No other entries are allowed for a component when 'ALL' is used."
                         )
                         raise ValueError(msg)
-                for LS, specifics in value.items():  # noqa: N806
+                for limit_state_id, specifics in value.items():
+                    if not (
+                        limit_state_id.startswith('LS') or limit_state_id == 'ALL'
+                    ):
+                        msg = (
+                            f'Invalid entry in scaling_specification: {limit_state_id}. '
+                            f"It has to start with 'LS' or be 'ALL'. "
+                            f'See docstring of DamageModel._create_dmg_RVs.'
+                        )
+                        raise ValueError(msg)
                     css = 'capacity adjustment specification'
                     if not isinstance(specifics, list):
                         specifics_list = [specifics]
@@ -1379,7 +1388,8 @@ class DamageModel_DS(DamageModel_Base):
                     for spec in specifics_list:
                         if not isinstance(spec, str):
                             msg = (
-                                f'Invalud entry in {css}: {spec}. It has to be a string. '
+                                f'Invalud entry in {css}: {spec}.'
+                                f'The specified scaling operation has to be a string.'
                                 f'See docstring of DamageModel._create_dmg_RVs.'
                             )
                             raise TypeError(msg)
@@ -1387,15 +1397,12 @@ class DamageModel_DS(DamageModel_Base):
                         number = spec[1::]
                         if capacity_adjustment_operation not in {'+', '-', '*', '/'}:
                             msg = f'Invalid operation in {css}: '
-                            raise ValueError(
-                                msg
-                                # f'{capacity_adjustment_operation}'
-                            )
+                            raise ValueError(msg, f'{capacity_adjustment_operation}')
                         fnumber = base.float_or_None(number)
                         if fnumber is None:
                             msg = f'Invalid number in {css}: {number}'
                             raise ValueError(msg)
-                        parsed_scaling_specification[key][LS].append(
+                        parsed_scaling_specification[key][limit_state_id].append(
                             (capacity_adjustment_operation, fnumber)
                         )
             return parsed_scaling_specification
