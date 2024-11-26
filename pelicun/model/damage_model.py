@@ -909,6 +909,23 @@ class DamageModel_DS(DamageModel_Base):
     def _handle_operation_list(
         self, initial_value: float, operations: list[tuple[str, float]]
     ) -> np.ndarray:
+        """
+        Apply a list of operations to an initial value and return the results as a numpy array.
+
+        Parameters.
+        ----------
+        initial_value : float
+            The initial value to which the operations will be applied.
+        operations : list of tuple
+            A list of operations where each operation is represented as a tuple.
+            The first element of the tuple is a string representing the operation type,
+            and the second element is a float representing the value to be used in the operation.
+
+        Returns
+        -------
+        np.ndarray
+            An array of results after applying each operation to the initial value.
+        """
         if len(operations) == 1:
             return np.array(
                 [
