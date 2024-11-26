@@ -446,11 +446,7 @@ def getHAZUSBridgeSlightDamageModifier(hazus_class, aim):
     ].values.flatten()
 
     ratio = 2.5 * sa_1p0 / sa_0p3
-    operation = []
-    for i in range(len(ratio)):
-        if ratio[i] > 1.0:
-            ratio[i] = 1.0
-        operation.append(f'*{ratio[i]}')
+    operation = [f'*{ratio[i]}' if ratio[i] <= 1.0 else 1.0 for i in range(len(ratio))]
     # Repeat the operation until the sample size is reached
     operation = (
         operation * (sample_size // len(ratio))
