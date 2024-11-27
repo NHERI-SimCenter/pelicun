@@ -581,8 +581,7 @@ class TestDamageModel_DS(TestDamageModel_Base):
         )
 
         # Validate the scaling of the random variables are correct
-        # Use the midpoint method to generate samples for validating that
-        # theta_0 is scaled correctly
+        # Generate samples for validating that theta_0 is scaled correctly
         capacity_rv_reg.generate_sample(
             sample_size=len(operation_list), method='LHS'
         )
@@ -593,19 +592,13 @@ class TestDamageModel_DS(TestDamageModel_Base):
             uniform_sample = rv._uni_sample
             sample = rv.sample
             for i in range(len(operation_list)):
-                # test for cmp.A
                 if rv_name == 'FRG-cmp.A-1-2-3-1-1':
                     theta = 1.20 * 30.0
-                    beta = 0.5
-                    assert sample[i] == np.exp(
-                        norm.ppf(uniform_sample[i], loc=np.log(theta), scale=beta)
-                    )
                 elif rv_name == 'FRG-cmp.B-1-2-3-1-1':
                     theta = cmp_b_scaled_theta0[i]
-                    beta = 0.5
-                    assert sample[i] == np.exp(
-                        norm.ppf(uniform_sample[i], loc=np.log(theta), scale=beta)
-                    )
+                assert sample[i] == np.exp(
+                    norm.ppf(uniform_sample[i], loc=np.log(theta), scale=0.5)
+                )
 
     def test__evaluate_damage_state(self, assessment_instance: Assessment) -> None:
         # We define a single component with 3 limit states.
