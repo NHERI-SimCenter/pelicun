@@ -617,6 +617,11 @@ def _parse_config_file(  # noqa: C901
     ) as f:
         schema = json.load(f)
 
+    # add the demand file to the DL if needed
+    if is_specified(config, 'DL'):
+        if is_unspecified(config, 'DL/Demands/DemandFilePath'):
+            update(config, '/DL/Demands/DemandFilePath', demand_file)
+
     # Validate the configuration against the schema
     try:
         validate(instance=config, schema=schema)
