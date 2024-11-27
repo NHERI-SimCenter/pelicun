@@ -1401,6 +1401,8 @@ class DamageModel_DS(DamageModel_Base):
                         if fnumber is None:
                             msg = f'Invalid number in {css}: {number}'
                             raise ValueError(msg)
+                        if limit_state_id not in parsed_scaling_specification[key]:
+                            parsed_scaling_specification[key][limit_state_id] = []
                         parsed_scaling_specification[key][limit_state_id].append(
                             (capacity_adjustment_operation, fnumber)
                         )
