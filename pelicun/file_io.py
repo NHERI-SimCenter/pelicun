@@ -307,7 +307,7 @@ def substitute_default_path(
 
 def load_data(  # noqa: C901
     data_source: str | pd.DataFrame,
-    unit_conversion_factors: dict | None,
+    unit_conversion_factors: dict | None = None,
     orientation: int = 0,
     *,
     reindex: bool = True,
