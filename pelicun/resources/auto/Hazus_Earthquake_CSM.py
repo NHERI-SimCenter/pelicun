@@ -74,6 +74,7 @@ def convert_story_rise(structureType, stories):
         rise = None
 
     else:
+        rise = None
         # First, check if we have valid story information
         try:
             stories = int(stories)
