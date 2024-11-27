@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>5.1.2. Version 3.3.0 (March 29, 2024) &mdash; pelicun  documentation</title>
+  <title>5.1.3. Version 3.3.0 (March 29, 2024) &mdash; pelicun  documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
@@ -23,8 +23,8 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="5.1.3. Version 3.2.0 (February 27, 2024)" href="v3.2.0.html" />
-    <link rel="prev" title="5.1.1. Unreleased" href="unreleased.html" /> 
+    <link rel="next" title="5.1.4. Version 3.2.0 (February 27, 2024)" href="v3.2.0.html" />
+    <link rel="prev" title="5.1.2. Version 3.4.0 (November 27, 2024)" href="v3.4.0.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -142,7 +142,7 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="index.html"><span class="section-number">5. </span>Release Notes</a></li>
-      <li class="breadcrumb-item active"><span class="section-number">5.1.2. </span>Version 3.3.0 (March 29, 2024)</li>
+      <li class="breadcrumb-item active"><span class="section-number">5.1.3. </span>Version 3.3.0 (March 29, 2024)</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -152,9 +152,9 @@
            <div itemprop="articleBody">
              
   <section id="version-3-3-0-march-29-2024">
-<span id="changes-v3-3-0"></span><h1><span class="section-number">5.1.2. </span>Version 3.3.0 (March 29, 2024)<a class="headerlink" href="#version-3-3-0-march-29-2024" title="Link to this heading"></a></h1>
+<span id="changes-v3-3-0"></span><h1><span class="section-number">5.1.3. </span>Version 3.3.0 (March 29, 2024)<a class="headerlink" href="#version-3-3-0-march-29-2024" title="Link to this heading"></a></h1>
 <section id="new-features">
-<h2><span class="section-number">5.1.2.1. </span>New features<a class="headerlink" href="#new-features" title="Link to this heading"></a></h2>
+<h2><span class="section-number">5.1.3.1. </span>New features<a class="headerlink" href="#new-features" title="Link to this heading"></a></h2>
 <section id="location-specific-damage-processes">
 <span id="changes-v3-3-0-new-loc-dmg-prc"></span><h3>Location-specific damage processes<a class="headerlink" href="#location-specific-damage-processes" title="Link to this heading"></a></h3>
 <p>This new feature is useful when you want damage to a component type to induce damage in another component type at the same location only.
@@ -182,7 +182,7 @@ Allows you to convert a variable from one unit to another using a single line of
 </section>
 </section>
 <section id="backwards-incompatible-changes">
-<span id="changes-v3-3-0-breaking"></span><h2><span class="section-number">5.1.2.2. </span>Backwards incompatible changes<a class="headerlink" href="#backwards-incompatible-changes" title="Link to this heading"></a></h2>
+<span id="changes-v3-3-0-breaking"></span><h2><span class="section-number">5.1.3.2. </span>Backwards incompatible changes<a class="headerlink" href="#backwards-incompatible-changes" title="Link to this heading"></a></h2>
 <section id="remove-bldg-from-repair-consequence-output-filenames">
 <span id="changes-v3-3-0-breaking-bldg"></span><h3>Remove <code class="docutils literal notranslate"><span class="pre">bldg</span></code> from repair consequence output filenames<a class="headerlink" href="#remove-bldg-from-repair-consequence-output-filenames" title="Link to this heading"></a></h3>
 <p>The increasing scope of Pelicun now covers simulations for transportation and water networks.
@@ -191,7 +191,7 @@ The bldg label was dropped from the following files: <code class="docutils liter
 </section>
 </section>
 <section id="other-changes">
-<span id="changes-v3-3-0-changes"></span><h2><span class="section-number">5.1.2.3. </span>Other changes<a class="headerlink" href="#other-changes" title="Link to this heading"></a></h2>
+<span id="changes-v3-3-0-changes"></span><h2><span class="section-number">5.1.3.3. </span>Other changes<a class="headerlink" href="#other-changes" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p>We split <code class="docutils literal notranslate"><span class="pre">model.py</span></code> into subcomponents.
 The <code class="docutils literal notranslate"><span class="pre">model.py</span></code> file was too large and its contents were easy to refactor into separate modules.
@@ -206,7 +206,7 @@ We split the existing large RandomVariable class in uq.py leveraging inheritance
 </ul>
 </section>
 <section id="soon-to-be-removed-features">
-<h2><span class="section-number">5.1.2.4. </span>Soon-to-be removed features<a class="headerlink" href="#soon-to-be-removed-features" title="Link to this heading"></a></h2>
+<h2><span class="section-number">5.1.3.4. </span>Soon-to-be removed features<a class="headerlink" href="#soon-to-be-removed-features" title="Link to this heading"></a></h2>
 <section id="remove-bldg-from-repair-settings-label-in-dl-configuration-file">
 <span id="changes-v3-3-0-deprecated-bldg"></span><h3>Remove <code class="docutils literal notranslate"><span class="pre">Bldg</span></code> from repair settings label in DL configuration file<a class="headerlink" href="#remove-bldg-from-repair-settings-label-in-dl-configuration-file" title="Link to this heading"></a></h3>
 <p>Following the changes above, we dropped <code class="docutils literal notranslate"><span class="pre">Bldg</span></code> from <code class="docutils literal notranslate"><span class="pre">BldgRepair</span></code> when defining settings for repair consequence simulation in a configuration file.

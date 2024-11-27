@@ -777,6 +777,11 @@
     <span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
         <span class="n">schema</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
 
+    <span class="c1"># add the demand file to the DL if needed</span>
+    <span class="k">if</span> <span class="n">is_specified</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s1">&#39;DL&#39;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">is_unspecified</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s1">&#39;DL/Demands/DemandFilePath&#39;</span><span class="p">):</span>
+            <span class="n">update</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s1">&#39;/DL/Demands/DemandFilePath&#39;</span><span class="p">,</span> <span class="n">demand_file</span><span class="p">)</span>
+
     <span class="c1"># Validate the configuration against the schema</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="n">validate</span><span class="p">(</span><span class="n">instance</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">schema</span><span class="p">)</span>
