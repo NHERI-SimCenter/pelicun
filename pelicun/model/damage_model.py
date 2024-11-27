@@ -911,7 +911,7 @@ class DamageModel_DS(DamageModel_Base):
         self, initial_value: float, operations: list[tuple[str, float]]
     ) -> np.ndarray:
         """
-        Apply a list of operations to an initial value and return the results as a numpy array.
+        Apply one or more operations to an initial value and return the results.
 
         Parameters.
         ----------
@@ -919,8 +919,9 @@ class DamageModel_DS(DamageModel_Base):
             The initial value to which the operations will be applied.
         operations : list of tuple
             A list of operations where each operation is represented as a tuple.
-            The first element of the tuple is a string representing the operation type,
-            and the second element is a float representing the value to be used in the operation.
+            The first element of the tuple is a string representing the operation
+            type, and the second element is a float representing the value to be
+            used in the operation.
 
         Returns
         -------
@@ -1197,12 +1198,12 @@ class DamageModel_DS(DamageModel_Base):
                 components that should be present in the `capacity_sample`. The
                 second level key is the limit state to apply the scaling to. The
                 values should be strings or list of strings. The strings should
-                containing an operation followed by the value formatted as
-                a float.  The operation can be '+' for addition, '-' for
-                subtraction, '*' for multiplication, and '/' for division. If
-                different operations are required for different realizations, a
-                list of strings can be provided. When 'ALL' is used as the key,
-                the operation will be applied to all limit states.
+                contain an operation followed by the value formatted as a float.
+                The operation can be '+' for addition, '-' for subtraction, '*'
+                for multiplication, and '/' for division. If different operations
+                are required for different realizations, a list of strings can
+                be provided. When 'ALL' is used as the key, the operation will
+                be applied to all limit states.
 
         Returns
         -------
@@ -1361,8 +1362,6 @@ class DamageModel_DS(DamageModel_Base):
             # validate contents
             for key, value in scaling_specification.items():
                 # loop through limit states
-                if key not in parsed_scaling_specification:
-                    parsed_scaling_specification[key] = defaultdict(list)
                 if 'ALL' in value:
                     if len(value) > 1:
                         msg = (
