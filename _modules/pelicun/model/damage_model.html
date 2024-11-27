@@ -193,6 +193,7 @@
 
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
 
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
 <span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">partial</span>
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span>
@@ -1098,6 +1099,41 @@
         <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;Invalid operation: `</span><span class="si">{</span><span class="n">operation</span><span class="si">}</span><span class="s1">`&#39;</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
 
+    <span class="k">def</span> <span class="nf">_handle_operation_list</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">initial_value</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">operations</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Apply one or more operations to an initial value and return the results.</span>
+
+<span class="sd">        Parameters.</span>
+<span class="sd">        ----------</span>
+<span class="sd">        initial_value : float</span>
+<span class="sd">            The initial value to which the operations will be applied.</span>
+<span class="sd">        operations : list of tuple</span>
+<span class="sd">            A list of operations where each operation is represented as a tuple.</span>
+<span class="sd">            The first element of the tuple is a string representing the operation</span>
+<span class="sd">            type, and the second element is a float representing the value to be</span>
+<span class="sd">            used in the operation.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        np.ndarray</span>
+<span class="sd">            An array of results after applying each operation to the initial value.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">operations</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_handle_operation</span><span class="p">(</span>
+                        <span class="n">initial_value</span><span class="p">,</span> <span class="n">operations</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">operations</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+                    <span class="p">)</span>
+                <span class="p">]</span>
+            <span class="p">)</span>
+        <span class="n">new_values</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_handle_operation</span><span class="p">(</span><span class="n">initial_value</span><span class="p">,</span> <span class="n">operation</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">operation</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+            <span class="k">for</span> <span class="n">operation</span> <span class="ow">in</span> <span class="n">operations</span>
+        <span class="p">]</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">new_values</span><span class="p">)</span>
+
     <span class="k">def</span> <span class="nf">_generate_dmg_sample</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">sample_size</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
@@ -1352,13 +1388,18 @@
 <span class="sd">            A DataFrame that groups performance groups into batches</span>
 <span class="sd">            for efficient damage assessment.</span>
 <span class="sd">        scaling_specification: dict, optional</span>
-<span class="sd">            A dictionary defining the shift in median.</span>
-<span class="sd">            Example: {&#39;CMP-1-1&#39;: &#39;*1.2&#39;, &#39;CMP-1-2&#39;: &#39;/1.4&#39;}</span>
-<span class="sd">            The keys are individual components that should be present</span>
-<span class="sd">            in the `capacity_sample`.  The values should be strings</span>
-<span class="sd">            containing an operation followed by the value formatted as</span>
-<span class="sd">            a float.  The operation can be &#39;+&#39; for addition, &#39;-&#39; for</span>
-<span class="sd">            subtraction, &#39;*&#39; for multiplication, and &#39;/&#39; for division.</span>
+<span class="sd">                A dictionary defining the shift in median.</span>
+<span class="sd">                Example: {&#39;CMP-1-1&#39;: {&#39;LS1&#39;:[&#39;*1.2&#39;. &#39;*0.8&#39;], &#39;LS2&#39;:&#39;*1.2&#39;},</span>
+<span class="sd">                &#39;CMP-1-2&#39;: {&#39;ALL&#39;:&#39;/1.4&#39;}} The first level keys are individual</span>
+<span class="sd">                components that should be present in the `capacity_sample`. The</span>
+<span class="sd">                second level key is the limit state to apply the scaling to. The</span>
+<span class="sd">                values should be strings or list of strings. The strings should</span>
+<span class="sd">                contain an operation followed by the value formatted as a float.</span>
+<span class="sd">                The operation can be &#39;+&#39; for addition, &#39;-&#39; for subtraction, &#39;*&#39;</span>
+<span class="sd">                for multiplication, and &#39;/&#39; for division. If different operations</span>
+<span class="sd">                are required for different realizations, a list of strings can</span>
+<span class="sd">                be provided. When &#39;ALL&#39; is used as the key, the operation will</span>
+<span class="sd">                be applied to all limit states.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -1366,15 +1407,6 @@
 <span class="sd">            A tuple containing two RandomVariableRegistry instances:</span>
 <span class="sd">            one for the capacity random variables and one for the LSDS</span>
 <span class="sd">            assignments.</span>
-
-<span class="sd">        Raises</span>
-<span class="sd">        ------</span>
-<span class="sd">        ValueError</span>
-<span class="sd">            Raises an error if the scaling specification is invalid or</span>
-<span class="sd">            if the input DataFrame does not meet the expected format.</span>
-<span class="sd">        TypeError</span>
-<span class="sd">            If there are any issues with the types of the data in the</span>
-<span class="sd">            input DataFrame.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -1488,6 +1520,90 @@
 
             <span class="k">return</span> <span class="n">ds_id</span>
 
+        <span class="k">def</span> <span class="nf">parse_scaling_specification</span><span class="p">(</span><span class="n">scaling_specification</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>  <span class="c1"># noqa: C901</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Parse and validate the scaling specification, used in the &#39;_create_dmg_RVs&#39; method.</span>
+
+<span class="sd">            Parameters</span>
+<span class="sd">            ----------</span>
+<span class="sd">            scaling_specification: dict, optional</span>
+<span class="sd">                A dictionary defining the shift in median.</span>
+<span class="sd">                Example: {&#39;CMP-1-1&#39;: {&#39;LS1&#39;:[&#39;*1.2&#39;. &#39;*0.8&#39;], &#39;LS2&#39;:&#39;*1.2&#39;},</span>
+<span class="sd">                &#39;CMP-1-2&#39;: {&#39;ALL&#39;:&#39;/1.4&#39;}} The first level keys are individual</span>
+<span class="sd">                components that should be present in the `capacity_sample`. The</span>
+<span class="sd">                second level key is the limit state to apply the scaling to. The</span>
+<span class="sd">                values should be strings or list of strings. The strings should</span>
+<span class="sd">                containing an operation followed by the value formatted as</span>
+<span class="sd">                a float.  The operation can be &#39;+&#39; for addition, &#39;-&#39; for</span>
+<span class="sd">                subtraction, &#39;*&#39; for multiplication, and &#39;/&#39; for division. If</span>
+<span class="sd">                different operations are required for different realizations, a</span>
+<span class="sd">                list of strings can be provided. When &#39;ALL&#39; is used as the key,</span>
+<span class="sd">                the operation will be applied to all limit states.</span>
+
+<span class="sd">            Returns</span>
+<span class="sd">            -------</span>
+<span class="sd">            dict</span>
+<span class="sd">                The parsed and validated scaling specification.</span>
+
+<span class="sd">            Raises</span>
+<span class="sd">            ------</span>
+<span class="sd">            ValueError</span>
+<span class="sd">                If the scaling specification is invalid.</span>
+<span class="sd">            TypeError</span>
+<span class="sd">                If the type of an entry is invalid.</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="c1"># if there are contents, ensure they are valid.</span>
+            <span class="c1"># See docstring for an example of what is expected.</span>
+            <span class="n">parsed_scaling_specification</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">dict</span><span class="p">)</span>
+            <span class="c1"># validate contents</span>
+            <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">scaling_specification</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="c1"># loop through limit states</span>
+                <span class="k">if</span> <span class="s1">&#39;ALL&#39;</span> <span class="ow">in</span> <span class="n">value</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                        <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+                            <span class="sa">f</span><span class="s1">&#39;Invalid entry in scaling_specification: &#39;</span>
+                            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">. No other entries are allowed for a component when &#39;ALL&#39; is used.&quot;</span>
+                        <span class="p">)</span>
+                        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">limit_state_id</span><span class="p">,</span> <span class="n">specifics</span> <span class="ow">in</span> <span class="n">value</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span>
+                        <span class="n">limit_state_id</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;LS&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">limit_state_id</span> <span class="o">==</span> <span class="s1">&#39;ALL&#39;</span>
+                    <span class="p">):</span>
+                        <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+                            <span class="sa">f</span><span class="s1">&#39;Invalid entry in scaling_specification: </span><span class="si">{</span><span class="n">limit_state_id</span><span class="si">}</span><span class="s1">. &#39;</span>
+                            <span class="sa">f</span><span class="s2">&quot;It has to start with &#39;LS&#39; or be &#39;ALL&#39;. &quot;</span>
+                            <span class="sa">f</span><span class="s1">&#39;See docstring of DamageModel._create_dmg_RVs.&#39;</span>
+                        <span class="p">)</span>
+                        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+                    <span class="n">css</span> <span class="o">=</span> <span class="s1">&#39;capacity adjustment specification&#39;</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">specifics</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+                        <span class="n">specifics_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">specifics</span><span class="p">]</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">specifics_list</span> <span class="o">=</span> <span class="n">specifics</span>
+                    <span class="k">for</span> <span class="n">spec</span> <span class="ow">in</span> <span class="n">specifics_list</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">spec</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                            <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+                                <span class="sa">f</span><span class="s1">&#39;Invalud entry in </span><span class="si">{</span><span class="n">css</span><span class="si">}</span><span class="s1">: </span><span class="si">{</span><span class="n">spec</span><span class="si">}</span><span class="s1">.&#39;</span>
+                                <span class="sa">f</span><span class="s1">&#39;The specified scaling operation has to be a string.&#39;</span>
+                                <span class="sa">f</span><span class="s1">&#39;See docstring of DamageModel._create_dmg_RVs.&#39;</span>
+                            <span class="p">)</span>
+                            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+                        <span class="n">capacity_adjustment_operation</span> <span class="o">=</span> <span class="n">spec</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                        <span class="n">number</span> <span class="o">=</span> <span class="n">spec</span><span class="p">[</span><span class="mi">1</span><span class="p">::]</span>
+                        <span class="k">if</span> <span class="n">capacity_adjustment_operation</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">{</span><span class="s1">&#39;+&#39;</span><span class="p">,</span> <span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="s1">&#39;*&#39;</span><span class="p">,</span> <span class="s1">&#39;/&#39;</span><span class="p">}:</span>
+                            <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;Invalid operation in </span><span class="si">{</span><span class="n">css</span><span class="si">}</span><span class="s1">: &#39;</span>
+                            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">capacity_adjustment_operation</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+                        <span class="n">fnumber</span> <span class="o">=</span> <span class="n">base</span><span class="o">.</span><span class="n">float_or_None</span><span class="p">(</span><span class="n">number</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">fnumber</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                            <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;Invalid number in </span><span class="si">{</span><span class="n">css</span><span class="si">}</span><span class="s1">: </span><span class="si">{</span><span class="n">number</span><span class="si">}</span><span class="s1">&#39;</span>
+                            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">limit_state_id</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">parsed_scaling_specification</span><span class="p">[</span><span class="n">key</span><span class="p">]:</span>
+                            <span class="n">parsed_scaling_specification</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="n">limit_state_id</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+                        <span class="n">parsed_scaling_specification</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="n">limit_state_id</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                            <span class="p">(</span><span class="n">capacity_adjustment_operation</span><span class="p">,</span> <span class="n">fnumber</span><span class="p">)</span>
+                        <span class="p">)</span>
+            <span class="k">return</span> <span class="n">parsed_scaling_specification</span>
+
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_asmnt</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">msg</span><span class="p">(</span><span class="s1">&#39;Generating capacity variables ...&#39;</span><span class="p">,</span> <span class="n">prepend_timestamp</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
@@ -1500,38 +1616,12 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="n">scaling_specification</span><span class="p">:</span>
             <span class="n">scaling_specification</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="c1"># if there are contents, ensure they are valid.</span>
-            <span class="c1"># See docstring for an example of what is expected.</span>
-            <span class="n">parsed_scaling_specification</span> <span class="o">=</span> <span class="p">{}</span>
-            <span class="c1"># validate contents</span>
-            <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">scaling_specification</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                <span class="n">css</span> <span class="o">=</span> <span class="s1">&#39;capacity adjustment specification&#39;</span>
-                <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-                    <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
-                        <span class="sa">f</span><span class="s1">&#39;Invalid entry in </span><span class="si">{</span><span class="n">css</span><span class="si">}</span><span class="s1">: </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s1">. It has to be a string. &#39;</span>
-                        <span class="sa">f</span><span class="s1">&#39;See docstring of DamageModel._create_dmg_RVs.&#39;</span>
-                    <span class="p">)</span>
-                    <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
-                <span class="n">capacity_adjustment_operation</span> <span class="o">=</span> <span class="n">value</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-                <span class="n">number</span> <span class="o">=</span> <span class="n">value</span><span class="p">[</span><span class="mi">1</span><span class="p">::]</span>
-                <span class="k">if</span> <span class="n">capacity_adjustment_operation</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">{</span><span class="s1">&#39;+&#39;</span><span class="p">,</span> <span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="s1">&#39;*&#39;</span><span class="p">,</span> <span class="s1">&#39;/&#39;</span><span class="p">}:</span>
-                    <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
-                        <span class="sa">f</span><span class="s1">&#39;Invalid operation in </span><span class="si">{</span><span class="n">css</span><span class="si">}</span><span class="s1">: &#39;</span>
-                        <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">capacity_adjustment_operation</span><span class="si">}</span><span class="s1">&#39;</span>
-                    <span class="p">)</span>
-                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
-                <span class="n">fnumber</span> <span class="o">=</span> <span class="n">base</span><span class="o">.</span><span class="n">float_or_None</span><span class="p">(</span><span class="n">number</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">fnumber</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                    <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;Invalid number in </span><span class="si">{</span><span class="n">css</span><span class="si">}</span><span class="s1">: </span><span class="si">{</span><span class="n">number</span><span class="si">}</span><span class="s1">&#39;</span>
-                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
-                <span class="n">parsed_scaling_specification</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-                    <span class="n">capacity_adjustment_operation</span><span class="p">,</span>
-                    <span class="n">fnumber</span><span class="p">,</span>
-                <span class="p">)</span>
-                <span class="n">scaling_specification</span> <span class="o">=</span> <span class="n">parsed_scaling_specification</span>
+            <span class="n">scaling_specification</span> <span class="o">=</span> <span class="n">parse_scaling_specification</span><span class="p">(</span>
+                <span class="n">scaling_specification</span>
+            <span class="p">)</span>
 
         <span class="c1"># get the component sample and blocks from the asset model</span>
-        <span class="k">for</span> <span class="n">pg</span> <span class="ow">in</span> <span class="n">pgb</span><span class="o">.</span><span class="n">index</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">pg</span> <span class="ow">in</span> <span class="n">pgb</span><span class="o">.</span><span class="n">index</span><span class="p">:</span>  <span class="c1"># noqa: PLR1702</span>
             <span class="c1"># determine demand capacity adjustment operation, if required</span>
             <span class="n">cmp_loc_dir</span> <span class="o">=</span> <span class="s1">&#39;-&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">pg</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">3</span><span class="p">])</span>
             <span class="n">capacity_adjustment_operation</span> <span class="o">=</span> <span class="n">scaling_specification</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>  <span class="c1"># type: ignore</span>
@@ -1588,11 +1678,27 @@
 
                     <span class="k">if</span> <span class="n">capacity_adjustment_operation</span><span class="p">:</span>
                         <span class="k">if</span> <span class="n">family</span> <span class="ow">in</span> <span class="p">{</span><span class="s1">&#39;normal&#39;</span><span class="p">,</span> <span class="s1">&#39;lognormal&#39;</span><span class="p">,</span> <span class="s1">&#39;deterministic&#39;</span><span class="p">}:</span>
-                            <span class="n">theta</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_handle_operation</span><span class="p">(</span>
-                                <span class="n">theta</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
-                                <span class="n">capacity_adjustment_operation</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
-                                <span class="nb">float</span><span class="p">(</span><span class="n">capacity_adjustment_operation</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span>
-                            <span class="p">)</span>
+                            <span class="c1"># Only scale the median value if ls_id is defined in capacity_adjustment_operation</span>
+                            <span class="c1"># Otherwise, use the original value</span>
+                            <span class="n">new_theta_0</span> <span class="o">=</span> <span class="kc">None</span>
+                            <span class="k">if</span> <span class="s1">&#39;ALL&#39;</span> <span class="ow">in</span> <span class="n">capacity_adjustment_operation</span><span class="p">:</span>
+                                <span class="n">new_theta_0</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_handle_operation_list</span><span class="p">(</span>
+                                    <span class="n">theta</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                                    <span class="n">capacity_adjustment_operation</span><span class="p">[</span><span class="s1">&#39;ALL&#39;</span><span class="p">],</span>
+                                <span class="p">)</span>
+                            <span class="k">elif</span> <span class="sa">f</span><span class="s1">&#39;LS</span><span class="si">{</span><span class="n">ls_id</span><span class="si">}</span><span class="s1">&#39;</span> <span class="ow">in</span> <span class="n">capacity_adjustment_operation</span><span class="p">:</span>
+                                <span class="n">new_theta_0</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_handle_operation_list</span><span class="p">(</span>
+                                    <span class="n">theta</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                                    <span class="n">capacity_adjustment_operation</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;LS</span><span class="si">{</span><span class="n">ls_id</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">],</span>
+                                <span class="p">)</span>
+                            <span class="k">if</span> <span class="n">new_theta_0</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                                <span class="k">if</span> <span class="n">new_theta_0</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                                    <span class="n">theta</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_theta_0</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                                <span class="k">else</span><span class="p">:</span>
+                                    <span class="c1"># Repeat the theta values new_theta_0.size times along axis 0</span>
+                                    <span class="c1"># and 1 time along axis 1</span>
+                                    <span class="n">theta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="n">theta</span><span class="p">,</span> <span class="p">(</span><span class="n">new_theta_0</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+                                    <span class="n">theta</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_theta_0</span>
                         <span class="k">else</span><span class="p">:</span>
                             <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
                                 <span class="sa">f</span><span class="s1">&#39;Capacity adjustment is only supported &#39;</span>

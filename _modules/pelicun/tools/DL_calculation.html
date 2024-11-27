@@ -793,6 +793,10 @@
 
         <span class="n">log_msg</span><span class="p">(</span><span class="s1">&#39;Trying to auto-populate&#39;</span><span class="p">)</span>
 
+        <span class="c1"># Add the demandFile to the config dict to allow demand dependent auto-population</span>
+        <span class="n">update</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s1">&#39;/DL/Demands/DemandFilePath&#39;</span><span class="p">,</span> <span class="n">demand_file</span><span class="p">)</span>
+        <span class="n">update</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s1">&#39;/DL/Demands/SampleSize&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">realizations</span><span class="p">))</span>
+
         <span class="n">config_ap</span><span class="p">,</span> <span class="n">comp</span> <span class="o">=</span> <span class="n">auto_populate</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">auto_script_path</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">is_unspecified</span><span class="p">(</span><span class="n">config_ap</span><span class="p">,</span> <span class="s1">&#39;DL&#39;</span><span class="p">):</span>
