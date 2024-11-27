@@ -1810,7 +1810,7 @@ class LogNormalRandomVariable(RandomVariable):
 
             # Replace NaN values
             a = np.nan_to_num(a, nan=np.nextafter(0, 1))
-            a[a < 0] = np.nextafter(0, 1)
+            a[a <= 0] = np.nextafter(0, 1)
             b = np.nan_to_num(b, nan=np.inf)
 
             p_a, p_b = (
