@@ -445,7 +445,7 @@ def getHAZUSBridgeSlightDamageModifier(hazus_class, aim):
 
     ratio = 2.5 * sa_1p0 / sa_0p3
     operation = [
-        f'*{ratio[i]}' if ratio[i] <= 1.0 else 1.0 for i in range(len(ratio))
+        f'*{ratio[i]}' if ratio[i] <= 1.0 else '*1.0' for i in range(len(ratio))
     ]
 
     assert len(operation) == sample_size
