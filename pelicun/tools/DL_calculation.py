@@ -722,6 +722,10 @@ def _parse_config_file(  # noqa: C901
                 regional_out_config['Settings']
             )
 
+        # if no loss simulation is requested, remove the corresponding outputs
+        if is_unspecified(config_ap, 'DL/Losses'):
+            update(config_ap, 'DL/Outputs/Loss', {})
+
         # save the extended config to a file
         config_ap_path = Path(config_path.stem + '_ap.json').resolve()
 
