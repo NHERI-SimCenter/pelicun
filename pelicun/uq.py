@@ -2323,9 +2323,7 @@ class CoupledEmpiricalRandomVariable(UtilityRandomVariable):
 
         """
         raw_sample_count = len(self.theta)
-        new_sample = np.tile(
-            self.theta, int(sample_size / raw_sample_count) + 1
-        )
+        new_sample = np.tile(self.theta, int(sample_size / raw_sample_count) + 1)
         return new_sample[:sample_size]
 
 
