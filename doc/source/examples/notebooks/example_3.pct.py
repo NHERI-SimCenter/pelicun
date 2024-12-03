@@ -1,5 +1,12 @@
 # %% [markdown]
-"""# Example 4: A loss assessment including both damage states and loss functions."""
+"""
+# Example 3: Combining fragility-based damage consequences and loss functions.
+
+Tests a complete loss estimation workflow combining damage state and
+loss function driven components. The code is based on PRJ-3411v5
+hosted on DesignSafe.
+
+"""
 
 # %%
 import tempfile
@@ -12,10 +19,12 @@ import pelicun
 from pelicun import assessment, file_io
 from pelicun.pelicun_warnings import PelicunWarning
 
+# %%
 temp_dir = tempfile.mkdtemp()
 
 sample_size = 10000
 
+# %%
 # Initialize a pelicun assessment
 asmnt = assessment.Assessment(
     {'PrintLog': True, 'Seed': 415, 'LogFile': f'{temp_dir}/log_file.txt'}
@@ -25,8 +34,9 @@ asmnt.options.list_all_ds = True
 asmnt.options.eco_scale['AcrossFloors'] = True
 asmnt.options.eco_scale['AcrossDamageStates'] = True
 
+# %%
 demand_data = file_io.load_data(
-    'example_4/demand_data.csv',
+    'example_3/demand_data.csv',
     unit_conversion_factors=None,
     reindex=False,
 )
@@ -37,31 +47,34 @@ perfect_correlation = pd.DataFrame(
     index=demand_data.index,  # type: ignore
 )
 
+# %%
 #
 # Additional damage state-driven components
 #
 
 damage_db = pelicun.file_io.load_data(
-    'example_4/additional_damage_db.csv',
+    'example_3/additional_damage_db.csv',
     reindex=False,
     unit_conversion_factors=asmnt.unit_conversion_factors,
 )
 consequences = pelicun.file_io.load_data(
-    'example_4/additional_consequences.csv',
+    'example_3/additional_consequences.csv',
     reindex=False,
     unit_conversion_factors=asmnt.unit_conversion_factors,
 )
 
+# %%
 #
 # Additional loss function-driven components
 #
 
 loss_functions = pelicun.file_io.load_data(
-    'example_4/additional_loss_functions.csv',
+    'example_3/additional_loss_functions.csv',
     reindex=False,
     unit_conversion_factors=asmnt.unit_conversion_factors,
 )
 
+# %%
 #
 # Demands
 #
@@ -108,6 +121,7 @@ def add_more_edps() -> None:
 
 add_more_edps()
 
+# %%
 #
 # Asset
 #
@@ -116,20 +130,14 @@ add_more_edps()
 asmnt.stories = 1
 
 # Load component definitions
-cmp_marginals = pd.read_csv('example_4/CMP_marginals.csv', index_col=0)
+cmp_marginals = pd.read_csv('example_3/CMP_marginals.csv', index_col=0)
 cmp_marginals['Blocks'] = cmp_marginals['Blocks']
 asmnt.asset.load_cmp_model({'marginals': cmp_marginals})
 
 # Generate sample
 asmnt.asset.generate_cmp_sample(sample_size)
 
-# # Used to test that the example works when an existing sample is
-# # loaded.
-# asmnt.asset.save_cmp_sample(filepath='/tmp/cmp_sample.csv', save_units=True)
-# asmnt.asset.cmp_sample
-# asmnt.asset.load_cmp_sample(filepath='/tmp/cmp_sample.csv')
-# asmnt.asset.cmp_sample
-
+# %%
 #
 # Damage
 #
@@ -159,9 +167,12 @@ asmnt.damage.calculate(dmg_process=dmg_process)
 asmnt.damage.save_sample(f'{temp_dir}/out.csv')
 asmnt.damage.load_sample(f'{temp_dir}/out.csv')
 
+# %% nbsphinx="hidden"
 assert asmnt.damage.ds_model.sample is not None
+# %%
 asmnt.damage.ds_model.sample.mean()
 
+# %%
 #
 # Losses
 #
@@ -200,4 +211,6 @@ with pytest.warns(PelicunWarning):
 # Get the aggregated losses
 with pytest.warns(PelicunWarning):
     agg_df = asmnt.loss.aggregate_losses()
+
+# %% nbsphinx="hidden"
 assert agg_df is not None
