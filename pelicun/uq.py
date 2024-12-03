@@ -2216,9 +2216,12 @@ class EmpiricalRandomVariable(RandomVariable):
         """Instantiate an Empirical random variable."""
         if truncation_limits is None:
             truncation_limits = np.array((np.nan, np.nan))
+
+        theta = np.atleast_1d(theta)
+
         super().__init__(
             name=name,
-            theta=None,
+            theta=theta,
             truncation_limits=truncation_limits,
             f_map=f_map,
             anchor=anchor,
@@ -2228,7 +2231,7 @@ class EmpiricalRandomVariable(RandomVariable):
             msg = f'{self.distribution} RVs do not support truncation'
             raise NotImplementedError(msg)
 
-        self._raw_sample = np.atleast_1d(theta)
+        self.theta = np.atleast_1d(theta)
 
     def inverse_transform(self, values: np.ndarray) -> np.ndarray:
         """
@@ -2253,8 +2256,8 @@ class EmpiricalRandomVariable(RandomVariable):
           normalized positions.
 
         """
-        s_ids = (values * len(self._raw_sample)).astype(int)
-        return self._raw_sample[s_ids]
+        s_ids = (values * len(self.theta)).astype(int)
+        return self.theta[s_ids]
 
 
 class CoupledEmpiricalRandomVariable(UtilityRandomVariable):
@@ -2309,7 +2312,7 @@ class CoupledEmpiricalRandomVariable(UtilityRandomVariable):
             msg = f'{self.distribution} RVs do not support truncation'
             raise NotImplementedError(msg)
 
-        self._raw_sample = np.atleast_1d(theta)
+        self.theta = np.atleast_1d(theta)
 
     def inverse_transform(self, sample_size: int) -> np.ndarray:
         """
@@ -2334,9 +2337,9 @@ class CoupledEmpiricalRandomVariable(UtilityRandomVariable):
           dataset.
 
         """
-        raw_sample_count = len(self._raw_sample)
+        raw_sample_count = len(self.theta)
         new_sample = np.tile(
-            self._raw_sample, int(sample_size / raw_sample_count) + 1
+            self.theta, int(sample_size / raw_sample_count) + 1
         )
         return new_sample[:sample_size]
 
