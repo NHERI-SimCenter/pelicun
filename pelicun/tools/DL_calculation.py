@@ -385,9 +385,8 @@ def run_pelicun(  # noqa: C901
             ),
             custom_model_dir=custom_model_dir,
             scaling_specification=get(config, 'DL/Damage/ScalingSpecification'),
-            is_for_water_network_assessment=is_specified(
-                config, 'DL/Asset/ComponentDatabase/Water'
-            ),
+            is_for_water_network_assessment='Water'
+            in get(config, 'DL/Asset/ComponentDatabase', ''),
         )
 
     if is_unspecified(config, 'DL/Losses/Repair'):
