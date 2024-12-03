@@ -2285,15 +2285,13 @@ class CoupledEmpiricalRandomVariable(UtilityRandomVariable):
           When truncation limits are provided
 
         """
-        if truncation_limits is None:
-            truncation_limits = np.array((np.nan, np.nan))
         super().__init__(
             name=name,
             f_map=f_map,
             anchor=anchor,
         )
         self.distribution = 'coupled_empirical'
-        if not np.all(np.isnan(truncation_limits)):
+        if truncation_limits is not None:
             msg = f'{self.distribution} RVs do not support truncation'
             raise NotImplementedError(msg)
 
