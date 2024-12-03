@@ -1246,7 +1246,7 @@ class RandomVariable(BaseRandomVariable):
     def __init__(
         self,
         name: str,
-        theta: np.ndarray | None,
+        theta: np.ndarray,
         truncation_limits: np.ndarray | None = None,
         f_map: Callable | None = None,
         anchor: BaseRandomVariable | None = None,
@@ -1392,12 +1392,10 @@ class RandomVariable(BaseRandomVariable):
         of `values`.
         """
         theta = self.theta
-        assert theta is not None
         truncation_limits = self.truncation_limits
         assert truncation_limits is not None
         if self.constant_parameters():
             theta = np.atleast_2d(theta)
-            assert theta is not None
         elif len(values) != theta.shape[0]:
             msg = (
                 'Number of elements in `values` variable should '
@@ -1549,7 +1547,6 @@ class NormalRandomVariable(RandomVariable):
             f_map=f_map,
             anchor=anchor,
         )
-        assert self.theta is not None, '`theta` is required for Normal RVs'
         self.distribution = 'normal'
 
     def cdf(self, values: np.ndarray) -> np.ndarray:
@@ -1726,7 +1723,6 @@ class LogNormalRandomVariable(RandomVariable):
             f_map=f_map,
             anchor=anchor,
         )
-        assert self.theta is not None, '`theta` is required for LogNormal RVs'
         self.distribution = 'lognormal'
 
     def cdf(self, values: np.ndarray) -> np.ndarray:
@@ -1854,7 +1850,6 @@ class UniformRandomVariable(RandomVariable):
             f_map=f_map,
             anchor=anchor,
         )
-        assert self.theta is not None, '`theta` is required for Uniform RVs'
         self.distribution = 'uniform'
 
         if self.theta.ndim != 1:
@@ -1879,7 +1874,6 @@ class UniformRandomVariable(RandomVariable):
           1D float ndarray containing CDF values
 
         """
-        assert self.theta is not None
         a, b = self.theta[:2]
 
         if np.isnan(a):
@@ -1910,7 +1904,6 @@ class UniformRandomVariable(RandomVariable):
           Inverse CDF values
 
         """
-        assert self.theta is not None
         a, b = self.theta[:2]
 
         if np.isnan(a):
@@ -1955,7 +1948,6 @@ class WeibullRandomVariable(RandomVariable):
             f_map=f_map,
             anchor=anchor,
         )
-        assert self.theta is not None, '`theta` is required for Weibull RVs'
         self.distribution = 'weibull'
 
         if self.theta.ndim != 1:
@@ -1980,7 +1972,6 @@ class WeibullRandomVariable(RandomVariable):
           1D float ndarray containing CDF values
 
         """
-        assert self.theta is not None
         lambda_, kappa = self.theta[:2]
 
         if np.any(~np.isnan(self.truncation_limits)):
@@ -2031,7 +2022,6 @@ class WeibullRandomVariable(RandomVariable):
           Inverse CDF values
 
         """
-        assert self.theta is not None
         lambda_, kappa = self.theta[:2]
 
         if np.any(~np.isnan(self.truncation_limits)):
@@ -2098,7 +2088,6 @@ class MultilinearCDFRandomVariable(RandomVariable):
             f_map=f_map,
             anchor=anchor,
         )
-        assert self.theta is not None, '`theta` is required for MultilinearCDF RVs'
         self.distribution = 'multilinear_CDF'
 
         if not np.all(np.isnan(truncation_limits)):
@@ -2161,7 +2150,6 @@ class MultilinearCDFRandomVariable(RandomVariable):
           1D float ndarray containing CDF values
 
         """
-        assert self.theta is not None
         x_i = [-np.inf] + [x[0] for x in self.theta] + [np.inf]
         y_i = [0.00] + [x[1] for x in self.theta] + [1.00]
 
@@ -2186,7 +2174,6 @@ class MultilinearCDFRandomVariable(RandomVariable):
           Inverse CDF values
 
         """
-        assert self.theta is not None
         x_i = [x[0] for x in self.theta]
         y_i = [x[1] for x in self.theta]
 
@@ -2230,8 +2217,6 @@ class EmpiricalRandomVariable(RandomVariable):
         if not np.all(np.isnan(truncation_limits)):
             msg = f'{self.distribution} RVs do not support truncation'
             raise NotImplementedError(msg)
-
-        self.theta = np.atleast_1d(theta)
 
     def inverse_transform(self, values: np.ndarray) -> np.ndarray:
         """
@@ -2455,7 +2440,6 @@ class MultinomialRandomVariable(RandomVariable):
         if not np.all(np.isnan(truncation_limits)):
             msg = f'{self.distribution} RVs do not support truncation'
             raise NotImplementedError(msg)
-        assert self.theta is not None, '`theta` is required for Multinomial RVs'
         self.distribution = 'multinomial'
         if np.sum(theta) > 1.00:
             msg = (
@@ -2487,7 +2471,6 @@ class MultinomialRandomVariable(RandomVariable):
           Discrete events corresponding to the input values.
 
         """
-        assert self.theta is not None
         p_cum = np.cumsum(self.theta)[:-1]
 
         for i, p_i in enumerate(p_cum):
