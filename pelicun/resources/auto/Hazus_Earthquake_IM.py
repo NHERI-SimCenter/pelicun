@@ -1031,7 +1031,7 @@ def auto_populate(aim):  # noqa: C901
                 f'Water Distribution network element type {wdn_element_type} '
                 f'is not supported in Hazus Earthquake IM DL method'
             )
-            dl_ap = None
+            dl_ap = 'N/A'
             comp = None
 
     else:

@@ -41,6 +41,7 @@
 
 from __future__ import annotations
 
+import copy
 import importlib
 import sys
 from pathlib import Path
@@ -98,8 +99,11 @@ def auto_populate(
         asset information under 'GeneralInformation'.
 
     """
+    # create a copy of config to avoid editing the original
+    config_autopopulated = copy.deepcopy(config)
+
     # try to get the AIM attributes
-    aim = config.get('GeneralInformation')
+    aim = config_autopopulated.get('GeneralInformation')
     if aim is None:
         msg = 'No Asset Information provided for the auto-population routine.'
         raise ValueError(msg)
@@ -122,11 +126,11 @@ def auto_populate(
     auto_populate_ext = auto_script.auto_populate
 
     # generate the DL input data
-    aim_ap, dl_ap, comp = auto_populate_ext(aim=config)
+    aim_ap, dl_ap, comp = auto_populate_ext(aim=config_autopopulated)
 
     # assemble the extended config
-    config['GeneralInformation'].update(aim_ap)
-    config.update({'DL': dl_ap})
+    config_autopopulated['GeneralInformation'].update(aim_ap)
+    config_autopopulated.update({'DL': dl_ap})
 
     # return the extended config data and the component quantities
-    return config, comp
+    return config_autopopulated, comp
