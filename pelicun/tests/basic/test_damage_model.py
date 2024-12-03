@@ -591,6 +591,10 @@ class TestDamageModel_DS(TestDamageModel_Base):
         for rv_name, rv in capacity_rv_reg.RV.items():
             uniform_sample = rv._uni_sample
             sample = rv.sample
+
+            assert uniform_sample is not None
+            assert sample is not None
+
             for i in range(len(operation_list)):
                 if rv_name == 'FRG-cmp.A-1-2-3-1-1':
                     theta = 1.20 * 30.0
