@@ -396,7 +396,7 @@ def _get_std_samples(
             uni_sample = norm.cdf(samples_i, loc=theta_i[0], scale=theta_i[1])
 
             # replace 0 and 1 values with the nearest float
-            uni_sample[uni_sample == 0] = np.nextafter(0, 1)
+            uni_sample[uni_sample == 0] = FIRST_POSITIVE_NUMBER
             uni_sample[uni_sample == 1] = np.nextafter(1, -1)
 
             # consider truncation if needed
@@ -660,7 +660,7 @@ def _neg_log_likelihood(  # noqa: C901
             return 1e10
 
         # make sure that the likelihood of censoring a sample is positive
-        cen_likelihood = max(1.0 - det_alpha, np.nextafter(0, 1))
+        cen_likelihood = max(1.0 - det_alpha, FIRST_POSITIVE_NUMBER)
 
     else:
         # If the data is not censored, use 1.0 for cen_likelihood to get a
@@ -679,7 +679,7 @@ def _neg_log_likelihood(  # noqa: C901
     # Zeros are a result of limited floating point precision. Replace them
     # with the smallest possible positive floating point number to
     # improve convergence.
-    likelihoods = np.clip(likelihoods, a_min=np.nextafter(0, 1), a_max=None)
+    likelihoods = np.clip(likelihoods, a_min=FIRST_POSITIVE_NUMBER, a_max=None)
 
     # calculate the total negative log likelihood
     negative_log_likelihood = -(
@@ -819,7 +819,9 @@ def fit_distribution_to_sample(  # noqa: C901
 
     # replace zero standard dev with negligible standard dev
     sig_zero_id = np.where(sig_init == 0.0)[0]
-    sig_init[sig_zero_id] = 1e-6 * np.abs(mu_init[sig_zero_id]) + np.nextafter(0, 1)
+    sig_init[sig_zero_id] = (
+        1e-6 * np.abs(mu_init[sig_zero_id]) + FIRST_POSITIVE_NUMBER
+    )
 
     # prepare a vector of initial values
     # Note: The actual optimization uses zeros as initial parameters to
@@ -1751,7 +1753,7 @@ class LogNormalRandomVariable(RandomVariable):
             a, b = truncation_limits.T
 
             # Replace NaN values
-            a = np.nan_to_num(a, nan=np.nextafter(0, 1))
+            a = np.nan_to_num(a, nan=FIRST_POSITIVE_NUMBER)
             b = np.nan_to_num(b, nan=np.inf)
 
             p_a, p_b = (
@@ -1769,7 +1771,7 @@ class LogNormalRandomVariable(RandomVariable):
             result = (p_vals - p_a) / (p_b - p_a)
 
         else:
-            values = np.maximum(values, np.nextafter(0, 1))
+            values = np.maximum(values, FIRST_POSITIVE_NUMBER)
 
             result = norm.cdf(np.log(values), loc=np.log(theta), scale=beta)
 
@@ -1802,8 +1804,8 @@ class LogNormalRandomVariable(RandomVariable):
             a, b = truncation_limits.T
 
             # Replace NaN values
-            a = np.nan_to_num(a, nan=np.nextafter(0, 1))
-            a[a <= 0] = np.nextafter(0, 1)
+            a = np.nan_to_num(a, nan=FIRST_POSITIVE_NUMBER)
+            a[a <= 0] = FIRST_POSITIVE_NUMBER
             b = np.nan_to_num(b, nan=np.inf)
 
             p_a, p_b = (
