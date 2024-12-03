@@ -2190,7 +2190,7 @@ class MultilinearCDFRandomVariable(RandomVariable):
 class EmpiricalRandomVariable(RandomVariable):
     """Empirical random variable."""
 
-    __slots__: list[str] = ['_raw_sample']
+    __slots__: list[str] = []
 
     def __init__(
         self,
@@ -2248,7 +2248,7 @@ class EmpiricalRandomVariable(RandomVariable):
 class CoupledEmpiricalRandomVariable(UtilityRandomVariable):
     """Coupled empirical random variable."""
 
-    __slots__: list[str] = ['_raw_sample']
+    __slots__: list[str] = ['theta']
 
     def __init__(
         self,
