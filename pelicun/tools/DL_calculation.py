@@ -252,7 +252,7 @@ def convert_df_to_dict(data: pd.DataFrame | pd.Series, axis: int = 1) -> dict:
     return out_dict
 
 
-def run_pelicun(
+def run_pelicun(  # noqa: C901
     config_path: str,
     demand_file: str,
     output_path: str | None,
@@ -319,6 +319,12 @@ def run_pelicun(
         coupled_edp=coupled_edp,
         detailed_results=detailed_results,
     )
+
+    # An undefined config means that we do not need to run a simulation
+    # Such config is not an error, those are caught during parsing. This is the
+    # result of an intentional no-simulation request during auto-population.
+    if config is None:
+        return
 
     # List to keep track of the generated output files.
     out_files: list[str] = []
@@ -572,7 +578,7 @@ def _parse_config_file(  # noqa: C901
     *,
     coupled_edp: bool,
     detailed_results: bool,
-) -> dict[str, object]:
+) -> dict[str, object] | None:
     """
     Parse and validate the config file for Pelicun.
 
@@ -651,6 +657,14 @@ def _parse_config_file(  # noqa: C901
                 'a valid damage and loss configuration for this asset. '
             )
             raise PelicunInvalidConfigError(msg)
+
+        if get(config_ap, 'DL') == 'N/A':
+            msg = (
+                'N/A `DL` entry in config file interpreted as a request to '
+                'skip damage and loss simulation for this asset.'
+            )
+            log_msg(msg)
+            return None
 
         # look for possibly specified assessment options
         try:
