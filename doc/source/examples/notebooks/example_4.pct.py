@@ -1,7 +1,5 @@
 # %% [markdown]
-"""
-# Example 4: A loss assessment including both damage states and loss functions.
-"""
+"""# Example 4: A loss assessment including both damage states and loss functions."""
 
 # %%
 import tempfile
@@ -13,7 +11,6 @@ import pytest
 import pelicun
 from pelicun import assessment, file_io
 from pelicun.pelicun_warnings import PelicunWarning
-
 
 temp_dir = tempfile.mkdtemp()
 
@@ -77,8 +74,9 @@ asmnt.demand.load_model(
 # Generate samples
 asmnt.demand.generate_sample({'SampleSize': sample_size})
 
+
 def add_more_edps() -> None:
-    """Adds SA_1.13 and residual drift to the demand sample."""
+    """Add SA_1.13 and residual drift to the demand sample."""
     # Add residual drift and Sa
     demand_sample = asmnt.demand.save_sample()
 
@@ -107,6 +105,7 @@ def add_more_edps() -> None:
 
     asmnt.demand.load_sample(demand_sample_ext)
 
+
 add_more_edps()
 
 #
@@ -117,9 +116,7 @@ add_more_edps()
 asmnt.stories = 1
 
 # Load component definitions
-cmp_marginals = pd.read_csv(
-    'example_4/CMP_marginals.csv', index_col=0
-)
+cmp_marginals = pd.read_csv('example_4/CMP_marginals.csv', index_col=0)
 cmp_marginals['Blocks'] = cmp_marginals['Blocks']
 asmnt.asset.load_cmp_model({'marginals': cmp_marginals})
 

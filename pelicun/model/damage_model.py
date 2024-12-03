@@ -1362,7 +1362,7 @@ class DamageModel_DS(DamageModel_Base):
             """
             # if there are contents, ensure they are valid.
             # See docstring for an example of what is expected.
-            parsed_scaling_specification = defaultdict(dict)
+            parsed_scaling_specification: dict = defaultdict(dict)
             # validate contents
             for key, value in scaling_specification.items():
                 # loop through limit states
