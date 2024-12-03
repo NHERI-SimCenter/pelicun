@@ -1326,7 +1326,7 @@ class DamageModel_DS(DamageModel_Base):
 
         def parse_scaling_specification(scaling_specification: dict) -> dict:  # noqa: C901
             """
-            Parse and validate the scaling specification, used in the '_create_dmg_RVs' method.
+            Parse and validate the scaling specification.
 
             Parameters
             ----------
@@ -1353,6 +1353,8 @@ class DamageModel_DS(DamageModel_Base):
             ------
             ValueError
                 If the scaling specification is invalid.
+            ValueError
+                If an unupported distribution is specified.
             TypeError
                 If the type of an entry is invalid.
             """
@@ -1481,34 +1483,36 @@ class DamageModel_DS(DamageModel_Base):
                     )
 
                     if capacity_adjustment_operation:
-                        if family in {'normal', 'lognormal'}:
-                            # Only scale the median value if ls_id is defined in capacity_adjustment_operation
-                            # Otherwise, use the original value
-                            new_theta_0 = None
-                            if 'ALL' in capacity_adjustment_operation:
-                                new_theta_0 = self._handle_operation_list(
-                                    theta[0],
-                                    capacity_adjustment_operation['ALL'],
-                                )
-                            elif f'LS{ls_id}' in capacity_adjustment_operation:
-                                new_theta_0 = self._handle_operation_list(
-                                    theta[0],
-                                    capacity_adjustment_operation[f'LS{ls_id}'],
-                                )
-                            if new_theta_0 is not None:
-                                if new_theta_0.size == 1:
-                                    theta[0] = new_theta_0[0]
-                                else:
-                                    # Repeat the theta values new_theta_0.size times along axis 0
-                                    # and 1 time along axis 1
-                                    theta = np.tile(theta, (new_theta_0.size, 1))
-                                    theta[:, 0] = new_theta_0
-                        else:
-                            self.log.warning(
+                        if family not in {'normal', 'lognormal'}:
+                            msg = (
                                 f'Capacity adjustment is only supported '
                                 f'for `normal` or `lognormal` distributions. '
                                 f'Ignoring: `{cmp_loc_dir}`, which is `{family}`'
                             )
+                            raise ValueError(msg)  # noqa: DOC501
+                        # Only scale the median value if ls_id is
+                        # defined in capacity_adjustment_operation
+                        # Otherwise, use the original value
+                        new_theta_0 = None
+                        if 'ALL' in capacity_adjustment_operation:
+                            new_theta_0 = self._handle_operation_list(
+                                theta[0],
+                                capacity_adjustment_operation['ALL'],
+                            )
+                        elif f'LS{ls_id}' in capacity_adjustment_operation:
+                            new_theta_0 = self._handle_operation_list(
+                                theta[0],
+                                capacity_adjustment_operation[f'LS{ls_id}'],
+                            )
+                        if new_theta_0 is not None:
+                            if new_theta_0.size == 1:
+                                theta[0] = new_theta_0[0]
+                            else:
+                                # Repeat the theta values
+                                # new_theta_0.size times along
+                                # axis 0 and 1 time along axis 1
+                                theta = np.tile(theta, (new_theta_0.size, 1))
+                                theta[:, 0] = new_theta_0
 
                     tr_lims = np.array(
                         [
