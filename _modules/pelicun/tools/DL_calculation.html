@@ -411,7 +411,7 @@
 
 <div class="viewcode-block" id="run_pelicun">
 <a class="viewcode-back" href="../../../api_reference/_autosummary/pelicun.tools.DL_calculation.html#pelicun.tools.DL_calculation.run_pelicun">[docs]</a>
-<span class="k">def</span> <span class="nf">run_pelicun</span><span class="p">(</span>
+<span class="k">def</span> <span class="nf">run_pelicun</span><span class="p">(</span>  <span class="c1"># noqa: C901</span>
     <span class="n">config_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">demand_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">output_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
@@ -479,6 +479,12 @@
         <span class="n">detailed_results</span><span class="o">=</span><span class="n">detailed_results</span><span class="p">,</span>
     <span class="p">)</span>
 
+    <span class="c1"># An undefined config means that we do not need to run a simulation</span>
+    <span class="c1"># Such config is not an error, those are caught during parsing. This is the</span>
+    <span class="c1"># result of an intentional no-simulation request during auto-population.</span>
+    <span class="k">if</span> <span class="n">config</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span>
+
     <span class="c1"># List to keep track of the generated output files.</span>
     <span class="n">out_files</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
 
@@ -538,9 +544,8 @@
             <span class="p">),</span>
             <span class="n">custom_model_dir</span><span class="o">=</span><span class="n">custom_model_dir</span><span class="p">,</span>
             <span class="n">scaling_specification</span><span class="o">=</span><span class="n">get</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s1">&#39;DL/Damage/ScalingSpecification&#39;</span><span class="p">),</span>
-            <span class="n">is_for_water_network_assessment</span><span class="o">=</span><span class="n">is_specified</span><span class="p">(</span>
-                <span class="n">config</span><span class="p">,</span> <span class="s1">&#39;DL/Asset/ComponentDatabase/Water&#39;</span>
-            <span class="p">),</span>
+            <span class="n">is_for_water_network_assessment</span><span class="o">=</span><span class="s1">&#39;Water&#39;</span>
+            <span class="ow">in</span> <span class="n">get</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s1">&#39;DL/Asset/ComponentDatabase&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">),</span>
         <span class="p">)</span>
 
     <span class="k">if</span> <span class="n">is_unspecified</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s1">&#39;DL/Losses/Repair&#39;</span><span class="p">):</span>
@@ -732,7 +737,7 @@
     <span class="o">*</span><span class="p">,</span>
     <span class="n">coupled_edp</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
     <span class="n">detailed_results</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">object</span><span class="p">]:</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">object</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Parse and validate the config file for Pelicun.</span>
 
@@ -812,6 +817,14 @@
             <span class="p">)</span>
             <span class="k">raise</span> <span class="n">PelicunInvalidConfigError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
 
+        <span class="k">if</span> <span class="n">get</span><span class="p">(</span><span class="n">config_ap</span><span class="p">,</span> <span class="s1">&#39;DL&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="s1">&#39;N/A&#39;</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="s1">&#39;N/A `DL` entry in config file interpreted as a request to &#39;</span>
+                <span class="s1">&#39;skip damage and loss simulation for this asset.&#39;</span>
+            <span class="p">)</span>
+            <span class="n">log_msg</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
         <span class="c1"># look for possibly specified assessment options</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">assessment_options</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;Applications&#39;</span><span class="p">][</span><span class="s1">&#39;DL&#39;</span><span class="p">][</span><span class="s1">&#39;ApplicationData&#39;</span><span class="p">][</span>
@@ -867,6 +880,10 @@
             <span class="n">config_ap</span><span class="p">[</span><span class="s1">&#39;DL&#39;</span><span class="p">][</span><span class="s1">&#39;Outputs&#39;</span><span class="p">][</span><span class="s1">&#39;Settings&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
                 <span class="n">regional_out_config</span><span class="p">[</span><span class="s1">&#39;Settings&#39;</span><span class="p">]</span>
             <span class="p">)</span>
+
+        <span class="c1"># if no loss simulation is requested, remove the corresponding outputs</span>
+        <span class="k">if</span> <span class="n">is_unspecified</span><span class="p">(</span><span class="n">config_ap</span><span class="p">,</span> <span class="s1">&#39;DL/Losses&#39;</span><span class="p">):</span>
+            <span class="n">update</span><span class="p">(</span><span class="n">config_ap</span><span class="p">,</span> <span class="s1">&#39;DL/Outputs/Loss&#39;</span><span class="p">,</span> <span class="p">{})</span>
 
         <span class="c1"># save the extended config to a file</span>
         <span class="n">config_ap_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">config_path</span><span class="o">.</span><span class="n">stem</span> <span class="o">+</span> <span class="s1">&#39;_ap.json&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>

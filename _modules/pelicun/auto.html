@@ -192,6 +192,7 @@
 
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
 
+<span class="kn">import</span> <span class="nn">copy</span>
 <span class="kn">import</span> <span class="nn">importlib</span>
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
@@ -251,8 +252,11 @@
 <span class="sd">        asset information under &#39;GeneralInformation&#39;.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># create a copy of config to avoid editing the original</span>
+    <span class="n">config_autopopulated</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+
     <span class="c1"># try to get the AIM attributes</span>
-    <span class="n">aim</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;GeneralInformation&#39;</span><span class="p">)</span>
+    <span class="n">aim</span> <span class="o">=</span> <span class="n">config_autopopulated</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;GeneralInformation&#39;</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">aim</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">msg</span> <span class="o">=</span> <span class="s1">&#39;No Asset Information provided for the auto-population routine.&#39;</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
@@ -275,14 +279,14 @@
     <span class="n">auto_populate_ext</span> <span class="o">=</span> <span class="n">auto_script</span><span class="o">.</span><span class="n">auto_populate</span>
 
     <span class="c1"># generate the DL input data</span>
-    <span class="n">aim_ap</span><span class="p">,</span> <span class="n">dl_ap</span><span class="p">,</span> <span class="n">comp</span> <span class="o">=</span> <span class="n">auto_populate_ext</span><span class="p">(</span><span class="n">aim</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+    <span class="n">aim_ap</span><span class="p">,</span> <span class="n">dl_ap</span><span class="p">,</span> <span class="n">comp</span> <span class="o">=</span> <span class="n">auto_populate_ext</span><span class="p">(</span><span class="n">aim</span><span class="o">=</span><span class="n">config_autopopulated</span><span class="p">)</span>
 
     <span class="c1"># assemble the extended config</span>
-    <span class="n">config</span><span class="p">[</span><span class="s1">&#39;GeneralInformation&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">aim_ap</span><span class="p">)</span>
-    <span class="n">config</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;DL&#39;</span><span class="p">:</span> <span class="n">dl_ap</span><span class="p">})</span>
+    <span class="n">config_autopopulated</span><span class="p">[</span><span class="s1">&#39;GeneralInformation&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">aim_ap</span><span class="p">)</span>
+    <span class="n">config_autopopulated</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;DL&#39;</span><span class="p">:</span> <span class="n">dl_ap</span><span class="p">})</span>
 
     <span class="c1"># return the extended config data and the component quantities</span>
-    <span class="k">return</span> <span class="n">config</span><span class="p">,</span> <span class="n">comp</span></div>
+    <span class="k">return</span> <span class="n">config_autopopulated</span><span class="p">,</span> <span class="n">comp</span></div>
 
 </pre></div>
 
