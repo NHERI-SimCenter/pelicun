@@ -591,7 +591,6 @@ class TestDamageModel_DS(TestDamageModel_Base):
         for rv_name, rv in capacity_rv_reg.RV.items():
             uniform_sample = rv._uni_sample
             sample = rv.sample
-
             assert uniform_sample is not None
             assert sample is not None
 
