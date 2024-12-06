@@ -43,6 +43,7 @@
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 import numpy as np
@@ -250,30 +251,33 @@ def substitute_default_path(
     data_paths: list[str | pd.DataFrame],
 ) -> list[str | pd.DataFrame]:
     """
-    Substitute the default directory path with a specified path.
+    Substitute the default directory path.
 
     This function iterates over a list of data paths and replaces
-    occurrences of the 'PelicunDefault/' substring with the path
-    specified by `base.pelicun_path` concatenated with
-    '/resources/SimCenterDBDL/'. This operation is performed to update
-    paths that are using a default location to a user-defined location
-    within the pelicun framework. The updated list of paths is then
-    returned.
+    occurrences of the 'PelicunDefault/' substring by looking up the
+    filename in a resource mapping file located at
+    `{base.pelicun_path}/resources/dlml_resource_paths.json`. If a
+    match is found, the file path is replaced with the value found in
+    the `resource_paths` dictionary.  The updated list of paths is
+    then returned.
 
     Parameters
     ----------
-    data_paths: list of str
+    data_paths: list of str or pd.DataFrame
         A list containing the paths to data files. These paths may
         include a placeholder directory 'PelicunDefault/' that needs
-        to be substituted with the actual path specified in
-        `base.pelicun_path`.
+        to be substituted with the actual path specified in the
+        resource mapping.
 
     Returns
     -------
-    list of str
-        The list with updated paths where 'PelicunDefault/' has been
-        replaced with the specified path in `base.pelicun_path`
-        concatenated with '/resources/SimCenterDBDL/'.
+    list of str or pd.DataFrame
+
+    Raises
+    ------
+    KeyError
+      If the file after 'PelicunDefault/' does not exist in the
+      `resource_paths` keys.
 
     Notes
     -----
@@ -282,26 +286,53 @@ def substitute_default_path(
       are located.
     - If a path in the input list does not contain 'PelicunDefault/',
       it is added to the output list unchanged.
+    - If the file after 'PelicunDefault/' does not exist in the
+      `resource_paths` keys, a `KeyError` is raised.
 
     Examples
     --------
-    >>> data_paths = ['PelicunDefault/data/file1.txt',
-        'data/file2.txt']
+    >>> data_paths = ['PelicunDefault/data/file1.txt', 'data/file2.txt']
     >>> substitute_default_path(data_paths)
-    ['{base.pelicun_path}/resources/SimCenterDBDL/data/file1.txt',
+    ['{base.pelicun_path}/resources/SimCenterDBDL/updated_path/file1_v2.txt',
     'data/file2.txt']
 
     """
+    # Load the resource paths from the JSON file
+    resource_file_path = (
+        Path(base.pelicun_path) / 'resources' / 'dlml_resource_paths.json'
+    )
+    with resource_file_path.open('r') as file:
+        resource_paths = json.load(file)
+
     updated_paths: list[str | pd.DataFrame] = []
-    for data_path in data_paths:
-        if isinstance(data_path, str) and 'PelicunDefault/' in data_path:
-            path = data_path.replace(
-                'PelicunDefault/',
-                f'{base.pelicun_path}/resources/SimCenterDBDL/',
+    for data_path_str in data_paths:
+        if isinstance(data_path_str, str) and 'PelicunDefault/' in data_path_str:
+            data_path = Path(data_path_str)
+            # Extract the filename after 'PelicunDefault/'
+            file_name = (
+                data_path.parts[-1]
+                if 'PelicunDefault' in data_path.parts
+                else data_path.name
             )
-            updated_paths.append(path)
+
+            # Check if the filename exists in the resource paths
+            # dictionary
+            if file_name not in resource_paths:
+                msg = f'File `{file_name}` not found in resource paths.'
+                raise KeyError(msg)
+
+            # Substitute the path with the corresponding value from
+            # the dictionary
+            updated_path = str(
+                Path(base.pelicun_path)
+                / 'resources'
+                / 'DamageAndLossModelLibrary'
+                / resource_paths[file_name]
+            )
+            updated_paths.append(updated_path)
         else:
-            updated_paths.append(data_path)
+            updated_paths.append(data_path_str)
+
     return updated_paths
 
 

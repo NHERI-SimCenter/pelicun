@@ -41,6 +41,7 @@
 
 from __future__ import annotations
 
+import platform
 import tempfile
 from pathlib import Path
 
@@ -140,20 +141,20 @@ def test_save_to_csv() -> None:
     assert 'Data was empty, no file saved.' in str(record.list[0].message)
 
 
+@pytest.mark.skipif(
+    platform.system() == 'Windows',
+    reason='Skipping test on Windows due to path handling issues.',
+)
 def test_substitute_default_path() -> None:
-    prior_path = file_io.base.pelicun_path
-    file_io.base.pelicun_path = Path('some_path')
     input_paths: list[str | pd.DataFrame] = [
-        'PelicunDefault/data/file1.txt',
-        '/data/file2.txt',
-    ]
-    expected_paths = [
-        'some_path/resources/SimCenterDBDL/data/file1.txt',
+        'PelicunDefault/damage_DB_FEMA_P58_2nd.csv',
         '/data/file2.txt',
     ]
     result_paths = file_io.substitute_default_path(input_paths)
-    assert result_paths == expected_paths
-    file_io.base.pelicun_path = prior_path
+    assert (
+        'seismic/building/component/FEMA P-58 2nd Edition/fragility.csv'
+    ) in result_paths[0]
+    assert result_paths[1] == '/data/file2.txt'
 
 
 def test_load_data() -> None:

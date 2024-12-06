@@ -1310,7 +1310,7 @@ class DamageModel_DS(DamageModel_Base):
         else:
             # if there are contents, ensure they are valid.
             # See docstring for an example of what is expected.
-            parsed_scaling_specification = {}
+            parsed_scaling_specification: dict = {}
             # validate contents
             for key, value in scaling_specification.items():
                 css = 'capacity adjustment specification'
