@@ -1,0 +1,5 @@
+-,DV-Unit,Demand-Directional,Demand-Offset,Demand-Type,Demand-Unit,LossFunction-Theta_0,LossFunction-Theta_1,LossFunction-Family
+testing.component-Cost,USD_2011,0,0,Peak Floor Acceleration,g,"0.00,100000.00|0.00,5.00",0.3,lognormal
+testing.component-Time,USD_2011,0,0,Peak Floor Acceleration,g,"0.00,50.00|0.00,5.00",0.3,lognormal
+testing.component.2-Cost,USD_2011,0,0,Peak Floor Acceleration,g,"0.00,10.00|0.00,5.00",,
+testing.component.2-Time,USD_2011,0,0,Peak Floor Acceleration,g,"0.00,5.00|0.00,5.00",,

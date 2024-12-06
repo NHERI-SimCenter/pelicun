@@ -17,7 +17,7 @@ Utilized in both academia and industry, it supports cutting-edge natural hazards
 .. toctree::
    :caption: About
    :maxdepth: 1
-   :numbered: 4
+   :numbered: 2
 
    about/license.rst
    about/cite.rst
@@ -27,7 +27,7 @@ Utilized in both academia and industry, it supports cutting-edge natural hazards
 .. toctree::
    :caption: User Guide
    :maxdepth: 1
-   :numbered: 4
+   :numbered: 2
 
    user_guide/install.rst
    user_guide/pelicun_framework.rst
@@ -41,7 +41,7 @@ Utilized in both academia and industry, it supports cutting-edge natural hazards
 .. toctree::
    :caption: Developer Guide
    :maxdepth: 1
-   :numbered: 4
+   :numbered: 2
 
    developer_guide/getting_started.rst
    developer_guide/development_environment.rst

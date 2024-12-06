@@ -1,0 +1,2 @@
+-,DV-Unit,Demand-Directional,Demand-Offset,Demand-Type,Demand-Unit,LossFunction-Theta_0,LossFunction-Theta_1,LossFunction-Family
+cmp.A-Cost,loss_ratio,1,0,Peak Floor Acceleration,g,"0.00,1000.00|0.00,1000.00",,

@@ -1,0 +1,8 @@
+﻿,Units,Location,Direction,Theta_0,Blocks,Comment
+D.30.31.013i,ea,roof,0,1,,Chiller (parameters have been modified for testing)
+missing.component,ea,0,1,1,,Testing
+testing.component,ea,1,1,1,,Testing
+testing.component.2,ea,1,1,2,4,Testing
+collapse,ea,0,1,1,,Collapsed building
+excessiveRID,ea,all,"1,2",1,,Excessive residual drift
+irreparable,ea,0,1,1,,Irreparable building

@@ -1,0 +1,5 @@
+ID,Demand-Directional,Demand-Offset,Demand-Type,Demand-Unit,Incomplete-,LS1-DamageStateWeights,LS1-Family,LS1-Theta_0,LS1-Theta_1,LS2-DamageStateWeights,LS2-Family,LS2-Theta_0,LS2-Theta_1,LS3-DamageStateWeights,LS3-Family,LS3-Theta_0,LS3-Theta_1,LS4-DamageStateWeights,LS4-Family,LS4-Theta_0,LS4-Theta_1
+D.30.31.013i,0.0,0.0,Peak Floor Acceleration,g,0,0.340000 | 0.330000 | 0.330000,lognormal,0.40,0.5,,,,,,,,,,,,
+excessiveRID,1.0,0.0,Residual Interstory Drift Ratio,rad,0,,lognormal,0.01,0.3,,,,,,,,,,,,
+irreparable,1.0,0.0,Peak Spectral Acceleration|1.13,g,0,,,10000000000.0,,,,,,,,,,,,,
+collapse,1.0,0.0,Peak Spectral Acceleration|1.13,g,0,,lognormal,1.50,0.5,,,,,,,,,,,,

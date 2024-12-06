@@ -46,8 +46,6 @@ Detailed documentation of the available methods and their use is available at ht
 
 ## Installation
 
-### For users
-
 `pelicun` is available at the [Python Package Index (PyPI)](https://pypi.org/project/pelicun/). You can simply install it using `pip` as follows:
 
 ```shell
@@ -62,51 +60,10 @@ pip install pelicun==2.6.0
 
 Note that 2.6.0 is the last minor version before the v3.0 release. Other earlier versions can be found [here](https://pypi.org/project/pelicun/#history).
 
-### For contributors
+## Documentation and usage examples
 
-Developers are expected to fork and clone this repository, and install their copy in development mode.
-Using a virtual environment is highly recommended.
-
-```shell
-# Clone the repository:
-git clone https://github.com/<user>/pelicun
-cd pelicun
-# Switch to the appropriate branch, if needed.
-# git checkout <branch>
-
-# Install pelicun:
-# Note: don't forget to activate the corresponding environment.
-python -m pip install -e .[development]
-
-```
-
-Contributions are managed with pull requests.
-It is required that contributed code is [PEP 8](https://peps.python.org/pep-0008/) compliant, does not introduce linter warnings and includes sufficient unit tests so as to avoid reducing the current coverage level.
-
-The following lines implement the aforementioned checks.
-`flake8`, `pylint` and `pytest` can all be configured for use within an IDE.
-```shell
-
-cd <path-to>/pelicun
-export PYTHONPATH=$PYTHONPATH:$(pwd)
-
-# Linting with flake8:
-flake8 pelicun
-
-# Linting with pylint:
-pylint pelicun
-
-# Type checking with mypy:
-mypy pelicun --no-namespace-packages
-
-# Running the tests:
-python -m pytest pelicun/tests --cov=pelicun --cov-report html
-# Open `htmlcov/index.html`in a browser to see coverage results.
-
-```
-
-Feel free to [open an issue](https://github.com/NHERI-SimCenter/pelicun/issues/new/choose) if you encounter problems setting up the provided development environment.
-
+The documentation for pelicun can be accessed [here](https://NHERI-SimCenter.github.io/pelicun/).
+It includes information for users, instructions for developers and usage examples.
 
 ## Changelog
 

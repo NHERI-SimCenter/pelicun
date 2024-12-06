@@ -60,8 +60,7 @@ def parse_BIM(BIM_in, location, hazards):
     hazard: list of str
         Supported hazard types: "wind", "inundation"
 
-    BIM attributes
-    --------------
+    BIM attributes:
     NumberOfStories: str
         Number of stories
     YearBuilt: str

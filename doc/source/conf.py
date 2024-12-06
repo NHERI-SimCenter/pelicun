@@ -60,6 +60,7 @@ templates_path = ['_templates']
 html_static_path = ['_static']
 
 html_css_files = ['css/custom.css']
+html_js_files = ['hide_empty_pre.js']
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
