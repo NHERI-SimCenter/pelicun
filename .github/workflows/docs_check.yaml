@@ -1,5 +1,4 @@
 name: Check for Sphinx Warnings
-
 on:
   pull_request:
     paths:
@@ -7,26 +6,23 @@ on:
       - "**/*.rst"
       - ".github/workflows/docs_check.yaml"
       - "setup.py"
-
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
     - name: Check out the repository
-      uses: actions/checkout@v3
-
+      uses: actions/checkout@v4
+        with:
+          submodules: true
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
         python-version: '3.x'
-
     - name: Install dependencies
       run: |
           sudo apt-get update
           sudo apt-get install -y pandoc
           python -m pip install -e .[development]
-
     - name: Check for Sphinx warnings
       run: |
         sphinx-build -M html ./doc/source ./doc/_build --fail-on-warning

@@ -218,7 +218,10 @@ class AssessmentBase:
                 'Please use `loss_repair_DB` instead.'
             )
 
-        data_path = f'{base.pelicun_path}/resources/SimCenterDBDL/{data_name}.csv'
+        data_path = file_io.substitute_default_path(
+            [f'PelicunDefault/{data_name}.csv']
+        )[0]
+        assert isinstance(data_path, str)
 
         data = file_io.load_data(
             data_path, None, orientation=1, reindex=False, log=self.log
@@ -249,7 +252,10 @@ class AssessmentBase:
                 '`fragility_DB` is deprecated and will be dropped in '
                 'future versions of pelicun. Please use `damage_DB` instead.'
             )
-        data_path = f'{base.pelicun_path}/resources/SimCenterDBDL/{data_name}.json'
+        data_path = file_io.substitute_default_path(
+            [f'PelicunDefault/{data_name}.json']
+        )[0]
+        assert isinstance(data_path, str)
 
         with Path(data_path).open(encoding='utf-8') as f:
             data = json.load(f)

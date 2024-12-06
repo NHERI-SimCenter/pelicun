@@ -4,7 +4,8 @@ exclude = [
   "rulesets", 
   "pelicun/tests/dl_calculation/e7/auto_HU_NJ.py",
   "pelicun/tests/dl_calculation/e8/auto_HU_LA.py",
-  "pelicun/tests/dl_calculation/e9/custom_pop.py"
+  "pelicun/tests/dl_calculation/e9/custom_pop.py",
+  "pelicun/resources/DamageAndLossModelLibrary/"
 ]
 
 [tool.ruff.lint]
@@ -37,9 +38,9 @@ quote-style = "single"
 
 [tool.codespell]
 ignore-words = ["ignore_words.txt"]
-skip = ["*.html", "./htmlcov/*", "./doc_src/build/*", "./pelicun.egg-info/*", "./doc_src/*", "./doc/build/*", "*/rulesets/*", "custom_pop.py", "*/SimCenterDBDL/*", "auto_HU_NJ.py", "auto_HU_LA.py", "custom_pop.py"]
+skip = ["*.html", "./htmlcov/*", "./doc_src/build/*", "./pelicun.egg-info/*", "./doc_src/*", "./doc/build/*", "*/rulesets/*", "custom_pop.py", "*/SimCenterDBDL/*", "auto_HU_NJ.py", "auto_HU_LA.py", "custom_pop.py", "*/resources/DamageAndLossModelLibrary/*"]
 
 [tool.mypy]
 ignore_missing_imports = true
-exclude = "flycheck"
+exclude = ".*/resources/DamageAndLossModelLibrary/.*"
 namespace_packages = false

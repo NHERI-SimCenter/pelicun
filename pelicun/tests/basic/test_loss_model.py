@@ -50,7 +50,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from pelicun import model, uq
+from pelicun import file_io, model, uq
 from pelicun.base import ensure_value
 from pelicun.model.loss_model import (
     LossModel,
@@ -450,11 +450,12 @@ class TestLossModel(TestPelicunModel):
         # combined loss, result of interpolation
         l_comb = 0.904
 
+        file_path = file_io.substitute_default_path(
+            ['PelicunDefault/Wind_Flood_Hazus_HU_bldg.csv']
+        )[0]
+        assert isinstance(file_path, str)
         combination_array = pd.read_csv(
-            (
-                'pelicun/resources/SimCenterDBDL/combined_loss_matrices/'
-                'Wind_Flood_Hazus_HU_bldg.csv'
-            ),
+            file_path,
             index_col=None,
             header=None,
         ).to_numpy()
