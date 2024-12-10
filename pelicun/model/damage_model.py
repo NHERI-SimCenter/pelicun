@@ -1180,6 +1180,9 @@ class DamageModel_DS(DamageModel_Base):
         ValueError
             Raises an error if the scaling specification is invalid or
             if the input DataFrame does not meet the expected format.
+        ValueError
+            If a capacity scaling operation is associated with an
+            unsupported distribution.
         TypeError
             If there are any issues with the types of the data in the
             input DataFrame.
@@ -1390,18 +1393,18 @@ class DamageModel_DS(DamageModel_Base):
                     ]
 
                     if capacity_adjustment_operation:
-                        if family in {'normal', 'lognormal', 'deterministic'}:
-                            theta[0] = self._handle_operation(
-                                theta[0],
-                                capacity_adjustment_operation[0],
-                                float(capacity_adjustment_operation[1]),
-                            )
-                        else:
-                            self.log.warning(
+                        if family not in {'normal', 'lognormal', 'deterministic'}:
+                            msg = (
                                 f'Capacity adjustment is only supported '
                                 f'for `normal` or `lognormal` distributions. '
                                 f'Ignoring: `{cmp_loc_dir}`, which is `{family}`'
                             )
+                            raise ValueError(msg)
+                        theta[0] = self._handle_operation(
+                            theta[0],
+                            capacity_adjustment_operation[0],
+                            float(capacity_adjustment_operation[1]),
+                        )
 
                     tr_lims = [
                         frg_params_ls.get(f'Truncate{side}', np.nan)
