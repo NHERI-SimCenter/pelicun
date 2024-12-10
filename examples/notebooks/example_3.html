@@ -1,0 +1,651 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>7.3. Example 3: Combining fragility-based damage consequences and loss functions. &mdash; pelicun  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+      <link rel="stylesheet" type="text/css" href="../../_static/nbsphinx-code-cells.css?v=2aa19091" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css?v=f9bf6728" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+      <script src="../../_static/hide_empty_pre.js?v=a807066b"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="8. API Reference" href="../../api_reference/index.html" />
+    <link rel="prev" title="7.2. Example 2: Damage state validation." href="example_2.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #F2F2F2" >
+
+          
+          
+          <a href="../../index.html">
+            
+              <img src="../../_static/pelicun-Logo-grey.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">About</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../about/license.html">1. Copyright and license</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../about/cite.html">2. Citing pelicun</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../about/cite.html#logo">3. Logo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../about/acknowledgments.html">4. Acknowledgments</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../about/acknowledgments.html#national-science-foundation">4.1. National Science Foundation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../about/acknowledgments.html#contributors">4.2. Contributors</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../release_notes/index.html">5. Release Notes</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../release_notes/index.html#version-3-0">5.1. Version 3.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../release_notes/index.html#version-2-0">5.2. Version 2.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../release_notes/index.html#version-1-0">5.3. Version 1.0</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../user_guide/install.html">1. Getting started</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/install.html#staying-up-to-date">1.1. Staying up to date</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../user_guide/pelicun_framework.html">2. The Pelicun Framework</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/pelicun_framework.html#abbreviations">2.1. Abbreviations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/pelicun_framework.html#introduction-to-pelicun">2.2. Introduction to Pelicun</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/pelicun_framework.html#overview">2.3. Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/pelicun_framework.html#performance-assessment-workflow">2.4. Performance Assessment Workflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/pelicun_framework.html#response-model">2.5. Response Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/pelicun_framework.html#performance-model">2.6. Performance Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/pelicun_framework.html#damage-model">2.7. Damage Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/pelicun_framework.html#loss-model">2.8. Loss Model</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../user_guide/feature_overview.html">3. Overview of pelicun features</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/feature_overview.html#saving-loading-samples">3.1. Saving/loading samples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/feature_overview.html#logging-support">3.2. Logging support</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/feature_overview.html#uncertainty-quantification">3.3. Uncertainty quantification</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/feature_overview.html#assessment-types">3.4. Assessment types</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/feature_overview.html#demand-simulation">3.5. Demand simulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/feature_overview.html#damage-estimation">3.6. Damage estimation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/feature_overview.html#loss-estimation">3.7. Loss estimation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/feature_overview.html#command-line-support">3.8. Command-line support</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/feature_overview.html#standalone-tools">3.9. Standalone tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/feature_overview.html#feature-overview-and-examples">3.10. Feature overview and examples</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../user_guide/damage_and_loss_library.html">4. Damage and loss library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../user_guide/bug_reports_and_feature_requests.html">5. Bug reports and feature requests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../user_guide/resources_for_new_python_users.html">6. Resources for new python users</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">7. Examples</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="example_1.html">7.1. Example 1: Simple loss function.</a></li>
+<li class="toctree-l2"><a class="reference internal" href="example_2.html">7.2. Example 2: Damage state validation.</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">7.3. Example 3: Combining fragility-based damage consequences and loss functions.</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../api_reference/index.html">8. API Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../api_reference/_autosummary/pelicun.html">8.1. pelicun</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../developer_guide/getting_started.html">1. Getting started</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../developer_guide/getting_started.html#code-of-conduct">1.1. Code of conduct</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../developer_guide/getting_started.html#how-to-contribute">1.2. How to contribute</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../developer_guide/development_environment.html">2. Setting up a development environment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developer_guide/code_quality.html">3. Coding practice</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../developer_guide/code_quality.html#code-quality-assurance">3.1. Code quality assurance</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../developer_guide/code_quality.html#unit-tests">3.2. Unit tests</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../developer_guide/code_quality.html#documentation">3.3. Documentation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../developer_guide/internals.html">4. Package architecture</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../developer_guide/internals.html#overview-of-files">4.1. Overview of files</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #F2F2F2" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">pelicun</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html"><span class="section-number">7. </span>Examples</a></li>
+      <li class="breadcrumb-item active"><span class="section-number">7.3. </span>Example 3: Combining fragility-based damage consequences and loss functions.</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="Example-3:-Combining-fragility-based-damage-consequences-and-loss-functions.">
+<h1><span class="section-number">7.3. </span>Example 3: Combining fragility-based damage consequences and loss functions.<a class="headerlink" href="#Example-3:-Combining-fragility-based-damage-consequences-and-loss-functions." title="Link to this heading"></a></h1>
+<p>Tests a complete loss estimation workflow combining damage state and loss function driven components. The code is based on PRJ-3411v5 hosted on DesignSafe.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">tempfile</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">pytest</span>
+
+<span class="kn">import</span> <span class="nn">pelicun</span>
+<span class="kn">from</span> <span class="nn">pelicun</span> <span class="kn">import</span> <span class="n">assessment</span><span class="p">,</span> <span class="n">file_io</span>
+<span class="kn">from</span> <span class="nn">pelicun.pelicun_warnings</span> <span class="kn">import</span> <span class="n">PelicunWarning</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">temp_dir</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">mkdtemp</span><span class="p">()</span>
+
+<span class="n">sample_size</span> <span class="o">=</span> <span class="mi">10000</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Initialize a pelicun assessment</span>
+<span class="n">asmnt</span> <span class="o">=</span> <span class="n">assessment</span><span class="o">.</span><span class="n">Assessment</span><span class="p">(</span>
+    <span class="p">{</span><span class="s1">&#39;PrintLog&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s1">&#39;Seed&#39;</span><span class="p">:</span> <span class="mi">415</span><span class="p">,</span> <span class="s1">&#39;LogFile&#39;</span><span class="p">:</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">temp_dir</span><span class="si">}</span><span class="s1">/log_file.txt&#39;</span><span class="p">}</span>
+<span class="p">)</span>
+
+<span class="n">asmnt</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">list_all_ds</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="n">asmnt</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">eco_scale</span><span class="p">[</span><span class="s1">&#39;AcrossFloors&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="n">asmnt</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">eco_scale</span><span class="p">[</span><span class="s1">&#39;AcrossDamageStates&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+pelicun 3.4.0 |
+
+System Information:
+         local time zone: UTC
+         start time: 2024-12-10T01:55:47
+         python: 3.10.15 (main, Sep  9 2024, 03:02:45) [GCC 11.4.0]
+         numpy: 1.26.4
+         pandas: 2.2.3
+
+         --------------------------------------------------------------------------------
+01:55:47 Assessment Started
+</pre></div></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">demand_data</span> <span class="o">=</span> <span class="n">file_io</span><span class="o">.</span><span class="n">load_data</span><span class="p">(</span>
+    <span class="s1">&#39;example_3/demand_data.csv&#39;</span><span class="p">,</span>
+    <span class="n">unit_conversion_factors</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">reindex</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">ndims</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">demand_data</span><span class="p">)</span>
+<span class="n">perfect_correlation</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">ndims</span><span class="p">,</span> <span class="n">ndims</span><span class="p">)),</span>
+    <span class="n">columns</span><span class="o">=</span><span class="n">demand_data</span><span class="o">.</span><span class="n">index</span><span class="p">,</span>  <span class="c1"># type: ignore</span>
+    <span class="n">index</span><span class="o">=</span><span class="n">demand_data</span><span class="o">.</span><span class="n">index</span><span class="p">,</span>  <span class="c1"># type: ignore</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#</span>
+<span class="c1"># Additional damage state-driven components</span>
+<span class="c1">#</span>
+
+<span class="n">damage_db</span> <span class="o">=</span> <span class="n">pelicun</span><span class="o">.</span><span class="n">file_io</span><span class="o">.</span><span class="n">load_data</span><span class="p">(</span>
+    <span class="s1">&#39;example_3/additional_damage_db.csv&#39;</span><span class="p">,</span>
+    <span class="n">reindex</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">unit_conversion_factors</span><span class="o">=</span><span class="n">asmnt</span><span class="o">.</span><span class="n">unit_conversion_factors</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">consequences</span> <span class="o">=</span> <span class="n">pelicun</span><span class="o">.</span><span class="n">file_io</span><span class="o">.</span><span class="n">load_data</span><span class="p">(</span>
+    <span class="s1">&#39;example_3/additional_consequences.csv&#39;</span><span class="p">,</span>
+    <span class="n">reindex</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">unit_conversion_factors</span><span class="o">=</span><span class="n">asmnt</span><span class="o">.</span><span class="n">unit_conversion_factors</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#</span>
+<span class="c1"># Additional loss function-driven components</span>
+<span class="c1">#</span>
+
+<span class="n">loss_functions</span> <span class="o">=</span> <span class="n">pelicun</span><span class="o">.</span><span class="n">file_io</span><span class="o">.</span><span class="n">load_data</span><span class="p">(</span>
+    <span class="s1">&#39;example_3/additional_loss_functions.csv&#39;</span><span class="p">,</span>
+    <span class="n">reindex</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">unit_conversion_factors</span><span class="o">=</span><span class="n">asmnt</span><span class="o">.</span><span class="n">unit_conversion_factors</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#</span>
+<span class="c1"># Demands</span>
+<span class="c1">#</span>
+
+<span class="c1"># Load the demand model</span>
+<span class="n">asmnt</span><span class="o">.</span><span class="n">demand</span><span class="o">.</span><span class="n">load_model</span><span class="p">(</span>
+    <span class="p">{</span><span class="s1">&#39;marginals&#39;</span><span class="p">:</span> <span class="n">demand_data</span><span class="p">,</span> <span class="s1">&#39;correlation&#39;</span><span class="p">:</span> <span class="n">perfect_correlation</span><span class="p">}</span>
+<span class="p">)</span>
+
+<span class="c1"># Generate samples</span>
+<span class="n">asmnt</span><span class="o">.</span><span class="n">demand</span><span class="o">.</span><span class="n">generate_sample</span><span class="p">({</span><span class="s1">&#39;SampleSize&#39;</span><span class="p">:</span> <span class="n">sample_size</span><span class="p">})</span>
+
+
+<span class="k">def</span> <span class="nf">add_more_edps</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Add SA_1.13 and residual drift to the demand sample.&quot;&quot;&quot;</span>
+    <span class="c1"># Add residual drift and Sa</span>
+    <span class="n">demand_sample</span> <span class="o">=</span> <span class="n">asmnt</span><span class="o">.</span><span class="n">demand</span><span class="o">.</span><span class="n">save_sample</span><span class="p">()</span>
+
+    <span class="c1"># RIDs are all fixed for testing.</span>
+    <span class="n">rid</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
+        <span class="p">[</span>
+            <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">demand_sample</span><span class="p">[</span><span class="s1">&#39;PID&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="mf">0.0050</span><span class="p">),</span>  <span class="c1"># type: ignore</span>
+                <span class="n">index</span><span class="o">=</span><span class="n">demand_sample</span><span class="p">[</span><span class="s1">&#39;PID&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">,</span>  <span class="c1"># type: ignore</span>
+                <span class="n">columns</span><span class="o">=</span><span class="n">demand_sample</span><span class="p">[</span><span class="s1">&#39;PID&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span>  <span class="c1"># type: ignore</span>
+            <span class="p">)</span>
+        <span class="p">],</span>
+        <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">keys</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;RID&#39;</span><span class="p">],</span>
+    <span class="p">)</span>
+    <span class="n">demand_sample_ext</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">demand_sample</span><span class="p">,</span> <span class="n">rid</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
+
+    <span class="n">demand_sample_ext</span><span class="p">[</span><span class="s1">&#39;SA_1.13&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.50</span>
+
+    <span class="c1"># Add units to the data</span>
+    <span class="n">demand_sample_ext</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;Units&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+
+    <span class="c1"># PFA and SA are in &quot;g&quot; in this example, while PID and RID are &quot;rad&quot;</span>
+    <span class="n">demand_sample_ext</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s1">&#39;Units&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;PFA&#39;</span><span class="p">,</span> <span class="s1">&#39;SA_1.13&#39;</span><span class="p">]]</span> <span class="o">=</span> <span class="s1">&#39;g&#39;</span>
+    <span class="n">demand_sample_ext</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s1">&#39;Units&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;PID&#39;</span><span class="p">,</span> <span class="s1">&#39;RID&#39;</span><span class="p">]]</span> <span class="o">=</span> <span class="s1">&#39;rad&#39;</span>
+
+    <span class="n">asmnt</span><span class="o">.</span><span class="n">demand</span><span class="o">.</span><span class="n">load_sample</span><span class="p">(</span><span class="n">demand_sample_ext</span><span class="p">)</span>
+
+
+<span class="n">add_more_edps</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+         --------------------------------------------------------------------------------
+01:55:47 Loading demand model...
+         Unit conversion successful.
+         Demand model successfully loaded.
+         --------------------------------------------------------------------------------
+01:55:48 Generating sample from demand variables...
+
+         18 random variables created.
+
+         Correlations between 18 random variables successfully defined.
+
+         Successfully generated 10000 realizations.
+         --------------------------------------------------------------------------------
+         Preparing data ...
+         Converting units...
+         Unit conversion successful.
+         --------------------------------------------------------------------------------
+01:55:48 Loading demand data...
+         Converting units...
+         Unit conversion successful.
+         Demand data successfully parsed.
+         Demand units successfully parsed.
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#</span>
+<span class="c1"># Asset</span>
+<span class="c1">#</span>
+
+<span class="c1"># Specify number of stories</span>
+<span class="n">asmnt</span><span class="o">.</span><span class="n">stories</span> <span class="o">=</span> <span class="mi">1</span>
+
+<span class="c1"># Load component definitions</span>
+<span class="n">cmp_marginals</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;example_3/CMP_marginals.csv&#39;</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">cmp_marginals</span><span class="p">[</span><span class="s1">&#39;Blocks&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cmp_marginals</span><span class="p">[</span><span class="s1">&#39;Blocks&#39;</span><span class="p">]</span>
+<span class="n">asmnt</span><span class="o">.</span><span class="n">asset</span><span class="o">.</span><span class="n">load_cmp_model</span><span class="p">({</span><span class="s1">&#39;marginals&#39;</span><span class="p">:</span> <span class="n">cmp_marginals</span><span class="p">})</span>
+
+<span class="c1"># Generate sample</span>
+<span class="n">asmnt</span><span class="o">.</span><span class="n">asset</span><span class="o">.</span><span class="n">generate_cmp_sample</span><span class="p">(</span><span class="n">sample_size</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+         --------------------------------------------------------------------------------
+01:55:48 Loading component model...
+         Unit conversion successful.
+         Model parameters successfully parsed. 8 performance groups identified
+         Converting model parameters to internal units...
+         Model parameters successfully loaded.
+
+         Component model marginal distributions:
+                                          Theta_0  Blocks Units
+         cmp                 loc dir uid
+         D.30.31.013i        2   0   0        1.0       1    ea
+         collapse            0   1   0        1.0       1    ea
+         excessiveRID        1   1   0        1.0       1    ea
+                                 2   0        1.0       1    ea
+         irreparable         0   1   0        1.0       1    ea
+         missing.component   0   1   0        1.0       1    ea
+         testing.component   1   1   0        1.0       1    ea
+         testing.component.2 1   1   0        2.0       4    ea
+         --------------------------------------------------------------------------------
+01:55:48 Generating sample from component quantity variables...
+
+         8 random variables created.
+
+         Successfully generated 10000 realizations.
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#</span>
+<span class="c1"># Damage</span>
+<span class="c1">#</span>
+
+<span class="n">cmp_set</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">asmnt</span><span class="o">.</span><span class="n">asset</span><span class="o">.</span><span class="n">list_unique_component_ids</span><span class="p">())</span>
+
+<span class="c1"># Load the models into pelicun</span>
+<span class="n">asmnt</span><span class="o">.</span><span class="n">damage</span><span class="o">.</span><span class="n">load_model_parameters</span><span class="p">(</span>
+    <span class="p">[</span>
+        <span class="n">damage_db</span><span class="p">,</span>  <span class="c1"># type: ignore</span>
+        <span class="s1">&#39;PelicunDefault/damage_DB_FEMA_P58_2nd.csv&#39;</span><span class="p">,</span>
+    <span class="p">],</span>
+    <span class="n">cmp_set</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># Prescribe the damage process</span>
+<span class="n">dmg_process</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;1_collapse&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;DS1&#39;</span><span class="p">:</span> <span class="s1">&#39;ALL_NA&#39;</span><span class="p">},</span>
+    <span class="s1">&#39;2_excessiveRID&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;DS1&#39;</span><span class="p">:</span> <span class="s1">&#39;irreparable_DS1&#39;</span><span class="p">},</span>
+<span class="p">}</span>
+
+<span class="c1"># Calculate damages</span>
+
+<span class="n">asmnt</span><span class="o">.</span><span class="n">damage</span><span class="o">.</span><span class="n">calculate</span><span class="p">(</span><span class="n">dmg_process</span><span class="o">=</span><span class="n">dmg_process</span><span class="p">)</span>
+
+<span class="c1"># Test load sample, save sample</span>
+<span class="n">asmnt</span><span class="o">.</span><span class="n">damage</span><span class="o">.</span><span class="n">save_sample</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">temp_dir</span><span class="si">}</span><span class="s1">/out.csv&#39;</span><span class="p">)</span>
+<span class="n">asmnt</span><span class="o">.</span><span class="n">damage</span><span class="o">.</span><span class="n">load_sample</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">temp_dir</span><span class="si">}</span><span class="s1">/out.csv&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+         --------------------------------------------------------------------------------
+         Loading damage model...
+         Damage model parameters loaded successfully.
+         Removing unused damage model parameters.
+         Converting damage model parameter units.
+         Checking damage model parameter availability for all components in the asset model.
+         --------------------------------------------------------------------------------
+01:55:48 Calculating damages...
+         Number of Performance Groups in Asset Model: 8
+         Number of Component Blocks: 5
+         1 batches of Performance Groups prepared for damage assessment
+01:55:48 Calculating damage states for PG batch 1 with 5 blocks
+         Damage state calculation successful.
+01:55:48 Applying damage processes.
+         Damage processes successfully applied.
+         Damage calculation completed.
+         --------------------------------------------------------------------------------
+01:55:48 Saving damage sample...
+         Saving data to `/tmp/tmps8i4s63a/out.csv`...
+         Converting units...
+         Unit conversion successful.
+         Data successfully saved to file.
+         Damage sample successfully saved.
+         --------------------------------------------------------------------------------
+01:55:48 Loading damage sample...
+         Converting units...
+         Unit conversion successful.
+         Damage sample successfully loaded.
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">asmnt</span><span class="o">.</span><span class="n">damage</span><span class="o">.</span><span class="n">ds_model</span><span class="o">.</span><span class="n">sample</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+cmp           loc  dir  uid  ds
+D.30.31.013i  2    0    0    0     0.3194
+                             1     0.2282
+                             2     0.2236
+                             3     0.2288
+collapse      0    1    0    0     0.5000
+                             1     0.5000
+excessiveRID  1    1    0    0     0.9902
+                             1     0.0098
+                   2    0    0     0.9902
+                             1     0.0098
+irreparable   0    1    0    0     0.9804
+                             1     0.0196
+dtype: float64
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#</span>
+<span class="c1"># Losses</span>
+<span class="c1">#</span>
+
+<span class="c1"># Create the loss map</span>
+<span class="n">loss_map</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+    <span class="p">[</span><span class="s1">&#39;replacement&#39;</span><span class="p">,</span> <span class="s1">&#39;replacement&#39;</span><span class="p">],</span>
+    <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Repair&#39;</span><span class="p">],</span>
+    <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;collapse&#39;</span><span class="p">,</span> <span class="s1">&#39;irreparable&#39;</span><span class="p">],</span>
+<span class="p">)</span>
+
+<span class="c1"># Load the loss model</span>
+<span class="n">asmnt</span><span class="o">.</span><span class="n">loss</span><span class="o">.</span><span class="n">decision_variables</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;Cost&#39;</span><span class="p">,</span> <span class="s1">&#39;Time&#39;</span><span class="p">)</span>
+<span class="n">asmnt</span><span class="o">.</span><span class="n">loss</span><span class="o">.</span><span class="n">add_loss_map</span><span class="p">(</span><span class="n">loss_map</span><span class="p">,</span> <span class="n">loss_map_policy</span><span class="o">=</span><span class="s1">&#39;fill&#39;</span><span class="p">)</span>
+<span class="k">with</span> <span class="n">pytest</span><span class="o">.</span><span class="n">warns</span><span class="p">(</span><span class="n">PelicunWarning</span><span class="p">):</span>
+    <span class="n">asmnt</span><span class="o">.</span><span class="n">loss</span><span class="o">.</span><span class="n">load_model_parameters</span><span class="p">(</span>
+        <span class="p">[</span>
+            <span class="n">consequences</span><span class="p">,</span>  <span class="c1"># type: ignore</span>
+            <span class="n">loss_functions</span><span class="p">,</span>  <span class="c1"># type: ignore</span>
+            <span class="s1">&#39;PelicunDefault/loss_repair_DB_FEMA_P58_2nd.csv&#39;</span><span class="p">,</span>
+        <span class="p">]</span>
+    <span class="p">)</span>
+
+<span class="c1"># Perform the calculation</span>
+<span class="n">asmnt</span><span class="o">.</span><span class="n">loss</span><span class="o">.</span><span class="n">calculate</span><span class="p">()</span>
+
+<span class="c1"># Test load sample, save sample</span>
+<span class="k">with</span> <span class="n">pytest</span><span class="o">.</span><span class="n">warns</span><span class="p">(</span><span class="n">PelicunWarning</span><span class="p">):</span>
+    <span class="n">asmnt</span><span class="o">.</span><span class="n">loss</span><span class="o">.</span><span class="n">save_sample</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">temp_dir</span><span class="si">}</span><span class="s1">/sample.csv&#39;</span><span class="p">)</span>
+    <span class="n">asmnt</span><span class="o">.</span><span class="n">loss</span><span class="o">.</span><span class="n">load_sample</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">temp_dir</span><span class="si">}</span><span class="s1">/sample.csv&#39;</span><span class="p">)</span>
+
+<span class="c1">#</span>
+<span class="c1"># Loss sample aggregation</span>
+<span class="c1">#</span>
+
+<span class="c1"># Get the aggregated losses</span>
+<span class="k">with</span> <span class="n">pytest</span><span class="o">.</span><span class="n">warns</span><span class="p">(</span><span class="n">PelicunWarning</span><span class="p">):</span>
+    <span class="n">agg_df</span> <span class="o">=</span> <span class="n">asmnt</span><span class="o">.</span><span class="n">loss</span><span class="o">.</span><span class="n">aggregate_losses</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+01:55:48 Loading loss map...
+         Loss map is provided.
+01:55:48 Loss map loaded successfully.
+         --------------------------------------------------------------------------------
+01:55:48 Loading loss parameters...
+         Loss model parameters loaded successfully.
+         Removing unused loss model parameters.
+         Converting loss model parameter units.
+         Checking loss model parameter availability for all components in the asset model.
+         --------------------------------------------------------------------------------
+01:55:48 Calculating losses...
+
+         Aggregating damage quantities...
+         Successfully aggregated damage quantities.
+
+         Calculating the median repair consequences...
+         Successfully determined median repair consequences.
+01:55:49
+         Considering deviations from the median values to obtain random DV sample...
+         Preparing random variables for repair consequences...
+
+         6 random variables created.
+
+         Successfully generated 10000 realizations of deviation from the median consequences.
+         Successfully obtained DV sample.
+
+         Calculating the median repair consequences...
+         Successfully determined median repair consequences.
+01:55:49
+         Considering deviations from the median values to obtain random DV sample...
+         Preparing random variables for repair cost and time...
+
+         2 random variables created.
+
+         Successfully generated 10000 realizations of deviation from the median consequences.
+         Successfully obtained DV sample.
+01:55:49 Loss calculation successful.
+         --------------------------------------------------------------------------------
+01:55:49 Saving loss sample...
+         Saving data to `/tmp/tmps8i4s63a/sample.csv`...
+         Converting units...
+         Unit conversion successful.
+         Data successfully saved to file.
+         Loss sample successfully saved.
+         --------------------------------------------------------------------------------
+01:55:49 Loading loss sample...
+         Converting units...
+         Unit conversion successful.
+         Loss sample successfully loaded.
+         Preparing data ...
+         Converting units...
+         Unit conversion successful.
+</pre></div></div>
+</div>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Leland Stanford Junior University and The Regents of the University of California.</p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+    <!-- Theme Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-158130480-7"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'UA-158130480-7', {
+          'anonymize_ip': false,
+      });
+    </script> 
+
+</body>
+</html>

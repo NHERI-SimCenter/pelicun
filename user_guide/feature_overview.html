@@ -20,6 +20,7 @@
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script src="../_static/design-tabs.js?v=f930bc37"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="../_static/hide_empty_pre.js?v=a807066b"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -98,8 +99,9 @@
 <li class="toctree-l1"><a class="reference internal" href="bug_reports_and_feature_requests.html">5. Bug reports and feature requests</a></li>
 <li class="toctree-l1"><a class="reference internal" href="resources_for_new_python_users.html">6. Resources for new python users</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../examples/index.html">7. Examples</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../examples/index.html#complete-list">7.1. Complete list</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../examples/index.html#grouped-by-feature">7.2. Grouped by feature</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/notebooks/example_1.html">7.1. Example 1: Simple loss function.</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/notebooks/example_2.html">7.2. Example 2: Damage state validation.</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/notebooks/example_3.html">7.3. Example 3: Combining fragility-based damage consequences and loss functions.</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../api_reference/index.html">8. API Reference</a><ul>
@@ -184,41 +186,44 @@ With the help of random variable registries, it also supports multivariate distr
 <section id="demand-simulation">
 <h2><span class="section-number">3.5. </span>Demand simulation<a class="headerlink" href="#demand-simulation" title="Link to this heading"></a></h2>
 <section id="model-calibration">
-<span id="fo-calibration"></span><h3><span class="section-number">3.5.1. </span>Model calibration<a class="headerlink" href="#model-calibration" title="Link to this heading"></a></h3>
+<span id="fo-calibration"></span><h3>Model calibration<a class="headerlink" href="#model-calibration" title="Link to this heading"></a></h3>
 </section>
 <section id="sampling-methods">
-<span id="fo-sampling"></span><h3><span class="section-number">3.5.2. </span>Sampling methods<a class="headerlink" href="#sampling-methods" title="Link to this heading"></a></h3>
+<span id="fo-sampling"></span><h3>Sampling methods<a class="headerlink" href="#sampling-methods" title="Link to this heading"></a></h3>
 </section>
 <section id="rid-pid-inference">
-<span id="fo-pidrid"></span><h3><span class="section-number">3.5.3. </span>RID|PID inference<a class="headerlink" href="#rid-pid-inference" title="Link to this heading"></a></h3>
+<span id="fo-pidrid"></span><h3>RID|PID inference<a class="headerlink" href="#rid-pid-inference" title="Link to this heading"></a></h3>
 </section>
 <section id="sample-expansion">
-<span id="fo-sample-expansion"></span><h3><span class="section-number">3.5.4. </span>Sample expansion<a class="headerlink" href="#sample-expansion" title="Link to this heading"></a></h3>
+<span id="fo-sample-expansion"></span><h3>Sample expansion<a class="headerlink" href="#sample-expansion" title="Link to this heading"></a></h3>
 </section>
 <section id="demand-cloning">
-<span id="fo-demand-cloning"></span><h3><span class="section-number">3.5.5. </span>Demand cloning<a class="headerlink" href="#demand-cloning" title="Link to this heading"></a></h3>
+<span id="fo-demand-cloning"></span><h3>Demand cloning<a class="headerlink" href="#demand-cloning" title="Link to this heading"></a></h3>
 </section>
 </section>
 <section id="damage-estimation">
 <h2><span class="section-number">3.6. </span>Damage estimation<a class="headerlink" href="#damage-estimation" title="Link to this heading"></a></h2>
 <section id="damage-processes">
-<span id="fo-damage-process"></span><h3><span class="section-number">3.6.1. </span>Damage processes<a class="headerlink" href="#damage-processes" title="Link to this heading"></a></h3>
+<span id="fo-damage-process"></span><h3>Damage processes<a class="headerlink" href="#damage-processes" title="Link to this heading"></a></h3>
 </section>
 </section>
 <section id="loss-estimation">
 <h2><span class="section-number">3.7. </span>Loss estimation<a class="headerlink" href="#loss-estimation" title="Link to this heading"></a></h2>
 <section id="loss-maps">
-<span id="fo-loss-maps"></span><h3><span class="section-number">3.7.1. </span>Loss maps<a class="headerlink" href="#loss-maps" title="Link to this heading"></a></h3>
+<span id="fo-loss-maps"></span><h3>Loss maps<a class="headerlink" href="#loss-maps" title="Link to this heading"></a></h3>
 </section>
 <section id="active-decision-variables">
-<span id="fo-active-dvs"></span><h3><span class="section-number">3.7.2. </span>Active decision variables<a class="headerlink" href="#active-decision-variables" title="Link to this heading"></a></h3>
+<span id="fo-active-dvs"></span><h3>Active decision variables<a class="headerlink" href="#active-decision-variables" title="Link to this heading"></a></h3>
 </section>
 <section id="consequence-scaling">
-<span id="fo-consequence-scaling"></span><h3><span class="section-number">3.7.3. </span>Consequence scaling<a class="headerlink" href="#consequence-scaling" title="Link to this heading"></a></h3>
+<span id="fo-consequence-scaling"></span><h3>Consequence scaling<a class="headerlink" href="#consequence-scaling" title="Link to this heading"></a></h3>
 </section>
 <section id="loss-aggregation">
-<span id="fo-loss-aggregation"></span><h3><span class="section-number">3.7.4. </span>Loss aggregation<a class="headerlink" href="#loss-aggregation" title="Link to this heading"></a></h3>
+<span id="fo-loss-aggregation"></span><h3>Loss aggregation<a class="headerlink" href="#loss-aggregation" title="Link to this heading"></a></h3>
 <p>Also talk about replacement thresholds here.</p>
+</section>
+<section id="loss-functions">
+<span id="fo-loss-functions"></span><h3>Loss functions<a class="headerlink" href="#loss-functions" title="Link to this heading"></a></h3>
 </section>
 </section>
 <section id="command-line-support">
@@ -228,20 +233,20 @@ Installing the package enables the <code class="docutils literal notranslate"><s
 <code class="docutils literal notranslate"><span class="pre">DL_calculation.py</span></code> is a script that conducts a performance evaluation using command-line inputs.
 Some of those inputs are paths to required input files, including a JSON file that provides most evaluation options.</p>
 <section id="input-file-auto-population">
-<span id="fo-autopop"></span><h3><span class="section-number">3.8.1. </span>Input file auto-population<a class="headerlink" href="#input-file-auto-population" title="Link to this heading"></a></h3>
+<span id="fo-autopop"></span><h3>Input file auto-population<a class="headerlink" href="#input-file-auto-population" title="Link to this heading"></a></h3>
 <p>It is possible for the JSON input file to be auto-populated (extended to include more entries) using either default or user-defined auto-population scripts.</p>
 </section>
 </section>
 <section id="standalone-tools">
 <h2><span class="section-number">3.9. </span>Standalone tools<a class="headerlink" href="#standalone-tools" title="Link to this heading"></a></h2>
 <section id="unit-conversion">
-<span id="fo-convert-units"></span><h3><span class="section-number">3.9.1. </span>Unit conversion<a class="headerlink" href="#unit-conversion" title="Link to this heading"></a></h3>
+<span id="fo-convert-units"></span><h3>Unit conversion<a class="headerlink" href="#unit-conversion" title="Link to this heading"></a></h3>
 </section>
 <section id="fit-distribution-to-sample-or-percentiles">
-<span id="fo-fit"></span><h3><span class="section-number">3.9.2. </span>Fit distribution to sample or percentiles<a class="headerlink" href="#fit-distribution-to-sample-or-percentiles" title="Link to this heading"></a></h3>
+<span id="fo-fit"></span><h3>Fit distribution to sample or percentiles<a class="headerlink" href="#fit-distribution-to-sample-or-percentiles" title="Link to this heading"></a></h3>
 </section>
 <section id="random-variable-classes">
-<span id="fo-rvs"></span><h3><span class="section-number">3.9.3. </span>Random variable classes<a class="headerlink" href="#random-variable-classes" title="Link to this heading"></a></h3>
+<span id="fo-rvs"></span><h3>Random variable classes<a class="headerlink" href="#random-variable-classes" title="Link to this heading"></a></h3>
 </section>
 </section>
 <section id="feature-overview-and-examples">

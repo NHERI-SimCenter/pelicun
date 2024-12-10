@@ -20,6 +20,7 @@
       <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script src="../../_static/design-tabs.js?v=f930bc37"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="../../_static/hide_empty_pre.js?v=a807066b"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
@@ -98,8 +99,9 @@
 <li class="toctree-l1"><a class="reference internal" href="../../user_guide/bug_reports_and_feature_requests.html">5. Bug reports and feature requests</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../user_guide/resources_for_new_python_users.html">6. Resources for new python users</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../examples/index.html">7. Examples</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../examples/index.html#complete-list">7.1. Complete list</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../examples/index.html#grouped-by-feature">7.2. Grouped by feature</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../examples/notebooks/example_1.html">7.1. Example 1: Simple loss function.</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../examples/notebooks/example_2.html">7.2. Example 2: Damage state validation.</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../examples/notebooks/example_3.html">7.3. Example 3: Combining fragility-based damage consequences and loss functions.</a></li>
 </ul>
 </li>
 <li class="toctree-l1 current"><a class="reference internal" href="../index.html">8. API Reference</a><ul class="current">
@@ -143,8 +145,8 @@
       <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../index.html"><span class="section-number">8. </span>API Reference</a></li>
           <li class="breadcrumb-item"><a href="pelicun.html"><span class="section-number">8.1. </span>pelicun</a></li>
-          <li class="breadcrumb-item"><a href="pelicun.tests.html"><span class="section-number">8.1.7. </span>pelicun.tests</a></li>
-          <li class="breadcrumb-item"><a href="pelicun.tests.dl_calculation.html"><span class="section-number">8.1.7.3. </span>pelicun.tests.dl_calculation</a></li>
+          <li class="breadcrumb-item"><a href="pelicun.tests.html">pelicun.tests</a></li>
+          <li class="breadcrumb-item"><a href="pelicun.tests.dl_calculation.html">pelicun.tests.dl_calculation</a></li>
           <li class="breadcrumb-item"><a href="pelicun.tests.dl_calculation.rulesets.html">pelicun.tests.dl_calculation.rulesets</a></li>
       <li class="breadcrumb-item active">pelicun.tests.dl_calculation.rulesets.MetaVarRulesets</li>
       <li class="wy-breadcrumbs-aside">
@@ -178,6 +180,23 @@ NJ - New Jersey
 LA - Louisiana</p>
 </dd>
 <dt><strong>hazard: list of str</strong></dt><dd><p>Supported hazard types: “wind”, “inundation”</p>
+</dd>
+<dt><strong>BIM attributes:</strong></dt><dd></dd>
+<dt><strong>NumberOfStories: str</strong></dt><dd><p>Number of stories</p>
+</dd>
+<dt><strong>YearBuilt: str</strong></dt><dd><p>Year of construction.</p>
+</dd>
+<dt><strong>RoofShape: {‘hip’, ‘hipped’, ‘gabled’, ‘gable’, ‘flat’}</strong></dt><dd><p>One of the listed roof shapes that best describes the building.</p>
+</dd>
+<dt><strong>OccupancyType: str</strong></dt><dd><p>Occupancy type.</p>
+</dd>
+<dt><strong>BuildingType: str</strong></dt><dd><p>Core construction material type</p>
+</dd>
+<dt><strong>DWSII: float</strong></dt><dd><p>Design wind speed II as per ASCE 7 in mph</p>
+</dd>
+<dt><strong>Area: float</strong></dt><dd><p>Plan area in ft2.</p>
+</dd>
+<dt><strong>LULC: integer</strong></dt><dd><p>Land Use/Land Cover category (typically location-specific)</p>
 </dd>
 </dl>
 </dd>

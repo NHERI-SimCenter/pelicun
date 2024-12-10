@@ -22,10 +22,11 @@
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
       <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
       <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+      <script src="../_static/hide_empty_pre.js?v=a807066b"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="7.2.1. Example 1" href="notebooks/example_1.html" />
+    <link rel="next" title="7.1. Example 1: Simple loss function." href="notebooks/example_1.html" />
     <link rel="prev" title="6. Resources for new python users" href="../user_guide/resources_for_new_python_users.html" /> 
 </head>
 
@@ -100,8 +101,9 @@
 <li class="toctree-l1"><a class="reference internal" href="../user_guide/bug_reports_and_feature_requests.html">5. Bug reports and feature requests</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../user_guide/resources_for_new_python_users.html">6. Resources for new python users</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">7. Examples</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#complete-list">7.1. Complete list</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#grouped-by-feature">7.2. Grouped by feature</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/example_1.html">7.1. Example 1: Simple loss function.</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/example_2.html">7.2. Example 2: Damage state validation.</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/example_3.html">7.3. Example 3: Combining fragility-based damage consequences and loss functions.</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../api_reference/index.html">8. API Reference</a><ul>
@@ -161,8 +163,6 @@
 Increasing the set of examples is a very high priority.
 Please come back soon!</p>
 </div>
-<section id="complete-list">
-<h2><span class="section-number">7.1. </span>Complete list<a class="headerlink" href="#complete-list" title="Link to this heading"></a></h2>
 <table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>Example</p></th>
@@ -171,79 +171,23 @@ Please come back soon!</p>
 </thead>
 <tbody>
 <tr class="row-even"><td><p><a class="reference internal" href="notebooks/example_1.html"><span class="doc">E1</span></a></p></td>
-<td><p>This example demonstrates the seismic performance
-assessment of a steel moment frame structure using the
-FEMA P-58 methodology.</p></td>
+<td><p>Example of a simple assessment involving a single loss
+function. The example and associated input files can be
+easily extended to include more loss functions and input
+demands.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="notebooks/example_2.html"><span class="doc">E2</span></a></p></td>
+<td><p>Example validating the estimated damage state
+probabilities of a single component.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="notebooks/example_3.html"><span class="doc">E3</span></a></p></td>
+<td><p>A loss assessment combining fragility-based damage
+consequences and loss functions.</p></td>
 </tr>
 </tbody>
 </table>
-</section>
-<section id="grouped-by-feature">
-<h2><span class="section-number">7.2. </span>Grouped by feature<a class="headerlink" href="#grouped-by-feature" title="Link to this heading"></a></h2>
-<p>The following sections group the examples above based on the specific features they illustrate, helping you pick the ones most relevant to what you are looking for.</p>
-<details class="sd-sphinx-override sd-dropdown sd-card sd-mb-3">
-<summary class="sd-summary-title sd-card-header">
-<span class="sd-summary-text">Asset type</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
-<table class="docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p class="sd-card-text">Feature</p></th>
-<th class="head"><p class="sd-card-text">Examples</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p class="sd-card-text">Building</p></td>
-<td><p class="sd-card-text"><a class="reference internal" href="notebooks/example_1.html"><span class="doc">E1</span></a></p></td>
-</tr>
-</tbody>
-</table>
+<div class="toctree-wrapper compound">
 </div>
-</details><details class="sd-sphinx-override sd-dropdown sd-card sd-mb-3">
-<summary class="sd-summary-title sd-card-header">
-<span class="sd-summary-text">Demand Simulation</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
-<table class="docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p class="sd-card-text">Feature</p></th>
-<th class="head"><p class="sd-card-text">Examples</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p class="sd-card-text"><a class="reference internal" href="../user_guide/feature_overview.html#fo-calibration"><span class="std std-ref">Model calibration</span></a></p></td>
-<td><p class="sd-card-text"><a class="reference internal" href="notebooks/example_1.html"><span class="doc">E1</span></a></p></td>
-</tr>
-<tr class="row-odd"><td><p class="sd-card-text"><a class="reference internal" href="../user_guide/feature_overview.html#fo-pidrid"><span class="std std-ref">RID|PID inference</span></a></p></td>
-<td><p class="sd-card-text"><a class="reference internal" href="notebooks/example_1.html"><span class="doc">E1</span></a></p></td>
-</tr>
-<tr class="row-even"><td><p class="sd-card-text"><a class="reference internal" href="../user_guide/feature_overview.html#fo-sample-expansion"><span class="std std-ref">Sample expansion</span></a></p></td>
-<td><p class="sd-card-text"><a class="reference internal" href="notebooks/example_1.html"><span class="doc">E1</span></a></p></td>
-</tr>
-</tbody>
-</table>
-</div>
-</details><details class="sd-sphinx-override sd-dropdown sd-card sd-mb-3">
-<summary class="sd-summary-title sd-card-header">
-<span class="sd-summary-text">Loss estimation</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
-<table class="docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p class="sd-card-text">Feature</p></th>
-<th class="head"><p class="sd-card-text">Examples</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p class="sd-card-text"><a class="reference internal" href="../user_guide/feature_overview.html#fo-loss-maps"><span class="std std-ref">Loss maps</span></a></p></td>
-<td><p class="sd-card-text"><a class="reference internal" href="notebooks/example_1.html"><span class="doc">E1</span></a></p></td>
-</tr>
-<tr class="row-odd"><td><p class="sd-card-text"><a class="reference internal" href="../user_guide/feature_overview.html#fo-active-dvs"><span class="std std-ref">Active decision variables</span></a></p></td>
-<td><p class="sd-card-text"><a class="reference internal" href="notebooks/example_1.html"><span class="doc">E1</span></a></p></td>
-</tr>
-<tr class="row-even"><td><p class="sd-card-text"><a class="reference internal" href="../user_guide/feature_overview.html#fo-loss-aggregation"><span class="std std-ref">Loss aggregation</span></a></p></td>
-<td><p class="sd-card-text"><a class="reference internal" href="notebooks/example_1.html"><span class="doc">E1</span></a></p></td>
-</tr>
-</tbody>
-</table>
-</div>
-</details><div class="toctree-wrapper compound">
-</div>
-</section>
 </section>
 
 

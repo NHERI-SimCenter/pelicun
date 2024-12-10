@@ -20,6 +20,7 @@
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script src="../_static/design-tabs.js?v=f930bc37"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="../_static/hide_empty_pre.js?v=a807066b"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -98,8 +99,9 @@
 <li class="toctree-l1"><a class="reference internal" href="../user_guide/bug_reports_and_feature_requests.html">5. Bug reports and feature requests</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../user_guide/resources_for_new_python_users.html">6. Resources for new python users</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../examples/index.html">7. Examples</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../examples/index.html#complete-list">7.1. Complete list</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../examples/index.html#grouped-by-feature">7.2. Grouped by feature</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/notebooks/example_1.html">7.1. Example 1: Simple loss function.</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/notebooks/example_2.html">7.2. Example 2: Damage state validation.</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/notebooks/example_3.html">7.3. Example 3: Combining fragility-based damage consequences and loss functions.</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../api_reference/index.html">8. API Reference</a><ul>
@@ -156,6 +158,16 @@
 <p class="admonition-title">Tip</p>
 <p>We recommend creating a dedicated <a class="reference external" href="https://docs.python.org/3/library/venv.html">virtual environment</a> for your pelicun development environment.
 See also <a class="reference external" href="https://docs.conda.io/en/latest/">conda</a> and <a class="reference external" href="https://mamba.readthedocs.io/en/latest/">mamba</a>, two widely used programs featuring environment management.</p>
+</div>
+<p>Clone the repository:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">clone</span> <span class="o">--</span><span class="n">recurse</span><span class="o">-</span><span class="n">submodules</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">NHERI</span><span class="o">-</span><span class="n">SimCenter</span><span class="o">/</span><span class="n">pelicun</span>
+</pre></div>
+</div>
+<p>Pelicun uses the SimCenter <a class="reference external" href="https://github.com/NHERI-SimCenter/DamageAndLossModelLibrary">DamageAndLossModelLibrary</a> as a submodule.
+In the above, <code class="docutils literal notranslate"><span class="pre">recurse-submodules</span></code> ensures that all files of that repository are also obtained.</p>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>If you are planning to contribute code, please <a class="reference external" href="https://github.com/NHERI-SimCenter/pelicun/fork">fork the repository</a> and clone your own fork.</p>
 </div>
 <p>Install pelicun in editable mode with the following command issued from the package’s root directory:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">e</span> <span class="o">.</span><span class="p">[</span><span class="n">development</span><span class="p">]</span>

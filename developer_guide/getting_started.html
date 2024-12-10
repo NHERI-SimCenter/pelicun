@@ -20,11 +20,12 @@
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script src="../_static/design-tabs.js?v=f930bc37"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="../_static/hide_empty_pre.js?v=a807066b"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="2. Setting up a development environment" href="development_environment.html" />
-    <link rel="prev" title="8.1.9. pelicun.uq" href="../api_reference/_autosummary/pelicun.uq.html" /> 
+    <link rel="prev" title="pelicun.uq" href="../api_reference/_autosummary/pelicun.uq.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -98,8 +99,9 @@
 <li class="toctree-l1"><a class="reference internal" href="../user_guide/bug_reports_and_feature_requests.html">5. Bug reports and feature requests</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../user_guide/resources_for_new_python_users.html">6. Resources for new python users</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../examples/index.html">7. Examples</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../examples/index.html#complete-list">7.1. Complete list</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../examples/index.html#grouped-by-feature">7.2. Grouped by feature</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/notebooks/example_1.html">7.1. Example 1: Simple loss function.</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/notebooks/example_2.html">7.2. Example 2: Damage state validation.</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/notebooks/example_3.html">7.3. Example 3: Combining fragility-based damage consequences and loss functions.</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../api_reference/index.html">8. API Reference</a><ul>
@@ -159,12 +161,12 @@ We are looking forward to your contributions!</p>
 <section id="code-of-conduct">
 <h2><span class="section-number">1.1. </span>Code of conduct<a class="headerlink" href="#code-of-conduct" title="Link to this heading"></a></h2>
 <section id="our-pledge">
-<h3><span class="section-number">1.1.1. </span>Our pledge<a class="headerlink" href="#our-pledge" title="Link to this heading"></a></h3>
+<h3>Our pledge<a class="headerlink" href="#our-pledge" title="Link to this heading"></a></h3>
 <p>We as members, contributors, and leaders pledge to make participation in our community a harassment-free experience for everyone, regardless of age, body size, visible or invisible disability, ethnicity, sex characteristics, gender identity and expression, level of experience, education, socioeconomic status, nationality, personal appearance, race, caste, color, religion, or sexual identity and orientation.</p>
 <p>We pledge to act and interact in ways that contribute to an open, welcoming, diverse, inclusive, and healthy community.</p>
 </section>
 <section id="our-standards">
-<h3><span class="section-number">1.1.2. </span>Our standards<a class="headerlink" href="#our-standards" title="Link to this heading"></a></h3>
+<h3>Our standards<a class="headerlink" href="#our-standards" title="Link to this heading"></a></h3>
 <p>Examples of behavior that contributes to a positive environment for our community include:</p>
 <ul class="simple">
 <li><p>Demonstrating empathy and kindness toward other people.</p></li>
@@ -183,32 +185,32 @@ We are looking forward to your contributions!</p>
 </ul>
 </section>
 <section id="enforcement-responsibilities">
-<h3><span class="section-number">1.1.3. </span>Enforcement responsibilities<a class="headerlink" href="#enforcement-responsibilities" title="Link to this heading"></a></h3>
+<h3>Enforcement responsibilities<a class="headerlink" href="#enforcement-responsibilities" title="Link to this heading"></a></h3>
 <p>Community leaders are responsible for clarifying and enforcing our standards of acceptable behavior and will take appropriate and fair corrective action in response to any behavior that they deem inappropriate, threatening, offensive, or harmful.</p>
 <p>Community leaders have the right and responsibility to remove, edit, or reject comments, commits, code, wiki edits, issues, and other contributions that are not aligned to this Code of Conduct, and will communicate reasons for moderation decisions when appropriate.</p>
 </section>
 <section id="scope">
-<h3><span class="section-number">1.1.4. </span>Scope<a class="headerlink" href="#scope" title="Link to this heading"></a></h3>
+<h3>Scope<a class="headerlink" href="#scope" title="Link to this heading"></a></h3>
 <p>This Code of Conduct applies within all community spaces, and also applies when an individual is officially representing the community in public spaces.
 Examples of representing our community include using an official email address, posting via an official social media account, or acting as an appointed representative at an online or offline event.</p>
 </section>
 <section id="enforcement">
-<h3><span class="section-number">1.1.5. </span>Enforcement<a class="headerlink" href="#enforcement" title="Link to this heading"></a></h3>
+<h3>Enforcement<a class="headerlink" href="#enforcement" title="Link to this heading"></a></h3>
 <p>Instances of abusive, harassing, or otherwise unacceptable behavior may be reported to the community leader responsible for enforcement at <code class="docutils literal notranslate"><span class="pre">adamzs&#64;stanford.edu</span></code>.
 All complaints will be reviewed and investigated promptly and fairly.</p>
 <p>All community leaders are obligated to respect the privacy and security of the reporter of any incident.</p>
 </section>
 <section id="enforcement-guidelines">
-<h3><span class="section-number">1.1.6. </span>Enforcement guidelines<a class="headerlink" href="#enforcement-guidelines" title="Link to this heading"></a></h3>
+<h3>Enforcement guidelines<a class="headerlink" href="#enforcement-guidelines" title="Link to this heading"></a></h3>
 <p>Community leaders will follow these Community Impact Guidelines in determining the consequences for any action they deem in violation of this Code of Conduct:</p>
 <section id="correction">
-<h4><span class="section-number">1.1.6.1. </span>1. Correction<a class="headerlink" href="#correction" title="Link to this heading"></a></h4>
+<h4>1. Correction<a class="headerlink" href="#correction" title="Link to this heading"></a></h4>
 <p><strong>Community Impact</strong>: Use of inappropriate language or other behavior deemed unprofessional or unwelcome in the community.</p>
 <p><strong>Consequence</strong>: A private, written warning from community leaders, providing clarity around the nature of the violation and an explanation of why the behavior was inappropriate.
 A public apology may be requested.</p>
 </section>
 <section id="warning">
-<h4><span class="section-number">1.1.6.2. </span>2. Warning<a class="headerlink" href="#warning" title="Link to this heading"></a></h4>
+<h4>2. Warning<a class="headerlink" href="#warning" title="Link to this heading"></a></h4>
 <p><strong>Community Impact</strong>: A violation through a single incident or series of actions.</p>
 <p><strong>Consequence</strong>: A warning with consequences for continued behavior.
 No interaction with the people involved, including unsolicited interaction with those enforcing the Code of Conduct, for a specified period of time.
@@ -216,20 +218,20 @@ This includes avoiding interactions in community spaces as well as external chan
 Violating these terms may lead to a temporary or permanent ban.</p>
 </section>
 <section id="temporary-ban">
-<h4><span class="section-number">1.1.6.3. </span>3. Temporary ban<a class="headerlink" href="#temporary-ban" title="Link to this heading"></a></h4>
+<h4>3. Temporary ban<a class="headerlink" href="#temporary-ban" title="Link to this heading"></a></h4>
 <p><strong>Community Impact</strong>: A serious violation of community standards, including sustained inappropriate behavior.</p>
 <p><strong>Consequence</strong>: A temporary ban from any sort of interaction or public communication with the community for a specified period of time.
 No public or private interaction with the people involved, including unsolicited interaction with those enforcing the Code of Conduct, is allowed during this period.
 Violating these terms may lead to a permanent ban.</p>
 </section>
 <section id="permanent-ban">
-<h4><span class="section-number">1.1.6.4. </span>4. Permanent Ban<a class="headerlink" href="#permanent-ban" title="Link to this heading"></a></h4>
+<h4>4. Permanent Ban<a class="headerlink" href="#permanent-ban" title="Link to this heading"></a></h4>
 <p><strong>Community Impact</strong>: Demonstrating a pattern of violation of community standards, including sustained inappropriate behavior, harassment of an individual, or aggression toward or disparagement of classes of individuals.</p>
 <p><strong>Consequence</strong>: A permanent ban from any sort of public interaction within the community.</p>
 </section>
 </section>
 <section id="attribution">
-<h3><span class="section-number">1.1.7. </span>Attribution<a class="headerlink" href="#attribution" title="Link to this heading"></a></h3>
+<h3>Attribution<a class="headerlink" href="#attribution" title="Link to this heading"></a></h3>
 <p>This Code of Conduct is adapted from the <a class="reference external" href="https://www.contributor-covenant.org">Contributor Covenant</a>, version 2.1, available at <a class="reference external" href="https://www.contributor-covenant.org/version/2/1/code_of_conduct.html">https://www.contributor-covenant.org/version/2/1/code_of_conduct.html</a>.</p>
 <p>Community Impact Guidelines were inspired by <a class="reference external" href="https://github.com/mozilla/diversity">Mozilla’s code of conduct enforcement ladder</a>.</p>
 <p>For answers to common questions about this code of conduct, see the FAQ at <a class="reference external" href="https://www.contributor-covenant.org/faq">https://www.contributor-covenant.org/faq</a>.
@@ -239,7 +241,7 @@ Translations are available at <a class="reference external" href="https://www.co
 <section id="how-to-contribute">
 <span id="contributing"></span><h2><span class="section-number">1.2. </span>How to contribute<a class="headerlink" href="#how-to-contribute" title="Link to this heading"></a></h2>
 <section id="prerequisites">
-<h3><span class="section-number">1.2.1. </span>Prerequisites<a class="headerlink" href="#prerequisites" title="Link to this heading"></a></h3>
+<h3>Prerequisites<a class="headerlink" href="#prerequisites" title="Link to this heading"></a></h3>
 <p>Contributing to pelicun requires being familiar with the following:</p>
 <details class="sd-sphinx-override sd-dropdown sd-card sd-mb-3">
 <summary class="sd-summary-title sd-card-header">
@@ -309,7 +311,7 @@ Actively exploring the existing files, tinkering them and breaking things is a g
 </div>
 </details></section>
 <section id="contributing-workflow">
-<h3><span class="section-number">1.2.2. </span>Contributing workflow<a class="headerlink" href="#contributing-workflow" title="Link to this heading"></a></h3>
+<h3>Contributing workflow<a class="headerlink" href="#contributing-workflow" title="Link to this heading"></a></h3>
 <p>The development of pelicun is done via Pull Requests (PR) on GitHub.
 Contributors need to carry out the following steps to submit a successful PR:</p>
 <ul class="simple">
@@ -338,7 +340,7 @@ On each feature branch, please commit changes often and include meaningful commi
 </details></div>
 </section>
 <section id="code-review-process">
-<h3><span class="section-number">1.2.3. </span>Code review process<a class="headerlink" href="#code-review-process" title="Link to this heading"></a></h3>
+<h3>Code review process<a class="headerlink" href="#code-review-process" title="Link to this heading"></a></h3>
 <p>After you submit your PR, we are going to promptly review your commits, offer feedback and request changes.
 All contributions code need to be comprehensive.
 That is, inclusion of new objects, methods, or functions should be accompanied by unit tests having reasonable coverage, and extension of the documentation pages as appropriate.
@@ -348,7 +350,7 @@ After the review process, the PR will either be merged to the main repository or
 You are welcome to open a PR even for a single typo.</p>
 </section>
 <section id="identifying-contribution-opportunities">
-<h3><span class="section-number">1.2.4. </span>Identifying contribution opportunities<a class="headerlink" href="#identifying-contribution-opportunities" title="Link to this heading"></a></h3>
+<h3>Identifying contribution opportunities<a class="headerlink" href="#identifying-contribution-opportunities" title="Link to this heading"></a></h3>
 <p>The <a class="reference external" href="https://github.com/NHERI-SimCenter/pelicun/issues">Issues</a> page on GitHub documents areas needing improvement.
 If you are interested in becoming a contributor but don’t have a specific change in mind, feel free to work on addressing any of the issues listed.
 If you would like to offer a contribution that extends the fundamental framework, please begin by <a class="reference external" href="https://github.com/orgs/NHERI-SimCenter/discussions/new?category=pelicun">initiating a discussion</a> before you work on changes to avoid making unnecessary effort.</p>

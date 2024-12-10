@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>5.1.2. Version 3.4.0 (November 27, 2024) &mdash; pelicun  documentation</title>
+  <title>Version 3.4.0 (November 27, 2024) &mdash; pelicun  documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
@@ -20,11 +20,12 @@
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script src="../_static/design-tabs.js?v=f930bc37"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="../_static/hide_empty_pre.js?v=a807066b"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="5.1.3. Version 3.3.0 (March 29, 2024)" href="v3.3.0.html" />
-    <link rel="prev" title="5.1.1. Unreleased" href="unreleased.html" /> 
+    <link rel="next" title="Version 3.3.0 (March 29, 2024)" href="v3.3.0.html" />
+    <link rel="prev" title="Unreleased" href="unreleased.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -98,8 +99,9 @@
 <li class="toctree-l1"><a class="reference internal" href="../user_guide/bug_reports_and_feature_requests.html">5. Bug reports and feature requests</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../user_guide/resources_for_new_python_users.html">6. Resources for new python users</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../examples/index.html">7. Examples</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../examples/index.html#complete-list">7.1. Complete list</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../examples/index.html#grouped-by-feature">7.2. Grouped by feature</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/notebooks/example_1.html">7.1. Example 1: Simple loss function.</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/notebooks/example_2.html">7.2. Example 2: Damage state validation.</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/notebooks/example_3.html">7.3. Example 3: Combining fragility-based damage consequences and loss functions.</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../api_reference/index.html">8. API Reference</a><ul>
@@ -142,7 +144,7 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="index.html"><span class="section-number">5. </span>Release Notes</a></li>
-      <li class="breadcrumb-item active"><span class="section-number">5.1.2. </span>Version 3.4.0 (November 27, 2024)</li>
+      <li class="breadcrumb-item active">Version 3.4.0 (November 27, 2024)</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -152,9 +154,9 @@
            <div itemprop="articleBody">
              
   <section id="version-3-4-0-november-27-2024">
-<span id="changes-v3-4-0"></span><h1><span class="section-number">5.1.2. </span>Version 3.4.0 (November 27, 2024)<a class="headerlink" href="#version-3-4-0-november-27-2024" title="Link to this heading"></a></h1>
+<span id="changes-v3-4-0"></span><h1>Version 3.4.0 (November 27, 2024)<a class="headerlink" href="#version-3-4-0-november-27-2024" title="Link to this heading"></a></h1>
 <section id="added">
-<h2><span class="section-number">5.1.2.1. </span>Added<a class="headerlink" href="#added" title="Link to this heading"></a></h2>
+<h2>Added<a class="headerlink" href="#added" title="Link to this heading"></a></h2>
 <p><strong>Documentation pages</strong>: Documentation for pelicun 3 is back online. The documentation includes guides for users and developers as well as an auto-generated API reference. A lineup of examples is planned to be part of the documentation, highlighting specific features, including the new ones listed in this section.</p>
 <p><strong>Consequence scaling</strong>: This feature can be used to apply scaling factors to consequence and loss functions for specific decision variables, component types, locations and directions. This can make it easier to examine several different consequence scaling schemes without the need to repeat all calculations or write extensive custom code.</p>
 <p><strong>Capacity scaling</strong>: This feature can be used to modify the median of normal or lognormal fragility functions of specific components. Medians can be scaled by a factor or shifted by adding or subtracting a value.
@@ -173,7 +175,7 @@ This can make it easier to use fragility functions that are a function of specif
 - addition of slots in all classes, preventing on-the-fly definition of new attributes which is prone to bugs</p>
 </section>
 <section id="changed">
-<h2><span class="section-number">5.1.2.2. </span>Changed<a class="headerlink" href="#changed" title="Link to this heading"></a></h2>
+<h2>Changed<a class="headerlink" href="#changed" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p>Updated random variable class names in <code class="docutils literal notranslate"><span class="pre">uq.py</span></code>.</p></li>
 <li><p>Extensive code refactoring for improved organization and to support the new features. We made a good-faith effort to maintain backwards compatibility, and issue helpful warnings to assist migration to the new syntax.</p></li>
@@ -182,7 +184,7 @@ This can make it easier to use fragility functions that are a function of specif
 </ul>
 </section>
 <section id="deprecated">
-<h2><span class="section-number">5.1.2.3. </span>Deprecated<a class="headerlink" href="#deprecated" title="Link to this heading"></a></h2>
+<h2>Deprecated<a class="headerlink" href="#deprecated" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">.bldg_repair</span></code> attribute was renamed to <code class="docutils literal notranslate"><span class="pre">.loss</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">.repair</span></code> had also been used in the past, please use <code class="docutils literal notranslate"><span class="pre">.loss</span></code> instead.</p></li>
@@ -196,14 +198,14 @@ This can make it easier to use fragility functions that are a function of specif
 </ul>
 </section>
 <section id="removed">
-<h2><span class="section-number">5.1.2.4. </span>Removed<a class="headerlink" href="#removed" title="Link to this heading"></a></h2>
+<h2>Removed<a class="headerlink" href="#removed" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p>No features were removed in this version.</p></li>
 <li><p>We suspended the use of flake8 and pylint after adopting the use of ruff.</p></li>
 </ul>
 </section>
 <section id="fixed">
-<h2><span class="section-number">5.1.2.5. </span>Fixed<a class="headerlink" href="#fixed" title="Link to this heading"></a></h2>
+<h2>Fixed<a class="headerlink" href="#fixed" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p>Fixed a bug affecting the random variable classes, where the anchor random variable was not being correctly set.</p></li>
 <li><p>Enforced a value of 1.0 for non-directional multipliers for HAZUS analyses.</p></li>
