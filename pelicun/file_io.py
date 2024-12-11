@@ -291,10 +291,11 @@ def substitute_default_path(
 
     Examples
     --------
-    >>> data_paths = ['PelicunDefault/data/file1.txt', 'data/file2.txt']
+    >>> data_paths = ['PelicunDefault/damage_DB_SimCenter_HU.csv', 'data/file2.txt']
     >>> substitute_default_path(data_paths)
-    ['{base.pelicun_path}/resources/SimCenterDBDL/updated_path/file1_v2.txt',
-    'data/file2.txt']
+    ['{base.pelicun_path}/resources/DamageAndLossModelLibrary/'
+      'hurricane/building/component/fragility.csv',
+      'data/file2.txt']
 
     """
     # Load the resource paths from the JSON file
