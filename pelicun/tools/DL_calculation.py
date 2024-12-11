@@ -309,7 +309,7 @@ def run_pelicun(
         output_path_p.mkdir(parents=True)
 
     # parse the config file
-    config = _parse_config_file(
+    config = _process_config_file(
         config_path_p,
         output_path_p,
         Path(auto_script_path).resolve() if auto_script_path is not None else None,
@@ -562,7 +562,7 @@ def _summary_save(
         out_files.append('DL_summary_stats.csv')
 
 
-def _parse_config_file(  # noqa: C901
+def _process_config_file(  # noqa: C901
     config_path: Path,
     output_path: Path,
     auto_script_path: Path | None,
@@ -574,7 +574,14 @@ def _parse_config_file(  # noqa: C901
     detailed_results: bool,
 ) -> dict[str, object]:
     """
-    Parse and validate the config file for Pelicun.
+    Validate and process the config file for Pelicun.
+
+    Warning: This function has side effects:
+    - Reads from and writes to files, potentially altering the
+    filesystem.
+    - Optionally writes the modified configuration to a new file
+    (`config_ap.json`) and/or a component data file (`CMP_QNT.csv`).
+    - Relies on external variables and configurations.
 
     Parameters
     ----------
