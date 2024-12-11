@@ -1,0 +1,8 @@
+{
+  "AssessmentType": "Portfolio",
+  "AIM": {
+    "400": "400-AIM.json",
+    "401": "401-AIM.json"
+  },
+  "Response": "response.csv"
+}
