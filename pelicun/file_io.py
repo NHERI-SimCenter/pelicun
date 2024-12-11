@@ -310,11 +310,7 @@ def substitute_default_path(
         if isinstance(data_path_str, str) and 'PelicunDefault/' in data_path_str:
             data_path = Path(data_path_str)
             # Extract the filename after 'PelicunDefault/'
-            file_name = (
-                data_path.parts[-1]
-                if 'PelicunDefault' in data_path.parts
-                else data_path.name
-            )
+            file_name = data_path.parts[-1]
 
             # Check if the filename exists in the resource paths
             # dictionary
