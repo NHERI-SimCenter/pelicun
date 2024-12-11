@@ -254,7 +254,7 @@ def convert_df_to_dict(data: pd.DataFrame | pd.Series, axis: int = 1) -> dict:
 
 def run_pelicun(
     config_path: str,
-    demand_file: str,
+    demand_file: str | None,
     output_path: str | None,
     realizations: int,
     auto_script_path: str | None,
@@ -566,7 +566,7 @@ def _process_config_file(  # noqa: C901
     config_path: Path,
     output_path: Path,
     auto_script_path: Path | None,
-    demand_file: str,
+    demand_file: str | None,
     realizations: int,
     output_format: list | None,
     *,
@@ -612,6 +612,9 @@ def _process_config_file(  # noqa: C901
     PelicunInvalidConfigError
       If the provided config file does not conform to the schema or
       there are issues with the specified values.
+    PelicunInvalidConfigError
+      If no demand file is provided as an argument nor in the config
+      file.
 
     """
     # open the config file and parse it
@@ -670,7 +673,13 @@ def _process_config_file(  # noqa: C901
             )
 
         # add the demand information
-        update(config_ap, '/DL/Demands/DemandFilePath', demand_file)
+        if demand_file is not None:
+            update(config_ap, '/DL/Demands/DemandFilePath', demand_file)
+        else:
+            demand_file = get(config_ap, '/DL/Demands/DemandFilePath')
+            if demand_file is None:
+                msg = 'No demand file found!'
+                raise PelicunInvalidConfigError(msg)
         update(config_ap, '/DL/Demands/SampleSize', str(realizations))
 
         if coupled_edp is True:
