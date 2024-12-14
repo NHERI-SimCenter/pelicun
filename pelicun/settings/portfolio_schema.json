@@ -1,0 +1,24 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "required": ["AssessmentType", "AIM", "Response"],
+  "properties": {
+    "AssessmentType": {
+      "type": "string",
+      "description": "Type of the assessment (e.g., Portfolio)."
+    },
+    "AIM": {
+      "type": "object",
+      "description": "Object containing AIM files for each entry.",
+      "additionalProperties": {
+        "type": "string",
+        "description": "Path to the AIM file for a specific entry."
+      }
+    },
+    "Response": {
+      "type": "string",
+      "description": "Path to the single response file."
+    }
+  }
+}
+
