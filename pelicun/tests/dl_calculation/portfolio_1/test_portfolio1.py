@@ -34,9 +34,9 @@
 
 """DL Calculation Portfolio Example 1."""
 
-import sys
 import os
 import shutil
+import sys
 import tempfile
 from pathlib import Path
 from typing import Generator
@@ -46,47 +46,48 @@ import pytest
 from pelicun.pelicun_warnings import PelicunWarning
 from pelicun.tools import DL_calculation
 
-# @pytest.fixture
-# def obtain_temp_dir() -> Generator:
-#     # get the path of this file
-#     this_file = __file__
 
-#     initial_dir = Path.cwd()
-#     this_dir = str(Path(this_file).parent)
+@pytest.fixture
+def obtain_temp_dir() -> Generator:
+    # get the path of this file
+    this_file = __file__
 
-#     temp_dir = tempfile.mkdtemp()
+    initial_dir = Path.cwd()
+    this_dir = str(Path(this_file).parent)
 
-#     yield this_dir, temp_dir
+    temp_dir = tempfile.mkdtemp()
 
-#     # go back to the right directory, otherwise any tests that follow
-#     # could have issues.
-#     os.chdir(initial_dir)
+    yield this_dir, temp_dir
+
+    # go back to the right directory, otherwise any tests that follow
+    # could have issues.
+    os.chdir(initial_dir)
 
 
 def test_dl_calculation_portfolio_1(obtain_temp_dir: str) -> None:
-    # this_dir: str
-    # temp_dir: str
+    this_dir: str
+    temp_dir: str
 
-    # this_dir, temp_dir = obtain_temp_dir  # type: ignore
+    this_dir, temp_dir = obtain_temp_dir  # type: ignore
 
-    # # Copy all input files to a temporary directory.
-    # # All outputs will also go there.
-    # # This approach is more robust to changes in the output files over
-    # # time.
+    # Copy all input files to a temporary directory.
+    # All outputs will also go there.
+    # This approach is more robust to changes in the output files over
+    # time.
 
-    # os.chdir(this_dir)
-    # temp_dir = tempfile.mkdtemp()
-    # # copy input files
-    # for file_name in (
-    #     '400-AIM.json',
-    #     '401-AIM.json',
-    #     '401-CMP_QNT.csv',
-    #     'response.csv',
-    # ):
-    #     shutil.copy(f'{this_dir}/{file_name}', f'{temp_dir}/{file_name}')
+    os.chdir(this_dir)
+    temp_dir = tempfile.mkdtemp()
+    # copy input files
+    for file_name in (
+        '400-AIM.json',
+        '401-AIM.json',
+        'portfolio_assessment_configuration.json',
+        'response.csv',
+    ):
+        shutil.copy(f'{this_dir}/{file_name}', f'{temp_dir}/{file_name}')
 
-    # # change directory to there
-    # os.chdir(temp_dir)
+    # change directory to there
+    os.chdir(temp_dir)
 
     # run
     sys.argv = [
