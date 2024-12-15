@@ -70,6 +70,7 @@ from pelicun.base import (
     update,
     update_vals,
 )
+from pelicun.file_io import load_data
 from pelicun.pelicun_warnings import PelicunInvalidConfigError
 
 colorama.init()
@@ -254,7 +255,7 @@ def convert_df_to_dict(data: pd.DataFrame | pd.Series, axis: int = 1) -> dict:
 
 def run_pelicun(
     config_path: str,
-    demand_file: str,
+    demand_file: str | None,
     output_path: str | None,
     realizations: int,
     auto_script_path: str | None,
@@ -295,21 +296,10 @@ def run_pelicun(
     """
     # Initial setup -----------------------------------------------------------
 
-    # get the absolute path to the config file
-    config_path_p = Path(config_path).resolve()
+    config_path_p, output_path_p = handle_config_path(config_path, output_path)
 
-    # If the output path was not specified, results are saved in the
-    # directory of the input file.
-    if output_path is None:
-        output_path_p = config_path_p.parents[0]
-    else:
-        output_path_p = Path(output_path).resolve()
-    # create the directory if it does not exist
-    if not output_path_p.exists():
-        output_path_p.mkdir(parents=True)
-
-    # parse the config file
-    config = _parse_config_file(
+    # process the config file.
+    config = _process_config_file(
         config_path_p,
         output_path_p,
         Path(auto_script_path).resolve() if auto_script_path is not None else None,
@@ -479,6 +469,31 @@ def run_pelicun(
     _remove_csv_files_if_not_requested(config, out_files, output_path_p)
 
 
+def handle_config_path(
+    config_path: str, output_path: str | None
+) -> tuple[Path, Path]:
+    """
+    Handle the config path and set output path.
+
+    Returns
+    -------
+      Absolute Path objects for the config and output paths.
+    """
+    # get the absolute path to the config file
+    config_path_p = Path(config_path).resolve()
+
+    # If the output path was not specified, results are saved in the
+    # directory of the input file.
+    if output_path is None:
+        output_path_p = config_path_p.parents[0]
+    else:
+        output_path_p = Path(output_path).resolve()
+    # create the directory if it does not exist
+    if not output_path_p.exists():
+        output_path_p.mkdir(parents=True)
+    return config_path_p, output_path_p
+
+
 def _parse_decision_variables(config: dict) -> tuple[str, ...]:
     """
     Parse decision variables from the config file.
@@ -562,19 +577,27 @@ def _summary_save(
         out_files.append('DL_summary_stats.csv')
 
 
-def _parse_config_file(  # noqa: C901
+def _process_config_file(  # noqa: C901
     config_path: Path,
     output_path: Path,
     auto_script_path: Path | None,
-    demand_file: str,
+    demand_file: str | None,
     realizations: int,
     output_format: list | None,
     *,
     coupled_edp: bool,
     detailed_results: bool,
+    asset_id: str | None = None,
 ) -> dict[str, object]:
     """
-    Parse and validate the config file for Pelicun.
+    Validate and process the config file for Pelicun.
+
+    Warning: This function has side effects:
+    - Reads from and writes to files, potentially altering the
+    filesystem.
+    - Optionally writes the modified configuration to a new file
+    (`config_ap.json`) and/or a component data file (`CMP_QNT.csv`).
+    - Relies on external variables and configurations.
 
     Parameters
     ----------
@@ -605,8 +628,18 @@ def _parse_config_file(  # noqa: C901
     PelicunInvalidConfigError
       If the provided config file does not conform to the schema or
       there are issues with the specified values.
+    PelicunInvalidConfigError
+      If no demand file is provided as an argument nor in the config
+      file.
 
     """
+    # Configure asset ID string to distinguish output component
+    # assignment files in portfolio assessments.
+    if asset_id is None:
+        asset_id_str = ''
+    else:
+        asset_id_str = f'{asset_id}_'
+        log_msg(f'Working on asset: {asset_id}.')
     # open the config file and parse it
     with Path(config_path).open(encoding='utf-8') as f:
         config = json.load(f)
@@ -625,7 +658,7 @@ def _parse_config_file(  # noqa: C901
         raise PelicunInvalidConfigError(msg) from exc
 
     if is_unspecified(config, 'DL'):
-        log_msg('Damage and Loss configuration missing from config file. ')
+        log_msg('Damage and Loss configuration missing from config file.')
 
         if auto_script_path is None:
             msg = 'No `DL` entry in config file.'
@@ -663,7 +696,13 @@ def _parse_config_file(  # noqa: C901
             )
 
         # add the demand information
-        update(config_ap, '/DL/Demands/DemandFilePath', demand_file)
+        if demand_file is not None:
+            update(config_ap, '/DL/Demands/DemandFilePath', demand_file)
+        else:
+            demand_file = get(config_ap, '/DL/Demands/DemandFilePath')
+            if demand_file is None:
+                msg = 'No demand file found!'
+                raise PelicunInvalidConfigError(msg)
         update(config_ap, '/DL/Demands/SampleSize', str(realizations))
 
         if coupled_edp is True:
@@ -677,13 +716,13 @@ def _parse_config_file(  # noqa: C901
             )
 
         # save the component data
-        comp.to_csv(output_path / 'CMP_QNT.csv')
+        comp.to_csv(output_path / f'{asset_id_str}CMP_QNT.csv')
 
         # update the config file with the location
         update(
             config_ap,
             'DL/Asset/ComponentAssignmentFile',
-            str(output_path / 'CMP_QNT.csv'),
+            str(output_path / f'{asset_id_str}CMP_QNT.csv'),
         )
 
         # if detailed results are not requested, add a lean output config
@@ -1437,8 +1476,156 @@ def _remove_existing_files(output_path: Path, known_output_files: list[str]) -> 
                 raise OSError(msg) from exc
 
 
+def run_portfolio_assessment(
+    config_path: str,
+    auto_script_path: str,
+    output_path: str | None,
+    output_format: list | None,
+) -> None:
+    """
+    Run a portfolio assessment.
+
+    Raises
+    ------
+    PelicunInvalidConfigError
+      If the config file does not conform to the schema.
+    """
+    config_path_p, output_path_p = handle_config_path(config_path, output_path)
+
+    with Path(config_path_p).open(encoding='utf-8') as f:
+        config = json.load(f)
+    with Path(f'{base.pelicun_path}/settings/portfolio_schema.json').open(
+        encoding='utf-8'
+    ) as f:
+        schema = json.load(f)
+    try:
+        validate(instance=config, schema=schema)
+    except jsonschema.exceptions.ValidationError as exc:
+        msg = 'The provided config file does not conform to the schema.'
+        raise PelicunInvalidConfigError(msg) from exc
+    assets = config['AIM']
+    demand_file = config['Response']
+
+    num_realizations = len(load_data(demand_file, unit_conversion_factors=None))
+
+    # process the config files.
+    config_ap = {}
+    for asset_id, file_name in assets.items():
+        config_ap_item = _process_config_file(
+            Path(file_name),
+            output_path_p,
+            Path(auto_script_path).resolve(),
+            demand_file,
+            num_realizations,
+            output_format,
+            coupled_edp=True,
+            detailed_results=True,
+            asset_id=asset_id,
+        )
+        config_ap[asset_id] = config_ap_item
+
+    # Merge component assignment files
+    comps = []
+    for asset_id in assets:
+        data = load_data(
+            str(output_path_p / f'{asset_id}_CMP_QNT.csv'),
+            unit_conversion_factors=None,
+            reindex=False,
+        )
+        assert isinstance(data, pd.DataFrame)
+        comps.append(data)
+    comp = pd.concat(comps)
+    # Update `Location`, use asset ID.
+    comp['Location'] = assets.keys()
+    comp.to_csv(output_path_p / 'CMP_QNT.csv')
+
+    assert len(assets) > 0
+    config_iter = iter(assets.keys())
+    config = config_ap[next(config_iter)]
+
+    for other_id in config_iter:
+        other_config = config_ap[other_id]
+        for option in (
+            'DL/Asset/ComponentDatabase',
+            'DL/Asset/ComponentDatabasePath',
+            'DL/Damage/DamageProcess',
+            'DL/Demands/Calibration',
+            'DL/Demands/CoupledDemands',
+            'DL/Demands/DemandFilePath',
+            'DL/Losses/Repair/ConsequenceDatabase',
+            'DL/Losses/Repair/MapApproach',
+            'DL/Options/Sampling/SampleSize',
+            'GeneralInformation/units/length',
+        ):
+            assert get(config, option) == get(other_config, option)
+
+    assessment = DLCalculationAssessment(config_options=get(config, 'DL/Options'))
+
+    assessment.calculate_demand(
+        demand_path=Path(get(config, 'DL/Demands/DemandFilePath')).resolve(),
+        collapse_limits=None,
+        length_unit=get(config, 'GeneralInformation/units/length', default=None),
+        demand_calibration=get(config, 'DL/Demands/Calibration', default=None),
+        sample_size=get(config, 'DL/Options/Sampling/SampleSize'),
+        demand_cloning=None,
+        residual_drift_inference=None,
+        coupled_demands=get(config, 'DL/Demands/CoupledDemands', default=False),
+    )
+
+    assessment.calculate_asset(
+        num_stories=get(config, 'DL/Asset/NumberOfStories', default=None),
+        component_assignment_file=str(output_path_p / 'CMP_QNT.csv'),
+        collapse_fragility_demand_type=None,
+        component_sample_file=None,
+        add_irreparable_damage_columns=False,
+    )
+
+    assessment.calculate_damage(
+        length_unit=get(config, 'GeneralInformation/units/length'),
+        component_database=get(config, 'DL/Asset/ComponentDatabase'),
+        component_database_path=get(
+            config, 'DL/Asset/ComponentDatabasePath', default=None
+        ),
+        collapse_fragility=None,
+        irreparable_damage=None,
+        damage_process_approach=get(config, 'DL/Damage/DamageProcess', default=None),
+        damage_process_file_path=None,
+        custom_model_dir=None,
+        scaling_specification=None,
+        is_for_water_network_assessment=False,
+    )
+
+    agg_repair, _ = assessment.calculate_loss(
+        loss_map_approach=get(config, 'DL/Losses/Repair/MapApproach'),
+        # `occupancy_type` is only used when replacement is triggered,
+        # which does not apply to portfolio assessments.
+        occupancy_type=get(config, 'DL/Asset/OccupancyType'),
+        consequence_database=get(config, 'DL/Losses/Repair/ConsequenceDatabase'),
+        consequence_database_path=None,
+        custom_model_dir=None,
+        damage_process_approach=get(
+            config, 'DL/Damage/DamageProcess', default='User Defined'
+        ),
+        replacement_cost_parameters=None,
+        replacement_time_parameters=None,
+        replacement_carbon_parameters=None,
+        replacement_energy_parameters=None,
+        loss_map_path=None,
+        decision_variables=_parse_decision_variables(config),
+    )
+
+    summary, summary_stats = _result_summary(assessment, agg_repair)  # noqa: F841
+
+
 def main() -> None:
-    """Parse arguments and run the pelicun calculation."""
+    """
+    Parse arguments and run the pelicun calculation.
+
+    Raises
+    ------
+    PelicunInvalidConfigError
+      If --demandFile is not None for a portfolio assessment.
+    """
     args_list = sys.argv[1:]
 
     parser = argparse.ArgumentParser()
@@ -1506,18 +1693,6 @@ def main() -> None:
         default=None,
         help='Desired output format for the results.',
     )
-    # TODO(JVM): fix color warnings
-    # parser.add_argument(
-    #     '--color_warnings',
-    #     default=False,
-    #     type=str2bool,
-    #     nargs='?',
-    #     const=False,
-    #     help=(
-    #         'Enable colored warnings in the console '
-    #         'output (True/False). Defaults to False.'
-    #     ),
-    # )
     parser.add_argument(
         '--ground_failure',
         default=False,
@@ -1542,21 +1717,54 @@ def main() -> None:
 
     args = parser.parse_args(args_list)
 
-    log_msg('Initializing pelicun calculation.')
+    # Determine assessment type
+    with Path(args.filenameDL).open(encoding='utf-8') as f:
+        config = json.load(f)
+    assessment_type = get(config, 'AssessmentType')
 
-    run_pelicun(
-        config_path=args.filenameDL,
-        demand_file=args.demandFile,
-        output_path=args.dirnameOutput,
-        realizations=args.Realizations,
-        auto_script_path=args.auto_script,
-        custom_model_dir=args.custom_model_dir,
-        output_format=args.output_format,
-        detailed_results=args.detailed_results,
-        coupled_edp=args.coupled_EDP,
-    )
+    if assessment_type == 'Portfolio':
+        what_we_are_doing = 'pelicun portfolio assessment'
+        log_msg(f'Initializing {what_we_are_doing}.')
 
-    log_msg('pelicun calculation completed.')
+        if args.demandFile is not None:
+            msg = 'demandFile should be None for portfolio assessments.'
+            raise PelicunInvalidConfigError(msg)
+
+        # Inform about arguments that don't do anything here.
+        if args.Realizations is not None:
+            log_msg('Ignored --Realizations for portfolio assessment.')
+        if args.custom_model_dir is not None:
+            log_msg('Ignored --custom_model_dir for portfolio assessment.')
+        if args.detailed_results is not None:
+            log_msg('Ignored --detailed_results for portfolio assessment.')
+        if args.coupled_EDP is not None:
+            log_msg('Ignored --coupled_EDP for portfolio assessment.')
+
+        run_portfolio_assessment(
+            config_path=args.filenameDL,
+            auto_script_path=args.auto_script,
+            output_path=args.dirnameOutput,
+            output_format=args.output_format,
+        )
+
+    else:
+        # Assume it's a standard pelicun calculation
+        what_we_are_doing = 'pelicun calculation'
+        log_msg(f'Initializing {what_we_are_doing}.')
+
+        run_pelicun(
+            config_path=args.filenameDL,
+            demand_file=args.demandFile,
+            output_path=args.dirnameOutput,
+            realizations=args.Realizations,
+            auto_script_path=args.auto_script,
+            custom_model_dir=args.custom_model_dir,
+            output_format=args.output_format,
+            detailed_results=args.detailed_results,
+            coupled_edp=args.coupled_EDP,
+        )
+
+    log_msg(f'{what_we_are_doing} completed.')
 
 
 if __name__ == '__main__':

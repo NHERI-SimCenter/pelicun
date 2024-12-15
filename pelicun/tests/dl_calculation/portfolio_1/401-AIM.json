@@ -1,0 +1,21 @@
+{
+  "GeneralInformation": {
+    "NumberOfStories": 1,
+    "YearBuilt": 1900,
+    "StructureType": "C1",
+    "OccupancyClass": "EDU1",
+    "units": {
+      "force": "kips",
+      "length": "ft",
+      "time": "sec"
+    }
+  },
+  "assetType": "Buildings",
+  "Applications": {
+    "DL": {
+      "ApplicationData": {
+        "ground_failure": false
+      }
+    }
+  }
+}
