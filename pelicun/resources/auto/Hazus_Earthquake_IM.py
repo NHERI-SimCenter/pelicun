@@ -829,6 +829,121 @@ def auto_populate(aim):  # noqa: C901
             dl_ap = None
             comp = None
 
+    elif asset_type == 'PowerNetwork':
+        # initialize the auto-populated GI
+        power_asset_type = gi_ap.get("type", "MISSING")
+        asset_name = gi_ap.get("AIM_id", None)
+
+        if power_asset_type == "Substation":
+
+            ep_s_size = ""
+            substation_voltage = gi_ap.get("Voltage", None)
+            if not substation_voltage:
+                print("Substation feature \"Voltage\" is missing. "
+                                 f" substation \"{asset_name}\" assuemd to be "
+                                 "\"  Low Voltage\".")
+                substation_voltage = "low"
+
+            if isinstance(substation_voltage, str):
+                if substation_voltage.lower() == "low":
+                    ep_s_size = "L"
+                elif substation_voltage.lower() == "medium":
+                    ep_s_size = "M"
+                elif substation_voltage.lower() == "high":
+                    ep_s_size = "H"
+                else:
+                    raise ValueError("substation Voltage value is = "
+                                     f"{substation_voltage}. "
+                                     "The value must be either \"low\" "
+                                     ", \" medium\", or \" high\".")
+            elif isinstance(substation_voltage, (float, int)):
+
+                # Substation Voltage unit is kV. ANy number smaller than
+                # 34 kv is not supported by HAZUS methodlogy. Furthermore,
+                # values significantly larger may refer to a voltage value in
+                # different unit. The upper bound value is set ro 1200 kV.
+
+
+                if substation_voltage < 34:
+                    raise ValueError(f"The subtation Viltage for asset \"{asset_name}\" "
+                                     f"is too low({substation_voltage}). The current "
+                                     "methodology support voltage ebtween 34 kV and 1200 "
+                                     " kV. Please make sure that the units are in kV.")
+
+                elif substation_voltage > 1200:
+                    raise ValueError(f"The subtation Viltage for asset \"{asset_name}\" "
+                                     f"is too high({substation_voltage}). The current "
+                                     "methodology support voltage ebtween 34 kV and 1200 "
+                                     " kV. Please make sure that the units are in kV.")
+
+                if substation_voltage <= 150:
+                    ep_s_size = "L"
+                elif substation_voltage <= 230:
+                    ep_s_size = "M"
+                elif substation_voltage >= 500:
+                    ep_s_size = "H"
+                else:
+                    raise RuntimeError("This should never have happed. Please "
+                                       "report this to the devloper(SimCenter)"
+                                       ". (Value = {substation_voltage}).")
+            else:
+                raise ValueError("substation Voltage value is = "
+                                 f"{substation_voltage}. It should be "
+                                 "string or a numebr. For more information, "
+                                 "refer to the documentation please.")
+
+
+            substation_anchored = gi_ap.get("Anchored", None)
+
+            if not substation_anchored:
+                print("Substation feature \"Anchored\" is missing. "
+                                 f" substation \"{asset_name}\" assuemd to be "
+                                 "\"  Unanchored\".")
+
+                substation_anchored = False
+
+            if isinstance(substation_anchored, str):
+                if substation_anchored.lower() in ["a", "anchored", "yes", "true",
+                                                   "possitive", "1"]:
+                    ep_s_anchored = "A"
+                elif substation_anchored.lower() in ["u", "unanchored", "no",
+                                                     "false", "negative", "0"]:
+                    ep_s_anchored = "U"
+            elif isinstance(substation_anchored, (bool, int, float)):
+                if abs(substation_anchored - True) < 0.001:
+                    ep_s_anchored = "A"
+                elif abs(substation_anchored) < 0.001:
+                    ep_s_anchored = "U"
+                else:
+                    raise RuntimeError("This should never have happed. Please "
+                                       "report this to the devloper(SimCenter)"
+                                       ". (Value = {substation_anchored}).")
+            else:
+                raise ValueError("substation anchored value is = "
+                                 f"{substation_anchored}. It should be "
+                                 "string, boolean, or a number representing "
+                                 "True or False. For more information, "
+                                 "refer to the documentation please.")
+
+
+            # Define performance model
+            # fmt: off
+            comp = pd.DataFrame(                                                # noqa
+                {f'EP.S.{ep_s_size}.{ep_s_anchored}': ['ea', 1, 1, 1, 'N/A']}, # noqa
+                 index = ['Units','Location','Direction','Theta_0','Family']   # noqa
+            ).T                                                                # noqa
+
+            # Define the auto-populated config
+            dl_ap = {
+                "Asset": {
+                    "ComponentAssignmentFile": "CMP_QNT.csv",
+                    "ComponentDatabase": "Hazus Earthquake - Power",
+                    "Substation Voltage": ep_s_size,
+                    "Substation Anchored": ep_s_anchored,
+                },
+                "Damage": {"DamageProcess": "Hazus Earthquake"},
+                "Demands": {},
+            }
     else:
         print(
             f'AssetType: {asset_type} is not supported '
