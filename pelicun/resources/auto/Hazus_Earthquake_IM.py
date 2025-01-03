@@ -943,6 +943,7 @@ def auto_populate(aim):  # noqa: C901
                 },
                 "Damage": {"DamageProcess": "Hazus Earthquake"},
                 "Demands": {},
+                "Losses": {},
             }
     else:
         print(
