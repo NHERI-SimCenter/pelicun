@@ -919,7 +919,7 @@ def auto_populate(aim):  # noqa: C901
                                        "report this to the devloper(SimCenter)"
                                        ". (Value = {substation_anchored}).")
             else:
-                raise ValueError("substation anchored value is = "
+                raise ValueError("Substation anchored value is = "
                                  f"{substation_anchored}. It should be "
                                  "string, boolean, or a number representing "
                                  "True or False. For more information, "
@@ -945,6 +945,187 @@ def auto_populate(aim):  # noqa: C901
                 "Demands": {},
                 "Losses": {},
             }
+
+        elif power_asset_type == "Circuit":
+
+            circuit_anchored = gi_ap.get("Anchored", None)
+
+            if not circuit_anchored:
+                print("Circuit feature \"Anchored\" is missing. "
+                                 f" Circuit \"{asset_name}\" assuemd to be "
+                                 "\"  Unanchored\".")
+
+                circuit_anchored = False
+
+            if isinstance(circuit_anchored, str):
+                if circuit_anchored.lower() in ["a", "anchored", "yes", "true",
+                                                   "possitive", "1"]:
+                    ep_c_anchored = "A"
+                elif circuit_anchored.lower() in ["u", "unanchored", "no",
+                                                     "false", "negative", "0"]:
+                    ep_c_anchored = "U"
+            elif isinstance(circuit_anchored, (bool, int, float)):
+                if abs(circuit_anchored - True) < 0.001:
+                    ep_c_anchored = "A"
+                elif abs(circuit_anchored) < 0.001:
+                    ep_c_anchored = "U"
+                else:
+                    raise RuntimeError("This should never have happed. Please "
+                                       "report this to the devloper(SimCenter)"
+                                       ". (Value = {circuit_anchored}).")
+            else:
+                raise ValueError("Circuit anchored value is = "
+                                 f"{circuit_anchored}. It should be "
+                                 "string, boolean, or a number representing "
+                                 "True or False. For more information, "
+                                 "refer to the documentation please.")
+
+
+            # Define performance model
+            # fmt: off
+            comp = pd.DataFrame(                                                # noqa
+                {f'EP.C.{ep_s_size}.{ep_c_anchored}': ['ea', 1, 1, 1, 'N/A']}, # noqa
+                 index = ['Units','Location','Direction','Theta_0','Family']   # noqa
+            ).T                                                                # noqa
+
+            # Define the auto-populated config
+            dl_ap = {
+                "Asset": {
+                    "ComponentAssignmentFile": "CMP_QNT.csv",
+                    "ComponentDatabase": "Hazus Earthquake - Power",
+                    "Circuit Anchored": ep_c_anchored,
+                },
+                "Damage": {"DamageProcess": "Hazus Earthquake"},
+                "Demands": {},
+                "Losses": {},
+            }
+
+        elif power_asset_type == "Generation":
+
+            ep_g_size = ""
+            generation_output = gi_ap.get("Output", None)
+            if not generation_output:
+                print("Generation feature \"Output\" is missing. "
+                                 f" Generation \"{asset_name}\" assuemd to be "
+                                 "\"Small\".")
+                ep_g_size = "small"
+
+            if isinstance(generation_output, str):
+
+                generation_output = generation_output.lower()
+                generation_output = generation_output.strip()
+                acceptable_power_unit = ("w", "kw", "gw")
+
+                if_unit_exists = [st in generation_output for st in acceptable_power_unit]
+
+                power_unit = None
+
+                if True in if_unit_exists:
+                    power_unit = acceptable_power_unit[
+                        if_unit_exists.index(True)]
+
+                    if generation_output.endswith(power_unit):
+                        generation_output = generation_output.strip(power_unit)
+                        generation_output = generation_output.strip()
+                else:
+                    print("Generation feature doesn't have a unit for \"Output\" value. "
+                                     f" The ybit for Generation \"{asset_name}\"  "
+                                     "is assumed to be \"Mw\".")
+                    power_unit = "mw"
+
+
+                try:
+                    generation_output = float(generation_output)
+
+
+                    if power_unit == "w":
+                        generation_output = generation_output / 1000
+                    elif power_unit == "gw":
+                        generation_output = generation_output * 1000
+
+                    if generation_output < 200:
+                        ep_g_size = "small"
+                    elif (generation_output > 200 and
+                          generation_output < 500):
+                        ep_g_size = "medium"
+                    else:
+                        ep_g_size = "large"
+
+
+                except:
+                    print("Generation feature has an unrconizable \"Output\" value. "
+                                     f" Generation \"{asset_name}\" = {generation_output}, "
+                                     "instead of a numerical value."
+                                     "so the sizze of the Generation is assumed to be \"Small\".")
+
+                    ep_g_size = "small"
+
+                if ep_g_size == "small":
+                    ep_g_size = "s"
+                elif (ep_g_size == "medium" or
+                      ep_g_size == "large"):
+                    # because medium and large size generation plants are in
+                    # categorized in the same category.
+                    ep_g_size = "ML"
+                else:
+                    raise ValueError("This should never have happed. Please "
+                                       "report this to the devloper(SimCenter)"
+                                       ". (Value = {ep_g_size}).")
+
+            generation_anchored = gi_ap.get("Anchored", None)
+
+            if not generation_anchored:
+                print("Generation feature \"Anchored\" is missing. "
+                                 f" Circuit \"{asset_name}\" assuemd to be "
+                                 "\"  Unanchored\".")
+
+                generation_anchored = False
+                ep_g_anchored = None
+
+            if isinstance(generation_anchored, str):
+                if generation_anchored.lower() in ["a", "anchored", "yes", "true",
+                                                   "possitive", "1"]:
+                    ep_g_anchored = "A"
+                elif generation_anchored.lower() in ["u", "unanchored", "no",
+                                                     "false", "negative", "0"]:
+                    ep_g_anchored = "U"
+            elif isinstance(generation_anchored, (bool, int, float)):
+                if abs(generation_anchored - True) < 0.001:
+                    ep_g_anchored = "A"
+                elif abs(generation_anchored) < 0.001:
+                    ep_g_anchored = "U"
+                else:
+                    raise RuntimeError("This should never have happed. Please "
+                                       "report this to the devloper(SimCenter)"
+                                       ". (Value = {generation_anchored}).")
+            else:
+                raise ValueError("Circuit anchored value is = "
+                                 f"{circuit_anchored}. It should be "
+                                 "string, boolean, or a number representing "
+                                 "True or False. For more information, "
+                                 "refer to the documentation please.")
+
+
+            # Define performance model
+            # fmt: off
+            comp = pd.DataFrame(                                                # noqa
+                {f'EP.C.{ep_g_size}.{ep_g_anchored}': ['ea', 1, 1, 1, 'N/A']}, # noqa
+                 index = ['Units','Location','Direction','Theta_0','Family']   # noqa
+            ).T                                                                # noqa
+
+            # Define the auto-populated config
+            dl_ap = {
+                "Asset": {
+                    "ComponentAssignmentFile": "CMP_QNT.csv",
+                    "ComponentDatabase": "Hazus Earthquake - Power",
+                    "Generation Size": ep_g_size,
+                    "Generation Anchored": ep_g_anchored,
+                },
+                "Damage": {"DamageProcess": "Hazus Earthquake"},
+                "Demands": {},
+                "Losses": {},
+            }
+
     else:
         print(
             f'AssetType: {asset_type} is not supported '
