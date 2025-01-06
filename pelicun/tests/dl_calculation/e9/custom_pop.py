@@ -12,12 +12,11 @@ def auto_populate(aim):
     """
     Populates the DL model for tsunami example using custom fragility functions
 
-    Assumptions
-    -----------
+    Assumptions:
     * Everything relevant to auto-population is provided in the
-      Buiding Information Model (AIM).
+    Buiding Information Model (AIM).
     * The information expected in the AIM file is described in the
-      parse_AIM method.
+    parse_AIM method.
 
     Parameters
     ----------
