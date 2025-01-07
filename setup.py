@@ -43,7 +43,12 @@ import pelicun
 
 
 def read(*filenames, **kwargs) -> None:  # noqa: ANN002, ANN003
-    """Read multiple files into a string."""
+    """Read multiple files into a string.
+
+    Returns
+    -------
+        str: The contents of the files joined by the specified separator.
+    """
     encoding = kwargs.get('encoding', 'utf-8')
     sep = kwargs.get('sep', '\n')
     buf = []
