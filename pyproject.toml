@@ -31,7 +31,7 @@ max-bool-expr=5
 "pelicun/tools/HDF_to_CSV.py" = ["ALL"]
 "pelicun/tests/validation/inactive/*" = ["T201", "B018", "ANN", "PD"]
 "pelicun/tests/dl_calculation/rulesets/*" = ["N999"]
-"doc/source/examples/notebooks/*" = ["INP001", "CPY001", "D400", "B018", "F821", "T201", "T203"]
+"doc/source/examples/notebooks/*" = ["INP001", "CPY001", "D400", "B018", "F821", "T201", "T203", "F404", "E402"]
 
 [tool.ruff.format]
 quote-style = "single"

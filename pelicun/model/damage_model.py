@@ -42,6 +42,7 @@
 
 from __future__ import annotations
 
+from collections import defaultdict
 from functools import partial
 from pathlib import Path
 from typing import TYPE_CHECKING
@@ -906,6 +907,41 @@ class DamageModel_DS(DamageModel_Base):
         msg = f'Invalid operation: `{operation}`'
         raise ValueError(msg)
 
+    def _handle_operation_list(
+        self, initial_value: float, operations: list[tuple[str, float]]
+    ) -> np.ndarray:
+        """
+        Apply one or more operations to an initial value and return the results.
+
+        Parameters.
+        ----------
+        initial_value : float
+            The initial value to which the operations will be applied.
+        operations : list of tuple
+            A list of operations where each operation is represented as a tuple.
+            The first element of the tuple is a string representing the operation
+            type, and the second element is a float representing the value to be
+            used in the operation.
+
+        Returns
+        -------
+        np.ndarray
+            An array of results after applying each operation to the initial value.
+        """
+        if len(operations) == 1:
+            return np.array(
+                [
+                    self._handle_operation(
+                        initial_value, operations[0][0], operations[0][1]
+                    )
+                ]
+            )
+        new_values = [
+            self._handle_operation(initial_value, operation[0], operation[1])
+            for operation in operations
+        ]
+        return np.array(new_values)
+
     def _generate_dmg_sample(
         self,
         sample_size: int,
@@ -1160,13 +1196,18 @@ class DamageModel_DS(DamageModel_Base):
             A DataFrame that groups performance groups into batches
             for efficient damage assessment.
         scaling_specification: dict, optional
-            A dictionary defining the shift in median.
-            Example: {'CMP-1-1': '*1.2', 'CMP-1-2': '/1.4'}
-            The keys are individual components that should be present
-            in the `capacity_sample`.  The values should be strings
-            containing an operation followed by the value formatted as
-            a float.  The operation can be '+' for addition, '-' for
-            subtraction, '*' for multiplication, and '/' for division.
+                A dictionary defining the shift in median.
+                Example: {'CMP-1-1': {'LS1':['*1.2'. '*0.8'], 'LS2':'*1.2'},
+                'CMP-1-2': {'ALL':'/1.4'}} The first level keys are individual
+                components that should be present in the `capacity_sample`. The
+                second level key is the limit state to apply the scaling to. The
+                values should be strings or list of strings. The strings should
+                contain an operation followed by the value formatted as a float.
+                The operation can be '+' for addition, '-' for subtraction, '*'
+                for multiplication, and '/' for division. If different operations
+                are required for different realizations, a list of strings can
+                be provided. When 'ALL' is used as the key, the operation will
+                be applied to all limit states.
 
         Returns
         -------
@@ -1174,18 +1215,6 @@ class DamageModel_DS(DamageModel_Base):
             A tuple containing two RandomVariableRegistry instances:
             one for the capacity random variables and one for the LSDS
             assignments.
-
-        Raises
-        ------
-        ValueError
-            Raises an error if the scaling specification is invalid or
-            if the input DataFrame does not meet the expected format.
-        ValueError
-            If a capacity scaling operation is associated with an
-            unsupported distribution.
-        TypeError
-            If there are any issues with the types of the data in the
-            input DataFrame.
 
         """
 
@@ -1299,6 +1328,90 @@ class DamageModel_DS(DamageModel_Base):
 
             return ds_id
 
+        def parse_scaling_specification(scaling_specification: dict) -> dict:  # noqa: C901
+            """
+            Parse and validate the scaling specification, used in the '_create_dmg_RVs' method.
+
+            Parameters
+            ----------
+            scaling_specification: dict, optional
+                A dictionary defining the shift in median.
+                Example: {'CMP-1-1': {'LS1':['*1.2'. '*0.8'], 'LS2':'*1.2'},
+                'CMP-1-2': {'ALL':'/1.4'}} The first level keys are individual
+                components that should be present in the `capacity_sample`. The
+                second level key is the limit state to apply the scaling to. The
+                values should be strings or list of strings. The strings should
+                containing an operation followed by the value formatted as
+                a float.  The operation can be '+' for addition, '-' for
+                subtraction, '*' for multiplication, and '/' for division. If
+                different operations are required for different realizations, a
+                list of strings can be provided. When 'ALL' is used as the key,
+                the operation will be applied to all limit states.
+
+            Returns
+            -------
+            dict
+                The parsed and validated scaling specification.
+
+            Raises
+            ------
+            ValueError
+                If the scaling specification is invalid.
+            TypeError
+                If the type of an entry is invalid.
+            """
+            # if there are contents, ensure they are valid.
+            # See docstring for an example of what is expected.
+            parsed_scaling_specification: defaultdict = defaultdict(dict)
+            # validate contents
+            for key, value in scaling_specification.items():
+                # loop through limit states
+                if 'ALL' in value:
+                    if len(value) > 1:
+                        msg = (
+                            f'Invalid entry in scaling_specification: '
+                            f"{value}. No other entries are allowed for a component when 'ALL' is used."
+                        )
+                        raise ValueError(msg)
+                for limit_state_id, specifics in value.items():
+                    if not (
+                        limit_state_id.startswith('LS') or limit_state_id == 'ALL'
+                    ):
+                        msg = (
+                            f'Invalid entry in scaling_specification: {limit_state_id}. '
+                            f"It has to start with 'LS' or be 'ALL'. "
+                            f'See docstring of DamageModel._create_dmg_RVs.'
+                        )
+                        raise ValueError(msg)
+                    css = 'capacity adjustment specification'
+                    if not isinstance(specifics, list):
+                        specifics_list = [specifics]
+                    else:
+                        specifics_list = specifics
+                    for spec in specifics_list:
+                        if not isinstance(spec, str):
+                            msg = (
+                                f'Invalud entry in {css}: {spec}.'
+                                f'The specified scaling operation has to be a string.'
+                                f'See docstring of DamageModel._create_dmg_RVs.'
+                            )
+                            raise TypeError(msg)
+                        capacity_adjustment_operation = spec[0]
+                        number = spec[1::]
+                        if capacity_adjustment_operation not in {'+', '-', '*', '/'}:
+                            msg = f'Invalid operation in {css}: '
+                            raise ValueError(msg, f'{capacity_adjustment_operation}')
+                        fnumber = base.float_or_None(number)
+                        if fnumber is None:
+                            msg = f'Invalid number in {css}: {number}'
+                            raise ValueError(msg)
+                        if limit_state_id not in parsed_scaling_specification[key]:
+                            parsed_scaling_specification[key][limit_state_id] = []
+                        parsed_scaling_specification[key][limit_state_id].append(
+                            (capacity_adjustment_operation, fnumber)
+                        )
+            return parsed_scaling_specification
+
         if self._asmnt.log.verbose:
             self.log.msg('Generating capacity variables ...', prepend_timestamp=True)
 
@@ -1311,38 +1424,12 @@ class DamageModel_DS(DamageModel_Base):
         if not scaling_specification:
             scaling_specification = {}
         else:
-            # if there are contents, ensure they are valid.
-            # See docstring for an example of what is expected.
-            parsed_scaling_specification: dict = {}
-            # validate contents
-            for key, value in scaling_specification.items():
-                css = 'capacity adjustment specification'
-                if not isinstance(value, str):
-                    msg = (
-                        f'Invalid entry in {css}: {value}. It has to be a string. '
-                        f'See docstring of DamageModel._create_dmg_RVs.'
-                    )
-                    raise TypeError(msg)
-                capacity_adjustment_operation = value[0]
-                number = value[1::]
-                if capacity_adjustment_operation not in {'+', '-', '*', '/'}:
-                    msg = (
-                        f'Invalid operation in {css}: '
-                        f'{capacity_adjustment_operation}'
-                    )
-                    raise ValueError(msg)
-                fnumber = base.float_or_None(number)
-                if fnumber is None:
-                    msg = f'Invalid number in {css}: {number}'
-                    raise ValueError(msg)
-                parsed_scaling_specification[key] = (
-                    capacity_adjustment_operation,
-                    fnumber,
-                )
-                scaling_specification = parsed_scaling_specification
+            scaling_specification = parse_scaling_specification(
+                scaling_specification
+            )
 
         # get the component sample and blocks from the asset model
-        for pg in pgb.index:
+        for pg in pgb.index:  # noqa: PLR1702
             # determine demand capacity adjustment operation, if required
             cmp_loc_dir = '-'.join(pg[0:3])
             capacity_adjustment_operation = scaling_specification.get(  # type: ignore
@@ -1388,13 +1475,40 @@ class DamageModel_DS(DamageModel_Base):
                     if pd.isna(theta_0):
                         continue
 
-                    theta = [
-                        frg_params_ls.get(f'Theta_{t_i}', np.nan) for t_i in range(3)
-                    ]
+                    theta = np.array(
+                        [
+                            value
+                            for t_i in range(3)
+                            if (value := frg_params_ls.get(f'Theta_{t_i}', None))
+                            is not None
+                        ]
+                    )
 
                     if capacity_adjustment_operation:
-                        if family not in {'normal', 'lognormal', 'deterministic'}:
-                            msg = (
+                        if family in {'normal', 'lognormal', 'deterministic'}:
+                            # Only scale the median value if ls_id is defined in capacity_adjustment_operation
+                            # Otherwise, use the original value
+                            new_theta_0 = None
+                            if 'ALL' in capacity_adjustment_operation:
+                                new_theta_0 = self._handle_operation_list(
+                                    theta[0],
+                                    capacity_adjustment_operation['ALL'],
+                                )
+                            elif f'LS{ls_id}' in capacity_adjustment_operation:
+                                new_theta_0 = self._handle_operation_list(
+                                    theta[0],
+                                    capacity_adjustment_operation[f'LS{ls_id}'],
+                                )
+                            if new_theta_0 is not None:
+                                if new_theta_0.size == 1:
+                                    theta[0] = new_theta_0[0]
+                                else:
+                                    # Repeat the theta values new_theta_0.size times along axis 0
+                                    # and 1 time along axis 1
+                                    theta = np.tile(theta, (new_theta_0.size, 1))
+                                    theta[:, 0] = new_theta_0
+                        else:
+                            self.log.warning(
                                 f'Capacity adjustment is only supported '
                                 f'for `normal` or `lognormal` distributions. '
                                 f'Ignoring: `{cmp_loc_dir}`, which is `{family}`'
@@ -1406,10 +1520,12 @@ class DamageModel_DS(DamageModel_Base):
                             float(capacity_adjustment_operation[1]),
                         )
 
-                    tr_lims = [
-                        frg_params_ls.get(f'Truncate{side}', np.nan)
-                        for side in ('Lower', 'Upper')
-                    ]
+                    tr_lims = np.array(
+                        [
+                            frg_params_ls.get(f'Truncate{side}', np.nan)
+                            for side in ('Lower', 'Upper')
+                        ]
+                    )
 
                     for block_i, _ in enumerate(blocks):
                         frg_rv_tag = (

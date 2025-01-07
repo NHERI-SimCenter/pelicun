@@ -1,0 +1,70 @@
+.. _changes_v3_4_0:
+
+=================================
+Version 3.4.0 (November 27, 2024)
+=================================
+
+Added
+-----
+
+**Documentation pages**: Documentation for pelicun 3 is back online. The documentation includes guides for users and developers as well as an auto-generated API reference. A lineup of examples is planned to be part of the documentation, highlighting specific features, including the new ones listed in this section.
+
+**Consequence scaling**: This feature can be used to apply scaling factors to consequence and loss functions for specific decision variables, component types, locations and directions. This can make it easier to examine several different consequence scaling schemes without the need to repeat all calculations or write extensive custom code.
+
+**Capacity scaling**: This feature can be used to modify the median of normal or lognormal fragility functions of specific components. Medians can be scaled by a factor or shifted by adding or subtracting a value.
+This can make it easier to use fragility functions that are a function of specific asset features.
+
+**Loss functions**: Loss functions are used to estimate losses directly from the demands. The damage and loss models were substantially restructured to facilitate the use of loss functions.
+
+**Loss combinations**: Loss combinations allow for the combination of two types of losses using a multi-dimensional lookup table. For example, independently calculated losses from wind and flood can be combined to produce a single loss estimate considering both demands.
+
+**Utility demand**: Utility demands are compound demands calculated using a mathematical expression involving other demands. Practical examples include the application of a mathematical expression on a demand before using it to estimate damage, or combining multiple demands with a multivariate expression to generate a combined demand.Such utility demands can be used to implement those multidimensional fragility models that utilize a single, one-dimensional distribution that is defined through a combination of multiple input variables.
+
+**Normal distribution with standard deviation**: Added two new variants of "normal" in ``uq.py``: ``normal_COV`` and ``normal_STD``. Since the variance of the default normal random variables is currently defined via the coefficient of variation, the new ``normal_STD`` is required to define a normal random variable with zero mean. ``normal_COV`` is treated the same way as the default ``normal``.
+
+**Weibull random variable**: Added a Weibull random variable class in ``uq.py``.
+
+**New ``DL_calculation.py`` input file options**: We expanded configuration options in the ``DL_calculation.py`` input file specification. Specifically, we added ``CustomDLDataFolder`` for specifying additional user-defined components.
+
+**Warnings in red**: Added support for colored outputs. In execution environments that support colored outputs, warnings are now shown in red.
+
+Code base related additions, which are not directly implementing new features but are nonetheless enhancing robustness, include the following:
+- pelicun-specific warnings with the option to disable them
+- a JSON schema for the input file used to configure simulations through ``DL_calculation.py``
+- addition of type hints in the entire code base
+- addition of slots in all classes, preventing on-the-fly definition of new attributes which is prone to bugs
+
+Changed
+-------
+
+- Updated random variable class names in ``uq.py``.
+- Extensive code refactoring for improved organization and to support the new features. We made a good-faith effort to maintain backwards compatibility, and issue helpful warnings to assist migration to the new syntax.
+- Moved most of the code in DL_calculation.py to assessment.py and created an assessment class.
+- Migrated to Ruff for linting and code formatting. Began using mypy for type checking and codespell for spell checking.
+
+Deprecated
+----------
+
+- ``.bldg_repair`` attribute was renamed to ``.loss``
+- ``.repair`` had also been used in the past, please use ``.loss`` instead.
+- In the damage and loss model library, ``fragility_DB`` was renamed to ``damage_DB`` and ``bldg_repair_DB`` was renamed to ``loss_repair_DB``.
+- ``load_damage_model`` was renamed to ``load_model_parameters`` and the syntax has changed. Please see the applicable warning message when using ``load_damage_model`` for the updated syntax.
+- ``{damage model}.sample`` was deprecated in favor of ``{damage model}.ds_model.sample``.
+- The ``DMG-`` flag in the loss_map index is no longer required.
+- ``BldgRepair`` column is deprecated in favor of ``Repair``.
+- ``load_model`` -> ``load_model_parameters``
+- ``{loss model}.save_sample`` -> ``'{loss model}.ds_model.save_sample``. The same applies to ``load_sample``.
+
+Removed
+-------
+
+- No features were removed in this version.
+- We suspended the use of flake8 and pylint after adopting the use of ruff.
+
+Fixed
+-----
+
+- Fixed a bug affecting the random variable classes, where the anchor random variable was not being correctly set.
+- Enforced a value of 1.0 for non-directional multipliers for HAZUS analyses.
+- Fixed bug in demand cloning: Previously demand unit data were being left unmodified during demand cloning operations, leading to missing values.
+- Reviewed and improved docstrings in the entire code base.

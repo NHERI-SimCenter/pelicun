@@ -30,7 +30,7 @@
     },
     "Damage": {
       "DamageProcess": "Hazus Earthquake",
-      "ScalingSpecification": {"LF.C1.L.LC-1-1": "*1.2", "collapse-0-1": "*1.2"}
+      "ScalingSpecification": {"LF.C1.L.LC-1-1":{"LS1": "*1.2"}, "collapse-0-1": {"ALL": "*1.2"}}
     },
     "Demands": {
       "DemandFilePath": "response.csv",
