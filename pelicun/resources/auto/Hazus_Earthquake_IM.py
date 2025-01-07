@@ -320,7 +320,7 @@ def auto_populate(aim):  # noqa: C901
 
     asset_type = aim['assetType']
     dl_app_data = aim['Applications']['DL']['ApplicationData']
-    ground_failure = ['ground_failure']
+    ground_failure = dl_app_data['ground_failure']
 
     if asset_type == 'Buildings':
         # get the building parameters
