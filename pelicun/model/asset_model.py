@@ -525,14 +525,20 @@ class AssetModel(PelicunModel):
             rv_reg.add_RV(
                 uq.rv_class_map(family)(
                     name=f'CMP-{cmp[0]}-{cmp[1]}-{cmp[2]}-{cmp[3]}',  # type: ignore
-                    theta=[  # type: ignore
-                        getattr(rv_params, f'Theta_{t_i}', np.nan)
-                        for t_i in range(3)
-                    ],
-                    truncation_limits=[
-                        getattr(rv_params, f'Truncate{side}', np.nan)
-                        for side in ('Lower', 'Upper')
-                    ],
+                    theta=np.array(
+                        [
+                            value
+                            for t_i in range(3)
+                            if (value := getattr(rv_params, f'Theta_{t_i}', None))
+                            is not None
+                        ]
+                    ),
+                    truncation_limits=np.array(
+                        [
+                            getattr(rv_params, f'Truncate{side}', np.nan)
+                            for side in ('Lower', 'Upper')
+                        ]
+                    ),
                 )
             )
 
