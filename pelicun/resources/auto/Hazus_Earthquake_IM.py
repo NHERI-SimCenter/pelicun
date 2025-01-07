@@ -918,7 +918,7 @@ def auto_populate(aim):  # noqa: C901
                 else:
                     msg = (
                         'This should never have happed. Please '
-                        'report this to the devloper(SimCenter)'
+                        'report this to the developer(SimCenter)'
                         f'. (Value = {substation_voltage}).'
                     )
                     raise RuntimeError(msg)
@@ -926,7 +926,7 @@ def auto_populate(aim):  # noqa: C901
                 msg = (
                     'substation Voltage value is = '
                     f'{substation_voltage}. It should be '
-                    'string or a numebr. For more information, '
+                    'string or a number. For more information, '
                     'refer to the documentation please.'
                 )
                 raise ValueError(msg)
@@ -969,7 +969,7 @@ def auto_populate(aim):  # noqa: C901
                 else:
                     msg = (
                         'This should never have happed. Please '
-                        'report this to the devloper(SimCenter)'
+                        'report this to the developer(SimCenter)'
                         f'. (Value = {substation_anchored}).'
                     )
                     raise RuntimeError(msg)
@@ -1045,7 +1045,7 @@ def auto_populate(aim):  # noqa: C901
                 else:
                     msg = (
                         'This should never have happed. Please '
-                        'report this to the devloper(SimCenter)'
+                        'report this to the developer(SimCenter)'
                         f'. (Value = {circuit_anchored}).'
                     )
                     raise RuntimeError(msg)
@@ -1089,7 +1089,7 @@ def auto_populate(aim):  # noqa: C901
                     '"Small".'
                 )
                 print(msg)
-                # if the power feature is missing, teh generation is assuemd
+                # if the power feature is missing, the generation is assuemd
                 # to be small
                 ep_g_size = 'small'
 
@@ -1161,7 +1161,7 @@ def auto_populate(aim):  # noqa: C901
                 else:
                     msg = (
                         'This should never have happed. Please '
-                        'report this to the devloper(SimCenter)'
+                        'report this to the developer(SimCenter)'
                         f'. (Value = {ep_g_size}).'
                     )
                     raise ValueError(msg)
@@ -1206,7 +1206,7 @@ def auto_populate(aim):  # noqa: C901
                 else:
                     msg = (
                         'This should never have happed. Please '
-                        'report this to the devloper(SimCenter)'
+                        'report this to the developer(SimCenter)'
                         f'. (Value = {generation_anchored}).'
                     )
                     raise RuntimeError(msg)
