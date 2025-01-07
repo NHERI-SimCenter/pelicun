@@ -570,7 +570,8 @@ def auto_populate(aim):  # noqa: C901
                 raise ValueError(msg)
 
             pipe_length = gi_ap.get('Len', None)
-            # length value is a fundamental part of hydraulic performance assessment
+            # length value is a fundamental part of
+            # hydraulic performance assessment
             if pipe_diameter is None:
                 msg = f'pipe length in asset type {asset_type}, \
                                  asset id "{asset_name}" has no diameter \
@@ -600,8 +601,8 @@ def auto_populate(aim):  # noqa: C901
             if pipe_material is None:
                 if pipe_diameter > 20 * 0.0254:  # 20 inches in meter
                     print(
-                        f'Asset {asset_name} is missing material. Material is\
-                          assumed to be Cast Iron'
+                          f'Asset {asset_name} is missing material. '
+                          'Material is assumed to be Cast Iron'
                     )
                     pipe_material = 'CI'
                 else:
@@ -615,16 +616,17 @@ def auto_populate(aim):  # noqa: C901
                 if (pipe_construction_year is not None) and (
                     pipe_construction_year >= 1935
                 ):
-                    print(
-                        f'Asset {asset_name} has material of "ST" is assumed to be\
-                          Ductile Steel'
-                    )
+                    msg = (f'Asset {asset_name} has material of "ST" '
+                           'is assumed to be Ductile Steel.')
+
+                    print(msg)
                     pipe_material = 'DS'
+
                 else:
-                    print(
-                        f'Asset {asset_name} has material of "ST" is assumed to be '
-                        f'Brittle Steel'
-                    )
+                    msg = (f'Asset {asset_name} has material of "ST" '
+                           'is assumed to be Brittle Steel.')
+
+                    print(msg)
                     pipe_material = 'BS'
 
             pipe_flexibility = pipe_material_map.get(pipe_material, 'missing')
@@ -643,25 +645,29 @@ def auto_populate(aim):  # noqa: C901
             # Determine number of segments
 
             pipe_length_unit = gi_ap['units']['length']
-            pipe_length_feet = pelicun.base.convert_units(
-                pipe_length, unit=pipe_length_unit, to_unit='ft', category='length'
-            )
+            pipe_length_ft = pelicun.base.convert_units(pipe_length,
+                                                        unit=pipe_length_unit,
+                                                        to_unit='ft',
+                                                        category='length'
+                                                        )
             reference_length = 20.00  # 20 ft
-            if pipe_length_feet % reference_length < 1e-2:
+            if pipe_length_ft % reference_length < 1e-2:
                 # If the lengths are equal, then that's one segment, not two.
-                num_segments = int(pipe_length_feet / reference_length)
+                num_segments = int(pipe_length_ft / reference_length)
             else:
                 # In all other cases, round up.
-                num_segments = int(pipe_length_feet / reference_length) + 1
+                num_segments = int(pipe_length_ft / reference_length) + 1
             location_string = f'1--{num_segments}' if num_segments > 1 else '1'
 
             # Define performance model
             # fmt: off
+
+            pipe_fl = f'PWP.{pipe_flexibility}'
             comp = pd.DataFrame(
-                {f'PWP.{pipe_flexibility}.GS': ['ea', location_string, '0', 1, 'N/A'],
-                 f'PWP.{pipe_flexibility}.GF': ['ea', location_string, '0', 1, 'N/A'],
-                 'aggregate':                  ['ea', location_string, '0', 1, 'N/A']},
-                index = ['Units','Location','Direction','Theta_0','Family']  # noqa: E231, E251
+                {pipe_fl+'.GS': ['ea', location_string, '0', 1, 'N/A'],
+                 pipe_fl+'.GF': ['ea', location_string, '0', 1, 'N/A'],
+                 'aggregate': ['ea', location_string, '0', 1, 'N/A']},
+                index=['Units', 'Location', 'Direction', 'Theta_0', 'Family']
             ).T
             # fmt: on
 
@@ -723,7 +729,8 @@ def auto_populate(aim):  # noqa: C901
                 ('OG', 'S', 0): {'PST.G.S.U.GS': ['ea', 1, 1, 1, 'N/A']},
                 # Anchored status and Wood is not defined for On Ground tanks
                 ('OG', 'W', 0): {'PST.G.W.GS': ['ea', 1, 1, 1, 'N/A']},
-                # Anchored status and Steel is not defined for Above Ground tanks
+                # Anchored status and Steel is not defined for
+                # Above Ground tanks
                 ('AG', 'S', 0): {'PST.A.S.GS': ['ea', 1, 1, 1, 'N/A']},
                 # Anchored status and Concrete is not defined for Buried tanks.
                 ('B', 'C', 0): {'PST.B.C.GF': ['ea', 1, 1, 1, 'N/A']},
@@ -761,36 +768,39 @@ def auto_populate(aim):  # noqa: C901
                 raise ValueError(msg)
 
             if tank_location == 'AG' and tank_material == 'C':
-                print(
-                    f'The tank {asset_name} is Above Ground (i.e., AG), but \
-                     the material type is Concrete ("C"). Tank type "C" is not \
-                     defined for AG tanks. The tank is assumed to be Steel ("S")'
-                )
+                msg = (f'The tank {asset_name} is Above Ground (i.e., AG), '
+                       'but the material type is Concrete ("C"). '
+                       'Tank type "C" is not defined for AG tanks. '
+                       'The tank is assumed to be Steel ("S").')
+
+                print(msg)
                 tank_material = 'S'
 
             if tank_location == 'AG' and tank_material == 'W':
-                print(
-                    f'The tank {asset_name} is Above Ground (i.e., AG), but \
-                     the material type is Wood ("W"). Tank type "W" is not \
-                     defined for AG tanks. The tank is assumed to be Steel ("S")'
-                )
+                msg = (f'The tank {asset_name} is Above Ground (i.e., AG), but'
+                       ' the material type is Wood ("W"). '
+                       'Tank type "W" is not defined for AG tanks. '
+                       'The tank is assumed to be Steel ("S").')
+
+                print(msg)
                 tank_material = 'S'
 
             if tank_location == 'B' and tank_material == 'S':
-                print(
-                    f'The tank {asset_name} is buried (i.e., B), but the\
-                     material type is Steel ("S"). \
-                     Tank type "S" is not defined for\
-                     B tanks. The tank is assumed to be Concrete ("C")'
-                )
+                msg = (f'The tank {asset_name} is buried (i.e., B), but the '
+                       'material type is Steel ("S"). Tank type "S" is '
+                       'not defined for "B" tanks. '
+                       'The tank is assumed to be Concrete ("C").')
+
+                print(msg)
                 tank_material = 'C'
 
             if tank_location == 'B' and tank_material == 'W':
-                print(
-                    f'The tank {asset_name} is buried (i.e., B), but the\
-                     material type is Wood ("W"). Tank type "W" is not defined \
-                     for B tanks. The tank is assumed to be Concrete ("C")'
-                )
+                msg = (f'The tank {asset_name} is buried (i.e., B), but the'
+                       'material type is Wood ("W"). Tank type "W" is '
+                       'not defined for B tanks. The tank is assumed '
+                       'to be Concrete ("C")')
+
+                print(msg)
                 tank_material = 'C'
 
             if tank_anchored == 1:
@@ -815,7 +825,8 @@ def auto_populate(aim):  # noqa: C901
                     'Location': tank_location,
                     'Anchored': tank_anchored,
                     'PlanArea': '1',  # Sina: does not make sense for water.
-                    # Kept it here since itw as also kept here for Transportation
+                    # Kept it here since itw as also kept here for
+                    # Transportation
                 },
                 'Damage': {'DamageProcess': 'Hazus Earthquake'},
                 'Demands': {},
@@ -837,11 +848,13 @@ def auto_populate(aim):  # noqa: C901
         if power_asset_type == "Substation":
 
             ep_s_size = ""
+            ep_s_anchored = ""
             substation_voltage = gi_ap.get("Voltage", None)
             if not substation_voltage:
-                print("Substation feature \"Voltage\" is missing. "
-                                 f" substation \"{asset_name}\" assuemd to be "
-                                 "\"  Low Voltage\".")
+                msg = ("Substation feature \"Voltage\" is missing. "
+                       f" substation \"{asset_name}\" assuemd to be "
+                       "\"  Low Voltage\".")
+                print(msg)
                 substation_voltage = "low"
 
             if isinstance(substation_voltage, str):
@@ -856,25 +869,27 @@ def auto_populate(aim):  # noqa: C901
                                      f"{substation_voltage}. "
                                      "The value must be either \"low\" "
                                      ", \" medium\", or \" high\".")
-            elif isinstance(substation_voltage, (float, int)):
 
+            elif isinstance(substation_voltage, (float, int)):
                 # Substation Voltage unit is kV. ANy number smaller than
                 # 34 kv is not supported by HAZUS methodlogy. Furthermore,
                 # values significantly larger may refer to a voltage value in
                 # different unit. The upper bound value is set ro 1200 kV.
 
-
                 if substation_voltage < 34:
-                    raise ValueError(f"The subtation Viltage for asset \"{asset_name}\" "
-                                     f"is too low({substation_voltage}). The current "
-                                     "methodology support voltage ebtween 34 kV and 1200 "
-                                     " kV. Please make sure that the units are in kV.")
+                    msg = (f"The subtation Viltage for asset \"{asset_name}\" "
+                           f"is too low({substation_voltage}). The current "
+                           "methodology support voltage ebtween 34 kV and 1200"
+                           " kV. Please make sure that the units are in kV.")
+                    raise ValueError(msg)
 
-                elif substation_voltage > 1200:
-                    raise ValueError(f"The subtation Viltage for asset \"{asset_name}\" "
-                                     f"is too high({substation_voltage}). The current "
-                                     "methodology support voltage ebtween 34 kV and 1200 "
-                                     " kV. Please make sure that the units are in kV.")
+                if substation_voltage > 1200:
+                    msg = (f"The subtation Viltage for asset \"{asset_name}\""
+                           f"is too high({substation_voltage}). The current "
+                           "methodology support voltage ebtween 34 kV and 1200"
+                           " kV. Please make sure that the units are in kV.")
+
+                    raise ValueError(msg)
 
                 if substation_voltage <= 150:
                     ep_s_size = "L"
@@ -892,19 +907,18 @@ def auto_populate(aim):  # noqa: C901
                                  "string or a numebr. For more information, "
                                  "refer to the documentation please.")
 
-
             substation_anchored = gi_ap.get("Anchored", None)
 
             if not substation_anchored:
                 print("Substation feature \"Anchored\" is missing. "
-                                 f" substation \"{asset_name}\" assuemd to be "
-                                 "\"  Unanchored\".")
+                      f" substation \"{asset_name}\" assuemd to be "
+                      "\"  Unanchored\".")
 
                 substation_anchored = False
 
             if isinstance(substation_anchored, str):
-                if substation_anchored.lower() in ["a", "anchored", "yes", "true",
-                                                   "possitive", "1"]:
+                if substation_anchored.lower() in ["a", "anchored", "yes",
+                                                   "true", "possitive", "1"]:
                     ep_s_anchored = "A"
                 elif substation_anchored.lower() in ["u", "unanchored", "no",
                                                      "false", "negative", "0"]:
@@ -925,13 +939,13 @@ def auto_populate(aim):  # noqa: C901
                                  "True or False. For more information, "
                                  "refer to the documentation please.")
 
-
             # Define performance model
             # fmt: off
-            comp = pd.DataFrame(                                                # noqa
-                {f'EP.S.{ep_s_size}.{ep_s_anchored}': ['ea', 1, 1, 1, 'N/A']}, # noqa
-                 index = ['Units','Location','Direction','Theta_0','Family']   # noqa
-            ).T                                                                # noqa
+            substation_type = f'EP.S.{ep_s_size}.{ep_s_anchored}'
+            comp = pd.DataFrame(
+                {substation_type: ['ea', 1, 1, 1, 'N/A']},
+                index=['Units', 'Location', 'Direction', 'Theta_0', 'Family']
+            ).T
 
             # Define the auto-populated config
             dl_ap = {
@@ -950,19 +964,20 @@ def auto_populate(aim):  # noqa: C901
 
             circuit_anchored = gi_ap.get("Anchored", None)
 
+            ep_c_anchored = None
             if not circuit_anchored:
                 print("Circuit feature \"Anchored\" is missing. "
-                                 f" Circuit \"{asset_name}\" assuemd to be "
-                                 "\"  Unanchored\".")
+                      f" Circuit \"{asset_name}\" assuemd to be "
+                      "\"  Unanchored\".")
 
                 circuit_anchored = False
 
             if isinstance(circuit_anchored, str):
                 if circuit_anchored.lower() in ["a", "anchored", "yes", "true",
-                                                   "possitive", "1"]:
+                                                "possitive", "1"]:
                     ep_c_anchored = "A"
                 elif circuit_anchored.lower() in ["u", "unanchored", "no",
-                                                     "false", "negative", "0"]:
+                                                  "false", "negative", "0"]:
                     ep_c_anchored = "U"
             elif isinstance(circuit_anchored, (bool, int, float)):
                 if abs(circuit_anchored - True) < 0.001:
@@ -980,13 +995,13 @@ def auto_populate(aim):  # noqa: C901
                                  "True or False. For more information, "
                                  "refer to the documentation please.")
 
-
             # Define performance model
             # fmt: off
-            comp = pd.DataFrame(                                                # noqa
-                {f'EP.C.{ep_s_size}.{ep_c_anchored}': ['ea', 1, 1, 1, 'N/A']}, # noqa
-                 index = ['Units','Location','Direction','Theta_0','Family']   # noqa
-            ).T                                                                # noqa
+            circuit_type = f'EP.C.{ep_s_size}.{ep_c_anchored}'
+            comp = pd.DataFrame(
+                {circuit_type: ['ea', 1, 1, 1, 'N/A']}, # noqa
+                index=['Units', 'Location', 'Direction', 'Theta_0', 'Family']
+            ).T
 
             # Define the auto-populated config
             dl_ap = {
@@ -1006,8 +1021,10 @@ def auto_populate(aim):  # noqa: C901
             generation_output = gi_ap.get("Output", None)
             if not generation_output:
                 print("Generation feature \"Output\" is missing. "
-                                 f" Generation \"{asset_name}\" assuemd to be "
-                                 "\"Small\".")
+                      f" Generation \"{asset_name}\" assuemd to be "
+                      "\"Small\".")
+                # if the power feature is missing, teh generation is assuemd
+                # to be small
                 ep_g_size = "small"
 
             if isinstance(generation_output, str):
@@ -1016,27 +1033,27 @@ def auto_populate(aim):  # noqa: C901
                 generation_output = generation_output.strip()
                 acceptable_power_unit = ("w", "kw", "gw")
 
-                if_unit_exists = [st in generation_output for st in acceptable_power_unit]
+                units_exist = [unit in generation_output
+                               for unit in acceptable_power_unit]
 
                 power_unit = None
 
-                if True in if_unit_exists:
+                if True in units_exist:
                     power_unit = acceptable_power_unit[
-                        if_unit_exists.index(True)]
+                        units_exist.index(True)]
 
                     if generation_output.endswith(power_unit):
                         generation_output = generation_output.strip(power_unit)
                         generation_output = generation_output.strip()
                 else:
-                    print("Generation feature doesn't have a unit for \"Output\" value. "
-                                     f" The ybit for Generation \"{asset_name}\"  "
-                                     "is assumed to be \"Mw\".")
-                    power_unit = "mw"
+                    print("Generation feature doesn't have a unit for "
+                          "\"Output\" value. The ybit for Generation "
+                          f"\"{asset_name}\"  is assumed to be \"Mw\".")
 
+                    power_unit = "mw"
 
                 try:
                     generation_output = float(generation_output)
-
 
                     if power_unit == "w":
                         generation_output = generation_output / 1000
@@ -1045,45 +1062,50 @@ def auto_populate(aim):  # noqa: C901
 
                     if generation_output < 200:
                         ep_g_size = "small"
-                    elif (generation_output > 200 and
-                          generation_output < 500):
+                    elif 200 < generation_output < 500:
                         ep_g_size = "medium"
                     else:
                         ep_g_size = "large"
 
+                except ValueError as e:
 
-                except:
-                    print("Generation feature has an unrconizable \"Output\" value. "
-                                     f" Generation \"{asset_name}\" = {generation_output}, "
-                                     "instead of a numerical value."
-                                     "so the sizze of the Generation is assumed to be \"Small\".")
+                    # check if the exception is for value not being a float
+                    not_float_str = "could not convert string to float:"
+                    if not str(e).startswith(not_float_str):
+                        raise e
+                    # otherwise
+                    print("Generation feature has an unrconizable \"Output\""
+                          f" value. Generation \"{asset_name}\" = "
+                          f"{generation_output}, instead of a numerical value."
+                          "so the sizze of the Generation is assumed to be "
+                          "\"Small\".")
 
                     ep_g_size = "small"
 
                 if ep_g_size == "small":
                     ep_g_size = "s"
-                elif (ep_g_size == "medium" or
-                      ep_g_size == "large"):
+                elif ep_g_size in ("medium", "large"):
                     # because medium and large size generation plants are in
                     # categorized in the same category.
                     ep_g_size = "ML"
                 else:
                     raise ValueError("This should never have happed. Please "
-                                       "report this to the devloper(SimCenter)"
-                                       ". (Value = {ep_g_size}).")
+                                     "report this to the devloper(SimCenter)"
+                                     ". (Value = {ep_g_size}).")
 
             generation_anchored = gi_ap.get("Anchored", None)
 
             if not generation_anchored:
                 print("Generation feature \"Anchored\" is missing. "
-                                 f" Circuit \"{asset_name}\" assuemd to be "
-                                 "\"  Unanchored\".")
+                      f" Circuit \"{asset_name}\" assuemd to be "
+                      "\"  Unanchored\".")
 
                 generation_anchored = False
-                ep_g_anchored = None
 
+            ep_g_anchored = None
             if isinstance(generation_anchored, str):
-                if generation_anchored.lower() in ["a", "anchored", "yes", "true",
+                if generation_anchored.lower() in ["a", "anchored", "yes",
+                                                   "true",
                                                    "possitive", "1"]:
                     ep_g_anchored = "A"
                 elif generation_anchored.lower() in ["u", "unanchored", "no",
@@ -1105,13 +1127,13 @@ def auto_populate(aim):  # noqa: C901
                                  "True or False. For more information, "
                                  "refer to the documentation please.")
 
-
             # Define performance model
             # fmt: off
-            comp = pd.DataFrame(                                                # noqa
-                {f'EP.C.{ep_g_size}.{ep_g_anchored}': ['ea', 1, 1, 1, 'N/A']}, # noqa
-                 index = ['Units','Location','Direction','Theta_0','Family']   # noqa
-            ).T                                                                # noqa
+            generation_type = f'EP.C.{ep_g_size}.{ep_g_anchored}'
+            comp = pd.DataFrame(
+                {generation_type: ['ea', 1, 1, 1, 'N/A']},
+                index=['Units', 'Location', 'Direction', 'Theta_0', 'Family']
+            ).T
 
             # Define the auto-populated config
             dl_ap = {
