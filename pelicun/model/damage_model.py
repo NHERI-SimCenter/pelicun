@@ -1513,12 +1513,6 @@ class DamageModel_DS(DamageModel_Base):
                                 f'for `normal` or `lognormal` distributions. '
                                 f'Ignoring: `{cmp_loc_dir}`, which is `{family}`'
                             )
-                            raise ValueError(msg)
-                        theta[0] = self._handle_operation(
-                            theta[0],
-                            capacity_adjustment_operation[0],
-                            float(capacity_adjustment_operation[1]),
-                        )
 
                     tr_lims = np.array(
                         [
