@@ -2,7 +2,7 @@ name: Build and deploy documentation
 on:
   push:
     branches:
-      - docs
+      - master
 jobs:
   build-docs:
     runs-on: ${{ matrix.os }}
