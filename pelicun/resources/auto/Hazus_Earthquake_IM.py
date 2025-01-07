@@ -215,9 +215,9 @@ def convertBridgeToHAZUSclass(aim):  # noqa: C901
 
 
 def convertTunnelToHAZUSclass(aim) -> str:
-    if ('Bored' in aim['ConstructType']) or ('Drilled' in aim['ConstructType']):
+    if 'Bored' in aim['ConstructType'] or 'Drilled' in aim['ConstructType']:
         return 'HTU1'
-    elif ('Cut' in aim['ConstructType']) or ('Cover' in aim['ConstructType']):
+    elif 'Cut' in aim['ConstructType'] or 'Cover' in aim['ConstructType']:
         return 'HTU2'
     else:
         # Select HTU2 for unclassified tunnels because it is more conservative.
@@ -319,7 +319,8 @@ def auto_populate(aim):  # noqa: C901
     gi_ap = gi.copy()
 
     asset_type = aim['assetType']
-    ground_failure = aim['Applications']['DL']['ApplicationData']['ground_failure']
+    dl_app_data = aim['Applications']['DL']['ApplicationData']
+    ground_failure = ['ground_failure']
 
     if asset_type == 'Buildings':
         # get the building parameters
@@ -329,8 +330,8 @@ def auto_populate(aim):  # noqa: C901
         dl = gi.get('DesignLevel', None)
 
         if dl is None:
-            # If there is no DesignLevel provided, we assume that the YearBuilt is
-            # available
+            # If there is no DesignLevel provided,
+            # we assume that the YearBuilt is available
             year_built = gi['YearBuilt']
 
             design_l = ap_design_level_w1 if 'W1' in bt else ap_design_level
@@ -601,8 +602,8 @@ def auto_populate(aim):  # noqa: C901
             if pipe_material is None:
                 if pipe_diameter > 20 * 0.0254:  # 20 inches in meter
                     print(
-                          f'Asset {asset_name} is missing material. '
-                          'Material is assumed to be Cast Iron'
+                        f'Asset {asset_name} is missing material. '
+                        'Material is assumed to be Cast Iron'
                     )
                     pipe_material = 'CI'
                 else:
@@ -616,15 +617,19 @@ def auto_populate(aim):  # noqa: C901
                 if (pipe_construction_year is not None) and (
                     pipe_construction_year >= 1935
                 ):
-                    msg = (f'Asset {asset_name} has material of "ST" '
-                           'is assumed to be Ductile Steel.')
+                    msg = (
+                        f'Asset {asset_name} has material of "ST" '
+                        'is assumed to be Ductile Steel.'
+                    )
 
                     print(msg)
                     pipe_material = 'DS'
 
                 else:
-                    msg = (f'Asset {asset_name} has material of "ST" '
-                           'is assumed to be Brittle Steel.')
+                    msg = (
+                        f'Asset {asset_name} has material of "ST" '
+                        'is assumed to be Brittle Steel.'
+                    )
 
                     print(msg)
                     pipe_material = 'BS'
@@ -645,11 +650,9 @@ def auto_populate(aim):  # noqa: C901
             # Determine number of segments
 
             pipe_length_unit = gi_ap['units']['length']
-            pipe_length_ft = pelicun.base.convert_units(pipe_length,
-                                                        unit=pipe_length_unit,
-                                                        to_unit='ft',
-                                                        category='length'
-                                                        )
+            pipe_length_ft = pelicun.base.convert_units(
+                pipe_length, unit=pipe_length_unit, to_unit='ft', category='length'
+            )
             reference_length = 20.00  # 20 ft
             if pipe_length_ft % reference_length < 1e-2:
                 # If the lengths are equal, then that's one segment, not two.
@@ -664,8 +667,8 @@ def auto_populate(aim):  # noqa: C901
 
             pipe_fl = f'PWP.{pipe_flexibility}'
             comp = pd.DataFrame(
-                {pipe_fl+'.GS': ['ea', location_string, '0', 1, 'N/A'],
-                 pipe_fl+'.GF': ['ea', location_string, '0', 1, 'N/A'],
+                {pipe_fl + '.GS': ['ea', location_string, '0', 1, 'N/A'],
+                 pipe_fl + '.GF': ['ea', location_string, '0', 1, 'N/A'],
                  'aggregate': ['ea', location_string, '0', 1, 'N/A']},
                 index=['Units', 'Location', 'Direction', 'Theta_0', 'Family']
             ).T
@@ -768,37 +771,45 @@ def auto_populate(aim):  # noqa: C901
                 raise ValueError(msg)
 
             if tank_location == 'AG' and tank_material == 'C':
-                msg = (f'The tank {asset_name} is Above Ground (i.e., AG), '
-                       'but the material type is Concrete ("C"). '
-                       'Tank type "C" is not defined for AG tanks. '
-                       'The tank is assumed to be Steel ("S").')
+                msg = (
+                    f'The tank {asset_name} is Above Ground (i.e., AG), '
+                    'but the material type is Concrete ("C"). '
+                    'Tank type "C" is not defined for AG tanks. '
+                    'The tank is assumed to be Steel ("S").'
+                )
 
                 print(msg)
                 tank_material = 'S'
 
             if tank_location == 'AG' and tank_material == 'W':
-                msg = (f'The tank {asset_name} is Above Ground (i.e., AG), but'
-                       ' the material type is Wood ("W"). '
-                       'Tank type "W" is not defined for AG tanks. '
-                       'The tank is assumed to be Steel ("S").')
+                msg = (
+                    f'The tank {asset_name} is Above Ground (i.e., AG), but'
+                    ' the material type is Wood ("W"). '
+                    'Tank type "W" is not defined for AG tanks. '
+                    'The tank is assumed to be Steel ("S").'
+                )
 
                 print(msg)
                 tank_material = 'S'
 
             if tank_location == 'B' and tank_material == 'S':
-                msg = (f'The tank {asset_name} is buried (i.e., B), but the '
-                       'material type is Steel ("S"). Tank type "S" is '
-                       'not defined for "B" tanks. '
-                       'The tank is assumed to be Concrete ("C").')
+                msg = (
+                    f'The tank {asset_name} is buried (i.e., B), but the '
+                    'material type is Steel ("S"). Tank type "S" is '
+                    'not defined for "B" tanks. '
+                    'The tank is assumed to be Concrete ("C").'
+                )
 
                 print(msg)
                 tank_material = 'C'
 
             if tank_location == 'B' and tank_material == 'W':
-                msg = (f'The tank {asset_name} is buried (i.e., B), but the'
-                       'material type is Wood ("W"). Tank type "W" is '
-                       'not defined for B tanks. The tank is assumed '
-                       'to be Concrete ("C")')
+                msg = (
+                    f'The tank {asset_name} is buried (i.e., B), but the'
+                    'material type is Wood ("W"). Tank type "W" is '
+                    'not defined for B tanks. The tank is assumed '
+                    'to be Concrete ("C")'
+                )
 
                 print(msg)
                 tank_material = 'C'
@@ -842,33 +853,37 @@ def auto_populate(aim):  # noqa: C901
 
     elif asset_type == 'PowerNetwork':
         # initialize the auto-populated GI
-        power_asset_type = gi_ap.get("type", "MISSING")
-        asset_name = gi_ap.get("AIM_id", None)
+        power_asset_type = gi_ap.get('type', 'MISSING')
+        asset_name = gi_ap.get('AIM_id', None)
 
-        if power_asset_type == "Substation":
-
-            ep_s_size = ""
-            ep_s_anchored = ""
-            substation_voltage = gi_ap.get("Voltage", None)
+        if power_asset_type == 'Substation':
+            ep_s_size = ''
+            ep_s_anchored = ''
+            substation_voltage = gi_ap.get('Voltage', None)
             if not substation_voltage:
-                msg = ("Substation feature \"Voltage\" is missing. "
-                       f" substation \"{asset_name}\" assuemd to be "
-                       "\"  Low Voltage\".")
+                msg = (
+                    'Substation feature "Voltage" is missing. '
+                    f' substation "{asset_name}" assuemd to be '
+                    '"  Low Voltage".'
+                )
                 print(msg)
-                substation_voltage = "low"
+                substation_voltage = 'low'
 
             if isinstance(substation_voltage, str):
-                if substation_voltage.lower() == "low":
-                    ep_s_size = "L"
-                elif substation_voltage.lower() == "medium":
-                    ep_s_size = "M"
-                elif substation_voltage.lower() == "high":
-                    ep_s_size = "H"
+                if substation_voltage.lower() == 'low':
+                    ep_s_size = 'L'
+                elif substation_voltage.lower() == 'medium':
+                    ep_s_size = 'M'
+                elif substation_voltage.lower() == 'high':
+                    ep_s_size = 'H'
                 else:
-                    raise ValueError("substation Voltage value is = "
-                                     f"{substation_voltage}. "
-                                     "The value must be either \"low\" "
-                                     ", \" medium\", or \" high\".")
+                    msg = (
+                        'substation Voltage value is = '
+                        f'{substation_voltage}. '
+                        'The value must be either "low" '
+                        ', " medium", or " high".'
+                    )
+                    raise ValueError(msg)
 
             elif isinstance(substation_voltage, (float, int)):
                 # Substation Voltage unit is kV. ANy number smaller than
@@ -877,67 +892,97 @@ def auto_populate(aim):  # noqa: C901
                 # different unit. The upper bound value is set ro 1200 kV.
 
                 if substation_voltage < 34:
-                    msg = (f"The subtation Viltage for asset \"{asset_name}\" "
-                           f"is too low({substation_voltage}). The current "
-                           "methodology support voltage ebtween 34 kV and 1200"
-                           " kV. Please make sure that the units are in kV.")
+                    msg = (
+                        f'The subtation Viltage for asset "{asset_name}" '
+                        f'is too low({substation_voltage}). The current '
+                        'methodology support voltage ebtween 34 kV and 1200'
+                        ' kV. Please make sure that the units are in kV.'
+                    )
                     raise ValueError(msg)
 
                 if substation_voltage > 1200:
-                    msg = (f"The subtation Viltage for asset \"{asset_name}\""
-                           f"is too high({substation_voltage}). The current "
-                           "methodology support voltage ebtween 34 kV and 1200"
-                           " kV. Please make sure that the units are in kV.")
-
+                    msg = (
+                        f'The subtation Viltage for asset "{asset_name}"'
+                        f'is too high({substation_voltage}). The current '
+                        'methodology support voltage ebtween 34 kV and 1200'
+                        ' kV. Please make sure that the units are in kV.'
+                    )
                     raise ValueError(msg)
 
                 if substation_voltage <= 150:
-                    ep_s_size = "L"
+                    ep_s_size = 'L'
                 elif substation_voltage <= 230:
-                    ep_s_size = "M"
+                    ep_s_size = 'M'
                 elif substation_voltage >= 500:
-                    ep_s_size = "H"
+                    ep_s_size = 'H'
                 else:
-                    raise RuntimeError("This should never have happed. Please "
-                                       "report this to the devloper(SimCenter)"
-                                       ". (Value = {substation_voltage}).")
+                    msg = (
+                        'This should never have happed. Please '
+                        'report this to the devloper(SimCenter)'
+                        f'. (Value = {substation_voltage}).'
+                    )
+                    raise RuntimeError(msg)
             else:
-                raise ValueError("substation Voltage value is = "
-                                 f"{substation_voltage}. It should be "
-                                 "string or a numebr. For more information, "
-                                 "refer to the documentation please.")
+                msg = (
+                    'substation Voltage value is = '
+                    f'{substation_voltage}. It should be '
+                    'string or a numebr. For more information, '
+                    'refer to the documentation please.'
+                )
+                raise ValueError(msg)
 
-            substation_anchored = gi_ap.get("Anchored", None)
+            substation_anchored = gi_ap.get('Anchored', None)
 
             if not substation_anchored:
-                print("Substation feature \"Anchored\" is missing. "
-                      f" substation \"{asset_name}\" assuemd to be "
-                      "\"  Unanchored\".")
+                print(
+                    'Substation feature "Anchored" is missing. '
+                    f' substation "{asset_name}" assuemd to be '
+                    '"  Unanchored".'
+                )
 
                 substation_anchored = False
 
             if isinstance(substation_anchored, str):
-                if substation_anchored.lower() in ["a", "anchored", "yes",
-                                                   "true", "possitive", "1"]:
-                    ep_s_anchored = "A"
-                elif substation_anchored.lower() in ["u", "unanchored", "no",
-                                                     "false", "negative", "0"]:
-                    ep_s_anchored = "U"
+                if substation_anchored.lower() in [
+                    'a',
+                    'anchored',
+                    'yes',
+                    'true',
+                    'possitive',
+                    '1',
+                ]:
+                    ep_s_anchored = 'A'
+                elif substation_anchored.lower() in [
+                    'u',
+                    'unanchored',
+                    'no',
+                    'false',
+                    'negative',
+                    '0',
+                ]:
+                    ep_s_anchored = 'U'
             elif isinstance(substation_anchored, (bool, int, float)):
                 if abs(substation_anchored - True) < 0.001:
-                    ep_s_anchored = "A"
+                    ep_s_anchored = 'A'
                 elif abs(substation_anchored) < 0.001:
-                    ep_s_anchored = "U"
+                    ep_s_anchored = 'U'
                 else:
-                    raise RuntimeError("This should never have happed. Please "
-                                       "report this to the devloper(SimCenter)"
-                                       ". (Value = {substation_anchored}).")
+                    msg = (
+                        'This should never have happed. Please '
+                        'report this to the devloper(SimCenter)'
+                        f'. (Value = {substation_anchored}).'
+                    )
+                    raise RuntimeError(msg)
+
             else:
-                raise ValueError("Substation anchored value is = "
-                                 f"{substation_anchored}. It should be "
-                                 "string, boolean, or a number representing "
-                                 "True or False. For more information, "
-                                 "refer to the documentation please.")
+                msg = (
+                    'Substation anchored value is = '
+                    f'{substation_anchored}. It should be '
+                    'string, boolean, or a number representing '
+                    'True or False. For more information, '
+                    'refer to the documentation please.'
+                )
+                raise ValueError(msg)
 
             # Define performance model
             # fmt: off
@@ -960,46 +1005,65 @@ def auto_populate(aim):  # noqa: C901
                 "Losses": {},
             }
 
-        elif power_asset_type == "Circuit":
-
-            circuit_anchored = gi_ap.get("Anchored", None)
+        elif power_asset_type == 'Circuit':
+            circuit_anchored = gi_ap.get('Anchored', None)
 
             ep_c_anchored = None
             if not circuit_anchored:
-                print("Circuit feature \"Anchored\" is missing. "
-                      f" Circuit \"{asset_name}\" assuemd to be "
-                      "\"  Unanchored\".")
+                print(
+                    'Circuit feature "Anchored" is missing. '
+                    f' Circuit "{asset_name}" assuemd to be '
+                    '"  Unanchored".'
+                )
 
                 circuit_anchored = False
 
             if isinstance(circuit_anchored, str):
-                if circuit_anchored.lower() in ["a", "anchored", "yes", "true",
-                                                "possitive", "1"]:
-                    ep_c_anchored = "A"
-                elif circuit_anchored.lower() in ["u", "unanchored", "no",
-                                                  "false", "negative", "0"]:
-                    ep_c_anchored = "U"
+                if circuit_anchored.lower() in [
+                    'a',
+                    'anchored',
+                    'yes',
+                    'true',
+                    'possitive',
+                    '1',
+                ]:
+                    ep_c_anchored = 'A'
+                elif circuit_anchored.lower() in [
+                    'u',
+                    'unanchored',
+                    'no',
+                    'false',
+                    'negative',
+                    '0',
+                ]:
+                    ep_c_anchored = 'U'
             elif isinstance(circuit_anchored, (bool, int, float)):
                 if abs(circuit_anchored - True) < 0.001:
-                    ep_c_anchored = "A"
+                    ep_c_anchored = 'A'
                 elif abs(circuit_anchored) < 0.001:
-                    ep_c_anchored = "U"
+                    ep_c_anchored = 'U'
                 else:
-                    raise RuntimeError("This should never have happed. Please "
-                                       "report this to the devloper(SimCenter)"
-                                       ". (Value = {circuit_anchored}).")
+                    msg = (
+                        'This should never have happed. Please '
+                        'report this to the devloper(SimCenter)'
+                        f'. (Value = {circuit_anchored}).'
+                    )
+                    raise RuntimeError(msg)
             else:
-                raise ValueError("Circuit anchored value is = "
-                                 f"{circuit_anchored}. It should be "
-                                 "string, boolean, or a number representing "
-                                 "True or False. For more information, "
-                                 "refer to the documentation please.")
+                msg = (
+                    'Circuit anchored value is = '
+                    f'{circuit_anchored}. It should be '
+                    'string, boolean, or a number representing '
+                    'True or False. For more information, '
+                    'refer to the documentation please.'
+                )
+                raise ValueError(msg)
 
             # Define performance model
             # fmt: off
             circuit_type = f'EP.C.{ep_s_size}.{ep_c_anchored}'
             comp = pd.DataFrame(
-                {circuit_type: ['ea', 1, 1, 1, 'N/A']}, # noqa
+                {circuit_type: ['ea', 1, 1, 1, 'N/A']},
                 index=['Units', 'Location', 'Direction', 'Theta_0', 'Family']
             ).T
 
@@ -1015,117 +1079,146 @@ def auto_populate(aim):  # noqa: C901
                 "Losses": {},
             }
 
-        elif power_asset_type == "Generation":
-
-            ep_g_size = ""
-            generation_output = gi_ap.get("Output", None)
+        elif power_asset_type == 'Generation':
+            ep_g_size = ''
+            generation_output = gi_ap.get('Output', None)
             if not generation_output:
-                print("Generation feature \"Output\" is missing. "
-                      f" Generation \"{asset_name}\" assuemd to be "
-                      "\"Small\".")
+                msg = (
+                    'Generation feature "Output" is missing. '
+                    f' Generation "{asset_name}" assuemd to be '
+                    '"Small".'
+                )
+                print(msg)
                 # if the power feature is missing, teh generation is assuemd
                 # to be small
-                ep_g_size = "small"
+                ep_g_size = 'small'
 
             if isinstance(generation_output, str):
-
                 generation_output = generation_output.lower()
                 generation_output = generation_output.strip()
-                acceptable_power_unit = ("w", "kw", "gw")
+                acceptable_power_unit = ('w', 'kw', 'gw')
 
-                units_exist = [unit in generation_output
-                               for unit in acceptable_power_unit]
+                units_exist = [
+                    unit in generation_output for unit in acceptable_power_unit
+                ]
 
                 power_unit = None
 
                 if True in units_exist:
-                    power_unit = acceptable_power_unit[
-                        units_exist.index(True)]
+                    power_unit = acceptable_power_unit[units_exist.index(True)]
 
                     if generation_output.endswith(power_unit):
                         generation_output = generation_output.strip(power_unit)
                         generation_output = generation_output.strip()
                 else:
-                    print("Generation feature doesn't have a unit for "
-                          "\"Output\" value. The ybit for Generation "
-                          f"\"{asset_name}\"  is assumed to be \"Mw\".")
+                    msg = (
+                        "Generation feature doesn't have a unit for "
+                        '"Output" value. The ybit for Generation '
+                        f'"{asset_name}"  is assumed to be "Mw".'
+                    )
+                    print(msg)
 
-                    power_unit = "mw"
+                    power_unit = 'mw'
 
                 try:
                     generation_output = float(generation_output)
 
-                    if power_unit == "w":
+                    if power_unit == 'w':
                         generation_output = generation_output / 1000
-                    elif power_unit == "gw":
+                    elif power_unit == 'gw':
                         generation_output = generation_output * 1000
 
                     if generation_output < 200:
-                        ep_g_size = "small"
+                        ep_g_size = 'small'
                     elif 200 < generation_output < 500:
-                        ep_g_size = "medium"
+                        ep_g_size = 'medium'
                     else:
-                        ep_g_size = "large"
+                        ep_g_size = 'large'
 
                 except ValueError as e:
-
                     # check if the exception is for value not being a float
-                    not_float_str = "could not convert string to float:"
+                    not_float_str = 'could not convert string to float:'
                     if not str(e).startswith(not_float_str):
-                        raise e
+                        raise
                     # otherwise
-                    print("Generation feature has an unrconizable \"Output\""
-                          f" value. Generation \"{asset_name}\" = "
-                          f"{generation_output}, instead of a numerical value."
-                          "so the sizze of the Generation is assumed to be "
-                          "\"Small\".")
+                    msg = (
+                        'Generation feature has an unrconizable "Output"'
+                        f' value. Generation "{asset_name}" = '
+                        f'{generation_output}, instead of a numerical '
+                        'value. So the sizze of the Generation is assumed '
+                        'to be "Small".'
+                    )
+                    print(msg)
 
-                    ep_g_size = "small"
+                    ep_g_size = 'small'
 
-                if ep_g_size == "small":
-                    ep_g_size = "s"
-                elif ep_g_size in ("medium", "large"):
+                if ep_g_size == 'small':
+                    ep_g_size = 's'
+                elif ep_g_size in ('medium', 'large'):
                     # because medium and large size generation plants are in
                     # categorized in the same category.
-                    ep_g_size = "ML"
+                    ep_g_size = 'ML'
                 else:
-                    raise ValueError("This should never have happed. Please "
-                                     "report this to the devloper(SimCenter)"
-                                     ". (Value = {ep_g_size}).")
+                    msg = (
+                        'This should never have happed. Please '
+                        'report this to the devloper(SimCenter)'
+                        f'. (Value = {ep_g_size}).'
+                    )
+                    raise ValueError(msg)
 
-            generation_anchored = gi_ap.get("Anchored", None)
+            generation_anchored = gi_ap.get('Anchored', None)
 
             if not generation_anchored:
-                print("Generation feature \"Anchored\" is missing. "
-                      f" Circuit \"{asset_name}\" assuemd to be "
-                      "\"  Unanchored\".")
+                msg = (
+                    'Generation feature "Anchored" is missing. '
+                    f' Circuit "{asset_name}" assuemd to be '
+                    '"  Unanchored".'
+                )
+                print(msg)
 
                 generation_anchored = False
 
             ep_g_anchored = None
             if isinstance(generation_anchored, str):
-                if generation_anchored.lower() in ["a", "anchored", "yes",
-                                                   "true",
-                                                   "possitive", "1"]:
-                    ep_g_anchored = "A"
-                elif generation_anchored.lower() in ["u", "unanchored", "no",
-                                                     "false", "negative", "0"]:
-                    ep_g_anchored = "U"
+                if generation_anchored.lower() in [
+                    'a',
+                    'anchored',
+                    'yes',
+                    'true',
+                    'possitive',
+                    '1',
+                ]:
+                    ep_g_anchored = 'A'
+                elif generation_anchored.lower() in [
+                    'u',
+                    'unanchored',
+                    'no',
+                    'false',
+                    'negative',
+                    '0',
+                ]:
+                    ep_g_anchored = 'U'
             elif isinstance(generation_anchored, (bool, int, float)):
                 if abs(generation_anchored - True) < 0.001:
-                    ep_g_anchored = "A"
+                    ep_g_anchored = 'A'
                 elif abs(generation_anchored) < 0.001:
-                    ep_g_anchored = "U"
+                    ep_g_anchored = 'U'
                 else:
-                    raise RuntimeError("This should never have happed. Please "
-                                       "report this to the devloper(SimCenter)"
-                                       ". (Value = {generation_anchored}).")
+                    msg = (
+                        'This should never have happed. Please '
+                        'report this to the devloper(SimCenter)'
+                        f'. (Value = {generation_anchored}).'
+                    )
+                    raise RuntimeError(msg)
             else:
-                raise ValueError("Circuit anchored value is = "
-                                 f"{circuit_anchored}. It should be "
-                                 "string, boolean, or a number representing "
-                                 "True or False. For more information, "
-                                 "refer to the documentation please.")
+                msg = (
+                    'Circuit anchored value is = '
+                    f'{circuit_anchored}. It should be '
+                    'string, boolean, or a number representing '
+                    'True or False. For more information, '
+                    'refer to the documentation please.'
+                )
+                raise ValueError(msg)
 
             # Define performance model
             # fmt: off
