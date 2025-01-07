@@ -6,7 +6,7 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
-        with:
-          submodules: true
+      with:
+        submodules: true
     - name: Run codespell
       uses: codespell-project/actions-codespell@v2
