@@ -1266,7 +1266,7 @@ def auto_populate(aim):  # noqa: C901
 
             # Define performance model
             # fmt: off
-            circuit_type = f'EP.C.{ep_s_size}.{ep_c_anchored}'
+            circuit_type = f'EP.C.{ep_c_anchored}'
             comp = pd.DataFrame(
                 {circuit_type: ['ea', 1, 1, 1, 'N/A']},
                 index=['Units', 'Location', 'Direction', 'Theta_0', 'Family']
