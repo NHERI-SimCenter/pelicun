@@ -140,7 +140,7 @@ class DamageModel(PelicunModel):
         data_paths: list[str | pd.DataFrame],
         cmp_set: set[str],
         *,
-        warn_missing: bool = False,
+        warn_missing: bool = True,
     ) -> None:
         """
         Load damage model parameters.
@@ -588,6 +588,7 @@ class DamageModel_Base(PelicunModel):
         if self.damage_params is None:
             return
         cmp_mask = self.damage_params.index.isin(cmp_set, level=0)
+
         self.damage_params = self.damage_params.iloc[cmp_mask, :]
 
     def _get_pg_batches(
