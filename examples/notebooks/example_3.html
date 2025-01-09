@@ -7,7 +7,7 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>7.3. Example 3: Combining fragility-based damage consequences and loss functions. &mdash; pelicun  documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
       <link rel="stylesheet" type="text/css" href="../../_static/nbsphinx-code-cells.css?v=2aa19091" />
@@ -163,15 +163,15 @@
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">tempfile</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
 
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">import</span> <span class="nn">pytest</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pytest</span>
 
-<span class="kn">import</span> <span class="nn">pelicun</span>
-<span class="kn">from</span> <span class="nn">pelicun</span> <span class="kn">import</span> <span class="n">assessment</span><span class="p">,</span> <span class="n">file_io</span>
-<span class="kn">from</span> <span class="nn">pelicun.pelicun_warnings</span> <span class="kn">import</span> <span class="n">PelicunWarning</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pelicun</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pelicun</span><span class="w"> </span><span class="kn">import</span> <span class="n">assessment</span><span class="p">,</span> <span class="n">file_io</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pelicun.pelicun_warnings</span><span class="w"> </span><span class="kn">import</span> <span class="n">PelicunWarning</span>
 </pre></div>
 </div>
 </div>
@@ -209,13 +209,13 @@ pelicun 3.4.0 |
 
 System Information:
          local time zone: UTC
-         start time: 2024-12-13T19:17:50
-         python: 3.10.15 (main, Sep  9 2024, 03:02:45) [GCC 11.4.0]
+         start time: 2025-01-09T18:05:34
+         python: 3.10.16 (main, Dec 12 2024, 19:07:59) [GCC 13.2.0]
          numpy: 1.26.4
          pandas: 2.2.3
 
          --------------------------------------------------------------------------------
-19:17:50 Assessment Started
+18:05:34 Assessment Started
 </pre></div></div>
 </div>
 <div class="nbinput nblast docutils container">
@@ -290,7 +290,7 @@ System Information:
 <span class="n">asmnt</span><span class="o">.</span><span class="n">demand</span><span class="o">.</span><span class="n">generate_sample</span><span class="p">({</span><span class="s1">&#39;SampleSize&#39;</span><span class="p">:</span> <span class="n">sample_size</span><span class="p">})</span>
 
 
-<span class="k">def</span> <span class="nf">add_more_edps</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">add_more_edps</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Add SA_1.13 and residual drift to the demand sample.&quot;&quot;&quot;</span>
     <span class="c1"># Add residual drift and Sa</span>
     <span class="n">demand_sample</span> <span class="o">=</span> <span class="n">asmnt</span><span class="o">.</span><span class="n">demand</span><span class="o">.</span><span class="n">save_sample</span><span class="p">()</span>
@@ -331,11 +331,11 @@ System Information:
 <div class="output_area docutils container">
 <div class="highlight"><pre>
          --------------------------------------------------------------------------------
-19:17:50 Loading demand model...
+18:05:34 Loading demand model...
          Unit conversion successful.
          Demand model successfully loaded.
          --------------------------------------------------------------------------------
-19:17:50 Generating sample from demand variables...
+18:05:34 Generating sample from demand variables...
 
          18 random variables created.
 
@@ -347,7 +347,7 @@ System Information:
          Converting units...
          Unit conversion successful.
          --------------------------------------------------------------------------------
-19:17:51 Loading demand data...
+18:05:34 Loading demand data...
          Converting units...
          Unit conversion successful.
          Demand data successfully parsed.
@@ -381,7 +381,7 @@ System Information:
 <div class="output_area docutils container">
 <div class="highlight"><pre>
          --------------------------------------------------------------------------------
-19:17:51 Loading component model...
+18:05:34 Loading component model...
          Unit conversion successful.
          Model parameters successfully parsed. 8 performance groups identified
          Converting model parameters to internal units...
@@ -399,7 +399,7 @@ System Information:
          testing.component   1   1   0        1.0       1    ea
          testing.component.2 1   1   0        2.0       4    ea
          --------------------------------------------------------------------------------
-19:17:51 Generating sample from component quantity variables...
+18:05:34 Generating sample from component quantity variables...
 
          8 random variables created.
 
@@ -453,24 +453,24 @@ System Information:
          Converting damage model parameter units.
          Checking damage model parameter availability for all components in the asset model.
          --------------------------------------------------------------------------------
-19:17:51 Calculating damages...
+18:05:35 Calculating damages...
          Number of Performance Groups in Asset Model: 8
          Number of Component Blocks: 5
          1 batches of Performance Groups prepared for damage assessment
-19:17:51 Calculating damage states for PG batch 1 with 5 blocks
+18:05:35 Calculating damage states for PG batch 1 with 5 blocks
          Damage state calculation successful.
-19:17:51 Applying damage processes.
+18:05:35 Applying damage processes.
          Damage processes successfully applied.
          Damage calculation completed.
          --------------------------------------------------------------------------------
-19:17:51 Saving damage sample...
-         Saving data to `/tmp/tmp0o6kmim2/out.csv`...
+18:05:35 Saving damage sample...
+         Saving data to `/tmp/tmph36xzren/out.csv`...
          Converting units...
          Unit conversion successful.
          Data successfully saved to file.
          Damage sample successfully saved.
          --------------------------------------------------------------------------------
-19:17:51 Loading damage sample...
+18:05:35 Loading damage sample...
          Converting units...
          Unit conversion successful.
          Damage sample successfully loaded.
@@ -556,24 +556,24 @@ dtype: float64
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-19:17:51 Loading loss map...
+18:05:35 Loading loss map...
          Loss map is provided.
-19:17:51 Loss map loaded successfully.
+18:05:35 Loss map loaded successfully.
          --------------------------------------------------------------------------------
-19:17:51 Loading loss parameters...
+18:05:35 Loading loss parameters...
          Loss model parameters loaded successfully.
          Removing unused loss model parameters.
          Converting loss model parameter units.
          Checking loss model parameter availability for all components in the asset model.
          --------------------------------------------------------------------------------
-19:17:51 Calculating losses...
+18:05:35 Calculating losses...
 
          Aggregating damage quantities...
          Successfully aggregated damage quantities.
 
          Calculating the median repair consequences...
          Successfully determined median repair consequences.
-19:17:51
+18:05:35
          Considering deviations from the median values to obtain random DV sample...
          Preparing random variables for repair consequences...
 
@@ -584,7 +584,7 @@ dtype: float64
 
          Calculating the median repair consequences...
          Successfully determined median repair consequences.
-19:17:52
+18:05:35
          Considering deviations from the median values to obtain random DV sample...
          Preparing random variables for repair cost and time...
 
@@ -592,16 +592,16 @@ dtype: float64
 
          Successfully generated 10000 realizations of deviation from the median consequences.
          Successfully obtained DV sample.
-19:17:52 Loss calculation successful.
+18:05:35 Loss calculation successful.
          --------------------------------------------------------------------------------
-19:17:52 Saving loss sample...
-         Saving data to `/tmp/tmp0o6kmim2/sample.csv`...
+18:05:35 Saving loss sample...
+         Saving data to `/tmp/tmph36xzren/sample.csv`...
          Converting units...
          Unit conversion successful.
          Data successfully saved to file.
          Loss sample successfully saved.
          --------------------------------------------------------------------------------
-19:17:52 Loading loss sample...
+18:05:35 Loading loss sample...
          Converting units...
          Unit conversion successful.
          Loss sample successfully loaded.
@@ -620,7 +620,7 @@ dtype: float64
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2024, Leland Stanford Junior University and The Regents of the University of California.</p>
+    <p>&#169; Copyright 2025, Leland Stanford Junior University and The Regents of the University of California.</p>
   </div>
 
    

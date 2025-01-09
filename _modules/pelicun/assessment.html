@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>pelicun.assessment &mdash; pelicun  documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css?v=f9bf6728" />
@@ -193,21 +193,21 @@
 
 <span class="sd">&quot;&quot;&quot;Classes and methods that control the performance assessment.&quot;&quot;&quot;</span>
 
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="kn">import</span> <span class="nn">json</span>
-<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span>
 
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 
-<span class="kn">from</span> <span class="nn">pelicun</span> <span class="kn">import</span> <span class="n">base</span><span class="p">,</span> <span class="n">file_io</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">uq</span>
-<span class="kn">from</span> <span class="nn">pelicun.__init__</span> <span class="kn">import</span> <span class="n">__version__</span> <span class="k">as</span> <span class="n">pelicun_version</span>  <span class="c1"># type: ignore</span>
-<span class="kn">from</span> <span class="nn">pelicun.base</span> <span class="kn">import</span> <span class="n">EDP_to_demand_type</span><span class="p">,</span> <span class="n">get</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pelicun</span><span class="w"> </span><span class="kn">import</span> <span class="n">base</span><span class="p">,</span> <span class="n">file_io</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">uq</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pelicun.__init__</span><span class="w"> </span><span class="kn">import</span> <span class="n">__version__</span> <span class="k">as</span> <span class="n">pelicun_version</span>  <span class="c1"># type: ignore</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pelicun.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">EDP_to_demand_type</span><span class="p">,</span> <span class="n">get</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
-    <span class="kn">from</span> <span class="nn">pelicun.base</span> <span class="kn">import</span> <span class="n">Logger</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pelicun.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">Logger</span>
 
 <span class="n">default_dbs</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s1">&#39;fragility&#39;</span><span class="p">:</span> <span class="p">{</span>
@@ -247,7 +247,7 @@
 
 <div class="viewcode-block" id="AssessmentBase">
 <a class="viewcode-back" href="../../api_reference/_autosummary/pelicun.assessment.html#pelicun.assessment.AssessmentBase">[docs]</a>
-<span class="k">class</span> <span class="nc">AssessmentBase</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">AssessmentBase</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Base class for Assessment objects.</span>
 
@@ -266,7 +266,7 @@
         <span class="s1">&#39;unit_conversion_factors&#39;</span><span class="p">,</span>
     <span class="p">]</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config_options</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config_options</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Initialize an Assessment object.</span>
 
@@ -298,7 +298,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">loss</span><span class="p">:</span> <span class="n">model</span><span class="o">.</span><span class="n">LossModel</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">LossModel</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">bldg_repair</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">model</span><span class="o">.</span><span class="n">LossModel</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">bldg_repair</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">model</span><span class="o">.</span><span class="n">LossModel</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Exists for &lt;backwards compatibility&gt;.</span>
 
@@ -317,7 +317,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">loss</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">repair</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">model</span><span class="o">.</span><span class="n">LossModel</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">repair</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">model</span><span class="o">.</span><span class="n">LossModel</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Exists for &lt;backwards compatibility&gt;.</span>
 
@@ -336,7 +336,7 @@
 
 <div class="viewcode-block" id="AssessmentBase.get_default_data">
 <a class="viewcode-back" href="../../api_reference/_autosummary/pelicun.assessment.html#pelicun.assessment.AssessmentBase.get_default_data">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_default_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_default_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Load a default data file.</span>
 
@@ -387,7 +387,7 @@
 
 <div class="viewcode-block" id="AssessmentBase.get_default_metadata">
 <a class="viewcode-back" href="../../api_reference/_autosummary/pelicun.assessment.html#pelicun.assessment.AssessmentBase.get_default_metadata">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_default_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_default_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Load a default metadata file and pass it to the user.</span>
 
@@ -419,7 +419,7 @@
 
 <div class="viewcode-block" id="AssessmentBase.calc_unit_scale_factor">
 <a class="viewcode-back" href="../../api_reference/_autosummary/pelicun.assessment.html#pelicun.assessment.AssessmentBase.calc_unit_scale_factor">[docs]</a>
-    <span class="k">def</span> <span class="nf">calc_unit_scale_factor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">unit</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">calc_unit_scale_factor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">unit</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Determine unit scale factor.</span>
 
@@ -460,14 +460,14 @@
 
         <span class="k">except</span> <span class="ne">KeyError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
             <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;Specified unit not recognized: </span><span class="si">{</span><span class="n">unit_count</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="n">unit_name</span><span class="si">}</span><span class="s1">&#39;</span>
-            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span> <span class="kn">from</span> <span class="nn">exc</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc</span>
 
         <span class="k">return</span> <span class="n">scale_factor</span></div>
 
 
 <div class="viewcode-block" id="AssessmentBase.scale_factor">
 <a class="viewcode-back" href="../../api_reference/_autosummary/pelicun.assessment.html#pelicun.assessment.AssessmentBase.scale_factor">[docs]</a>
-    <span class="k">def</span> <span class="nf">scale_factor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">unit</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">scale_factor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">unit</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get scale factor of given unit.</span>
 
@@ -508,7 +508,7 @@
 
 <div class="viewcode-block" id="Assessment">
 <a class="viewcode-back" href="../../api_reference/_autosummary/pelicun.assessment.html#pelicun.assessment.Assessment">[docs]</a>
-<span class="k">class</span> <span class="nc">Assessment</span><span class="p">(</span><span class="n">AssessmentBase</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Assessment</span><span class="p">(</span><span class="n">AssessmentBase</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Assessment class.</span>
 
@@ -520,7 +520,7 @@
 
 <div class="viewcode-block" id="Assessment.calculate_damage">
 <a class="viewcode-back" href="../../api_reference/_autosummary/pelicun.assessment.html#pelicun.assessment.Assessment.calculate_damage">[docs]</a>
-    <span class="k">def</span> <span class="nf">calculate_damage</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">calculate_damage</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">num_stories</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
         <span class="n">demand_config</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
@@ -642,7 +642,7 @@
 
 <div class="viewcode-block" id="Assessment.calculate_loss">
 <a class="viewcode-back" href="../../api_reference/_autosummary/pelicun.assessment.html#pelicun.assessment.Assessment.calculate_loss">[docs]</a>
-    <span class="k">def</span> <span class="nf">calculate_loss</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">calculate_loss</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">decision_variables</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
         <span class="n">loss_model_data_paths</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span> <span class="o">|</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">],</span>
@@ -687,7 +687,7 @@
 
 <div class="viewcode-block" id="Assessment.aggregate_loss">
 <a class="viewcode-back" href="../../api_reference/_autosummary/pelicun.assessment.html#pelicun.assessment.Assessment.aggregate_loss">[docs]</a>
-    <span class="k">def</span> <span class="nf">aggregate_loss</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">aggregate_loss</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">replacement_configuration</span><span class="p">:</span> <span class="p">(</span>
             <span class="nb">tuple</span><span class="p">[</span><span class="n">uq</span><span class="o">.</span><span class="n">RandomVariableRegistry</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span>
@@ -769,14 +769,14 @@
 
 <div class="viewcode-block" id="DLCalculationAssessment">
 <a class="viewcode-back" href="../../api_reference/_autosummary/pelicun.assessment.html#pelicun.assessment.DLCalculationAssessment">[docs]</a>
-<span class="k">class</span> <span class="nc">DLCalculationAssessment</span><span class="p">(</span><span class="n">AssessmentBase</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">DLCalculationAssessment</span><span class="p">(</span><span class="n">AssessmentBase</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Base class for the assessment objects used in `DL_calculation.py`.&quot;&quot;&quot;</span>
 
     <span class="vm">__slots__</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
 
 <div class="viewcode-block" id="DLCalculationAssessment.calculate_demand">
 <a class="viewcode-back" href="../../api_reference/_autosummary/pelicun.assessment.html#pelicun.assessment.DLCalculationAssessment.calculate_demand">[docs]</a>
-    <span class="k">def</span> <span class="nf">calculate_demand</span><span class="p">(</span>  <span class="c1"># noqa: C901</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">calculate_demand</span><span class="p">(</span>  <span class="c1"># noqa: C901</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">demand_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
         <span class="n">collapse_limits</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
@@ -953,7 +953,7 @@
 
 <div class="viewcode-block" id="DLCalculationAssessment.calculate_asset">
 <a class="viewcode-back" href="../../api_reference/_autosummary/pelicun.assessment.html#pelicun.assessment.DLCalculationAssessment.calculate_asset">[docs]</a>
-    <span class="k">def</span> <span class="nf">calculate_asset</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">calculate_asset</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">num_stories</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
         <span class="n">component_assignment_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
@@ -1097,7 +1097,7 @@
 
 <div class="viewcode-block" id="DLCalculationAssessment.calculate_damage">
 <a class="viewcode-back" href="../../api_reference/_autosummary/pelicun.assessment.html#pelicun.assessment.DLCalculationAssessment.calculate_damage">[docs]</a>
-    <span class="k">def</span> <span class="nf">calculate_damage</span><span class="p">(</span>  <span class="c1"># noqa: C901</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">calculate_damage</span><span class="p">(</span>  <span class="c1"># noqa: C901</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">length_unit</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">component_database</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -1432,7 +1432,7 @@
 
 <div class="viewcode-block" id="DLCalculationAssessment.calculate_loss">
 <a class="viewcode-back" href="../../api_reference/_autosummary/pelicun.assessment.html#pelicun.assessment.DLCalculationAssessment.calculate_loss">[docs]</a>
-    <span class="k">def</span> <span class="nf">calculate_loss</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">calculate_loss</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">loss_map_approach</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">occupancy_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -1590,7 +1590,7 @@
 
 <div class="viewcode-block" id="DLCalculationAssessment.load_consequence_info">
 <a class="viewcode-back" href="../../api_reference/_autosummary/pelicun.assessment.html#pelicun.assessment.DLCalculationAssessment.load_consequence_info">[docs]</a>
-    <span class="k">def</span> <span class="nf">load_consequence_info</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">load_consequence_info</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">consequence_database</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">consequence_database_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -1669,7 +1669,7 @@
 
 
 
-<span class="k">def</span> <span class="nf">_add_units</span><span class="p">(</span><span class="n">raw_demands</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">length_unit</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_add_units</span><span class="p">(</span><span class="n">raw_demands</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">length_unit</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Add units to demand columns in a DataFrame.</span>
 
@@ -1744,7 +1744,7 @@
     <span class="k">return</span> <span class="n">base</span><span class="o">.</span><span class="n">convert_to_SimpleIndex</span><span class="p">(</span><span class="n">demands</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">_loss__add_replacement_energy</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_loss__add_replacement_energy</span><span class="p">(</span>
     <span class="n">adf</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
     <span class="n">dl_method</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">unit</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -1804,7 +1804,7 @@
         <span class="n">adf</span> <span class="o">=</span> <span class="n">adf</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">ren</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">_loss__add_replacement_carbon</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_loss__add_replacement_carbon</span><span class="p">(</span>
     <span class="n">adf</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
     <span class="n">damage_process_approach</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">unit</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -1865,7 +1865,7 @@
         <span class="n">adf</span> <span class="o">=</span> <span class="n">adf</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">rcarb</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">_loss__add_replacement_time</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_loss__add_replacement_time</span><span class="p">(</span>
     <span class="n">adf</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
     <span class="n">damage_process_approach</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">conseq_df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
@@ -1952,7 +1952,7 @@
         <span class="n">adf</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">rt</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;DS1&#39;</span><span class="p">,</span> <span class="s1">&#39;Theta_0&#39;</span><span class="p">)]</span> <span class="o">=</span> <span class="mi">1</span>
 
 
-<span class="k">def</span> <span class="nf">_loss__add_replacement_cost</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_loss__add_replacement_cost</span><span class="p">(</span>
     <span class="n">adf</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
     <span class="n">dl_method</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">unit</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -2018,7 +2018,7 @@
         <span class="n">adf</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">rc</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;DS1&#39;</span><span class="p">,</span> <span class="s1">&#39;Theta_0&#39;</span><span class="p">)]</span> <span class="o">=</span> <span class="mi">1</span>
 
 
-<span class="k">def</span> <span class="nf">_loss__map_user</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_loss__map_user</span><span class="p">(</span>
     <span class="n">custom_model_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">loss_map_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -2054,7 +2054,7 @@
     <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">loss_map_path</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">_loss__map_auto</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_loss__map_auto</span><span class="p">(</span>
     <span class="n">assessment</span><span class="p">:</span> <span class="n">DLCalculationAssessment</span><span class="p">,</span>
     <span class="n">conseq_df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
     <span class="n">dl_method</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -2147,7 +2147,7 @@
 
 <div class="viewcode-block" id="TimeBasedAssessment">
 <a class="viewcode-back" href="../../api_reference/_autosummary/pelicun.assessment.html#pelicun.assessment.TimeBasedAssessment">[docs]</a>
-<span class="k">class</span> <span class="nc">TimeBasedAssessment</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">TimeBasedAssessment</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Time-based assessment.&quot;&quot;&quot;</span></div>
 
 </pre></div>
@@ -2159,7 +2159,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2024, Leland Stanford Junior University and The Regents of the University of California.</p>
+    <p>&#169; Copyright 2025, Leland Stanford Junior University and The Regents of the University of California.</p>
   </div>
 
    

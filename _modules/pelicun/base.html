@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>pelicun.base &mdash; pelicun  documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css?v=f9bf6728" />
@@ -193,31 +193,31 @@
 
 <span class="sd">&quot;&quot;&quot;Constants, basic classes, and methods for pelicun.&quot;&quot;&quot;</span>
 
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="kn">import</span> <span class="nn">argparse</span>
-<span class="kn">import</span> <span class="nn">json</span>
-<span class="kn">import</span> <span class="nn">pprint</span>
-<span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">import</span> <span class="nn">traceback</span>
-<span class="kn">import</span> <span class="nn">warnings</span>
-<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timezone</span>
-<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">ClassVar</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">TypeVar</span><span class="p">,</span> <span class="n">overload</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">argparse</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pprint</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">traceback</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timezone</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">ClassVar</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">TypeVar</span><span class="p">,</span> <span class="n">overload</span>
 
-<span class="kn">import</span> <span class="nn">colorama</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">from</span> <span class="nn">colorama</span> <span class="kn">import</span> <span class="n">Fore</span><span class="p">,</span> <span class="n">Style</span>
-<span class="kn">from</span> <span class="nn">scipy.interpolate</span> <span class="kn">import</span> <span class="n">interp1d</span>  <span class="c1"># type: ignore</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">colorama</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">colorama</span><span class="w"> </span><span class="kn">import</span> <span class="n">Fore</span><span class="p">,</span> <span class="n">Style</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.interpolate</span><span class="w"> </span><span class="kn">import</span> <span class="n">interp1d</span>  <span class="c1"># type: ignore</span>
 
-<span class="kn">from</span> <span class="nn">pelicun.pelicun_warnings</span> <span class="kn">import</span> <span class="n">PelicunWarning</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pelicun.pelicun_warnings</span><span class="w"> </span><span class="kn">import</span> <span class="n">PelicunWarning</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
-    <span class="kn">from</span> <span class="nn">collections.abc</span> <span class="kn">import</span> <span class="n">Callable</span>
-    <span class="kn">from</span> <span class="nn">types</span> <span class="kn">import</span> <span class="n">TracebackType</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">types</span><span class="w"> </span><span class="kn">import</span> <span class="n">TracebackType</span>
 
-    <span class="kn">from</span> <span class="nn">pelicun.assessment</span> <span class="kn">import</span> <span class="n">AssessmentBase</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pelicun.assessment</span><span class="w"> </span><span class="kn">import</span> <span class="n">AssessmentBase</span>
 
 
 <span class="n">colorama</span><span class="o">.</span><span class="n">init</span><span class="p">()</span>
@@ -237,7 +237,7 @@
 
 <div class="viewcode-block" id="Options">
 <a class="viewcode-back" href="../../api_reference/_autosummary/pelicun.base.html#pelicun.base.Options">[docs]</a>
-<span class="k">class</span> <span class="nc">Options</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Options</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Analysis options and logging configuration.</span>
 
@@ -323,7 +323,7 @@
         <span class="s1">&#39;units_file&#39;</span><span class="p">,</span>
     <span class="p">]</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">user_config_options</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">assessment</span><span class="p">:</span> <span class="n">AssessmentBase</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -373,7 +373,7 @@
         <span class="p">)</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">seed</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">seed</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Seed property.</span>
 
@@ -386,13 +386,13 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_seed</span>
 
     <span class="nd">@seed</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">seed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">seed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Seed property setter.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_seed</span> <span class="o">=</span> <span class="n">value</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_seed</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">rng</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">Generator</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">rng</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">Generator</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        rng property.</span>
 
@@ -409,7 +409,7 @@
 <span class="c1"># Define a module-level LoggerRegistry</span>
 <div class="viewcode-block" id="LoggerRegistry">
 <a class="viewcode-back" href="../../api_reference/_autosummary/pelicun.base.html#pelicun.base.LoggerRegistry">[docs]</a>
-<span class="k">class</span> <span class="nc">LoggerRegistry</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">LoggerRegistry</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Registry to manage all logger instances.&quot;&quot;&quot;</span>
 
     <span class="n">_loggers</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="n">Logger</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
@@ -422,7 +422,7 @@
 <div class="viewcode-block" id="LoggerRegistry.register">
 <a class="viewcode-back" href="../../api_reference/_autosummary/pelicun.base.html#pelicun.base.LoggerRegistry.register">[docs]</a>
     <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">register</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">logger</span><span class="p">:</span> <span class="n">Logger</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">register</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">logger</span><span class="p">:</span> <span class="n">Logger</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Register a logger instance.&quot;&quot;&quot;</span>
         <span class="bp">cls</span><span class="o">.</span><span class="n">_loggers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">logger</span><span class="p">)</span></div>
 
@@ -430,7 +430,7 @@
 <div class="viewcode-block" id="LoggerRegistry.log_exception">
 <a class="viewcode-back" href="../../api_reference/_autosummary/pelicun.base.html#pelicun.base.LoggerRegistry.log_exception">[docs]</a>
     <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">log_exception</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">log_exception</span><span class="p">(</span>
         <span class="bp">cls</span><span class="p">,</span>
         <span class="n">exc_type</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="ne">BaseException</span><span class="p">],</span>
         <span class="n">exc_value</span><span class="p">:</span> <span class="ne">BaseException</span><span class="p">,</span>
@@ -459,7 +459,7 @@
 
 <div class="viewcode-block" id="Logger">
 <a class="viewcode-back" href="../../api_reference/_autosummary/pelicun.base.html#pelicun.base.Logger">[docs]</a>
-<span class="k">class</span> <span class="nc">Logger</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Logger</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Generate log files documenting execution events.&quot;&quot;&quot;</span>
 
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">[</span>
@@ -475,7 +475,7 @@
         <span class="s1">&#39;warning_stack&#39;</span><span class="p">,</span>
     <span class="p">]</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">log_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
@@ -542,7 +542,7 @@
 
 <div class="viewcode-block" id="Logger.reset_log_strings">
 <a class="viewcode-back" href="../../api_reference/_autosummary/pelicun.base.html#pelicun.base.Logger.reset_log_strings">[docs]</a>
-    <span class="k">def</span> <span class="nf">reset_log_strings</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">reset_log_strings</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Populate the string-related attributes of the logger.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">log_show_ms</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">log_time_format</span> <span class="o">=</span> <span class="s1">&#39;%H:%M:%S:</span><span class="si">%f</span><span class="s1">&#39;</span>
@@ -558,7 +558,7 @@
 
 <div class="viewcode-block" id="Logger.msg">
 <a class="viewcode-back" href="../../api_reference/_autosummary/pelicun.base.html#pelicun.base.Logger.msg">[docs]</a>
-    <span class="k">def</span> <span class="nf">msg</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">msg</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">msg</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
@@ -602,7 +602,7 @@
 
 <div class="viewcode-block" id="Logger.add_warning">
 <a class="viewcode-back" href="../../api_reference/_autosummary/pelicun.base.html#pelicun.base.Logger.add_warning">[docs]</a>
-    <span class="k">def</span> <span class="nf">add_warning</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_warning</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Add a warning to the warning stack.</span>
 
@@ -628,7 +628,7 @@
 
 <div class="viewcode-block" id="Logger.emit_warnings">
 <a class="viewcode-back" href="../../api_reference/_autosummary/pelicun.base.html#pelicun.base.Logger.emit_warnings">[docs]</a>
-    <span class="k">def</span> <span class="nf">emit_warnings</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">emit_warnings</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Issues all warnings and clears the warning stack.&quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">message</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">warning_stack</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">message</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">emitted</span><span class="p">:</span>
@@ -647,7 +647,7 @@
 
 <div class="viewcode-block" id="Logger.warning">
 <a class="viewcode-back" href="../../api_reference/_autosummary/pelicun.base.html#pelicun.base.Logger.warning">[docs]</a>
-    <span class="k">def</span> <span class="nf">warning</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">warning</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Add an emit a warning immediately.</span>
 
@@ -663,7 +663,7 @@
 
 <div class="viewcode-block" id="Logger.div">
 <a class="viewcode-back" href="../../api_reference/_autosummary/pelicun.base.html#pelicun.base.Logger.div">[docs]</a>
-    <span class="k">def</span> <span class="nf">div</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">prepend_timestamp</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">div</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">prepend_timestamp</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Add a divider line in the log file.&quot;&quot;&quot;</span>
         <span class="n">msg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">log_div</span> <span class="k">if</span> <span class="n">prepend_timestamp</span> <span class="k">else</span> <span class="s1">&#39;-&#39;</span> <span class="o">*</span> <span class="mi">80</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">msg</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">prepend_timestamp</span><span class="o">=</span><span class="n">prepend_timestamp</span><span class="p">)</span></div>
@@ -671,7 +671,7 @@
 
 <div class="viewcode-block" id="Logger.print_system_info">
 <a class="viewcode-back" href="../../api_reference/_autosummary/pelicun.base.html#pelicun.base.Logger.print_system_info">[docs]</a>
-    <span class="k">def</span> <span class="nf">print_system_info</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">print_system_info</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Write system information in the log.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">msg</span><span class="p">(</span>
             <span class="s1">&#39;System Information:&#39;</span><span class="p">,</span> <span class="n">prepend_timestamp</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">prepend_blank_space</span><span class="o">=</span><span class="kc">False</span>
@@ -695,7 +695,7 @@
 
 <div class="viewcode-block" id="split_file_name">
 <a class="viewcode-back" href="../../api_reference/_autosummary/pelicun.base.html#pelicun.base.split_file_name">[docs]</a>
-<span class="k">def</span> <span class="nf">split_file_name</span><span class="p">(</span><span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">split_file_name</span><span class="p">(</span><span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Separate a file name from the extension.</span>
 
@@ -725,7 +725,7 @@
 
 <div class="viewcode-block" id="control_warnings">
 <a class="viewcode-back" href="../../api_reference/_autosummary/pelicun.base.html#pelicun.base.control_warnings">[docs]</a>
-<span class="k">def</span> <span class="nf">control_warnings</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">control_warnings</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Turn warnings on/off.</span>
 
@@ -763,7 +763,7 @@
 
 <div class="viewcode-block" id="load_default_options">
 <a class="viewcode-back" href="../../api_reference/_autosummary/pelicun.base.html#pelicun.base.load_default_options">[docs]</a>
-<span class="k">def</span> <span class="nf">load_default_options</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">load_default_options</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Load the default_config.json file to set options to default values.</span>
 
@@ -784,7 +784,7 @@
 
 <div class="viewcode-block" id="update_vals">
 <a class="viewcode-back" href="../../api_reference/_autosummary/pelicun.base.html#pelicun.base.update_vals">[docs]</a>
-<span class="k">def</span> <span class="nf">update_vals</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">update_vals</span><span class="p">(</span>
     <span class="n">update_value</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">primary</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">update_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">primary_path</span><span class="p">:</span> <span class="nb">str</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -867,7 +867,7 @@
 
 <div class="viewcode-block" id="merge_default_config">
 <a class="viewcode-back" href="../../api_reference/_autosummary/pelicun.base.html#pelicun.base.merge_default_config">[docs]</a>
-<span class="k">def</span> <span class="nf">merge_default_config</span><span class="p">(</span><span class="n">user_config</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">merge_default_config</span><span class="p">(</span><span class="n">user_config</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Merge default config with user&#39;s options.</span>
 
@@ -908,20 +908,20 @@
 
 
 <span class="nd">@overload</span>
-<span class="k">def</span> <span class="nf">convert_to_SimpleIndex</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">convert_to_SimpleIndex</span><span class="p">(</span>
     <span class="n">data</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">axis</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">inplace</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span> <span class="o">...</span>
 
 
 <span class="nd">@overload</span>
-<span class="k">def</span> <span class="nf">convert_to_SimpleIndex</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">convert_to_SimpleIndex</span><span class="p">(</span>
     <span class="n">data</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span> <span class="n">axis</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">inplace</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">:</span> <span class="o">...</span>
 
 
 <div class="viewcode-block" id="convert_to_SimpleIndex">
 <a class="viewcode-back" href="../../api_reference/_autosummary/pelicun.base.html#pelicun.base.convert_to_SimpleIndex">[docs]</a>
-<span class="k">def</span> <span class="nf">convert_to_SimpleIndex</span><span class="p">(</span>  <span class="c1"># noqa: N802</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">convert_to_SimpleIndex</span><span class="p">(</span>  <span class="c1"># noqa: N802</span>
     <span class="n">data</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span> <span class="n">axis</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">inplace</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -991,20 +991,20 @@
 
 
 <span class="nd">@overload</span>
-<span class="k">def</span> <span class="nf">convert_to_MultiIndex</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">convert_to_MultiIndex</span><span class="p">(</span>
     <span class="n">data</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">axis</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">inplace</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span> <span class="o">...</span>
 
 
 <span class="nd">@overload</span>
-<span class="k">def</span> <span class="nf">convert_to_MultiIndex</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">convert_to_MultiIndex</span><span class="p">(</span>
     <span class="n">data</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span> <span class="n">axis</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">inplace</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">:</span> <span class="o">...</span>
 
 
 <div class="viewcode-block" id="convert_to_MultiIndex">
 <a class="viewcode-back" href="../../api_reference/_autosummary/pelicun.base.html#pelicun.base.convert_to_MultiIndex">[docs]</a>
-<span class="k">def</span> <span class="nf">convert_to_MultiIndex</span><span class="p">(</span>  <span class="c1"># noqa: N802</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">convert_to_MultiIndex</span><span class="p">(</span>  <span class="c1"># noqa: N802</span>
     <span class="n">data</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span> <span class="n">axis</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">inplace</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -1079,7 +1079,7 @@
 
 <div class="viewcode-block" id="convert_dtypes">
 <a class="viewcode-back" href="../../api_reference/_autosummary/pelicun.base.html#pelicun.base.convert_dtypes">[docs]</a>
-<span class="k">def</span> <span class="nf">convert_dtypes</span><span class="p">(</span><span class="n">dataframe</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">convert_dtypes</span><span class="p">(</span><span class="n">dataframe</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Convert columns to a numeric datatype whenever possible.</span>
 
@@ -1119,7 +1119,7 @@
 
 <div class="viewcode-block" id="show_matrix">
 <a class="viewcode-back" href="../../api_reference/_autosummary/pelicun.base.html#pelicun.base.show_matrix">[docs]</a>
-<span class="k">def</span> <span class="nf">show_matrix</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">show_matrix</span><span class="p">(</span>
     <span class="n">data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">use_describe</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -1147,7 +1147,7 @@
 
 <div class="viewcode-block" id="multiply_factor_multiple_levels">
 <a class="viewcode-back" href="../../api_reference/_autosummary/pelicun.base.html#pelicun.base.multiply_factor_multiple_levels">[docs]</a>
-<span class="k">def</span> <span class="nf">multiply_factor_multiple_levels</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">multiply_factor_multiple_levels</span><span class="p">(</span>
     <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
     <span class="n">conditions</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
     <span class="n">factor</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
@@ -1215,7 +1215,7 @@
 
 
 
-<span class="k">def</span> <span class="nf">_warning</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_warning</span><span class="p">(</span>
     <span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">category</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="ne">Warning</span><span class="p">],</span>
     <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -1271,7 +1271,7 @@
 
 <div class="viewcode-block" id="describe">
 <a class="viewcode-back" href="../../api_reference/_autosummary/pelicun.base.html#pelicun.base.describe">[docs]</a>
-<span class="k">def</span> <span class="nf">describe</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">describe</span><span class="p">(</span>
     <span class="n">data</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
     <span class="n">percentiles</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
         <span class="mf">0.001</span><span class="p">,</span>
@@ -1342,7 +1342,7 @@
 
 <div class="viewcode-block" id="str2bool">
 <a class="viewcode-back" href="../../api_reference/_autosummary/pelicun.base.html#pelicun.base.str2bool">[docs]</a>
-<span class="k">def</span> <span class="nf">str2bool</span><span class="p">(</span><span class="n">v</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>  <span class="c1"># noqa: FBT001</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">str2bool</span><span class="p">(</span><span class="n">v</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>  <span class="c1"># noqa: FBT001</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Convert a string representation of truth to boolean True or False.</span>
 
@@ -1386,7 +1386,7 @@
 
 <div class="viewcode-block" id="float_or_None">
 <a class="viewcode-back" href="../../api_reference/_autosummary/pelicun.base.html#pelicun.base.float_or_None">[docs]</a>
-<span class="k">def</span> <span class="nf">float_or_None</span><span class="p">(</span><span class="n">string</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># noqa: N802</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">float_or_None</span><span class="p">(</span><span class="n">string</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># noqa: N802</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Convert strings to float or None.</span>
 
@@ -1411,7 +1411,7 @@
 
 <div class="viewcode-block" id="int_or_None">
 <a class="viewcode-back" href="../../api_reference/_autosummary/pelicun.base.html#pelicun.base.int_or_None">[docs]</a>
-<span class="k">def</span> <span class="nf">int_or_None</span><span class="p">(</span><span class="n">string</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># noqa: N802</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">int_or_None</span><span class="p">(</span><span class="n">string</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># noqa: N802</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Convert strings to int or None.</span>
 
@@ -1436,7 +1436,7 @@
 
 <div class="viewcode-block" id="check_if_str_is_na">
 <a class="viewcode-back" href="../../api_reference/_autosummary/pelicun.base.html#pelicun.base.check_if_str_is_na">[docs]</a>
-<span class="k">def</span> <span class="nf">check_if_str_is_na</span><span class="p">(</span><span class="n">string</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>  <span class="c1"># noqa: ANN401</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">check_if_str_is_na</span><span class="p">(</span><span class="n">string</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>  <span class="c1"># noqa: ANN401</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Check if the provided string can be interpreted as N/A.</span>
 
@@ -1479,7 +1479,7 @@
 
 <div class="viewcode-block" id="with_parsed_str_na_values">
 <a class="viewcode-back" href="../../api_reference/_autosummary/pelicun.base.html#pelicun.base.with_parsed_str_na_values">[docs]</a>
-<span class="k">def</span> <span class="nf">with_parsed_str_na_values</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">with_parsed_str_na_values</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Identify string values interpretable as N/A.</span>
 
@@ -1506,7 +1506,7 @@
 
 <div class="viewcode-block" id="dedupe_index">
 <a class="viewcode-back" href="../../api_reference/_autosummary/pelicun.base.html#pelicun.base.dedupe_index">[docs]</a>
-<span class="k">def</span> <span class="nf">dedupe_index</span><span class="p">(</span><span class="n">dataframe</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">dtype</span><span class="p">:</span> <span class="nb">type</span> <span class="o">=</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">dedupe_index</span><span class="p">(</span><span class="n">dataframe</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">dtype</span><span class="p">:</span> <span class="nb">type</span> <span class="o">=</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Add a `uid` level to the index.</span>
 
@@ -1582,7 +1582,7 @@
 
 <div class="viewcode-block" id="dict_raise_on_duplicates">
 <a class="viewcode-back" href="../../api_reference/_autosummary/pelicun.base.html#pelicun.base.dict_raise_on_duplicates">[docs]</a>
-<span class="k">def</span> <span class="nf">dict_raise_on_duplicates</span><span class="p">(</span><span class="n">ordered_pairs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">dict_raise_on_duplicates</span><span class="p">(</span><span class="n">ordered_pairs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Construct a dictionary from a list of key-value pairs.</span>
 
@@ -1635,7 +1635,7 @@
 
 <div class="viewcode-block" id="parse_units">
 <a class="viewcode-back" href="../../api_reference/_autosummary/pelicun.base.html#pelicun.base.parse_units">[docs]</a>
-<span class="k">def</span> <span class="nf">parse_units</span><span class="p">(</span>  <span class="c1"># noqa: C901</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">parse_units</span><span class="p">(</span>  <span class="c1"># noqa: C901</span>
     <span class="n">custom_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">preserve_categories</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -1665,7 +1665,7 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">get_contents</span><span class="p">(</span><span class="n">file_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">preserve_categories</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>  <span class="c1"># noqa: C901</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_contents</span><span class="p">(</span><span class="n">file_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">preserve_categories</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>  <span class="c1"># noqa: C901</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Map unit names to conversion factors.</span>
 
@@ -1724,10 +1724,10 @@
                 <span class="n">dictionary</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">object_pairs_hook</span><span class="o">=</span><span class="n">dict_raise_on_duplicates</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">FileNotFoundError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
             <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s1"> was not found.&#39;</span>
-            <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span> <span class="kn">from</span> <span class="nn">exc</span>
+            <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc</span>
         <span class="k">except</span> <span class="n">json</span><span class="o">.</span><span class="n">decoder</span><span class="o">.</span><span class="n">JSONDecodeError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
             <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s1"> is not a valid JSON file.&#39;</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span> <span class="kn">from</span> <span class="nn">exc</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc</span>
         <span class="k">for</span> <span class="n">category_dict</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">dictionary</span><span class="o">.</span><span class="n">values</span><span class="p">()):</span>
             <span class="c1"># ensure all first-level keys point to a dictionary</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">category_dict</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
@@ -1745,7 +1745,7 @@
                     <span class="sa">f</span><span class="s1">&#39;Unit </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s1"> has a value of </span><span class="si">{</span><span class="n">val</span><span class="si">}</span><span class="s1"> &#39;</span>
                     <span class="s1">&#39;which cannot be interpreted as a float&#39;</span>
                 <span class="p">)</span>
-                <span class="k">raise</span> <span class="nb">type</span><span class="p">(</span><span class="n">exc</span><span class="p">)(</span><span class="n">msg</span><span class="p">)</span> <span class="kn">from</span> <span class="nn">exc</span>
+                <span class="k">raise</span> <span class="nb">type</span><span class="p">(</span><span class="n">exc</span><span class="p">)(</span><span class="n">msg</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc</span>
 
         <span class="k">if</span> <span class="n">preserve_categories</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">dictionary</span>
@@ -1774,7 +1774,7 @@
 
 <div class="viewcode-block" id="convert_units">
 <a class="viewcode-back" href="../../api_reference/_autosummary/pelicun.base.html#pelicun.base.convert_units">[docs]</a>
-<span class="k">def</span> <span class="nf">convert_units</span><span class="p">(</span>  <span class="c1"># noqa: C901</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">convert_units</span><span class="p">(</span>  <span class="c1"># noqa: C901</span>
     <span class="n">values</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
     <span class="n">unit</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">to_unit</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -1872,7 +1872,7 @@
 
 <div class="viewcode-block" id="stringterpolation">
 <a class="viewcode-back" href="../../api_reference/_autosummary/pelicun.base.html#pelicun.base.stringterpolation">[docs]</a>
-<span class="k">def</span> <span class="nf">stringterpolation</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">stringterpolation</span><span class="p">(</span>
     <span class="n">arguments</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -1907,7 +1907,7 @@
 
 <div class="viewcode-block" id="invert_mapping">
 <a class="viewcode-back" href="../../api_reference/_autosummary/pelicun.base.html#pelicun.base.invert_mapping">[docs]</a>
-<span class="k">def</span> <span class="nf">invert_mapping</span><span class="p">(</span><span class="n">original_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">invert_mapping</span><span class="p">(</span><span class="n">original_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Inverts a dictionary mapping from key to list of values.</span>
 
@@ -1943,7 +1943,7 @@
 
 <div class="viewcode-block" id="get">
 <a class="viewcode-back" href="../../api_reference/_autosummary/pelicun.base.html#pelicun.base.get">[docs]</a>
-<span class="k">def</span> <span class="nf">get</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get</span><span class="p">(</span>
     <span class="n">d</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">default</span><span class="p">:</span> <span class="n">Any</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># noqa: ANN401</span>
@@ -2002,7 +2002,7 @@
 
 <div class="viewcode-block" id="update">
 <a class="viewcode-back" href="../../api_reference/_autosummary/pelicun.base.html#pelicun.base.update">[docs]</a>
-<span class="k">def</span> <span class="nf">update</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">update</span><span class="p">(</span>
     <span class="n">d</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
     <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>  <span class="c1"># noqa: ANN401</span>
@@ -2056,7 +2056,7 @@
 
 <div class="viewcode-block" id="is_unspecified">
 <a class="viewcode-back" href="../../api_reference/_autosummary/pelicun.base.html#pelicun.base.is_unspecified">[docs]</a>
-<span class="k">def</span> <span class="nf">is_unspecified</span><span class="p">(</span><span class="n">d</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">is_unspecified</span><span class="p">(</span><span class="n">d</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Check if something is specified.</span>
 
@@ -2109,7 +2109,7 @@
 
 <div class="viewcode-block" id="is_specified">
 <a class="viewcode-back" href="../../api_reference/_autosummary/pelicun.base.html#pelicun.base.is_specified">[docs]</a>
-<span class="k">def</span> <span class="nf">is_specified</span><span class="p">(</span><span class="n">d</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">is_specified</span><span class="p">(</span><span class="n">d</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Opposite of `is_unspecified()`.</span>
 
@@ -2132,7 +2132,7 @@
 
 <div class="viewcode-block" id="ensure_value">
 <a class="viewcode-back" href="../../api_reference/_autosummary/pelicun.base.html#pelicun.base.ensure_value">[docs]</a>
-<span class="k">def</span> <span class="nf">ensure_value</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">T</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">ensure_value</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">T</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Ensure a variable is not None.</span>
 
@@ -2169,7 +2169,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2024, Leland Stanford Junior University and The Regents of the University of California.</p>
+    <p>&#169; Copyright 2025, Leland Stanford Junior University and The Regents of the University of California.</p>
   </div>
 
    

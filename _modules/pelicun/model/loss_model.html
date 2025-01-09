@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>pelicun.model.loss_model &mdash; pelicun  documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=f9bf6728" />
@@ -193,38 +193,38 @@
 
 <span class="sd">&quot;&quot;&quot;Loss model objects and associated methods.&quot;&quot;&quot;</span>
 
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
-<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
-<span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">product</span>
-<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">overload</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">defaultdict</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">itertools</span><span class="w"> </span><span class="kn">import</span> <span class="n">product</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">overload</span>
 
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">from</span> <span class="nn">scipy.interpolate</span> <span class="kn">import</span> <span class="n">RegularGridInterpolator</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.interpolate</span><span class="w"> </span><span class="kn">import</span> <span class="n">RegularGridInterpolator</span>
 
-<span class="kn">from</span> <span class="nn">pelicun</span> <span class="kn">import</span> <span class="n">base</span><span class="p">,</span> <span class="n">file_io</span><span class="p">,</span> <span class="n">uq</span>
-<span class="kn">from</span> <span class="nn">pelicun.model.demand_model</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pelicun</span><span class="w"> </span><span class="kn">import</span> <span class="n">base</span><span class="p">,</span> <span class="n">file_io</span><span class="p">,</span> <span class="n">uq</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pelicun.model.demand_model</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">_assemble_required_demand_data</span><span class="p">,</span>
     <span class="n">_get_required_demand_type</span><span class="p">,</span>
     <span class="n">_verify_edps_available</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">pelicun.model.pelicun_model</span> <span class="kn">import</span> <span class="n">PelicunModel</span>
-<span class="kn">from</span> <span class="nn">pelicun.pelicun_warnings</span> <span class="kn">import</span> <span class="n">InconsistentUnitsError</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pelicun.model.pelicun_model</span><span class="w"> </span><span class="kn">import</span> <span class="n">PelicunModel</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pelicun.pelicun_warnings</span><span class="w"> </span><span class="kn">import</span> <span class="n">InconsistentUnitsError</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
-    <span class="kn">from</span> <span class="nn">collections.abc</span> <span class="kn">import</span> <span class="n">Callable</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span>
 
-    <span class="kn">from</span> <span class="nn">pelicun.assessment</span> <span class="kn">import</span> <span class="n">AssessmentBase</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pelicun.assessment</span><span class="w"> </span><span class="kn">import</span> <span class="n">AssessmentBase</span>
 
 <span class="n">idx</span> <span class="o">=</span> <span class="n">base</span><span class="o">.</span><span class="n">idx</span>
 
 
 <div class="viewcode-block" id="LossModel">
 <a class="viewcode-back" href="../../../api_reference/_autosummary/pelicun.model.loss_model.html#pelicun.model.loss_model.LossModel">[docs]</a>
-<span class="k">class</span> <span class="nc">LossModel</span><span class="p">(</span><span class="n">PelicunModel</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">LossModel</span><span class="p">(</span><span class="n">PelicunModel</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Manages loss information used in assessments.</span>
 
@@ -235,7 +235,7 @@
 
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;ds_model&#39;</span><span class="p">,</span> <span class="s1">&#39;dv_units&#39;</span><span class="p">,</span> <span class="s1">&#39;lf_model&#39;</span><span class="p">]</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">assessment</span><span class="p">:</span> <span class="n">AssessmentBase</span><span class="p">,</span>
         <span class="n">decision_variables</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;Cost&#39;</span><span class="p">,</span> <span class="s1">&#39;Time&#39;</span><span class="p">),</span>
@@ -264,7 +264,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">dv_units</span> <span class="o">=</span> <span class="n">dv_units</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">sample</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">sample</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Combines the samples of the ds_model and lf_model sub-models.</span>
 
@@ -301,7 +301,7 @@
         <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">ds_model</span><span class="o">.</span><span class="n">sample</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lf_model</span><span class="o">.</span><span class="n">sample</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">decision_variables</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">decision_variables</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Retrieve the decision variables.</span>
 
@@ -316,7 +316,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds_model</span><span class="o">.</span><span class="n">decision_variables</span>
 
     <span class="nd">@decision_variables</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">decision_variables</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">decision_variables</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">decision_variables</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">decision_variables</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Set the decision variables.</span>
 
@@ -331,7 +331,7 @@
 
 <div class="viewcode-block" id="LossModel.add_loss_map">
 <a class="viewcode-back" href="../../../api_reference/_autosummary/pelicun.model.loss_model.html#pelicun.model.loss_model.LossModel.add_loss_map">[docs]</a>
-    <span class="k">def</span> <span class="nf">add_loss_map</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_loss_map</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">loss_map_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">loss_map_policy</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -426,7 +426,7 @@
 
 <div class="viewcode-block" id="LossModel.load_model">
 <a class="viewcode-back" href="../../../api_reference/_autosummary/pelicun.model.loss_model.html#pelicun.model.loss_model.LossModel.load_model">[docs]</a>
-    <span class="k">def</span> <span class="nf">load_model</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">load_model</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">data_paths</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span> <span class="o">|</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">],</span>
         <span class="n">loss_map</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
@@ -444,7 +444,7 @@
 
 <div class="viewcode-block" id="LossModel.load_model_parameters">
 <a class="viewcode-back" href="../../../api_reference/_autosummary/pelicun.model.loss_model.html#pelicun.model.loss_model.LossModel.load_model_parameters">[docs]</a>
-    <span class="k">def</span> <span class="nf">load_model_parameters</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">load_model_parameters</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">data_paths</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span> <span class="o">|</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">],</span>
         <span class="n">decision_variables</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -556,7 +556,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_ensure_loss_parameter_availability</span><span class="p">()</span></div>
 
 
-    <span class="k">def</span> <span class="nf">_load_from_data_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_load_from_data_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">if</span> <span class="s1">&#39;bldg_repair_DB&#39;</span> <span class="ow">in</span> <span class="n">data_path</span><span class="p">:</span>
             <span class="n">data_path</span> <span class="o">=</span> <span class="n">data_path</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;bldg_repair_DB&#39;</span><span class="p">,</span> <span class="s1">&#39;loss_repair_DB&#39;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
@@ -591,7 +591,7 @@
 
 <div class="viewcode-block" id="LossModel.calculate">
 <a class="viewcode-back" href="../../../api_reference/_autosummary/pelicun.model.loss_model.html#pelicun.model.loss_model.LossModel.calculate">[docs]</a>
-    <span class="k">def</span> <span class="nf">calculate</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">calculate</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Calculate the loss of each component block.</span>
 
@@ -648,7 +648,7 @@
 
 <div class="viewcode-block" id="LossModel.consequence_scaling">
 <a class="viewcode-back" href="../../../api_reference/_autosummary/pelicun.model.loss_model.html#pelicun.model.loss_model.LossModel.consequence_scaling">[docs]</a>
-    <span class="k">def</span> <span class="nf">consequence_scaling</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scaling_specification</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">consequence_scaling</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scaling_specification</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Apply scale factors to losses.</span>
 
@@ -730,7 +730,7 @@
         <span class="n">scaling_specification_df</span> <span class="o">=</span> <span class="n">scaling_specification_df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">name_map</span><span class="p">)</span>
 
         <span class="c1"># Expand ranges in &#39;loc&#39; and &#39;dir&#39;</span>
-        <span class="k">def</span> <span class="nf">_expand_range</span><span class="p">(</span><span class="n">col</span><span class="p">):</span>  <span class="c1"># noqa: ANN001, ANN202</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">_expand_range</span><span class="p">(</span><span class="n">col</span><span class="p">):</span>  <span class="c1"># noqa: ANN001, ANN202</span>
             <span class="k">if</span> <span class="n">pd</span><span class="o">.</span><span class="n">isna</span><span class="p">(</span><span class="n">col</span><span class="p">):</span>
                 <span class="k">return</span> <span class="p">[</span><span class="n">col</span><span class="p">]</span>
             <span class="k">if</span> <span class="s1">&#39;--&#39;</span> <span class="ow">in</span> <span class="n">col</span><span class="p">:</span>
@@ -760,7 +760,7 @@
             <span class="p">)</span></div>
 
 
-    <span class="k">def</span> <span class="nf">_apply_consequence_scaling</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_apply_consequence_scaling</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">scaling_conditions</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
         <span class="n">scale_factor</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
@@ -839,7 +839,7 @@
 
 <div class="viewcode-block" id="LossModel.save_sample">
 <a class="viewcode-back" href="../../../api_reference/_autosummary/pelicun.model.loss_model.html#pelicun.model.loss_model.LossModel.save_sample">[docs]</a>
-    <span class="k">def</span> <span class="nf">save_sample</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">save_sample</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">save_units</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span> <span class="o">|</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -863,7 +863,7 @@
 
 <div class="viewcode-block" id="LossModel.load_sample">
 <a class="viewcode-back" href="../../../api_reference/_autosummary/pelicun.model.loss_model.html#pelicun.model.loss_model.LossModel.load_sample">[docs]</a>
-    <span class="k">def</span> <span class="nf">load_sample</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">load_sample</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        &lt;backwards compatibility&gt;.</span>
 
@@ -881,7 +881,7 @@
 
 <div class="viewcode-block" id="LossModel.aggregate_losses">
 <a class="viewcode-back" href="../../../api_reference/_autosummary/pelicun.model.loss_model.html#pelicun.model.loss_model.LossModel.aggregate_losses">[docs]</a>
-    <span class="k">def</span> <span class="nf">aggregate_losses</span><span class="p">(</span>  <span class="c1"># noqa: C901</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">aggregate_losses</span><span class="p">(</span>  <span class="c1"># noqa: C901</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">replacement_configuration</span><span class="p">:</span> <span class="p">(</span>
             <span class="nb">tuple</span><span class="p">[</span><span class="n">uq</span><span class="o">.</span><span class="n">RandomVariableRegistry</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span>
@@ -982,7 +982,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">lf_sample</span> <span class="o">=</span> <span class="kc">None</span>
 
-        <span class="k">def</span> <span class="nf">_construct_columns</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">_construct_columns</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
             <span class="n">columns</span> <span class="o">=</span> <span class="p">[</span>
                 <span class="sa">f</span><span class="s1">&#39;repair_</span><span class="si">{</span><span class="n">x</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="si">}</span><span class="s1">&#39;</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">decision_variables</span> <span class="k">if</span> <span class="n">x</span> <span class="o">!=</span> <span class="s1">&#39;Time&#39;</span>
             <span class="p">]</span>
@@ -1055,7 +1055,7 @@
         <span class="k">return</span> <span class="n">df_agg</span><span class="p">,</span> <span class="n">exceedance_bool_df</span></div>
 
 
-    <span class="k">def</span> <span class="nf">_validate_input_loss_combination</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loss_combination</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_validate_input_loss_combination</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loss_combination</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">dv</span><span class="p">,</span> <span class="n">combinations</span> <span class="ow">in</span> <span class="n">loss_combination</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="k">if</span> <span class="n">dv</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">decision_variables</span><span class="p">:</span>
                 <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
@@ -1085,7 +1085,7 @@
                     <span class="p">)</span>
                     <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_validate_input_replacement_thresholds</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_validate_input_replacement_thresholds</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">replacement_configuration</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span>
             <span class="n">uq</span><span class="o">.</span><span class="n">RandomVariableRegistry</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span>
@@ -1137,7 +1137,7 @@
                 <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;Missing replacement consequence RV &#39;</span> <span class="sa">f</span><span class="s1">&#39;for `</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s1">`.&#39;</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_apply_loss_combinations</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_apply_loss_combinations</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">loss_combination</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">sample</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -1198,7 +1198,7 @@
         <span class="c1"># turn into a dataframe</span>
         <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">dcsample</span><span class="p">)</span><span class="o">.</span><span class="n">rename_axis</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">sample</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">names</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_loss_combination_add_combinable</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_loss_combination_add_combinable</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">dsample</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">loss_combination_converted</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">dcsample</span><span class="p">:</span> <span class="nb">dict</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -1294,7 +1294,7 @@
                     <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">cols</span><span class="p">:</span>
                         <span class="n">dsample</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">col</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_identify_potential_groups</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dsample</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>  <span class="c1"># noqa: PLR6301</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_identify_potential_groups</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dsample</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>  <span class="c1"># noqa: PLR6301</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Identify potential groups of `loc`-`dir`-`uid` for each DV.</span>
 
@@ -1331,7 +1331,7 @@
                 <span class="n">inverted</span><span class="p">[</span><span class="n">c_dv</span><span class="p">][</span><span class="nb">frozenset</span><span class="p">(</span><span class="n">component_set</span><span class="p">)]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">loc_dir_uid</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">inverted</span>
 
-    <span class="k">def</span> <span class="nf">_map_component_ids_to_loss_ids</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dsample</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>  <span class="c1"># noqa: PLR6301</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_map_component_ids_to_loss_ids</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dsample</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>  <span class="c1"># noqa: PLR6301</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Map component IDs to loss IDs.</span>
 
@@ -1360,7 +1360,7 @@
             <span class="n">dmg_to_loss</span><span class="p">[</span><span class="n">c_dmg</span><span class="p">]</span> <span class="o">=</span> <span class="n">c_loss</span>
         <span class="k">return</span> <span class="n">dmg_to_loss</span>
 
-    <span class="k">def</span> <span class="nf">_deconstruct_loss_combination_arrays</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loss_combination</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>  <span class="c1"># noqa: PLR6301</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_deconstruct_loss_combination_arrays</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loss_combination</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>  <span class="c1"># noqa: PLR6301</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Deconstruct loss combination arrays.</span>
 
@@ -1406,7 +1406,7 @@
                 <span class="p">)</span>
         <span class="k">return</span> <span class="n">loss_combination_converted</span>
 
-    <span class="k">def</span> <span class="nf">_aggregate_sample</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sample</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">columns</span><span class="p">:</span> <span class="nb">list</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_aggregate_sample</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sample</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">columns</span><span class="p">:</span> <span class="nb">list</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Sum up component losses.</span>
 
@@ -1478,7 +1478,7 @@
         <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">df_agg</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">df_agg</span>
 
-    <span class="k">def</span> <span class="nf">_apply_replacement_thresholds</span><span class="p">(</span>  <span class="c1"># noqa: PLR6301</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_apply_replacement_thresholds</span><span class="p">(</span>  <span class="c1"># noqa: PLR6301</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">sample</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
         <span class="n">replacement_configuration</span><span class="p">:</span> <span class="p">(</span>
@@ -1582,7 +1582,7 @@
 
         <span class="k">return</span> <span class="n">sample</span><span class="p">,</span> <span class="n">exceedance_bool_df</span>
 
-    <span class="k">def</span> <span class="nf">_make_replacement_exclusive</span><span class="p">(</span>  <span class="c1"># noqa: PLR6301</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_make_replacement_exclusive</span><span class="p">(</span>  <span class="c1"># noqa: PLR6301</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">ds_sample</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">lf_sample</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="kc">None</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -1613,11 +1613,11 @@
             <span class="n">lf_sample</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">replacement_rows</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="mf">0.00</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">_loss_models</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">RepairModel_DS</span><span class="p">,</span> <span class="n">RepairModel_LF</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_loss_models</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">RepairModel_DS</span><span class="p">,</span> <span class="n">RepairModel_LF</span><span class="p">]:</span>
         <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ds_model</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lf_model</span><span class="p">)</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">_loss_map</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_loss_map</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns the loss map.</span>
 
@@ -1632,7 +1632,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds_model</span><span class="o">.</span><span class="n">loss_map</span>
 
     <span class="nd">@_loss_map</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">_loss_map</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loss_map</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_loss_map</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loss_map</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Set the loss map.</span>
 
@@ -1648,7 +1648,7 @@
             <span class="n">model</span><span class="o">.</span><span class="n">loss_map</span> <span class="o">=</span> <span class="n">loss_map</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">_missing</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">set</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_missing</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">set</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns the missing components.</span>
 
@@ -1662,7 +1662,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds_model</span><span class="o">.</span><span class="n">missing</span>
 
     <span class="nd">@_missing</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">_missing</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">missing</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_missing</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">missing</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Assign missing parameter definitions to the loss models.</span>
 
@@ -1676,7 +1676,7 @@
         <span class="k">for</span> <span class="n">model</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_loss_models</span><span class="p">:</span>
             <span class="n">model</span><span class="o">.</span><span class="n">missing</span> <span class="o">=</span> <span class="n">missing</span>
 
-    <span class="k">def</span> <span class="nf">_ensure_loss_parameter_availability</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_ensure_loss_parameter_availability</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Make sure that all components have loss parameters.&quot;&quot;&quot;</span>
         <span class="c1">#</span>
         <span class="c1"># Repair Models (currently the only type supported)</span>
@@ -1706,7 +1706,7 @@
 
 <div class="viewcode-block" id="RepairModel_Base">
 <a class="viewcode-back" href="../../../api_reference/_autosummary/pelicun.model.loss_model.html#pelicun.model.loss_model.RepairModel_Base">[docs]</a>
-<span class="k">class</span> <span class="nc">RepairModel_Base</span><span class="p">(</span><span class="n">PelicunModel</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">RepairModel_Base</span><span class="p">(</span><span class="n">PelicunModel</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Base class for loss models.&quot;&quot;&quot;</span>
 
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">[</span>
@@ -1718,7 +1718,7 @@
         <span class="s1">&#39;sample&#39;</span><span class="p">,</span>
     <span class="p">]</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">assessment</span><span class="p">:</span> <span class="n">AssessmentBase</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">assessment</span><span class="p">:</span> <span class="n">AssessmentBase</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Initialize RepairModel_Base objects.</span>
 
@@ -1739,7 +1739,7 @@
 
 <div class="viewcode-block" id="RepairModel_Base.load_model_parameters">
 <a class="viewcode-back" href="../../../api_reference/_autosummary/pelicun.model.loss_model.html#pelicun.model.loss_model.RepairModel_Base.load_model_parameters">[docs]</a>
-    <span class="k">def</span> <span class="nf">load_model_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">load_model_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Load model parameters from a DataFrame.</span>
 
@@ -1769,7 +1769,7 @@
 
 <div class="viewcode-block" id="RepairModel_Base.drop_unused_loss_parameters">
 <a class="viewcode-back" href="../../../api_reference/_autosummary/pelicun.model.loss_model.html#pelicun.model.loss_model.RepairModel_Base.drop_unused_loss_parameters">[docs]</a>
-    <span class="k">def</span> <span class="nf">drop_unused_loss_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loss_map</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">drop_unused_loss_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loss_map</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Remove loss parameter definitions.</span>
 
@@ -1807,7 +1807,7 @@
 
 <div class="viewcode-block" id="RepairModel_Base.remove_incomplete_components">
 <a class="viewcode-back" href="../../../api_reference/_autosummary/pelicun.model.loss_model.html#pelicun.model.loss_model.RepairModel_Base.remove_incomplete_components">[docs]</a>
-    <span class="k">def</span> <span class="nf">remove_incomplete_components</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">remove_incomplete_components</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Remove incomplete components.</span>
 
@@ -1841,7 +1841,7 @@
 
 <div class="viewcode-block" id="RepairModel_Base.get_available">
 <a class="viewcode-back" href="../../../api_reference/_autosummary/pelicun.model.loss_model.html#pelicun.model.loss_model.RepairModel_Base.get_available">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_available</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">set</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_available</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">set</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get a set of components with available loss parameters.</span>
 
@@ -1859,7 +1859,7 @@
 <div class="viewcode-block" id="RepairModel_Base.convert_loss_parameter_units">
 <a class="viewcode-back" href="../../../api_reference/_autosummary/pelicun.model.loss_model.html#pelicun.model.loss_model.RepairModel_Base.convert_loss_parameter_units">[docs]</a>
     <span class="nd">@abstractmethod</span>
-    <span class="k">def</span> <span class="nf">convert_loss_parameter_units</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">convert_loss_parameter_units</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert previously loaded loss parameters to base units.&quot;&quot;&quot;</span></div>
 </div>
 
@@ -1867,14 +1867,14 @@
 
 <div class="viewcode-block" id="RepairModel_DS">
 <a class="viewcode-back" href="../../../api_reference/_autosummary/pelicun.model.loss_model.html#pelicun.model.loss_model.RepairModel_DS">[docs]</a>
-<span class="k">class</span> <span class="nc">RepairModel_DS</span><span class="p">(</span><span class="n">RepairModel_Base</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">RepairModel_DS</span><span class="p">(</span><span class="n">RepairModel_Base</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Repair consequences for components with damage states.&quot;&quot;&quot;</span>
 
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;RV_reg&#39;</span><span class="p">]</span>
 
 <div class="viewcode-block" id="RepairModel_DS.save_sample">
 <a class="viewcode-back" href="../../../api_reference/_autosummary/pelicun.model.loss_model.html#pelicun.model.loss_model.RepairModel_DS.save_sample">[docs]</a>
-    <span class="k">def</span> <span class="nf">save_sample</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">save_sample</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">save_units</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span> <span class="o">|</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -1956,7 +1956,7 @@
 
 <div class="viewcode-block" id="RepairModel_DS.load_sample">
 <a class="viewcode-back" href="../../../api_reference/_autosummary/pelicun.model.loss_model.html#pelicun.model.loss_model.RepairModel_DS.load_sample">[docs]</a>
-    <span class="k">def</span> <span class="nf">load_sample</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">load_sample</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Load loss sample data.</span>
 
@@ -2027,7 +2027,7 @@
 
 <div class="viewcode-block" id="RepairModel_DS.calculate">
 <a class="viewcode-back" href="../../../api_reference/_autosummary/pelicun.model.loss_model.html#pelicun.model.loss_model.RepairModel_DS.calculate">[docs]</a>
-    <span class="k">def</span> <span class="nf">calculate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dmg_quantities</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># noqa: C901</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">calculate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dmg_quantities</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># noqa: C901</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Calculate damage consequences.</span>
 
@@ -2265,7 +2265,7 @@
 
 <div class="viewcode-block" id="RepairModel_DS.convert_loss_parameter_units">
 <a class="viewcode-back" href="../../../api_reference/_autosummary/pelicun.model.loss_model.html#pelicun.model.loss_model.RepairModel_DS.convert_loss_parameter_units">[docs]</a>
-    <span class="k">def</span> <span class="nf">convert_loss_parameter_units</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">convert_loss_parameter_units</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert previously loaded loss parameters to base units.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">loss_params</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span>
@@ -2283,7 +2283,7 @@
 
 <div class="viewcode-block" id="RepairModel_DS.drop_unused_damage_states">
 <a class="viewcode-back" href="../../../api_reference/_autosummary/pelicun.model.loss_model.html#pelicun.model.loss_model.RepairModel_DS.drop_unused_damage_states">[docs]</a>
-    <span class="k">def</span> <span class="nf">drop_unused_damage_states</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">drop_unused_damage_states</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Remove unused columns.</span>
 
@@ -2317,7 +2317,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">loss_params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">loss_params</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">ds_to_drop</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span></div>
 
 
-    <span class="k">def</span> <span class="nf">_create_DV_RVs</span><span class="p">(</span>  <span class="c1"># noqa: N802, C901</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_create_DV_RVs</span><span class="p">(</span>  <span class="c1"># noqa: N802, C901</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">cases</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">MultiIndex</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">uq</span><span class="o">.</span><span class="n">RandomVariableRegistry</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -2462,7 +2462,7 @@
             <span class="k">return</span> <span class="n">rv_reg</span>
         <span class="k">return</span> <span class="kc">None</span>
 
-    <span class="k">def</span> <span class="nf">_calc_median_consequence</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">eco_qnt</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>  <span class="c1"># noqa: C901</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_calc_median_consequence</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">eco_qnt</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>  <span class="c1"># noqa: C901</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Calculate median reiapr consequences.</span>
 
@@ -2635,14 +2635,14 @@
 
 <div class="viewcode-block" id="RepairModel_LF">
 <a class="viewcode-back" href="../../../api_reference/_autosummary/pelicun.model.loss_model.html#pelicun.model.loss_model.RepairModel_LF">[docs]</a>
-<span class="k">class</span> <span class="nc">RepairModel_LF</span><span class="p">(</span><span class="n">RepairModel_Base</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">RepairModel_LF</span><span class="p">(</span><span class="n">RepairModel_Base</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Repair consequences for components with loss functions.&quot;&quot;&quot;</span>
 
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">[]</span>
 
 <div class="viewcode-block" id="RepairModel_LF.calculate">
 <a class="viewcode-back" href="../../../api_reference/_autosummary/pelicun.model.loss_model.html#pelicun.model.loss_model.RepairModel_LF.calculate">[docs]</a>
-    <span class="k">def</span> <span class="nf">calculate</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">calculate</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">demand_sample</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
         <span class="n">cmp_sample</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
@@ -2808,7 +2808,7 @@
 
 <div class="viewcode-block" id="RepairModel_LF.convert_loss_parameter_units">
 <a class="viewcode-back" href="../../../api_reference/_autosummary/pelicun.model.loss_model.html#pelicun.model.loss_model.RepairModel_LF.convert_loss_parameter_units">[docs]</a>
-    <span class="k">def</span> <span class="nf">convert_loss_parameter_units</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">convert_loss_parameter_units</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert previously loaded loss parameters to base units.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">loss_params</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span>
@@ -2826,7 +2826,7 @@
         <span class="k">return</span></div>
 
 
-    <span class="k">def</span> <span class="nf">_calc_median_consequence</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_calc_median_consequence</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">performance_group</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
         <span class="n">loss_map</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
@@ -2911,7 +2911,7 @@
                     <span class="sa">f</span><span class="s1">&#39;for the X values (those after the `|` symbol)  &#39;</span>
                     <span class="sa">f</span><span class="s1">&#39;and verify the X-value and Y-value lengths match.&#39;</span>
                 <span class="p">)</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span> <span class="kn">from</span> <span class="nn">exc</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc</span>
             <span class="k">for</span> <span class="n">block</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">blocks</span><span class="p">):</span>
                 <span class="n">medians_dict</span><span class="p">[</span>
                     <span class="n">decision_variable</span><span class="p">,</span>
@@ -2931,7 +2931,7 @@
         <span class="n">medians</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">names</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;dv&#39;</span><span class="p">,</span> <span class="s1">&#39;loss&#39;</span><span class="p">,</span> <span class="s1">&#39;dmg&#39;</span><span class="p">,</span> <span class="s1">&#39;loc&#39;</span><span class="p">,</span> <span class="s1">&#39;dir&#39;</span><span class="p">,</span> <span class="s1">&#39;uid&#39;</span><span class="p">,</span> <span class="s1">&#39;block&#39;</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">medians</span><span class="o">.</span><span class="n">sort_index</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_create_DV_RVs</span><span class="p">(</span>  <span class="c1"># noqa: N802</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_create_DV_RVs</span><span class="p">(</span>  <span class="c1"># noqa: N802</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">cases</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">MultiIndex</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">uq</span><span class="o">.</span><span class="n">RandomVariableRegistry</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -3042,7 +3042,7 @@
 
 
 
-<span class="k">def</span> <span class="nf">_prep_constant_median_DV</span><span class="p">(</span><span class="n">median</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">:</span>  <span class="c1"># noqa: N802</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_prep_constant_median_DV</span><span class="p">(</span><span class="n">median</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">:</span>  <span class="c1"># noqa: N802</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Return a constant median Decision Variable (DV) function.</span>
 
@@ -3059,13 +3059,13 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">f</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">):</span>  <span class="c1"># noqa: ANN002, ANN202, ARG001</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">f</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">):</span>  <span class="c1"># noqa: ANN002, ANN202, ARG001</span>
         <span class="k">return</span> <span class="n">median</span>
 
     <span class="k">return</span> <span class="n">f</span>
 
 
-<span class="k">def</span> <span class="nf">_prep_bounded_multilinear_median_DV</span><span class="p">(</span>  <span class="c1"># noqa: N802</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_prep_bounded_multilinear_median_DV</span><span class="p">(</span>  <span class="c1"># noqa: N802</span>
     <span class="n">medians</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">quantities</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -3093,7 +3093,7 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">f</span><span class="p">(</span><span class="n">quantity</span><span class="p">):</span>  <span class="c1"># noqa: ANN001, ANN202</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">f</span><span class="p">(</span><span class="n">quantity</span><span class="p">):</span>  <span class="c1"># noqa: ANN001, ANN202</span>
         <span class="k">if</span> <span class="n">quantity</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
                 <span class="s1">&#39;A bounded linear median Decision Variable function called &#39;</span>
@@ -3110,7 +3110,7 @@
     <span class="k">return</span> <span class="n">f</span>
 
 
-<span class="k">def</span> <span class="nf">_is_for_lf_model</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_is_for_lf_model</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Determine if the data are for the lf_model.</span>
 
@@ -3128,7 +3128,7 @@
     <span class="k">return</span> <span class="s1">&#39;LossFunction&#39;</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">_is_for_ds_model</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_is_for_ds_model</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Determine if the data are for the ds_model.</span>
 
@@ -3153,7 +3153,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2024, Leland Stanford Junior University and The Regents of the University of California.</p>
+    <p>&#169; Copyright 2025, Leland Stanford Junior University and The Regents of the University of California.</p>
   </div>
 
    

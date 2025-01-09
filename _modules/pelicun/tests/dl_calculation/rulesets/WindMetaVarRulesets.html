@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>pelicun.tests.dl_calculation.rulesets.WindMetaVarRulesets &mdash; pelicun  documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../../../_static/sphinx-design.min.css?v=95c83b7e" />
       <link rel="stylesheet" type="text/css" href="../../../../../_static/css/custom.css?v=f9bf6728" />
@@ -196,15 +196,15 @@
 <span class="c1"># Meredith Lockhead</span>
 <span class="c1"># Tracy Kijewski-Correa</span>
 
-<span class="kn">import</span> <span class="nn">random</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">import</span> <span class="nn">datetime</span>
-<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">random</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">datetime</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
 
 <div class="viewcode-block" id="parse_BIM">
 <a class="viewcode-back" href="../../../../../api_reference/_autosummary/pelicun.tests.dl_calculation.rulesets.WindMetaVarRulesets.html#pelicun.tests.dl_calculation.rulesets.WindMetaVarRulesets.parse_BIM">[docs]</a>
-<span class="k">def</span> <span class="nf">parse_BIM</span><span class="p">(</span><span class="n">BIM_in</span><span class="p">,</span> <span class="n">location</span><span class="p">,</span> <span class="n">hazards</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">parse_BIM</span><span class="p">(</span><span class="n">BIM_in</span><span class="p">,</span> <span class="n">location</span><span class="p">,</span> <span class="n">hazards</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Parses the information provided in the AIM model.</span>
 
@@ -328,7 +328,7 @@
 
             <span class="c1"># if none of the above works, we need to raise an exception</span>
             <span class="k">if</span> <span class="n">nstories</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="n">e</span> <span class="kn">from</span> <span class="kc">None</span>
+                <span class="k">raise</span> <span class="n">e</span> <span class="kn">from</span><span class="w"> </span><span class="kc">None</span>
 
         <span class="c1"># Plan Area</span>
         <span class="n">alname_area</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;area&#39;</span><span class="p">,</span> <span class="s1">&#39;PlanArea1&#39;</span><span class="p">,</span> <span class="s1">&#39;Area&#39;</span><span class="p">,</span> <span class="s1">&#39;PlanArea0&#39;</span><span class="p">]</span>
@@ -343,7 +343,7 @@
 
             <span class="c1"># if none of the above works, we need to raise an exception</span>
             <span class="k">if</span> <span class="n">area</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="n">e</span> <span class="kn">from</span> <span class="kc">None</span>
+                <span class="k">raise</span> <span class="n">e</span> <span class="kn">from</span><span class="w"> </span><span class="kc">None</span>
 
         <span class="c1"># Design Wind Speed</span>
         <span class="n">alname_dws</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;DSWII&#39;</span><span class="p">,</span> <span class="s1">&#39;DWSII&#39;</span><span class="p">,</span> <span class="s1">&#39;DesignWindSpeed&#39;</span><span class="p">]</span>
@@ -368,7 +368,7 @@
 
             <span class="c1"># if none of the above works, we need to raise an exception</span>
             <span class="k">if</span> <span class="n">oc</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="n">e</span> <span class="kn">from</span> <span class="kc">None</span>
+                <span class="k">raise</span> <span class="n">e</span> <span class="kn">from</span><span class="w"> </span><span class="kc">None</span>
 
         <span class="c1"># if getting RES3 then converting it to default RES3A</span>
         <span class="k">if</span> <span class="n">oc</span> <span class="o">==</span> <span class="s1">&#39;RES3&#39;</span><span class="p">:</span>
@@ -628,7 +628,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2024, Leland Stanford Junior University and The Regents of the University of California.</p>
+    <p>&#169; Copyright 2025, Leland Stanford Junior University and The Regents of the University of California.</p>
   </div>
 
    

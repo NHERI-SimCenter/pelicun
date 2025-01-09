@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>pelicun.model.damage_model &mdash; pelicun  documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=f9bf6728" />
@@ -193,39 +193,39 @@
 
 <span class="sd">&quot;&quot;&quot;DamageModel object and methods.&quot;&quot;&quot;</span>
 
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
-<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">partial</span>
-<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">defaultdict</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">partial</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span>
 
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 
-<span class="kn">from</span> <span class="nn">pelicun</span> <span class="kn">import</span> <span class="n">base</span><span class="p">,</span> <span class="n">file_io</span><span class="p">,</span> <span class="n">uq</span>
-<span class="kn">from</span> <span class="nn">pelicun.model.demand_model</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pelicun</span><span class="w"> </span><span class="kn">import</span> <span class="n">base</span><span class="p">,</span> <span class="n">file_io</span><span class="p">,</span> <span class="n">uq</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pelicun.model.demand_model</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">_assemble_required_demand_data</span><span class="p">,</span>
     <span class="n">_get_required_demand_type</span><span class="p">,</span>
     <span class="n">_verify_edps_available</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">pelicun.model.pelicun_model</span> <span class="kn">import</span> <span class="n">PelicunModel</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pelicun.model.pelicun_model</span><span class="w"> </span><span class="kn">import</span> <span class="n">PelicunModel</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
-    <span class="kn">from</span> <span class="nn">pelicun.assessment</span> <span class="kn">import</span> <span class="n">AssessmentBase</span>
-    <span class="kn">from</span> <span class="nn">pelicun.uq</span> <span class="kn">import</span> <span class="n">RandomVariableRegistry</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pelicun.assessment</span><span class="w"> </span><span class="kn">import</span> <span class="n">AssessmentBase</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pelicun.uq</span><span class="w"> </span><span class="kn">import</span> <span class="n">RandomVariableRegistry</span>
 
 <span class="n">idx</span> <span class="o">=</span> <span class="n">base</span><span class="o">.</span><span class="n">idx</span>
 
 
 <div class="viewcode-block" id="DamageModel">
 <a class="viewcode-back" href="../../../api_reference/_autosummary/pelicun.model.damage_model.html#pelicun.model.damage_model.DamageModel">[docs]</a>
-<span class="k">class</span> <span class="nc">DamageModel</span><span class="p">(</span><span class="n">PelicunModel</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">DamageModel</span><span class="p">(</span><span class="n">PelicunModel</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Manages damage information used in assessments.&quot;&quot;&quot;</span>
 
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;ds_model&#39;</span><span class="p">,</span> <span class="s1">&#39;missing_components&#39;</span><span class="p">]</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">assessment</span><span class="p">:</span> <span class="n">AssessmentBase</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">assessment</span><span class="p">:</span> <span class="n">AssessmentBase</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Initialize a Damage model.</span>
 
@@ -241,7 +241,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">missing_components</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">_damage_models</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">DamageModel_DS</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_damage_models</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">DamageModel_DS</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Points to the damage model objects included in DamageModel.</span>
 
@@ -255,7 +255,7 @@
 
 <div class="viewcode-block" id="DamageModel.load_damage_model">
 <a class="viewcode-back" href="../../../api_reference/_autosummary/pelicun.model.damage_model.html#pelicun.model.damage_model.DamageModel.load_damage_model">[docs]</a>
-    <span class="k">def</span> <span class="nf">load_damage_model</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">load_damage_model</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">data_paths</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span> <span class="o">|</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">],</span> <span class="o">*</span><span class="p">,</span> <span class="n">warn_missing</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;&lt;backwards compatibility&gt;.&quot;&quot;&quot;</span>
@@ -274,7 +274,7 @@
 
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">sample</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">sample</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        &lt;backwards compatibility&gt;.</span>
 
@@ -295,7 +295,7 @@
 
 <div class="viewcode-block" id="DamageModel.load_model_parameters">
 <a class="viewcode-back" href="../../../api_reference/_autosummary/pelicun.model.damage_model.html#pelicun.model.damage_model.DamageModel.load_model_parameters">[docs]</a>
-    <span class="k">def</span> <span class="nf">load_model_parameters</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">load_model_parameters</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">data_paths</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span> <span class="o">|</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">],</span>
         <span class="n">cmp_set</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
@@ -412,7 +412,7 @@
 
 <div class="viewcode-block" id="DamageModel.calculate">
 <a class="viewcode-back" href="../../../api_reference/_autosummary/pelicun.model.damage_model.html#pelicun.model.damage_model.DamageModel.calculate">[docs]</a>
-    <span class="k">def</span> <span class="nf">calculate</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">calculate</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">dmg_process</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">block_batch_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span>
@@ -510,7 +510,7 @@
 
 <div class="viewcode-block" id="DamageModel.save_sample">
 <a class="viewcode-back" href="../../../api_reference/_autosummary/pelicun.model.damage_model.html#pelicun.model.damage_model.DamageModel.save_sample">[docs]</a>
-    <span class="k">def</span> <span class="nf">save_sample</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">save_sample</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">save_units</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -593,7 +593,7 @@
 
 <div class="viewcode-block" id="DamageModel.load_sample">
 <a class="viewcode-back" href="../../../api_reference/_autosummary/pelicun.model.damage_model.html#pelicun.model.damage_model.DamageModel.load_sample">[docs]</a>
-    <span class="k">def</span> <span class="nf">load_sample</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">load_sample</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Load damage state sample data.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">div</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">msg</span><span class="p">(</span><span class="s1">&#39;Loading damage sample...&#39;</span><span class="p">)</span>
@@ -610,7 +610,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">msg</span><span class="p">(</span><span class="s1">&#39;Damage sample successfully loaded.&#39;</span><span class="p">,</span> <span class="n">prepend_timestamp</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
 
 
-    <span class="k">def</span> <span class="nf">_ensure_damage_parameter_availability</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_ensure_damage_parameter_availability</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">cmp_set</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="o">*</span><span class="p">,</span> <span class="n">warn_missing</span><span class="p">:</span> <span class="nb">bool</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -646,7 +646,7 @@
 
         <span class="k">return</span> <span class="n">missing_components</span>
 
-    <span class="k">def</span> <span class="nf">_get_component_id_set</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_component_id_set</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get a set of components with available damage parameters.</span>
 
@@ -665,12 +665,12 @@
 
 <div class="viewcode-block" id="DamageModel_Base">
 <a class="viewcode-back" href="../../../api_reference/_autosummary/pelicun.model.damage_model.html#pelicun.model.damage_model.DamageModel_Base">[docs]</a>
-<span class="k">class</span> <span class="nc">DamageModel_Base</span><span class="p">(</span><span class="n">PelicunModel</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">DamageModel_Base</span><span class="p">(</span><span class="n">PelicunModel</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Base class for damage models.&quot;&quot;&quot;</span>
 
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;damage_params&#39;</span><span class="p">,</span> <span class="s1">&#39;sample&#39;</span><span class="p">]</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">assessment</span><span class="p">:</span> <span class="n">AssessmentBase</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">assessment</span><span class="p">:</span> <span class="n">AssessmentBase</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Initialize the object.</span>
 
@@ -687,7 +687,7 @@
 
 <div class="viewcode-block" id="DamageModel_Base.load_model_parameters">
 <a class="viewcode-back" href="../../../api_reference/_autosummary/pelicun.model.damage_model.html#pelicun.model.damage_model.DamageModel_Base.load_model_parameters">[docs]</a>
-    <span class="k">def</span> <span class="nf">load_model_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">load_model_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Load model parameters from a DataFrame.</span>
 
@@ -714,7 +714,7 @@
 
 <div class="viewcode-block" id="DamageModel_Base.convert_damage_parameter_units">
 <a class="viewcode-back" href="../../../api_reference/_autosummary/pelicun.model.damage_model.html#pelicun.model.damage_model.DamageModel_Base.convert_damage_parameter_units">[docs]</a>
-    <span class="k">def</span> <span class="nf">convert_damage_parameter_units</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">convert_damage_parameter_units</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert previously loaded damage parameters to base units.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">damage_params</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span>
@@ -732,7 +732,7 @@
 
 <div class="viewcode-block" id="DamageModel_Base.remove_incomplete_components">
 <a class="viewcode-back" href="../../../api_reference/_autosummary/pelicun.model.damage_model.html#pelicun.model.damage_model.DamageModel_Base.remove_incomplete_components">[docs]</a>
-    <span class="k">def</span> <span class="nf">remove_incomplete_components</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">remove_incomplete_components</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Remove components with incompelte damage parameter info.</span>
 
@@ -755,7 +755,7 @@
 
 <div class="viewcode-block" id="DamageModel_Base.drop_unused_damage_parameters">
 <a class="viewcode-back" href="../../../api_reference/_autosummary/pelicun.model.damage_model.html#pelicun.model.damage_model.DamageModel_Base.drop_unused_damage_parameters">[docs]</a>
-    <span class="k">def</span> <span class="nf">drop_unused_damage_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cmp_set</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">drop_unused_damage_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cmp_set</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Remove info for non existent components.</span>
 
@@ -775,7 +775,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">damage_params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">damage_params</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">cmp_mask</span><span class="p">,</span> <span class="p">:]</span></div>
 
 
-    <span class="k">def</span> <span class="nf">_get_pg_batches</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_pg_batches</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">component_blocks</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
         <span class="n">block_batch_size</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
@@ -903,12 +903,12 @@
 
 <div class="viewcode-block" id="DamageModel_DS">
 <a class="viewcode-back" href="../../../api_reference/_autosummary/pelicun.model.damage_model.html#pelicun.model.damage_model.DamageModel_DS">[docs]</a>
-<span class="k">class</span> <span class="nc">DamageModel_DS</span><span class="p">(</span><span class="n">DamageModel_Base</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">DamageModel_DS</span><span class="p">(</span><span class="n">DamageModel_Base</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Damage model for components that have discrete Damage States (DS).&quot;&quot;&quot;</span>
 
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;ds_sample&#39;</span><span class="p">]</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">assessment</span><span class="p">:</span> <span class="n">AssessmentBase</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">assessment</span><span class="p">:</span> <span class="n">AssessmentBase</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Initialize the object.</span>
 
@@ -923,7 +923,7 @@
 
 <div class="viewcode-block" id="DamageModel_DS.probabilities">
 <a class="viewcode-back" href="../../../api_reference/_autosummary/pelicun.model.damage_model.html#pelicun.model.damage_model.DamageModel_DS.probabilities">[docs]</a>
-    <span class="k">def</span> <span class="nf">probabilities</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">probabilities</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return the probability of each observed damage state.</span>
 
@@ -962,7 +962,7 @@
 
 <div class="viewcode-block" id="DamageModel_DS.obtain_ds_sample">
 <a class="viewcode-back" href="../../../api_reference/_autosummary/pelicun.model.damage_model.html#pelicun.model.damage_model.DamageModel_DS.obtain_ds_sample">[docs]</a>
-    <span class="k">def</span> <span class="nf">obtain_ds_sample</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">obtain_ds_sample</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">demand_sample</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
         <span class="n">component_blocks</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
@@ -1060,7 +1060,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">msg</span><span class="p">(</span><span class="s1">&#39;Damage state calculation successful.&#39;</span><span class="p">,</span> <span class="n">prepend_timestamp</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
 
 
-    <span class="k">def</span> <span class="nf">_handle_operation</span><span class="p">(</span>  <span class="c1"># noqa: PLR6301</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_handle_operation</span><span class="p">(</span>  <span class="c1"># noqa: PLR6301</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">initial_value</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">operation</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">other_value</span><span class="p">:</span> <span class="nb">float</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -1101,7 +1101,7 @@
         <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;Invalid operation: `</span><span class="si">{</span><span class="n">operation</span><span class="si">}</span><span class="s1">`&#39;</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_handle_operation_list</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_handle_operation_list</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">initial_value</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">operations</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -1136,7 +1136,7 @@
         <span class="p">]</span>
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">new_values</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_generate_dmg_sample</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_generate_dmg_sample</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">sample_size</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
         <span class="n">pgb</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
@@ -1242,7 +1242,7 @@
 
         <span class="k">return</span> <span class="n">capacity_sample</span><span class="p">,</span> <span class="n">lsds_sample</span>
 
-    <span class="k">def</span> <span class="nf">_evaluate_damage_state</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_evaluate_damage_state</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">demand_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
         <span class="n">required_edps</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">]],</span>
@@ -1365,7 +1365,7 @@
 
         <span class="k">return</span> <span class="n">ds_sample</span>
 
-    <span class="k">def</span> <span class="nf">_create_dmg_RVs</span><span class="p">(</span>  <span class="c1"># noqa: N802, C901</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_create_dmg_RVs</span><span class="p">(</span>  <span class="c1"># noqa: N802, C901</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">pgb</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">scaling_specification</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">uq</span><span class="o">.</span><span class="n">RandomVariableRegistry</span><span class="p">,</span> <span class="n">uq</span><span class="o">.</span><span class="n">RandomVariableRegistry</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -1412,7 +1412,7 @@
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="k">def</span> <span class="nf">assign_lsds</span><span class="p">(</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">assign_lsds</span><span class="p">(</span>
             <span class="n">ds_weights</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
             <span class="n">ds_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
             <span class="n">lsds_rv_reg</span><span class="p">:</span> <span class="n">RandomVariableRegistry</span><span class="p">,</span>
@@ -1481,7 +1481,7 @@
                     <span class="n">ds_weights</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;|&#39;</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span>
                 <span class="p">)</span>
 
-                <span class="k">def</span> <span class="nf">map_ds</span><span class="p">(</span><span class="n">values</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">offset</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+                <span class="k">def</span><span class="w"> </span><span class="nf">map_ds</span><span class="p">(</span><span class="n">values</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">offset</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">                    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">                    Map DS indices to damage states.</span>
 
@@ -1522,7 +1522,7 @@
 
             <span class="k">return</span> <span class="n">ds_id</span>
 
-        <span class="k">def</span> <span class="nf">parse_scaling_specification</span><span class="p">(</span><span class="n">scaling_specification</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>  <span class="c1"># noqa: C901</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">parse_scaling_specification</span><span class="p">(</span><span class="n">scaling_specification</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>  <span class="c1"># noqa: C901</span>
 <span class="w">            </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">            Parse and validate the scaling specification, used in the &#39;_create_dmg_RVs&#39; method.</span>
 
@@ -1801,7 +1801,7 @@
 
 <div class="viewcode-block" id="DamageModel_DS.prepare_dmg_quantities">
 <a class="viewcode-back" href="../../../api_reference/_autosummary/pelicun.model.damage_model.html#pelicun.model.damage_model.DamageModel_DS.prepare_dmg_quantities">[docs]</a>
-    <span class="k">def</span> <span class="nf">prepare_dmg_quantities</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">prepare_dmg_quantities</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">component_sample</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
         <span class="n">component_marginal_parameters</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
@@ -1849,13 +1849,13 @@
             <span class="c1"># (&#39;cmp&#39;, &#39;loc&#39;, &#39;dir&#39;, &#39;uid) -&gt; number of blocks</span>
             <span class="n">num_blocks</span> <span class="o">=</span> <span class="n">component_marginal_parameters</span><span class="p">[</span><span class="s1">&#39;Blocks&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
 
-            <span class="k">def</span> <span class="nf">get_num_blocks</span><span class="p">(</span><span class="n">key</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+            <span class="k">def</span><span class="w"> </span><span class="nf">get_num_blocks</span><span class="p">(</span><span class="n">key</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
                 <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">num_blocks</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>
 
         <span class="k">else</span><span class="p">:</span>
             <span class="c1"># otherwise assume 1 block regardless of</span>
             <span class="c1"># (&#39;cmp&#39;, &#39;loc&#39;, &#39;dir&#39;, &#39;uid) key</span>
-            <span class="k">def</span> <span class="nf">get_num_blocks</span><span class="p">(</span><span class="n">key</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>  <span class="c1"># noqa: ARG001</span>
+            <span class="k">def</span><span class="w"> </span><span class="nf">get_num_blocks</span><span class="p">(</span><span class="n">key</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>  <span class="c1"># noqa: ARG001</span>
                 <span class="k">return</span> <span class="mf">1.00</span>
 
         <span class="c1"># (&#39;cmp&#39;, &#39;loc&#39;, &#39;dir&#39;, &#39;uid&#39;, &#39;block&#39;) -&gt; damage state series</span>
@@ -1910,7 +1910,7 @@
 
 <div class="viewcode-block" id="DamageModel_DS.perform_dmg_task">
 <a class="viewcode-back" href="../../../api_reference/_autosummary/pelicun.model.damage_model.html#pelicun.model.damage_model.DamageModel_DS.perform_dmg_task">[docs]</a>
-    <span class="k">def</span> <span class="nf">perform_dmg_task</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># noqa: C901</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">perform_dmg_task</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># noqa: C901</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Perform a task from a damage process.</span>
 
@@ -2044,7 +2044,7 @@
             <span class="p">)</span></div>
 
 
-    <span class="k">def</span> <span class="nf">_perform_dmg_event</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_perform_dmg_event</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">source_cmp</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">ds_source</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">target_cmp</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">ds_target</span><span class="p">:</span> <span class="nb">int</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -2071,7 +2071,7 @@
             <span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ds_sample</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">row_selection</span><span class="p">,</span> <span class="n">column_selection</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds_target</span>
 
-    <span class="k">def</span> <span class="nf">_perform_dmg_event_loc</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_perform_dmg_event_loc</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">source_cmp</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">ds_source</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">target_cmp</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">ds_target</span><span class="p">:</span> <span class="nb">int</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -2123,7 +2123,7 @@
 
 <div class="viewcode-block" id="DamageModel_DS.complete_ds_cols">
 <a class="viewcode-back" href="../../../api_reference/_autosummary/pelicun.model.damage_model.html#pelicun.model.damage_model.DamageModel_DS.complete_ds_cols">[docs]</a>
-    <span class="k">def</span> <span class="nf">complete_ds_cols</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dmg_sample</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">complete_ds_cols</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dmg_sample</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Complete damage state columns.</span>
 
@@ -2240,7 +2240,7 @@
 
 
 
-<span class="k">def</span> <span class="nf">_is_for_ds_model</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_is_for_ds_model</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Check if data are for `ds_model`.</span>
 
@@ -2268,7 +2268,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2024, Leland Stanford Junior University and The Regents of the University of California.</p>
+    <p>&#169; Copyright 2025, Leland Stanford Junior University and The Regents of the University of California.</p>
   </div>
 
    

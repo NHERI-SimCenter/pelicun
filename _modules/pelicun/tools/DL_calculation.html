@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>pelicun.tools.DL_calculation &mdash; pelicun  documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=f9bf6728" />
@@ -192,27 +192,27 @@
 
 <span class="sd">&quot;&quot;&quot;Main functionality to run a pelicun calculation from the command line.&quot;&quot;&quot;</span>
 
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="kn">import</span> <span class="nn">argparse</span>
-<span class="kn">import</span> <span class="nn">json</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span> <span class="nn">time</span> <span class="kn">import</span> <span class="n">gmtime</span><span class="p">,</span> <span class="n">strftime</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Hashable</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">argparse</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">time</span><span class="w"> </span><span class="kn">import</span> <span class="n">gmtime</span><span class="p">,</span> <span class="n">strftime</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Hashable</span>
 
-<span class="kn">import</span> <span class="nn">colorama</span>
-<span class="kn">import</span> <span class="nn">jsonschema</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">from</span> <span class="nn">colorama</span> <span class="kn">import</span> <span class="n">Fore</span><span class="p">,</span> <span class="n">Style</span>
-<span class="kn">from</span> <span class="nn">jsonschema</span> <span class="kn">import</span> <span class="n">validate</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">colorama</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">jsonschema</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">colorama</span><span class="w"> </span><span class="kn">import</span> <span class="n">Fore</span><span class="p">,</span> <span class="n">Style</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">jsonschema</span><span class="w"> </span><span class="kn">import</span> <span class="n">validate</span>
 
-<span class="kn">from</span> <span class="nn">pelicun</span> <span class="kn">import</span> <span class="n">base</span>
-<span class="kn">from</span> <span class="nn">pelicun.assessment</span> <span class="kn">import</span> <span class="n">DLCalculationAssessment</span>
-<span class="kn">from</span> <span class="nn">pelicun.auto</span> <span class="kn">import</span> <span class="n">auto_populate</span>
-<span class="kn">from</span> <span class="nn">pelicun.base</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pelicun</span><span class="w"> </span><span class="kn">import</span> <span class="n">base</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pelicun.assessment</span><span class="w"> </span><span class="kn">import</span> <span class="n">DLCalculationAssessment</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pelicun.auto</span><span class="w"> </span><span class="kn">import</span> <span class="n">auto_populate</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pelicun.base</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">convert_to_MultiIndex</span><span class="p">,</span>
     <span class="n">convert_to_SimpleIndex</span><span class="p">,</span>
     <span class="n">describe</span><span class="p">,</span>
@@ -223,7 +223,7 @@
     <span class="n">update</span><span class="p">,</span>
     <span class="n">update_vals</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">pelicun.pelicun_warnings</span> <span class="kn">import</span> <span class="n">PelicunInvalidConfigError</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pelicun.pelicun_warnings</span><span class="w"> </span><span class="kn">import</span> <span class="n">PelicunInvalidConfigError</span>
 
 <span class="n">colorama</span><span class="o">.</span><span class="n">init</span><span class="p">()</span>
 <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">absolute</span><span class="p">()</span><span class="o">.</span><span class="n">as_posix</span><span class="p">())</span>
@@ -231,7 +231,7 @@
 
 <div class="viewcode-block" id="log_msg">
 <a class="viewcode-back" href="../../../api_reference/_autosummary/pelicun.tools.DL_calculation.html#pelicun.tools.DL_calculation.log_msg">[docs]</a>
-<span class="k">def</span> <span class="nf">log_msg</span><span class="p">(</span><span class="n">msg</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">color_codes</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">log_msg</span><span class="p">(</span><span class="n">msg</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">color_codes</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Print a formatted log message with a timestamp.</span>
 
@@ -334,7 +334,7 @@
 
 <div class="viewcode-block" id="convert_df_to_dict">
 <a class="viewcode-back" href="../../../api_reference/_autosummary/pelicun.tools.DL_calculation.html#pelicun.tools.DL_calculation.convert_df_to_dict">[docs]</a>
-<span class="k">def</span> <span class="nf">convert_df_to_dict</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span> <span class="n">axis</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">convert_df_to_dict</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span> <span class="n">axis</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Convert a pandas DataFrame to a dictionary.</span>
 
@@ -413,7 +413,7 @@
 
 <div class="viewcode-block" id="run_pelicun">
 <a class="viewcode-back" href="../../../api_reference/_autosummary/pelicun.tools.DL_calculation.html#pelicun.tools.DL_calculation.run_pelicun">[docs]</a>
-<span class="k">def</span> <span class="nf">run_pelicun</span><span class="p">(</span>  <span class="c1"># noqa: C901</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">run_pelicun</span><span class="p">(</span>  <span class="c1"># noqa: C901</span>
     <span class="n">config_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">demand_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">output_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
@@ -646,7 +646,7 @@
 
 
 
-<span class="k">def</span> <span class="nf">_parse_decision_variables</span><span class="p">(</span><span class="n">config</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_parse_decision_variables</span><span class="p">(</span><span class="n">config</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Parse decision variables from the config file.</span>
 
@@ -671,7 +671,7 @@
     <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">decision_variables</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">_remove_csv_files_if_not_requested</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_remove_csv_files_if_not_requested</span><span class="p">(</span>
     <span class="n">config</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">out_files</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">output_path</span><span class="p">:</span> <span class="n">Path</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -697,7 +697,7 @@
         <span class="n">Path</span><span class="p">(</span><span class="n">output_path</span> <span class="o">/</span> <span class="n">filename</span><span class="p">)</span><span class="o">.</span><span class="n">unlink</span><span class="p">()</span>
 
 
-<span class="k">def</span> <span class="nf">_summary_save</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_summary_save</span><span class="p">(</span>
     <span class="n">summary</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
     <span class="n">summary_stats</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
     <span class="n">output_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
@@ -729,7 +729,7 @@
         <span class="n">out_files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;DL_summary_stats.csv&#39;</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">_parse_config_file</span><span class="p">(</span>  <span class="c1"># noqa: C901</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_parse_config_file</span><span class="p">(</span>  <span class="c1"># noqa: C901</span>
     <span class="n">config_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
     <span class="n">output_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
     <span class="n">auto_script_path</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
@@ -794,7 +794,7 @@
         <span class="n">validate</span><span class="p">(</span><span class="n">instance</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">schema</span><span class="p">)</span>
     <span class="k">except</span> <span class="n">jsonschema</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">ValidationError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
         <span class="n">msg</span> <span class="o">=</span> <span class="s1">&#39;The provided config file does not conform to the schema.&#39;</span>
-        <span class="k">raise</span> <span class="n">PelicunInvalidConfigError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span> <span class="kn">from</span> <span class="nn">exc</span>
+        <span class="k">raise</span> <span class="n">PelicunInvalidConfigError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc</span>
 
     <span class="k">if</span> <span class="n">is_unspecified</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s1">&#39;DL&#39;</span><span class="p">):</span>
         <span class="n">log_msg</span><span class="p">(</span><span class="s1">&#39;Damage and Loss configuration missing from config file. &#39;</span><span class="p">)</span>
@@ -1075,7 +1075,7 @@
     <span class="k">return</span> <span class="n">config</span>
 
 
-<span class="k">def</span> <span class="nf">_create_json_files_if_requested</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_create_json_files_if_requested</span><span class="p">(</span>
     <span class="n">config</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">out_files</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">output_path</span><span class="p">:</span> <span class="n">Path</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -1133,7 +1133,7 @@
             <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">out_dict</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">_result_summary</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_result_summary</span><span class="p">(</span>
     <span class="n">assessment</span><span class="p">:</span> <span class="n">DLCalculationAssessment</span><span class="p">,</span> <span class="n">agg_repair</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="kc">None</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -1186,7 +1186,7 @@
     <span class="k">return</span> <span class="n">summary</span><span class="p">,</span> <span class="n">summary_stats</span>
 
 
-<span class="k">def</span> <span class="nf">_parse_requested_output_file_names</span><span class="p">(</span><span class="n">output_config</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_parse_requested_output_file_names</span><span class="p">(</span><span class="n">output_config</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Parse the output file names from the output configuration.</span>
 
@@ -1208,7 +1208,7 @@
     <span class="k">return</span> <span class="nb">set</span><span class="p">(</span><span class="n">out_reqs</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">_demand_save</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_demand_save</span><span class="p">(</span>
     <span class="n">output_config</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
     <span class="n">assessment</span><span class="p">:</span> <span class="n">DLCalculationAssessment</span><span class="p">,</span>
     <span class="n">output_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
@@ -1259,7 +1259,7 @@
         <span class="n">out_files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;DEM_stats.csv&#39;</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">_asset_save</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_asset_save</span><span class="p">(</span>
     <span class="n">output_config</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
     <span class="n">assessment</span><span class="p">:</span> <span class="n">DLCalculationAssessment</span><span class="p">,</span>
     <span class="n">output_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
@@ -1318,7 +1318,7 @@
         <span class="n">out_files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;CMP_stats.csv&#39;</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">_damage_save</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_damage_save</span><span class="p">(</span>
     <span class="n">output_config</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
     <span class="n">assessment</span><span class="p">:</span> <span class="n">DLCalculationAssessment</span><span class="p">,</span>
     <span class="n">output_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
@@ -1461,7 +1461,7 @@
             <span class="n">out_files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;DMG_grp_stats.csv&#39;</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">_loss_save</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_loss_save</span><span class="p">(</span>
     <span class="n">output_config</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
     <span class="n">assessment</span><span class="p">:</span> <span class="n">DLCalculationAssessment</span><span class="p">,</span>
     <span class="n">output_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
@@ -1587,7 +1587,7 @@
             <span class="n">out_files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;DV_repair_agg_stats.csv&#39;</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">_remove_existing_files</span><span class="p">(</span><span class="n">output_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">known_output_files</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_remove_existing_files</span><span class="p">(</span><span class="n">output_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">known_output_files</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Remove known existing files from the specified output path.</span>
 
@@ -1622,12 +1622,12 @@
                     <span class="sa">f</span><span class="s1">&#39;Error occurred while removing &#39;</span>
                     <span class="sa">f</span><span class="s1">&#39;`</span><span class="si">{</span><span class="n">output_path</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">filename</span><span class="si">}</span><span class="s1">`: </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s1">&#39;</span>
                 <span class="p">)</span>
-                <span class="k">raise</span> <span class="ne">OSError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span> <span class="kn">from</span> <span class="nn">exc</span>
+                <span class="k">raise</span> <span class="ne">OSError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc</span>
 
 
 <div class="viewcode-block" id="main">
 <a class="viewcode-back" href="../../../api_reference/_autosummary/pelicun.tools.DL_calculation.html#pelicun.tools.DL_calculation.main">[docs]</a>
-<span class="k">def</span> <span class="nf">main</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Parse arguments and run the pelicun calculation.&quot;&quot;&quot;</span>
     <span class="n">args_list</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
 
@@ -1761,7 +1761,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2024, Leland Stanford Junior University and The Regents of the University of California.</p>
+    <p>&#169; Copyright 2025, Leland Stanford Junior University and The Regents of the University of California.</p>
   </div>
 
    

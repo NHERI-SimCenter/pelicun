@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>pelicun.tests.dl_calculation.e7.auto_HU_NJ &mdash; pelicun  documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../../../_static/sphinx-design.min.css?v=95c83b7e" />
       <link rel="stylesheet" type="text/css" href="../../../../../_static/css/custom.css?v=f9bf6728" />
@@ -197,33 +197,33 @@
 <span class="c1"># Meredith Lockhead</span>
 <span class="c1"># Tracy Kijewski-Correa</span>
 
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 
-<span class="kn">from</span> <span class="nn">pelicun.tests.dl_calculation.rulesets.WindMetaVarRulesets</span> <span class="kn">import</span> <span class="n">parse_BIM</span>
-<span class="kn">from</span> <span class="nn">pelicun.tests.dl_calculation.rulesets.BuildingClassRulesets</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pelicun.tests.dl_calculation.rulesets.WindMetaVarRulesets</span><span class="w"> </span><span class="kn">import</span> <span class="n">parse_BIM</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pelicun.tests.dl_calculation.rulesets.BuildingClassRulesets</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">building_class</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">pelicun.tests.dl_calculation.rulesets.FloodAssmRulesets</span> <span class="kn">import</span> <span class="n">Assm_config</span>
-<span class="kn">from</span> <span class="nn">pelicun.tests.dl_calculation.rulesets.FloodClassRulesets</span> <span class="kn">import</span> <span class="n">FL_config</span>
-<span class="kn">from</span> <span class="nn">pelicun.tests.dl_calculation.rulesets.WindCECBRulesets</span> <span class="kn">import</span> <span class="n">CECB_config</span>
-<span class="kn">from</span> <span class="nn">pelicun.tests.dl_calculation.rulesets.WindCERBRulesets</span> <span class="kn">import</span> <span class="n">CERB_config</span>
-<span class="kn">from</span> <span class="nn">pelicun.tests.dl_calculation.rulesets.WindMECBRulesets</span> <span class="kn">import</span> <span class="n">MECB_config</span>
-<span class="kn">from</span> <span class="nn">pelicun.tests.dl_calculation.rulesets.WindMERBRulesets</span> <span class="kn">import</span> <span class="n">MERB_config</span>
-<span class="kn">from</span> <span class="nn">pelicun.tests.dl_calculation.rulesets.WindMHRulesets</span> <span class="kn">import</span> <span class="n">MH_config</span>
-<span class="kn">from</span> <span class="nn">pelicun.tests.dl_calculation.rulesets.WindMLRIRulesets</span> <span class="kn">import</span> <span class="n">MLRI_config</span>
-<span class="kn">from</span> <span class="nn">pelicun.tests.dl_calculation.rulesets.WindMLRMRulesets</span> <span class="kn">import</span> <span class="n">MLRM_config</span>
-<span class="kn">from</span> <span class="nn">pelicun.tests.dl_calculation.rulesets.WindMMUHRulesets</span> <span class="kn">import</span> <span class="n">MMUH_config</span>
-<span class="kn">from</span> <span class="nn">pelicun.tests.dl_calculation.rulesets.WindMSFRulesets</span> <span class="kn">import</span> <span class="n">MSF_config</span>
-<span class="kn">from</span> <span class="nn">pelicun.tests.dl_calculation.rulesets.WindSECBRulesets</span> <span class="kn">import</span> <span class="n">SECB_config</span>
-<span class="kn">from</span> <span class="nn">pelicun.tests.dl_calculation.rulesets.WindSERBRulesets</span> <span class="kn">import</span> <span class="n">SERB_config</span>
-<span class="kn">from</span> <span class="nn">pelicun.tests.dl_calculation.rulesets.WindSPMBRulesets</span> <span class="kn">import</span> <span class="n">SPMB_config</span>
-<span class="kn">from</span> <span class="nn">pelicun.tests.dl_calculation.rulesets.WindWMUHRulesets</span> <span class="kn">import</span> <span class="n">WMUH_config</span>
-<span class="kn">from</span> <span class="nn">pelicun.tests.dl_calculation.rulesets.WindWSFRulesets</span> <span class="kn">import</span> <span class="n">WSF_config</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pelicun.tests.dl_calculation.rulesets.FloodAssmRulesets</span><span class="w"> </span><span class="kn">import</span> <span class="n">Assm_config</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pelicun.tests.dl_calculation.rulesets.FloodClassRulesets</span><span class="w"> </span><span class="kn">import</span> <span class="n">FL_config</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pelicun.tests.dl_calculation.rulesets.WindCECBRulesets</span><span class="w"> </span><span class="kn">import</span> <span class="n">CECB_config</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pelicun.tests.dl_calculation.rulesets.WindCERBRulesets</span><span class="w"> </span><span class="kn">import</span> <span class="n">CERB_config</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pelicun.tests.dl_calculation.rulesets.WindMECBRulesets</span><span class="w"> </span><span class="kn">import</span> <span class="n">MECB_config</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pelicun.tests.dl_calculation.rulesets.WindMERBRulesets</span><span class="w"> </span><span class="kn">import</span> <span class="n">MERB_config</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pelicun.tests.dl_calculation.rulesets.WindMHRulesets</span><span class="w"> </span><span class="kn">import</span> <span class="n">MH_config</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pelicun.tests.dl_calculation.rulesets.WindMLRIRulesets</span><span class="w"> </span><span class="kn">import</span> <span class="n">MLRI_config</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pelicun.tests.dl_calculation.rulesets.WindMLRMRulesets</span><span class="w"> </span><span class="kn">import</span> <span class="n">MLRM_config</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pelicun.tests.dl_calculation.rulesets.WindMMUHRulesets</span><span class="w"> </span><span class="kn">import</span> <span class="n">MMUH_config</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pelicun.tests.dl_calculation.rulesets.WindMSFRulesets</span><span class="w"> </span><span class="kn">import</span> <span class="n">MSF_config</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pelicun.tests.dl_calculation.rulesets.WindSECBRulesets</span><span class="w"> </span><span class="kn">import</span> <span class="n">SECB_config</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pelicun.tests.dl_calculation.rulesets.WindSERBRulesets</span><span class="w"> </span><span class="kn">import</span> <span class="n">SERB_config</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pelicun.tests.dl_calculation.rulesets.WindSPMBRulesets</span><span class="w"> </span><span class="kn">import</span> <span class="n">SPMB_config</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pelicun.tests.dl_calculation.rulesets.WindWMUHRulesets</span><span class="w"> </span><span class="kn">import</span> <span class="n">WMUH_config</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pelicun.tests.dl_calculation.rulesets.WindWSFRulesets</span><span class="w"> </span><span class="kn">import</span> <span class="n">WSF_config</span>
 
 
 <div class="viewcode-block" id="auto_populate">
 <a class="viewcode-back" href="../../../../../api_reference/_autosummary/pelicun.tests.dl_calculation.e7.auto_HU_NJ.html#pelicun.tests.dl_calculation.e7.auto_HU_NJ.auto_populate">[docs]</a>
-<span class="k">def</span> <span class="nf">auto_populate</span><span class="p">(</span><span class="n">aim</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">auto_populate</span><span class="p">(</span><span class="n">aim</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Populates the DL model for hurricane assessments in Atlantic County, NJ</span>
 
@@ -341,7 +341,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2024, Leland Stanford Junior University and The Regents of the University of California.</p>
+    <p>&#169; Copyright 2025, Leland Stanford Junior University and The Regents of the University of California.</p>
   </div>
 
    
