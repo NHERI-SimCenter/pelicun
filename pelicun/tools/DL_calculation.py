@@ -1327,7 +1327,7 @@ def _loss_save(
         Whether to aggregate colocated components. Default is False.
 
     """
-    out = assessment.loss.ds_model.save_sample(save_units=True)
+    out = assessment.loss.save_sample(save_units=True)
     assert isinstance(out, tuple)
     repair_sample, repair_units_series = out
     repair_units = repair_units_series.to_frame().T
