@@ -156,7 +156,7 @@ regional_out_config = {
             'Sample': True,
             'Statistics': True,
             'GroupedSample': True,
-            'GroupedStatistics': False,
+            'GroupedStatistics': True,
             'AggregateSample': True,
             'AggregateStatistics': True,
         }
