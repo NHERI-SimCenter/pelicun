@@ -233,6 +233,41 @@ class TestDamageModel_Base(TestPelicunModel):
             ),
         )
 
+    def test__load_model_parameters_with_truncation(
+        self, assessment_instance: Assessment
+    ) -> None:
+        damage_model = assessment_instance.damage
+        path = (
+            'pelicun/tests/basic/data/model/test_DamageModel/'
+            'load_model_parameters_with_truncation/damage_db.csv'
+        )
+        cmp_set = {
+            'component.A',
+        }
+        damage_model.load_model_parameters([path], cmp_set, warn_missing=False)
+        pgb = pd.DataFrame(
+            [[1]], index=(('component.A', '1', '1', '1'),), columns=['Blocks']
+        )
+        capacity_sample, _ = damage_model.ds_model._generate_dmg_sample(
+            sample_size=100, pgb=pgb, scaling_specification=None
+        )
+        np.all(
+            capacity_sample[
+                'component.A',  # cmp
+                '1',  # loc
+                '1',  # dir
+                '1',  # uid
+                '1',  # block
+                '1',  # ls
+            ]
+            > 0.01
+        )
+        np.all(capacity_sample['component.A', '1', '1', '1', '1', '1'] < 0.03)
+        np.all(capacity_sample['component.A', '1', '1', '1', '1', '2'] > 0.03)
+        np.all(capacity_sample['component.A', '1', '1', '1', '1', '2'] < 0.05)
+        np.all(capacity_sample['component.A', '1', '1', '1', '1', '3'] > 0.06)
+        np.all(capacity_sample['component.A', '1', '1', '1', '1', '3'] < 0.10)
+
     def test__convert_damage_parameter_units(
         self, assessment_instance: Assessment
     ) -> None:
