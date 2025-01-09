@@ -70,7 +70,10 @@ default_dbs = {
         'Hazus Earthquake - Buildings': 'loss_repair_DB_Hazus_EQ_bldg.csv',
         'Hazus Earthquake - Stories': 'loss_repair_DB_Hazus_EQ_story.csv',
         'Hazus Earthquake - Transportation': 'loss_repair_DB_Hazus_EQ_trnsp.csv',
-        'Hazus Hurricane': 'loss_repair_DB_SimCenter_Hazus_HU_bldg.csv',
+        'Hazus Hurricane': (
+            'loss_repair_DB_SimCenter_Hazus_HU_bldg.csv,'
+            'loss_repair_DB_Hazus_FL_bldg.csv'
+        ),
     },
 }
 
@@ -969,7 +972,10 @@ class DLCalculationAssessment(AssessmentBase):
         # load the fragility information
         if component_database in default_dbs['fragility']:
             component_db = [
-                'PelicunDefault/' + default_dbs['fragility'][component_database],
+                'PelicunDefault/' + filename
+                for filename in default_dbs['fragility'][component_database].split(
+                    ','
+                )
             ]
         else:
             component_db = []
@@ -1259,6 +1265,10 @@ class DLCalculationAssessment(AssessmentBase):
         replacement_energy_parameters: dict[str, float | str] | None = None,
         loss_map_path: str | None = None,
         decision_variables: tuple[str, ...] | None = None,
+        replacement_configuration: (
+            tuple[uq.RandomVariableRegistry, dict[str, float]] | None
+        ) = None,
+        loss_combination_method: str | None = None,
     ) -> tuple[pd.DataFrame, pd.DataFrame]:
         """
         Calculate losses.
@@ -1290,6 +1300,11 @@ class DLCalculationAssessment(AssessmentBase):
             Optional path to a loss map file.
         decision_variables: tuple[str] or None
             Optional decision variables for the assessment.
+        replacement_configuration: tuple or None
+            Loss thresholds of replacement consequences.
+        loss_combination_method: str, optional
+            String defining the method to use for combining losses for
+            components that represent different demands.
 
         Returns
         -------
@@ -1395,7 +1410,40 @@ class DLCalculationAssessment(AssessmentBase):
 
         self.loss.calculate()
 
-        df_agg, exceedance_bool_df = self.loss.aggregate_losses(future=True)
+        if loss_combination_method is None:
+            loss_combination = None
+
+        elif loss_combination_method == 'Hazus Hurricane':
+            # assemble the combination dict for wind and storm surge
+            # open the base combination matrix
+            file_path = file_io.substitute_default_path(
+                ['PelicunDefault/Wind_Flood_Hazus_HU_bldg.csv']
+            )[0]
+            assert isinstance(file_path, str)
+            combination_array = pd.read_csv(
+                file_path,
+                index_col=None,
+                header=None,
+            ).to_numpy()
+
+            # get the component names
+            # assume that the first and second component in the loss map
+            # are the wind and flood components, respectively
+            wind_comp, flood_comp = loss_map.index.to_numpy()[[0, 1]]
+
+            loss_combination = {
+                'Cost': {
+                    (wind_comp, flood_comp): combination_array,
+                },
+            }
+
+        else:
+            msg = f'Invalid loss combination method: `{loss_combination_method}`.'
+            raise ValueError(msg)
+
+        df_agg, exceedance_bool_df = self.loss.aggregate_losses(
+            replacement_configuration, loss_combination, future=True
+        )
         assert isinstance(df_agg, pd.DataFrame)
         assert isinstance(exceedance_bool_df, pd.DataFrame)
         return df_agg, exceedance_bool_df
@@ -1432,12 +1480,19 @@ class DLCalculationAssessment(AssessmentBase):
 
         """
         if consequence_database in default_dbs['repair']:
+            default_consequence_dbs = default_dbs['repair'][
+                consequence_database
+            ].split(',')
+
             consequence_db = [
-                'PelicunDefault/' + default_dbs['repair'][consequence_database],
+                'PelicunDefault/' + filename for filename in default_consequence_dbs
             ]
 
-            conseq_df = self.get_default_data(
-                default_dbs['repair'][consequence_database][:-4]
+            conseq_df = pd.concat(
+                [
+                    self.get_default_data(filename[:-4])
+                    for filename in default_consequence_dbs
+                ]
             )
         else:
             consequence_db = []
@@ -1908,11 +1963,13 @@ def _loss__map_auto(
     """
     # get the damage sample
     dmg_sample = assessment.damage.save_sample()
+    asset_sample = assessment.asset.save_cmp_sample()
     assert isinstance(dmg_sample, pd.DataFrame)
+    assert isinstance(asset_sample, pd.DataFrame)
 
     # create a mapping for all components that are also in
     # the prescribed consequence database
-    dmg_cmps = dmg_sample.columns.unique(level='cmp')
+    asset_cmps = asset_sample.columns.unique(level='cmp')
     loss_cmps = conseq_df.index.unique(level=0)
 
     drivers = []
@@ -1922,13 +1979,13 @@ def _loss__map_auto(
         # with these methods, we assume fragility and consequence data
         # have the same IDs
 
-        for dmg_cmp in dmg_cmps:
-            if dmg_cmp == 'collapse':
+        for asset_cmp in asset_cmps:
+            if asset_cmp == 'collapse':
                 continue
 
-            if dmg_cmp in loss_cmps:
-                drivers.append(dmg_cmp)
-                loss_models.append(dmg_cmp)
+            if asset_cmp in loss_cmps:
+                drivers.append(asset_cmp)
+                loss_models.append(asset_cmp)
 
     elif dl_method in {
         'Hazus Earthquake',
@@ -1936,18 +1993,18 @@ def _loss__map_auto(
     }:
         # with Hazus Earthquake we assume that consequence
         # archetypes are only differentiated by occupancy type
-        for dmg_cmp in dmg_cmps:
-            if dmg_cmp == 'collapse':
+        for asset_cmp in asset_cmps:
+            if asset_cmp == 'collapse':
                 continue
 
-            cmp_class = dmg_cmp.split('.')[0]
+            cmp_class = asset_cmp.split('.')[0]
             if occupancy_type is not None:
                 loss_cmp = f'{cmp_class}.{occupancy_type}'
             else:
                 loss_cmp = cmp_class
 
             if loss_cmp in loss_cmps:
-                drivers.append(dmg_cmp)
+                drivers.append(asset_cmp)
                 loss_models.append(loss_cmp)
 
     return pd.DataFrame(loss_models, columns=['Repair'], index=drivers)
