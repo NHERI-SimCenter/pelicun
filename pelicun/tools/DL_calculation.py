@@ -421,6 +421,10 @@ def run_pelicun(  # noqa: C901
             ),
             loss_map_path=get(config, 'DL/Losses/Repair/MapFilePath'),
             decision_variables=_parse_decision_variables(config),
+            replacement_configuration=None,  # will be used later
+            loss_combination_method=get(
+                config, 'DL/Losses/Repair/CombinationMethod'
+            ),
         )
 
     summary, summary_stats = _result_summary(assessment, agg_repair)
