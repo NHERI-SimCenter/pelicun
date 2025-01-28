@@ -1179,7 +1179,7 @@ def auto_populate(aim):  # noqa: C901
                     )
                     raise RuntimeError(msg)
 
-            else:
+            if ep_s_anchored is None:
                 msg = (
                     'Substation anchored value is = '
                     f'{substation_anchored}. It should be '
@@ -1254,7 +1254,8 @@ def auto_populate(aim):  # noqa: C901
                         f'. (Value = {circuit_anchored}).'
                     )
                     raise RuntimeError(msg)
-            else:
+
+            if ep_c_anchored is None:
                 msg = (
                     'Circuit anchored value is = '
                     f'{circuit_anchored}. It should be '
@@ -1421,7 +1422,8 @@ def auto_populate(aim):  # noqa: C901
                         f'. (Value = {generation_anchored}).'
                     )
                     raise RuntimeError(msg)
-            else:
+            
+            if ep_g_anchored is None:
                 msg = (
                     'Circuit anchored value is = '
                     f'{circuit_anchored}. It should be '
