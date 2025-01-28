@@ -1301,7 +1301,7 @@ def auto_populate(aim):  # noqa: C901
             if isinstance(generation_output, str):
                 generation_output = generation_output.lower()
                 generation_output = generation_output.strip()
-                acceptable_power_unit = ('w', 'kw', 'gw')
+                acceptable_power_unit = ('w', 'kw', 'mw', 'gw')
 
                 units_exist = [
                     unit in generation_output for unit in acceptable_power_unit
