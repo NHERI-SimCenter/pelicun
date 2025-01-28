@@ -1329,7 +1329,13 @@ def auto_populate(aim):  # noqa: C901
                     generation_output = float(generation_output)
 
                     if power_unit == 'w':
-                        generation_output = generation_output / 1000
+                        generation_output = generation_output / 10^6
+                    elif power_unit == 'kw':
+                        generation_output = generation_output / 10^3
+                    elif power_unit == 'mw':
+                        # just for the sake of completeness, we don't
+                        # need to convert here, since MW is our base unit
+                        pass 
                     elif power_unit == 'gw':
                         generation_output = generation_output * 1000
 
