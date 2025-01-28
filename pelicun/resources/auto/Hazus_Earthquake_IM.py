@@ -317,9 +317,9 @@ def getHAZUSBridgePGDModifier(hazus_class, aim):
 
 
 def convertTunnelToHAZUSclass(aim) -> str:
-    if ('Bored' in aim['ConstructType']) or ('Drilled' in aim['ConstructType']):
+    if 'Bored' in aim['ConstructType'] or 'Drilled' in aim['ConstructType']:
         return 'HTU1'
-    elif ('Cut' in aim['ConstructType']) or ('Cover' in aim['ConstructType']):
+    elif 'Cut' in aim['ConstructType'] or 'Cover' in aim['ConstructType']:
         return 'HTU2'
     else:
         # Select HTU2 for unclassified tunnels because it is more conservative.
@@ -490,7 +490,8 @@ def auto_populate(aim):  # noqa: C901
     gi_ap = gi.copy()
 
     asset_type = aim['assetType']
-    ground_failure = aim['Applications']['DL']['ApplicationData']['ground_failure']
+    dl_app_data = aim['Applications']['DL']['ApplicationData']
+    ground_failure = dl_app_data['ground_failure']
 
     if asset_type == 'Buildings':
         # get the building parameters
@@ -500,8 +501,8 @@ def auto_populate(aim):  # noqa: C901
         dl = gi.get('DesignLevel', None)
 
         if dl is None:
-            # If there is no DesignLevel provided, we assume that the YearBuilt is
-            # available
+            # If there is no DesignLevel provided,
+            # we assume that the YearBuilt is available
             year_built = gi['YearBuilt']
 
             design_l = ap_design_level_w1 if 'W1' in bt else ap_design_level
@@ -775,7 +776,8 @@ def auto_populate(aim):  # noqa: C901
                 raise ValueError(msg)
 
             pipe_length = gi_ap.get('Len', None)
-            # length value is a fundamental part of hydraulic performance assessment
+            # length value is a fundamental part of
+            # hydraulic performance assessment
             if pipe_diameter is None:
                 msg = f'pipe length in asset type {asset_type}, \
                                  asset id "{asset_name}" has no diameter \
@@ -805,8 +807,8 @@ def auto_populate(aim):  # noqa: C901
             if pipe_material is None:
                 if pipe_diameter > 20 * 0.0254:  # 20 inches in meter
                     print(
-                        f'Asset {asset_name} is missing material. Material is\
-                          assumed to be Cast Iron'
+                        f'Asset {asset_name} is missing material. '
+                        'Material is assumed to be Cast Iron'
                     )
                     pipe_material = 'CI'
                 else:
@@ -820,16 +822,21 @@ def auto_populate(aim):  # noqa: C901
                 if (pipe_construction_year is not None) and (
                     pipe_construction_year >= 1935
                 ):
-                    print(
-                        f'Asset {asset_name} has material of "ST" is assumed to be\
-                          Ductile Steel'
+                    msg = (
+                        f'Asset {asset_name} has material of "ST" '
+                        'is assumed to be Ductile Steel.'
                     )
+
+                    print(msg)
                     pipe_material = 'DS'
+
                 else:
-                    print(
-                        f'Asset {asset_name} has material of "ST" is assumed to be '
-                        f'Brittle Steel'
+                    msg = (
+                        f'Asset {asset_name} has material of "ST" '
+                        'is assumed to be Brittle Steel.'
                     )
+
+                    print(msg)
                     pipe_material = 'BS'
 
             pipe_flexibility = pipe_material_map.get(pipe_material, 'missing')
@@ -848,25 +855,27 @@ def auto_populate(aim):  # noqa: C901
             # Determine number of segments
 
             pipe_length_unit = gi_ap['units']['length']
-            pipe_length_feet = pelicun.base.convert_units(
+            pipe_length_ft = pelicun.base.convert_units(
                 pipe_length, unit=pipe_length_unit, to_unit='ft', category='length'
             )
             reference_length = 20.00  # 20 ft
-            if pipe_length_feet % reference_length < 1e-2:
+            if pipe_length_ft % reference_length < 1e-2:
                 # If the lengths are equal, then that's one segment, not two.
-                num_segments = int(pipe_length_feet / reference_length)
+                num_segments = int(pipe_length_ft / reference_length)
             else:
                 # In all other cases, round up.
-                num_segments = int(pipe_length_feet / reference_length) + 1
+                num_segments = int(pipe_length_ft / reference_length) + 1
             location_string = f'1--{num_segments}' if num_segments > 1 else '1'
 
             # Define performance model
             # fmt: off
+
+            pipe_fl = f'PWP.{pipe_flexibility}'
             comp = pd.DataFrame(
-                {f'PWP.{pipe_flexibility}.GS': ['ea', location_string, '0', 1, 'N/A'],
-                 f'PWP.{pipe_flexibility}.GF': ['ea', location_string, '0', 1, 'N/A'],
-                 'aggregate':                  ['ea', location_string, '0', 1, 'N/A']},
-                index = ['Units','Location','Direction','Theta_0','Family']  # noqa: E231, E251
+                {pipe_fl + '.GS': ['ea', location_string, '0', 1, 'N/A'],
+                 pipe_fl + '.GF': ['ea', location_string, '0', 1, 'N/A'],
+                 'aggregate': ['ea', location_string, '0', 1, 'N/A']},
+                index=['Units', 'Location', 'Direction', 'Theta_0', 'Family']
             ).T
             # fmt: on
 
@@ -910,7 +919,7 @@ def auto_populate(aim):  # noqa: C901
                     'ComponentDatabase': 'Hazus Earthquake - Water',
                     'Material Flexibility': pipe_flexibility,
                     'PlanArea': '1',  # Sina: does not make sense for water.
-                    # Kept it here since itw as also
+                    # Kept it here since it was also
                     # kept here for Transportation
                 },
                 'Damage': {
@@ -928,7 +937,8 @@ def auto_populate(aim):  # noqa: C901
                 ('OG', 'S', 0): {'PST.G.S.U.GS': ['ea', 1, 1, 1, 'N/A']},
                 # Anchored status and Wood is not defined for On Ground tanks
                 ('OG', 'W', 0): {'PST.G.W.GS': ['ea', 1, 1, 1, 'N/A']},
-                # Anchored status and Steel is not defined for Above Ground tanks
+                # Anchored status and Steel is not defined for
+                # Above Ground tanks
                 ('AG', 'S', 0): {'PST.A.S.GS': ['ea', 1, 1, 1, 'N/A']},
                 # Anchored status and Concrete is not defined for Buried tanks.
                 ('B', 'C', 0): {'PST.B.C.GF': ['ea', 1, 1, 1, 'N/A']},
@@ -966,36 +976,47 @@ def auto_populate(aim):  # noqa: C901
                 raise ValueError(msg)
 
             if tank_location == 'AG' and tank_material == 'C':
-                print(
-                    f'The tank {asset_name} is Above Ground (i.e., AG), but \
-                     the material type is Concrete ("C"). Tank type "C" is not \
-                     defined for AG tanks. The tank is assumed to be Steel ("S")'
+                msg = (
+                    f'The tank {asset_name} is Above Ground (i.e., AG), '
+                    'but the material type is Concrete ("C"). '
+                    'Tank type "C" is not defined for AG tanks. '
+                    'The tank is assumed to be Steel ("S").'
                 )
+
+                print(msg)
                 tank_material = 'S'
 
             if tank_location == 'AG' and tank_material == 'W':
-                print(
-                    f'The tank {asset_name} is Above Ground (i.e., AG), but \
-                     the material type is Wood ("W"). Tank type "W" is not \
-                     defined for AG tanks. The tank is assumed to be Steel ("S")'
+                msg = (
+                    f'The tank {asset_name} is Above Ground (i.e., AG), but'
+                    ' the material type is Wood ("W"). '
+                    'Tank type "W" is not defined for AG tanks. '
+                    'The tank is assumed to be Steel ("S").'
                 )
+
+                print(msg)
                 tank_material = 'S'
 
             if tank_location == 'B' and tank_material == 'S':
-                print(
-                    f'The tank {asset_name} is buried (i.e., B), but the\
-                     material type is Steel ("S"). \
-                     Tank type "S" is not defined for\
-                     B tanks. The tank is assumed to be Concrete ("C")'
+                msg = (
+                    f'The tank {asset_name} is buried (i.e., B), but the '
+                    'material type is Steel ("S"). Tank type "S" is '
+                    'not defined for "B" tanks. '
+                    'The tank is assumed to be Concrete ("C").'
                 )
+
+                print(msg)
                 tank_material = 'C'
 
             if tank_location == 'B' and tank_material == 'W':
-                print(
-                    f'The tank {asset_name} is buried (i.e., B), but the\
-                     material type is Wood ("W"). Tank type "W" is not defined \
-                     for B tanks. The tank is assumed to be Concrete ("C")'
+                msg = (
+                    f'The tank {asset_name} is buried (i.e., B), but the'
+                    'material type is Wood ("W"). Tank type "W" is '
+                    'not defined for B tanks. The tank is assumed '
+                    'to be Concrete ("C")'
                 )
+
+                print(msg)
                 tank_material = 'C'
 
             if tank_anchored == 1:
@@ -1020,7 +1041,8 @@ def auto_populate(aim):  # noqa: C901
                     'Location': tank_location,
                     'Anchored': tank_anchored,
                     'PlanArea': '1',  # Sina: does not make sense for water.
-                    # Kept it here since itw as also kept here for Transportation
+                    # Kept it here since it was also kept here for
+                    # Transportation
                 },
                 'Damage': {'DamageProcess': 'Hazus Earthquake'},
                 'Demands': {},
@@ -1033,6 +1055,404 @@ def auto_populate(aim):  # noqa: C901
             )
             dl_ap = 'N/A'
             comp = None
+
+    elif asset_type == 'PowerNetwork':
+        # initialize the auto-populated GI
+        power_asset_type = gi_ap.get('type', 'MISSING')
+        asset_name = gi_ap.get('AIM_id', None)
+
+        if power_asset_type == 'Substation':
+            ep_s_size = ''
+            ep_s_anchored = ''
+            substation_voltage = gi_ap.get('Voltage', None)
+            if substation_voltage is None:
+                msg = (
+                    'Substation feature "Voltage" is missing. '
+                    f' substation "{asset_name}" assumed to be '
+                    '"  Low Voltage".'
+                )
+                print(msg)
+                substation_voltage = 'low'
+
+            if isinstance(substation_voltage, str):
+                if substation_voltage.lower() == 'low':
+                    ep_s_size = 'L'
+                elif substation_voltage.lower() == 'medium':
+                    ep_s_size = 'M'
+                elif substation_voltage.lower() == 'high':
+                    ep_s_size = 'H'
+                else:
+                    msg = (
+                        'substation Voltage value is = '
+                        f'{substation_voltage}. '
+                        'The value must be either "low" '
+                        ', " medium", or " high".'
+                    )
+                    raise ValueError(msg)
+
+            elif isinstance(substation_voltage, (float, int)):
+                # Substation Voltage unit is kV. Any number smaller than
+                # 34 kV is not supported by HAZUS methodlogy. Furthermore,
+                # values significantly larger may refer to a voltage value in
+                # different unit. The upper bound value is set ro 1200 kV.
+
+                if substation_voltage < 34:
+                    msg = (
+                        f'The subtation Voltage for asset "{asset_name}" '
+                        f'is too low({substation_voltage}). The current '
+                        'methodology support voltage between 34 kV and 1200'
+                        ' kV. Please make sure that the units are in kV.'
+                    )
+                    raise ValueError(msg)
+
+                if substation_voltage > 1200:
+                    msg = (
+                        f'The subtation Voltage for asset "{asset_name}"'
+                        f'is too high({substation_voltage}). The current '
+                        'methodology support voltage between 34 kV and 1200'
+                        ' kV. Please make sure that the units are in kV.'
+                    )
+                    raise ValueError(msg)
+
+                if substation_voltage <= 150:
+                    ep_s_size = 'L'
+                elif substation_voltage <= 230:
+                    ep_s_size = 'M'
+                elif substation_voltage >= 500:
+                    ep_s_size = 'H'
+                else:
+                    msg = (
+                        'This should never have happed. Please '
+                        'report this to the developer(SimCenter)'
+                        f'. (Value = {substation_voltage}).'
+                    )
+                    raise RuntimeError(msg)
+            else:
+                msg = (
+                    'substation Voltage value is = '
+                    f'{substation_voltage}. It should be '
+                    'string or a number. For more information, '
+                    'refer to the documentation please.'
+                )
+                raise ValueError(msg)
+
+            substation_anchored = gi_ap.get('Anchored', None)
+
+            if substation_anchored is None:
+                print(
+                    'Substation feature "Anchored" is missing. '
+                    f' substation "{asset_name}" assumed to be '
+                    '"  Unanchored".'
+                )
+
+                substation_anchored = False
+
+            if isinstance(substation_anchored, str):
+                if substation_anchored.lower() in [
+                    'a',
+                    'anchored',
+                    'yes',
+                    'true',
+                    'positive',
+                    '1',
+                ]:
+                    ep_s_anchored = 'A'
+                elif substation_anchored.lower() in [
+                    'u',
+                    'unanchored',
+                    'no',
+                    'false',
+                    'negative',
+                    '0',
+                ]:
+                    ep_s_anchored = 'U'
+            elif isinstance(substation_anchored, (bool, int, float)):
+                if abs(substation_anchored - True) < 0.001:
+                    ep_s_anchored = 'A'
+                elif abs(substation_anchored) < 0.001:
+                    ep_s_anchored = 'U'
+                else:
+                    msg = (
+                        'This should never have happed. Please '
+                        'report this to the developer(SimCenter)'
+                        f'. (Value = {substation_anchored}).'
+                    )
+                    raise RuntimeError(msg)
+
+            if ep_s_anchored is None:
+                msg = (
+                    'Substation anchored value is = '
+                    f'{substation_anchored}. It should be '
+                    'string, boolean, or a number representing '
+                    'True or False. For more information, '
+                    'refer to the documentation please.'
+                )
+                raise ValueError(msg)
+
+            # Define performance model
+            # fmt: off
+            substation_type = f'EP.S.{ep_s_size}.{ep_s_anchored}'
+            comp = pd.DataFrame(
+                {substation_type: ['ea', 1, 1, 1, 'N/A']},
+                index=['Units', 'Location', 'Direction', 'Theta_0', 'Family']
+            ).T
+
+            # Define the auto-populated config
+            dl_ap = {
+                "Asset": {
+                    "ComponentAssignmentFile": "CMP_QNT.csv",
+                    "ComponentDatabase": "Hazus Earthquake - Power",
+                    "Substation Voltage": ep_s_size,
+                    "Substation Anchored": ep_s_anchored,
+                },
+                "Damage": {"DamageProcess": "Hazus Earthquake"},
+                "Demands": {},
+                "Losses": {},
+            }
+
+        elif power_asset_type == 'Circuit':
+            circuit_anchored = gi_ap.get('Anchored', None)
+
+            ep_c_anchored = None
+            if circuit_anchored is None:
+                print(
+                    'Circuit feature "Anchored" is missing. '
+                    f' Circuit "{asset_name}" assumed to be '
+                    '"  Unanchored".'
+                )
+
+                circuit_anchored = False
+
+            if isinstance(circuit_anchored, str):
+                if circuit_anchored.lower() in [
+                    'a',
+                    'anchored',
+                    'yes',
+                    'true',
+                    'positive',
+                    '1',
+                ]:
+                    ep_c_anchored = 'A'
+                elif circuit_anchored.lower() in [
+                    'u',
+                    'unanchored',
+                    'no',
+                    'false',
+                    'negative',
+                    '0',
+                ]:
+                    ep_c_anchored = 'U'
+            elif isinstance(circuit_anchored, (bool, int, float)):
+                if abs(circuit_anchored - True) < 0.001:
+                    ep_c_anchored = 'A'
+                elif abs(circuit_anchored) < 0.001:
+                    ep_c_anchored = 'U'
+                else:
+                    msg = (
+                        'This should never have happed. Please '
+                        'report this to the developer(SimCenter)'
+                        f'. (Value = {circuit_anchored}).'
+                    )
+                    raise RuntimeError(msg)
+
+            if ep_c_anchored is None:
+                msg = (
+                    'Circuit anchored value is = '
+                    f'{circuit_anchored}. It should be '
+                    'string, boolean, or a number representing '
+                    'True or False. For more information, '
+                    'refer to the documentation please.'
+                )
+                raise ValueError(msg)
+
+            # Define performance model
+            # fmt: off
+            circuit_type = f'EP.C.{ep_c_anchored}'
+            comp = pd.DataFrame(
+                {circuit_type: ['ea', 1, 1, 1, 'N/A']},
+                index=['Units', 'Location', 'Direction', 'Theta_0', 'Family']
+            ).T
+
+            # Define the auto-populated config
+            dl_ap = {
+                "Asset": {
+                    "ComponentAssignmentFile": "CMP_QNT.csv",
+                    "ComponentDatabase": "Hazus Earthquake - Power",
+                    "Circuit Anchored": ep_c_anchored,
+                },
+                "Damage": {"DamageProcess": "Hazus Earthquake"},
+                "Demands": {},
+                "Losses": {},
+            }
+
+        elif power_asset_type == 'Generation':
+            ep_g_size = ''
+            generation_output = gi_ap.get('Output', None)
+            if generation_output is None:
+                msg = (
+                    'Generation feature "Output" is missing. '
+                    f' Generation "{asset_name}" assumed to be '
+                    '"Small".'
+                )
+                print(msg)
+                # if the power feature is missing, the generation is assumed
+                # to be small
+                ep_g_size = 'small'
+
+            if isinstance(generation_output, str):
+                generation_output = generation_output.lower()
+                generation_output = generation_output.strip()
+                acceptable_power_unit = ('w', 'kw', 'mw', 'gw')
+
+                units_exist = [
+                    unit in generation_output for unit in acceptable_power_unit
+                ]
+
+                power_unit = None
+
+                if True in units_exist:
+                    power_unit = acceptable_power_unit[units_exist.index(True)]
+
+                    if generation_output.endswith(power_unit):
+                        generation_output = generation_output.strip(power_unit)
+                        generation_output = generation_output.strip()
+                else:
+                    msg = (
+                        "Generation feature doesn't have a unit for "
+                        '"Output" value. The unit for Generation '
+                        f'"{asset_name}"  is assumed to be "MW".'
+                    )
+                    print(msg)
+
+                    power_unit = 'mw'
+
+                try:
+                    generation_output = float(generation_output)
+
+                    if power_unit == 'w':
+                        generation_output = generation_output / 10**6
+                    elif power_unit == 'kw':
+                        generation_output = generation_output / 10**3
+                    elif power_unit == 'mw':
+                        # just for the sake of completeness, we don't
+                        # need to convert here, since MW is our base unit
+                        pass
+                    elif power_unit == 'gw':
+                        generation_output = generation_output * 1000
+
+                    if generation_output < 200:
+                        ep_g_size = 'small'
+                    elif 200 < generation_output < 500:
+                        ep_g_size = 'medium'
+                    else:
+                        ep_g_size = 'large'
+
+                except ValueError as e:
+                    # check if the exception is for value not being a float
+                    not_float_str = 'could not convert string to float:'
+                    if not str(e).startswith(not_float_str):
+                        raise
+                    # otherwise
+                    msg = (
+                        'Generation feature has an unrecognizable "Output"'
+                        f' value. Generation "{asset_name}" = '
+                        f'{generation_output}, instead of a numerical '
+                        'value. So the size of the Generation is assumed '
+                        'to be "Small".'
+                    )
+                    print(msg)
+
+                    ep_g_size = 'small'
+
+                if ep_g_size == 'small':
+                    ep_g_size = 'S'
+                elif ep_g_size in ('medium', 'large'):
+                    # because medium and large size generation plants are
+                    # categorized in the same category.
+                    ep_g_size = 'ML'
+                else:
+                    msg = (
+                        'This should never have happed. Please '
+                        'report this to the developer(SimCenter)'
+                        f'. (Value = {ep_g_size}).'
+                    )
+                    raise ValueError(msg)
+
+            generation_anchored = gi_ap.get('Anchored', None)
+
+            if generation_anchored is None:
+                msg = (
+                    'Generation feature "Anchored" is missing. '
+                    f' Circuit "{asset_name}" assumed to be '
+                    '"  Unanchored".'
+                )
+                print(msg)
+
+                generation_anchored = False
+
+            ep_g_anchored = None
+            if isinstance(generation_anchored, str):
+                if generation_anchored.lower() in [
+                    'a',
+                    'anchored',
+                    'yes',
+                    'true',
+                    'positive',
+                    '1',
+                ]:
+                    ep_g_anchored = 'A'
+                elif generation_anchored.lower() in [
+                    'u',
+                    'unanchored',
+                    'no',
+                    'false',
+                    'negative',
+                    '0',
+                ]:
+                    ep_g_anchored = 'U'
+            elif isinstance(generation_anchored, (bool, int, float)):
+                if abs(generation_anchored - True) < 0.001:
+                    ep_g_anchored = 'A'
+                elif abs(generation_anchored) < 0.001:
+                    ep_g_anchored = 'U'
+                else:
+                    msg = (
+                        'This should never have happed. Please '
+                        'report this to the developer(SimCenter)'
+                        f'. (Value = {generation_anchored}).'
+                    )
+                    raise RuntimeError(msg)
+
+            if ep_g_anchored is None:
+                msg = (
+                    'Circuit anchored value is = '
+                    f'{circuit_anchored}. It should be '
+                    'string, boolean, or a number representing '
+                    'True or False. For more information, '
+                    'refer to the documentation please.'
+                )
+                raise ValueError(msg)
+
+            # Define performance model
+            # fmt: off
+            generation_type = f'EP.G.{ep_g_size}.{ep_g_anchored}'
+            comp = pd.DataFrame(
+                {generation_type: ['ea', 1, 1, 1, 'N/A']},
+                index=['Units', 'Location', 'Direction', 'Theta_0', 'Family']
+            ).T
+
+            # Define the auto-populated config
+            dl_ap = {
+                "Asset": {
+                    "ComponentAssignmentFile": "CMP_QNT.csv",
+                    "ComponentDatabase": "Hazus Earthquake - Power",
+                    "Generation Size": ep_g_size,
+                    "Generation Anchored": ep_g_anchored,
+                },
+                "Damage": {"DamageProcess": "Hazus Earthquake"},
+                "Demands": {},
+                "Losses": {},
+            }
 
     else:
         print(
