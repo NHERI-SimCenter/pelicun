@@ -1336,7 +1336,7 @@ def auto_populate(aim):  # noqa: C901
                     elif power_unit == 'mw':
                         # just for the sake of completeness, we don't
                         # need to convert here, since MW is our base unit
-                        pass 
+                        pass
                     elif power_unit == 'gw':
                         generation_output = generation_output * 1000
 
@@ -1422,7 +1422,7 @@ def auto_populate(aim):  # noqa: C901
                         f'. (Value = {generation_anchored}).'
                     )
                     raise RuntimeError(msg)
-            
+
             if ep_g_anchored is None:
                 msg = (
                     'Circuit anchored value is = '
