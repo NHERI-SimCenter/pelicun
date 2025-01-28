@@ -146,6 +146,32 @@ class LossModel(PelicunModel):
         return pd.concat((self.ds_model.sample, self.lf_model.sample), axis=1)
 
     @property
+    def loss_params(self) -> pd.DataFrame | None:
+        """
+        Combines the loss params of the ds_model and lf_model sub-models.
+
+        Returns
+        -------
+        pd.DataFrame
+            The combined loss parameter table
+
+        """
+        # Handle `None` cases
+
+        if self.ds_model.loss_params is None and self.lf_model.loss_params is None:
+            return None
+
+        if self.ds_model.loss_params is None:
+            return self.lf_model.loss_params
+
+        if self.lf_model.loss_params is None:
+            return self.ds_model.loss_params
+
+        # If both are not None, combine
+
+        return pd.concat((self.ds_model.loss_params, self.lf_model.loss_params))
+
+    @property
     def decision_variables(self) -> tuple[str, ...]:
         """
         Retrieve the decision variables.
@@ -671,22 +697,81 @@ class LossModel(PelicunModel):
         self, filepath: str | None = None, *, save_units: bool = False
     ) -> None | pd.DataFrame | tuple[pd.DataFrame, pd.Series]:
         """
-        <backwards compatibility>.
+        Save a combined sample of the `ds_model` and `lf_model`.
 
-        Saves the sample of the `ds_model`.
+        This method handles the storage of a sample of loss estimates,
+        which can either be saved directly to a file or returned as a
+        DataFrame for further manipulation. When saving to a file,
+        additional information such as unit conversion factors and
+        column units can be included. If the data is not being saved
+        to a file, the method can return the DataFrame with or without
+        units as specified.
+
+        Parameters
+        ----------
+        filepath: str, optional
+            The path to the file where the loss sample should be
+            saved. If not provided, the sample is not saved to disk
+            but returned.
+        save_units: bool, default: False
+            Indicates whether to include a row with unit information
+            in the returned DataFrame. This parameter is ignored if a
+            file path is provided.
 
         Returns
         -------
-        tuple
-            The output of {loss model}.ds_model.save_sample.
+        None or tuple
+            If `filepath` is provided, the function returns None after
+            saving the data.
+            If no `filepath` is specified, returns:
+            * DataFrame containing the loss sample.
+            * Optionally, a Series containing the units for each
+            column if `save_units` is True.
 
         """
-        self.log.warning(
-            '`{loss model}.save_sample` is deprecated and will raise '
-            'in future versions of pelicun. Please use '
-            '{loss model}.ds_model.save_sample instead.'
+        self.log.div()
+        if filepath is not None:
+            self.log.msg('Saving loss sample...')
+
+        assert self.sample is not None
+        assert self.loss_params is not None
+
+        cmp_units = self.loss_params['DV', 'Unit'].sort_index()
+        dv_units = pd.Series(
+            index=self.sample.columns, name='Units', dtype='object'
+        ).sort_index()
+
+        valid_dv_types = dv_units.index.unique(level=0)
+        valid_cmp_ids = dv_units.index.unique(level=1)
+
+        for cmp_id, dv_type in cmp_units.index:
+            if (dv_type in valid_dv_types) and (cmp_id in valid_cmp_ids):
+                dv_units.loc[dv_type, cmp_id] = cmp_units.loc[cmp_id, dv_type]
+
+        res = file_io.save_to_csv(
+            self.sample,
+            Path(filepath) if filepath is not None else None,
+            units=dv_units,
+            unit_conversion_factors=self._asmnt.unit_conversion_factors,
+            use_simpleindex=(filepath is not None),
+            log=self._asmnt.log,
         )
-        return self.ds_model.save_sample(filepath=filepath, save_units=save_units)
+        if filepath is not None:
+            self.log.msg('Loss sample successfully saved.', prepend_timestamp=False)
+            return None
+
+        assert isinstance(res, pd.DataFrame)
+
+        units = res.loc['Units']
+        res = res.drop('Units')
+        res = res.astype(float)
+        assert isinstance(res, pd.DataFrame)
+        assert isinstance(units, pd.Series)
+
+        if save_units:
+            return res, units
+
+        return res
 
     def load_sample(self, filepath: str | pd.DataFrame) -> None:
         """
@@ -835,7 +920,7 @@ class LossModel(PelicunModel):
         column_levels = ['dv', 'loss', 'dmg', 'loc', 'dir', 'uid']
         combined_sample = self.sample
         sample = (
-            combined_sample.groupby(by=column_levels, axis=1)  # type: ignore
+            combined_sample.groupby(level=column_levels, axis=1)  # type: ignore
             .sum()
             .sort_index(axis=1)
         )

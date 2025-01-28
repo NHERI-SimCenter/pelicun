@@ -156,7 +156,7 @@ regional_out_config = {
             'Sample': True,
             'Statistics': True,
             'GroupedSample': True,
-            'GroupedStatistics': False,
+            'GroupedStatistics': True,
             'AggregateSample': True,
             'AggregateStatistics': True,
         }
@@ -421,6 +421,10 @@ def run_pelicun(  # noqa: C901
             ),
             loss_map_path=get(config, 'DL/Losses/Repair/MapFilePath'),
             decision_variables=_parse_decision_variables(config),
+            replacement_configuration=None,  # will be used later
+            loss_combination_method=get(
+                config, 'DL/Losses/Repair/CombinationMethod'
+            ),
         )
 
     summary, summary_stats = _result_summary(assessment, agg_repair)
@@ -1327,7 +1331,7 @@ def _loss_save(
         Whether to aggregate colocated components. Default is False.
 
     """
-    out = assessment.loss.ds_model.save_sample(save_units=True)
+    out = assessment.loss.save_sample(save_units=True)
     assert isinstance(out, tuple)
     repair_sample, repair_units_series = out
     repair_units = repair_units_series.to_frame().T
