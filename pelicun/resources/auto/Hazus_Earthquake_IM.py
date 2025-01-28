@@ -1364,7 +1364,7 @@ def auto_populate(aim):  # noqa: C901
                     ep_g_size = 'small'
 
                 if ep_g_size == 'small':
-                    ep_g_size = 's'
+                    ep_g_size = 'S'
                 elif ep_g_size in ('medium', 'large'):
                     # because medium and large size generation plants are
                     # categorized in the same category.
@@ -1433,7 +1433,7 @@ def auto_populate(aim):  # noqa: C901
 
             # Define performance model
             # fmt: off
-            generation_type = f'EP.C.{ep_g_size}.{ep_g_anchored}'
+            generation_type = f'EP.G.{ep_g_size}.{ep_g_anchored}'
             comp = pd.DataFrame(
                 {generation_type: ['ea', 1, 1, 1, 'N/A']},
                 index=['Units', 'Location', 'Direction', 'Theta_0', 'Family']
