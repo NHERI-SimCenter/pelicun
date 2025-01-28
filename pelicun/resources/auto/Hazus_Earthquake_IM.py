@@ -919,7 +919,7 @@ def auto_populate(aim):  # noqa: C901
                     'ComponentDatabase': 'Hazus Earthquake - Water',
                     'Material Flexibility': pipe_flexibility,
                     'PlanArea': '1',  # Sina: does not make sense for water.
-                    # Kept it here since itw as also
+                    # Kept it here since it was also
                     # kept here for Transportation
                 },
                 'Damage': {
@@ -1041,7 +1041,7 @@ def auto_populate(aim):  # noqa: C901
                     'Location': tank_location,
                     'Anchored': tank_anchored,
                     'PlanArea': '1',  # Sina: does not make sense for water.
-                    # Kept it here since itw as also kept here for
+                    # Kept it here since it was also kept here for
                     # Transportation
                 },
                 'Damage': {'DamageProcess': 'Hazus Earthquake'},
@@ -1068,7 +1068,7 @@ def auto_populate(aim):  # noqa: C901
             if not substation_voltage:
                 msg = (
                     'Substation feature "Voltage" is missing. '
-                    f' substation "{asset_name}" assuemd to be '
+                    f' substation "{asset_name}" assumed to be '
                     '"  Low Voltage".'
                 )
                 print(msg)
@@ -1091,25 +1091,25 @@ def auto_populate(aim):  # noqa: C901
                     raise ValueError(msg)
 
             elif isinstance(substation_voltage, (float, int)):
-                # Substation Voltage unit is kV. ANy number smaller than
-                # 34 kv is not supported by HAZUS methodlogy. Furthermore,
+                # Substation Voltage unit is kV. Any number smaller than
+                # 34 kV is not supported by HAZUS methodlogy. Furthermore,
                 # values significantly larger may refer to a voltage value in
                 # different unit. The upper bound value is set ro 1200 kV.
 
                 if substation_voltage < 34:
                     msg = (
-                        f'The subtation Viltage for asset "{asset_name}" '
+                        f'The subtation Voltage for asset "{asset_name}" '
                         f'is too low({substation_voltage}). The current '
-                        'methodology support voltage ebtween 34 kV and 1200'
+                        'methodology support voltage between 34 kV and 1200'
                         ' kV. Please make sure that the units are in kV.'
                     )
                     raise ValueError(msg)
 
                 if substation_voltage > 1200:
                     msg = (
-                        f'The subtation Viltage for asset "{asset_name}"'
+                        f'The subtation Voltage for asset "{asset_name}"'
                         f'is too high({substation_voltage}). The current '
-                        'methodology support voltage ebtween 34 kV and 1200'
+                        'methodology support voltage between 34 kV and 1200'
                         ' kV. Please make sure that the units are in kV.'
                     )
                     raise ValueError(msg)
@@ -1141,7 +1141,7 @@ def auto_populate(aim):  # noqa: C901
             if not substation_anchored:
                 print(
                     'Substation feature "Anchored" is missing. '
-                    f' substation "{asset_name}" assuemd to be '
+                    f' substation "{asset_name}" assumed to be '
                     '"  Unanchored".'
                 )
 
@@ -1153,7 +1153,7 @@ def auto_populate(aim):  # noqa: C901
                     'anchored',
                     'yes',
                     'true',
-                    'possitive',
+                    'positive',
                     '1',
                 ]:
                     ep_s_anchored = 'A'
@@ -1217,7 +1217,7 @@ def auto_populate(aim):  # noqa: C901
             if not circuit_anchored:
                 print(
                     'Circuit feature "Anchored" is missing. '
-                    f' Circuit "{asset_name}" assuemd to be '
+                    f' Circuit "{asset_name}" assumed to be '
                     '"  Unanchored".'
                 )
 
@@ -1229,7 +1229,7 @@ def auto_populate(aim):  # noqa: C901
                     'anchored',
                     'yes',
                     'true',
-                    'possitive',
+                    'positive',
                     '1',
                 ]:
                     ep_c_anchored = 'A'
@@ -1290,11 +1290,11 @@ def auto_populate(aim):  # noqa: C901
             if not generation_output:
                 msg = (
                     'Generation feature "Output" is missing. '
-                    f' Generation "{asset_name}" assuemd to be '
+                    f' Generation "{asset_name}" assumed to be '
                     '"Small".'
                 )
                 print(msg)
-                # if the power feature is missing, the generation is assuemd
+                # if the power feature is missing, the generation is assumed
                 # to be small
                 ep_g_size = 'small'
 
@@ -1318,8 +1318,8 @@ def auto_populate(aim):  # noqa: C901
                 else:
                     msg = (
                         "Generation feature doesn't have a unit for "
-                        '"Output" value. The ybit for Generation '
-                        f'"{asset_name}"  is assumed to be "Mw".'
+                        '"Output" value. The unit for Generation '
+                        f'"{asset_name}"  is assumed to be "MW".'
                     )
                     print(msg)
 
@@ -1347,10 +1347,10 @@ def auto_populate(aim):  # noqa: C901
                         raise
                     # otherwise
                     msg = (
-                        'Generation feature has an unrconizable "Output"'
+                        'Generation feature has an unrecognizable "Output"'
                         f' value. Generation "{asset_name}" = '
                         f'{generation_output}, instead of a numerical '
-                        'value. So the sizze of the Generation is assumed '
+                        'value. So the size of the Generation is assumed '
                         'to be "Small".'
                     )
                     print(msg)
@@ -1360,7 +1360,7 @@ def auto_populate(aim):  # noqa: C901
                 if ep_g_size == 'small':
                     ep_g_size = 's'
                 elif ep_g_size in ('medium', 'large'):
-                    # because medium and large size generation plants are in
+                    # because medium and large size generation plants are
                     # categorized in the same category.
                     ep_g_size = 'ML'
                 else:
@@ -1376,7 +1376,7 @@ def auto_populate(aim):  # noqa: C901
             if not generation_anchored:
                 msg = (
                     'Generation feature "Anchored" is missing. '
-                    f' Circuit "{asset_name}" assuemd to be '
+                    f' Circuit "{asset_name}" assumed to be '
                     '"  Unanchored".'
                 )
                 print(msg)
@@ -1390,7 +1390,7 @@ def auto_populate(aim):  # noqa: C901
                     'anchored',
                     'yes',
                     'true',
-                    'possitive',
+                    'positive',
                     '1',
                 ]:
                     ep_g_anchored = 'A'
