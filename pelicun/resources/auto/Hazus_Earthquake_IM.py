@@ -1065,7 +1065,7 @@ def auto_populate(aim):  # noqa: C901
             ep_s_size = ''
             ep_s_anchored = ''
             substation_voltage = gi_ap.get('Voltage', None)
-            if not substation_voltage:
+            if substation_voltage is None:
                 msg = (
                     'Substation feature "Voltage" is missing. '
                     f' substation "{asset_name}" assumed to be '
@@ -1138,7 +1138,7 @@ def auto_populate(aim):  # noqa: C901
 
             substation_anchored = gi_ap.get('Anchored', None)
 
-            if not substation_anchored:
+            if substation_anchored is None:
                 print(
                     'Substation feature "Anchored" is missing. '
                     f' substation "{asset_name}" assumed to be '
@@ -1214,7 +1214,7 @@ def auto_populate(aim):  # noqa: C901
             circuit_anchored = gi_ap.get('Anchored', None)
 
             ep_c_anchored = None
-            if not circuit_anchored:
+            if circuit_anchored is None:
                 print(
                     'Circuit feature "Anchored" is missing. '
                     f' Circuit "{asset_name}" assumed to be '
@@ -1288,7 +1288,7 @@ def auto_populate(aim):  # noqa: C901
         elif power_asset_type == 'Generation':
             ep_g_size = ''
             generation_output = gi_ap.get('Output', None)
-            if not generation_output:
+            if generation_output is None:
                 msg = (
                     'Generation feature "Output" is missing. '
                     f' Generation "{asset_name}" assumed to be '
@@ -1380,7 +1380,7 @@ def auto_populate(aim):  # noqa: C901
 
             generation_anchored = gi_ap.get('Anchored', None)
 
-            if not generation_anchored:
+            if generation_anchored is None:
                 msg = (
                     'Generation feature "Anchored" is missing. '
                     f' Circuit "{asset_name}" assumed to be '
