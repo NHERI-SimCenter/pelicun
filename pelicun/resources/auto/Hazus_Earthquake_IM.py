@@ -154,6 +154,8 @@ def getHAZUSBridgeK3DModifier(hazus_class, aim):
         return 1
     else:
         n = aim['NumOfSpans']
+        if n < 2:
+            return 1
         a = factors[mapping[hazus_class]][0]
         b = factors[mapping[hazus_class]][1]
         return 1 + a / (
