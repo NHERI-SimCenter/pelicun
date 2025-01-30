@@ -7,7 +7,7 @@
   "damage_DB_Hazus_EQ_story.json": "seismic/building/subassembly/Hazus v5.1/fragility.json",
   "damage_DB_Hazus_EQ_trnsp.csv": "seismic/transportation_network/portfolio/Hazus v5.1/fragility.csv",
   "damage_DB_Hazus_EQ_trnsp.json": "seismic/transportation_network/portfolio/Hazus v5.1/fragility.json",
-  "damage_DB_Hazus_EQ_water.csv": "seismic/water_network/portfolio/fragility.csv",
+  "damage_DB_Hazus_EQ_water.csv": "seismic/water_network/portfolio/Hazus v6.1/fragility.csv",
   "damage_DB_Hazus_EQ_power.csv": "seismic/power_network/portfolio/Hazus v5.1/fragility.csv",
   "damage_DB_SimCenter_HU.csv": "hurricane/building/component/fragility.csv",
   "damage_DB_SimCenter_HU.json": "hurricane/building/component/fragility.json",
