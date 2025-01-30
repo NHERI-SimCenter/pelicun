@@ -301,6 +301,32 @@
         <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">ds_model</span><span class="o">.</span><span class="n">sample</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lf_model</span><span class="o">.</span><span class="n">sample</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 
     <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">loss_params</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Combines the loss params of the ds_model and lf_model sub-models.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        pd.DataFrame</span>
+<span class="sd">            The combined loss parameter table</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Handle `None` cases</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds_model</span><span class="o">.</span><span class="n">loss_params</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">lf_model</span><span class="o">.</span><span class="n">loss_params</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds_model</span><span class="o">.</span><span class="n">loss_params</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">lf_model</span><span class="o">.</span><span class="n">loss_params</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">lf_model</span><span class="o">.</span><span class="n">loss_params</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds_model</span><span class="o">.</span><span class="n">loss_params</span>
+
+        <span class="c1"># If both are not None, combine</span>
+
+        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">ds_model</span><span class="o">.</span><span class="n">loss_params</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lf_model</span><span class="o">.</span><span class="n">loss_params</span><span class="p">))</span>
+
+    <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">decision_variables</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Retrieve the decision variables.</span>
@@ -843,22 +869,81 @@
         <span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">save_units</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span> <span class="o">|</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        &lt;backwards compatibility&gt;.</span>
+<span class="sd">        Save a combined sample of the `ds_model` and `lf_model`.</span>
 
-<span class="sd">        Saves the sample of the `ds_model`.</span>
+<span class="sd">        This method handles the storage of a sample of loss estimates,</span>
+<span class="sd">        which can either be saved directly to a file or returned as a</span>
+<span class="sd">        DataFrame for further manipulation. When saving to a file,</span>
+<span class="sd">        additional information such as unit conversion factors and</span>
+<span class="sd">        column units can be included. If the data is not being saved</span>
+<span class="sd">        to a file, the method can return the DataFrame with or without</span>
+<span class="sd">        units as specified.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        filepath: str, optional</span>
+<span class="sd">            The path to the file where the loss sample should be</span>
+<span class="sd">            saved. If not provided, the sample is not saved to disk</span>
+<span class="sd">            but returned.</span>
+<span class="sd">        save_units: bool, default: False</span>
+<span class="sd">            Indicates whether to include a row with unit information</span>
+<span class="sd">            in the returned DataFrame. This parameter is ignored if a</span>
+<span class="sd">            file path is provided.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        tuple</span>
-<span class="sd">            The output of {loss model}.ds_model.save_sample.</span>
+<span class="sd">        None or tuple</span>
+<span class="sd">            If `filepath` is provided, the function returns None after</span>
+<span class="sd">            saving the data.</span>
+<span class="sd">            If no `filepath` is specified, returns:</span>
+<span class="sd">            * DataFrame containing the loss sample.</span>
+<span class="sd">            * Optionally, a Series containing the units for each</span>
+<span class="sd">            column if `save_units` is True.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-            <span class="s1">&#39;`{loss model}.save_sample` is deprecated and will raise &#39;</span>
-            <span class="s1">&#39;in future versions of pelicun. Please use &#39;</span>
-            <span class="s1">&#39;{loss model}.ds_model.save_sample instead.&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">div</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">filepath</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">msg</span><span class="p">(</span><span class="s1">&#39;Saving loss sample...&#39;</span><span class="p">)</span>
+
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">sample</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">loss_params</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+
+        <span class="n">cmp_units</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">loss_params</span><span class="p">[</span><span class="s1">&#39;DV&#39;</span><span class="p">,</span> <span class="s1">&#39;Unit&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sort_index</span><span class="p">()</span>
+        <span class="n">dv_units</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span>
+            <span class="n">index</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">sample</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;Units&#39;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;object&#39;</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">sort_index</span><span class="p">()</span>
+
+        <span class="n">valid_dv_types</span> <span class="o">=</span> <span class="n">dv_units</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">valid_cmp_ids</span> <span class="o">=</span> <span class="n">dv_units</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">cmp_id</span><span class="p">,</span> <span class="n">dv_type</span> <span class="ow">in</span> <span class="n">cmp_units</span><span class="o">.</span><span class="n">index</span><span class="p">:</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">dv_type</span> <span class="ow">in</span> <span class="n">valid_dv_types</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">cmp_id</span> <span class="ow">in</span> <span class="n">valid_cmp_ids</span><span class="p">):</span>
+                <span class="n">dv_units</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">dv_type</span><span class="p">,</span> <span class="n">cmp_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">cmp_units</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">cmp_id</span><span class="p">,</span> <span class="n">dv_type</span><span class="p">]</span>
+
+        <span class="n">res</span> <span class="o">=</span> <span class="n">file_io</span><span class="o">.</span><span class="n">save_to_csv</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sample</span><span class="p">,</span>
+            <span class="n">Path</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span> <span class="k">if</span> <span class="n">filepath</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">units</span><span class="o">=</span><span class="n">dv_units</span><span class="p">,</span>
+            <span class="n">unit_conversion_factors</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_asmnt</span><span class="o">.</span><span class="n">unit_conversion_factors</span><span class="p">,</span>
+            <span class="n">use_simpleindex</span><span class="o">=</span><span class="p">(</span><span class="n">filepath</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">),</span>
+            <span class="n">log</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_asmnt</span><span class="o">.</span><span class="n">log</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds_model</span><span class="o">.</span><span class="n">save_sample</span><span class="p">(</span><span class="n">filepath</span><span class="o">=</span><span class="n">filepath</span><span class="p">,</span> <span class="n">save_units</span><span class="o">=</span><span class="n">save_units</span><span class="p">)</span></div>
+        <span class="k">if</span> <span class="n">filepath</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">msg</span><span class="p">(</span><span class="s1">&#39;Loss sample successfully saved.&#39;</span><span class="p">,</span> <span class="n">prepend_timestamp</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">res</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span>
+
+        <span class="n">units</span> <span class="o">=</span> <span class="n">res</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s1">&#39;Units&#39;</span><span class="p">]</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="n">res</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="s1">&#39;Units&#39;</span><span class="p">)</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="n">res</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">res</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">units</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">save_units</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">res</span><span class="p">,</span> <span class="n">units</span>
+
+        <span class="k">return</span> <span class="n">res</span></div>
 
 
 <div class="viewcode-block" id="LossModel.load_sample">
@@ -1013,7 +1098,7 @@
         <span class="n">column_levels</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;dv&#39;</span><span class="p">,</span> <span class="s1">&#39;loss&#39;</span><span class="p">,</span> <span class="s1">&#39;dmg&#39;</span><span class="p">,</span> <span class="s1">&#39;loc&#39;</span><span class="p">,</span> <span class="s1">&#39;dir&#39;</span><span class="p">,</span> <span class="s1">&#39;uid&#39;</span><span class="p">]</span>
         <span class="n">combined_sample</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sample</span>
         <span class="n">sample</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="n">combined_sample</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="n">column_levels</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
+            <span class="n">combined_sample</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">column_levels</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
             <span class="o">.</span><span class="n">sum</span><span class="p">()</span>
             <span class="o">.</span><span class="n">sort_index</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
         <span class="p">)</span>

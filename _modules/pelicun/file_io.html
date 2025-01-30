@@ -196,6 +196,7 @@
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
@@ -408,30 +409,33 @@
     <span class="n">data_paths</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span> <span class="o">|</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">],</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span> <span class="o">|</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Substitute the default directory path with a specified path.</span>
+<span class="sd">    Substitute the default directory path.</span>
 
 <span class="sd">    This function iterates over a list of data paths and replaces</span>
-<span class="sd">    occurrences of the &#39;PelicunDefault/&#39; substring with the path</span>
-<span class="sd">    specified by `base.pelicun_path` concatenated with</span>
-<span class="sd">    &#39;/resources/SimCenterDBDL/&#39;. This operation is performed to update</span>
-<span class="sd">    paths that are using a default location to a user-defined location</span>
-<span class="sd">    within the pelicun framework. The updated list of paths is then</span>
-<span class="sd">    returned.</span>
+<span class="sd">    occurrences of the &#39;PelicunDefault/&#39; substring by looking up the</span>
+<span class="sd">    filename in a resource mapping file located at</span>
+<span class="sd">    `{base.pelicun_path}/resources/dlml_resource_paths.json`. If a</span>
+<span class="sd">    match is found, the file path is replaced with the value found in</span>
+<span class="sd">    the `resource_paths` dictionary.  The updated list of paths is</span>
+<span class="sd">    then returned.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    data_paths: list of str</span>
+<span class="sd">    data_paths: list of str or pd.DataFrame</span>
 <span class="sd">        A list containing the paths to data files. These paths may</span>
 <span class="sd">        include a placeholder directory &#39;PelicunDefault/&#39; that needs</span>
-<span class="sd">        to be substituted with the actual path specified in</span>
-<span class="sd">        `base.pelicun_path`.</span>
+<span class="sd">        to be substituted with the actual path specified in the</span>
+<span class="sd">        resource mapping.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    list of str</span>
-<span class="sd">        The list with updated paths where &#39;PelicunDefault/&#39; has been</span>
-<span class="sd">        replaced with the specified path in `base.pelicun_path`</span>
-<span class="sd">        concatenated with &#39;/resources/SimCenterDBDL/&#39;.</span>
+<span class="sd">    list of str or pd.DataFrame</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    KeyError</span>
+<span class="sd">      If the file after &#39;PelicunDefault/&#39; does not exist in the</span>
+<span class="sd">      `resource_paths` keys.</span>
 
 <span class="sd">    Notes</span>
 <span class="sd">    -----</span>
@@ -440,26 +444,50 @@
 <span class="sd">      are located.</span>
 <span class="sd">    - If a path in the input list does not contain &#39;PelicunDefault/&#39;,</span>
 <span class="sd">      it is added to the output list unchanged.</span>
+<span class="sd">    - If the file after &#39;PelicunDefault/&#39; does not exist in the</span>
+<span class="sd">      `resource_paths` keys, a `KeyError` is raised.</span>
 
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
-<span class="sd">    &gt;&gt;&gt; data_paths = [&#39;PelicunDefault/data/file1.txt&#39;,</span>
-<span class="sd">        &#39;data/file2.txt&#39;]</span>
+<span class="sd">    &gt;&gt;&gt; data_paths = [&#39;PelicunDefault/damage_DB_SimCenter_HU.csv&#39;, &#39;data/file2.txt&#39;]</span>
 <span class="sd">    &gt;&gt;&gt; substitute_default_path(data_paths)</span>
-<span class="sd">    [&#39;{base.pelicun_path}/resources/SimCenterDBDL/data/file1.txt&#39;,</span>
-<span class="sd">    &#39;data/file2.txt&#39;]</span>
+<span class="sd">    [&#39;{base.pelicun_path}/resources/DamageAndLossModelLibrary/&#39;</span>
+<span class="sd">      &#39;hurricane/building/component/fragility.csv&#39;,</span>
+<span class="sd">      &#39;data/file2.txt&#39;]</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Load the resource paths from the JSON file</span>
+    <span class="n">resource_file_path</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">Path</span><span class="p">(</span><span class="n">base</span><span class="o">.</span><span class="n">pelicun_path</span><span class="p">)</span> <span class="o">/</span> <span class="s1">&#39;resources&#39;</span> <span class="o">/</span> <span class="s1">&#39;dlml_resource_paths.json&#39;</span>
+    <span class="p">)</span>
+    <span class="k">with</span> <span class="n">resource_file_path</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+        <span class="n">resource_paths</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+
     <span class="n">updated_paths</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span> <span class="o">|</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">data_path</span> <span class="ow">in</span> <span class="n">data_paths</span><span class="p">:</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data_path</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="s1">&#39;PelicunDefault/&#39;</span> <span class="ow">in</span> <span class="n">data_path</span><span class="p">:</span>
-            <span class="n">path</span> <span class="o">=</span> <span class="n">data_path</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
-                <span class="s1">&#39;PelicunDefault/&#39;</span><span class="p">,</span>
-                <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">base</span><span class="o">.</span><span class="n">pelicun_path</span><span class="si">}</span><span class="s1">/resources/SimCenterDBDL/&#39;</span><span class="p">,</span>
+    <span class="k">for</span> <span class="n">data_path_str</span> <span class="ow">in</span> <span class="n">data_paths</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data_path_str</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="s1">&#39;PelicunDefault/&#39;</span> <span class="ow">in</span> <span class="n">data_path_str</span><span class="p">:</span>
+            <span class="n">data_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">data_path_str</span><span class="p">)</span>
+            <span class="c1"># Extract the filename after &#39;PelicunDefault/&#39;</span>
+            <span class="n">file_name</span> <span class="o">=</span> <span class="n">data_path</span><span class="o">.</span><span class="n">parts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+            <span class="c1"># Check if the filename exists in the resource paths</span>
+            <span class="c1"># dictionary</span>
+            <span class="k">if</span> <span class="n">file_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">resource_paths</span><span class="p">:</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;File `</span><span class="si">{</span><span class="n">file_name</span><span class="si">}</span><span class="s1">` not found in resource paths.&#39;</span>
+                <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+            <span class="c1"># Substitute the path with the corresponding value from</span>
+            <span class="c1"># the dictionary</span>
+            <span class="n">updated_path</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span>
+                <span class="n">Path</span><span class="p">(</span><span class="n">base</span><span class="o">.</span><span class="n">pelicun_path</span><span class="p">)</span>
+                <span class="o">/</span> <span class="s1">&#39;resources&#39;</span>
+                <span class="o">/</span> <span class="s1">&#39;DamageAndLossModelLibrary&#39;</span>
+                <span class="o">/</span> <span class="n">resource_paths</span><span class="p">[</span><span class="n">file_name</span><span class="p">]</span>
             <span class="p">)</span>
-            <span class="n">updated_paths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+            <span class="n">updated_paths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">updated_path</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">updated_paths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data_path</span><span class="p">)</span>
+            <span class="n">updated_paths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data_path_str</span><span class="p">)</span>
+
     <span class="k">return</span> <span class="n">updated_paths</span></div>
 
 

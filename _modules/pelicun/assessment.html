@@ -216,6 +216,7 @@
         <span class="s1">&#39;Hazus Earthquake - Stories&#39;</span><span class="p">:</span> <span class="s1">&#39;damage_DB_Hazus_EQ_story.csv&#39;</span><span class="p">,</span>
         <span class="s1">&#39;Hazus Earthquake - Transportation&#39;</span><span class="p">:</span> <span class="s1">&#39;damage_DB_Hazus_EQ_trnsp.csv&#39;</span><span class="p">,</span>
         <span class="s1">&#39;Hazus Earthquake - Water&#39;</span><span class="p">:</span> <span class="s1">&#39;damage_DB_Hazus_EQ_water.csv&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;Hazus Earthquake - Power&#39;</span><span class="p">:</span> <span class="s1">&#39;damage_DB_Hazus_EQ_power.csv&#39;</span><span class="p">,</span>
         <span class="s1">&#39;Hazus Hurricane&#39;</span><span class="p">:</span> <span class="s1">&#39;damage_DB_SimCenter_Hazus_HU_bldg.csv&#39;</span><span class="p">,</span>
     <span class="p">},</span>
     <span class="s1">&#39;repair&#39;</span><span class="p">:</span> <span class="p">{</span>
@@ -223,7 +224,10 @@
         <span class="s1">&#39;Hazus Earthquake - Buildings&#39;</span><span class="p">:</span> <span class="s1">&#39;loss_repair_DB_Hazus_EQ_bldg.csv&#39;</span><span class="p">,</span>
         <span class="s1">&#39;Hazus Earthquake - Stories&#39;</span><span class="p">:</span> <span class="s1">&#39;loss_repair_DB_Hazus_EQ_story.csv&#39;</span><span class="p">,</span>
         <span class="s1">&#39;Hazus Earthquake - Transportation&#39;</span><span class="p">:</span> <span class="s1">&#39;loss_repair_DB_Hazus_EQ_trnsp.csv&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;Hazus Hurricane&#39;</span><span class="p">:</span> <span class="s1">&#39;loss_repair_DB_SimCenter_Hazus_HU_bldg.csv&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;Hazus Hurricane&#39;</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s1">&#39;loss_repair_DB_SimCenter_Hazus_HU_bldg.csv,&#39;</span>
+            <span class="s1">&#39;loss_repair_DB_Hazus_FL_bldg.csv&#39;</span>
+        <span class="p">),</span>
     <span class="p">},</span>
 <span class="p">}</span>
 
@@ -375,7 +379,10 @@
                 <span class="s1">&#39;Please use `loss_repair_DB` instead.&#39;</span>
             <span class="p">)</span>
 
-        <span class="n">data_path</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">base</span><span class="o">.</span><span class="n">pelicun_path</span><span class="si">}</span><span class="s1">/resources/SimCenterDBDL/</span><span class="si">{</span><span class="n">data_name</span><span class="si">}</span><span class="s1">.csv&#39;</span>
+        <span class="n">data_path</span> <span class="o">=</span> <span class="n">file_io</span><span class="o">.</span><span class="n">substitute_default_path</span><span class="p">(</span>
+            <span class="p">[</span><span class="sa">f</span><span class="s1">&#39;PelicunDefault/</span><span class="si">{</span><span class="n">data_name</span><span class="si">}</span><span class="s1">.csv&#39;</span><span class="p">]</span>
+        <span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data_path</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
 
         <span class="n">data</span> <span class="o">=</span> <span class="n">file_io</span><span class="o">.</span><span class="n">load_data</span><span class="p">(</span>
             <span class="n">data_path</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">orientation</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">reindex</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">log</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">log</span>
@@ -409,7 +416,10 @@
                 <span class="s1">&#39;`fragility_DB` is deprecated and will be dropped in &#39;</span>
                 <span class="s1">&#39;future versions of pelicun. Please use `damage_DB` instead.&#39;</span>
             <span class="p">)</span>
-        <span class="n">data_path</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">base</span><span class="o">.</span><span class="n">pelicun_path</span><span class="si">}</span><span class="s1">/resources/SimCenterDBDL/</span><span class="si">{</span><span class="n">data_name</span><span class="si">}</span><span class="s1">.json&#39;</span>
+        <span class="n">data_path</span> <span class="o">=</span> <span class="n">file_io</span><span class="o">.</span><span class="n">substitute_default_path</span><span class="p">(</span>
+            <span class="p">[</span><span class="sa">f</span><span class="s1">&#39;PelicunDefault/</span><span class="si">{</span><span class="n">data_name</span><span class="si">}</span><span class="s1">.json&#39;</span><span class="p">]</span>
+        <span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data_path</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
 
         <span class="k">with</span> <span class="n">Path</span><span class="p">(</span><span class="n">data_path</span><span class="p">)</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
@@ -1153,7 +1163,10 @@
         <span class="c1"># load the fragility information</span>
         <span class="k">if</span> <span class="n">component_database</span> <span class="ow">in</span> <span class="n">default_dbs</span><span class="p">[</span><span class="s1">&#39;fragility&#39;</span><span class="p">]:</span>
             <span class="n">component_db</span> <span class="o">=</span> <span class="p">[</span>
-                <span class="s1">&#39;PelicunDefault/&#39;</span> <span class="o">+</span> <span class="n">default_dbs</span><span class="p">[</span><span class="s1">&#39;fragility&#39;</span><span class="p">][</span><span class="n">component_database</span><span class="p">],</span>
+                <span class="s1">&#39;PelicunDefault/&#39;</span> <span class="o">+</span> <span class="n">filename</span>
+                <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">default_dbs</span><span class="p">[</span><span class="s1">&#39;fragility&#39;</span><span class="p">][</span><span class="n">component_database</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span>
+                    <span class="s1">&#39;,&#39;</span>
+                <span class="p">)</span>
             <span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">component_db</span> <span class="o">=</span> <span class="p">[]</span>
@@ -1446,6 +1459,10 @@
         <span class="n">replacement_energy_parameters</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">loss_map_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">decision_variables</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">replacement_configuration</span><span class="p">:</span> <span class="p">(</span>
+            <span class="nb">tuple</span><span class="p">[</span><span class="n">uq</span><span class="o">.</span><span class="n">RandomVariableRegistry</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span>
+        <span class="p">)</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">loss_combination_method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Calculate losses.</span>
@@ -1477,6 +1494,11 @@
 <span class="sd">            Optional path to a loss map file.</span>
 <span class="sd">        decision_variables: tuple[str] or None</span>
 <span class="sd">            Optional decision variables for the assessment.</span>
+<span class="sd">        replacement_configuration: tuple or None</span>
+<span class="sd">            Loss thresholds of replacement consequences.</span>
+<span class="sd">        loss_combination_method: str, optional</span>
+<span class="sd">            String defining the method to use for combining losses for</span>
+<span class="sd">            components that represent different demands.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -1582,7 +1604,40 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">loss</span><span class="o">.</span><span class="n">calculate</span><span class="p">()</span>
 
-        <span class="n">df_agg</span><span class="p">,</span> <span class="n">exceedance_bool_df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">loss</span><span class="o">.</span><span class="n">aggregate_losses</span><span class="p">(</span><span class="n">future</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">loss_combination_method</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">loss_combination</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">elif</span> <span class="n">loss_combination_method</span> <span class="o">==</span> <span class="s1">&#39;Hazus Hurricane&#39;</span><span class="p">:</span>
+            <span class="c1"># assemble the combination dict for wind and storm surge</span>
+            <span class="c1"># open the base combination matrix</span>
+            <span class="n">file_path</span> <span class="o">=</span> <span class="n">file_io</span><span class="o">.</span><span class="n">substitute_default_path</span><span class="p">(</span>
+                <span class="p">[</span><span class="s1">&#39;PelicunDefault/Wind_Flood_Hazus_HU_bldg.csv&#39;</span><span class="p">]</span>
+            <span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
+            <span class="n">combination_array</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
+                <span class="n">file_path</span><span class="p">,</span>
+                <span class="n">index_col</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+
+            <span class="c1"># get the component names</span>
+            <span class="c1"># assume that the first and second component in the loss map</span>
+            <span class="c1"># are the wind and flood components, respectively</span>
+            <span class="n">wind_comp</span><span class="p">,</span> <span class="n">flood_comp</span> <span class="o">=</span> <span class="n">loss_map</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]]</span>
+
+            <span class="n">loss_combination</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s1">&#39;Cost&#39;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="p">(</span><span class="n">wind_comp</span><span class="p">,</span> <span class="n">flood_comp</span><span class="p">):</span> <span class="n">combination_array</span><span class="p">,</span>
+                <span class="p">},</span>
+            <span class="p">}</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;Invalid loss combination method: `</span><span class="si">{</span><span class="n">loss_combination_method</span><span class="si">}</span><span class="s1">`.&#39;</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+        <span class="n">df_agg</span><span class="p">,</span> <span class="n">exceedance_bool_df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">loss</span><span class="o">.</span><span class="n">aggregate_losses</span><span class="p">(</span>
+            <span class="n">replacement_configuration</span><span class="p">,</span> <span class="n">loss_combination</span><span class="p">,</span> <span class="n">future</span><span class="o">=</span><span class="kc">True</span>
+        <span class="p">)</span>
         <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">df_agg</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span>
         <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">exceedance_bool_df</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">df_agg</span><span class="p">,</span> <span class="n">exceedance_bool_df</span></div>
@@ -1622,12 +1677,19 @@
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">consequence_database</span> <span class="ow">in</span> <span class="n">default_dbs</span><span class="p">[</span><span class="s1">&#39;repair&#39;</span><span class="p">]:</span>
+            <span class="n">default_consequence_dbs</span> <span class="o">=</span> <span class="n">default_dbs</span><span class="p">[</span><span class="s1">&#39;repair&#39;</span><span class="p">][</span>
+                <span class="n">consequence_database</span>
+            <span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)</span>
+
             <span class="n">consequence_db</span> <span class="o">=</span> <span class="p">[</span>
-                <span class="s1">&#39;PelicunDefault/&#39;</span> <span class="o">+</span> <span class="n">default_dbs</span><span class="p">[</span><span class="s1">&#39;repair&#39;</span><span class="p">][</span><span class="n">consequence_database</span><span class="p">],</span>
+                <span class="s1">&#39;PelicunDefault/&#39;</span> <span class="o">+</span> <span class="n">filename</span> <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">default_consequence_dbs</span>
             <span class="p">]</span>
 
-            <span class="n">conseq_df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_default_data</span><span class="p">(</span>
-                <span class="n">default_dbs</span><span class="p">[</span><span class="s1">&#39;repair&#39;</span><span class="p">][</span><span class="n">consequence_database</span><span class="p">][:</span><span class="o">-</span><span class="mi">4</span><span class="p">]</span>
+            <span class="n">conseq_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">get_default_data</span><span class="p">(</span><span class="n">filename</span><span class="p">[:</span><span class="o">-</span><span class="mi">4</span><span class="p">])</span>
+                    <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">default_consequence_dbs</span>
+                <span class="p">]</span>
             <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">consequence_db</span> <span class="o">=</span> <span class="p">[]</span>
@@ -2100,11 +2162,13 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># get the damage sample</span>
     <span class="n">dmg_sample</span> <span class="o">=</span> <span class="n">assessment</span><span class="o">.</span><span class="n">damage</span><span class="o">.</span><span class="n">save_sample</span><span class="p">()</span>
+    <span class="n">asset_sample</span> <span class="o">=</span> <span class="n">assessment</span><span class="o">.</span><span class="n">asset</span><span class="o">.</span><span class="n">save_cmp_sample</span><span class="p">()</span>
     <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dmg_sample</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">asset_sample</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span>
 
     <span class="c1"># create a mapping for all components that are also in</span>
     <span class="c1"># the prescribed consequence database</span>
-    <span class="n">dmg_cmps</span> <span class="o">=</span> <span class="n">dmg_sample</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="s1">&#39;cmp&#39;</span><span class="p">)</span>
+    <span class="n">asset_cmps</span> <span class="o">=</span> <span class="n">asset_sample</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="s1">&#39;cmp&#39;</span><span class="p">)</span>
     <span class="n">loss_cmps</span> <span class="o">=</span> <span class="n">conseq_df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 
     <span class="n">drivers</span> <span class="o">=</span> <span class="p">[]</span>
@@ -2114,13 +2178,13 @@
         <span class="c1"># with these methods, we assume fragility and consequence data</span>
         <span class="c1"># have the same IDs</span>
 
-        <span class="k">for</span> <span class="n">dmg_cmp</span> <span class="ow">in</span> <span class="n">dmg_cmps</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">dmg_cmp</span> <span class="o">==</span> <span class="s1">&#39;collapse&#39;</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">asset_cmp</span> <span class="ow">in</span> <span class="n">asset_cmps</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">asset_cmp</span> <span class="o">==</span> <span class="s1">&#39;collapse&#39;</span><span class="p">:</span>
                 <span class="k">continue</span>
 
-            <span class="k">if</span> <span class="n">dmg_cmp</span> <span class="ow">in</span> <span class="n">loss_cmps</span><span class="p">:</span>
-                <span class="n">drivers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dmg_cmp</span><span class="p">)</span>
-                <span class="n">loss_models</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dmg_cmp</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">asset_cmp</span> <span class="ow">in</span> <span class="n">loss_cmps</span><span class="p">:</span>
+                <span class="n">drivers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">asset_cmp</span><span class="p">)</span>
+                <span class="n">loss_models</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">asset_cmp</span><span class="p">)</span>
 
     <span class="k">elif</span> <span class="n">dl_method</span> <span class="ow">in</span> <span class="p">{</span>
         <span class="s1">&#39;Hazus Earthquake&#39;</span><span class="p">,</span>
@@ -2128,18 +2192,18 @@
     <span class="p">}:</span>
         <span class="c1"># with Hazus Earthquake we assume that consequence</span>
         <span class="c1"># archetypes are only differentiated by occupancy type</span>
-        <span class="k">for</span> <span class="n">dmg_cmp</span> <span class="ow">in</span> <span class="n">dmg_cmps</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">dmg_cmp</span> <span class="o">==</span> <span class="s1">&#39;collapse&#39;</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">asset_cmp</span> <span class="ow">in</span> <span class="n">asset_cmps</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">asset_cmp</span> <span class="o">==</span> <span class="s1">&#39;collapse&#39;</span><span class="p">:</span>
                 <span class="k">continue</span>
 
-            <span class="n">cmp_class</span> <span class="o">=</span> <span class="n">dmg_cmp</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">cmp_class</span> <span class="o">=</span> <span class="n">asset_cmp</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
             <span class="k">if</span> <span class="n">occupancy_type</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">loss_cmp</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">cmp_class</span><span class="si">}</span><span class="s1">.</span><span class="si">{</span><span class="n">occupancy_type</span><span class="si">}</span><span class="s1">&#39;</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">loss_cmp</span> <span class="o">=</span> <span class="n">cmp_class</span>
 
             <span class="k">if</span> <span class="n">loss_cmp</span> <span class="ow">in</span> <span class="n">loss_cmps</span><span class="p">:</span>
-                <span class="n">drivers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dmg_cmp</span><span class="p">)</span>
+                <span class="n">drivers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">asset_cmp</span><span class="p">)</span>
                 <span class="n">loss_models</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">loss_cmp</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">loss_models</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Repair&#39;</span><span class="p">],</span> <span class="n">index</span><span class="o">=</span><span class="n">drivers</span><span class="p">)</span>

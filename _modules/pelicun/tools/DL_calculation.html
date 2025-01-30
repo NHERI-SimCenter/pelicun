@@ -312,7 +312,7 @@
             <span class="s1">&#39;Sample&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
             <span class="s1">&#39;Statistics&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
             <span class="s1">&#39;GroupedSample&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
-            <span class="s1">&#39;GroupedStatistics&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="s1">&#39;GroupedStatistics&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
             <span class="s1">&#39;AggregateSample&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
             <span class="s1">&#39;AggregateStatistics&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
         <span class="p">}</span>
@@ -582,6 +582,10 @@
             <span class="p">),</span>
             <span class="n">loss_map_path</span><span class="o">=</span><span class="n">get</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s1">&#39;DL/Losses/Repair/MapFilePath&#39;</span><span class="p">),</span>
             <span class="n">decision_variables</span><span class="o">=</span><span class="n">_parse_decision_variables</span><span class="p">(</span><span class="n">config</span><span class="p">),</span>
+            <span class="n">replacement_configuration</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>  <span class="c1"># will be used later</span>
+            <span class="n">loss_combination_method</span><span class="o">=</span><span class="n">get</span><span class="p">(</span>
+                <span class="n">config</span><span class="p">,</span> <span class="s1">&#39;DL/Losses/Repair/CombinationMethod&#39;</span>
+            <span class="p">),</span>
         <span class="p">)</span>
 
     <span class="n">summary</span><span class="p">,</span> <span class="n">summary_stats</span> <span class="o">=</span> <span class="n">_result_summary</span><span class="p">(</span><span class="n">assessment</span><span class="p">,</span> <span class="n">agg_repair</span><span class="p">)</span>
@@ -1489,7 +1493,7 @@
 <span class="sd">        Whether to aggregate colocated components. Default is False.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">out</span> <span class="o">=</span> <span class="n">assessment</span><span class="o">.</span><span class="n">loss</span><span class="o">.</span><span class="n">ds_model</span><span class="o">.</span><span class="n">save_sample</span><span class="p">(</span><span class="n">save_units</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="n">assessment</span><span class="o">.</span><span class="n">loss</span><span class="o">.</span><span class="n">save_sample</span><span class="p">(</span><span class="n">save_units</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)</span>
     <span class="n">repair_sample</span><span class="p">,</span> <span class="n">repair_units_series</span> <span class="o">=</span> <span class="n">out</span>
     <span class="n">repair_units</span> <span class="o">=</span> <span class="n">repair_units_series</span><span class="o">.</span><span class="n">to_frame</span><span class="p">()</span><span class="o">.</span><span class="n">T</span>

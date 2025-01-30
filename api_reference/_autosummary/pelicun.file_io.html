@@ -170,7 +170,7 @@
 <td><p>Save data to a CSV file following the standard SimCenter schema.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#pelicun.file_io.substitute_default_path" title="pelicun.file_io.substitute_default_path"><code class="xref py py-obj docutils literal notranslate"><span class="pre">substitute_default_path</span></code></a>(data_paths)</p></td>
-<td><p>Substitute the default directory path with a specified path.</p></td>
+<td><p>Substitute the default directory path.</p></td>
 </tr>
 </tbody>
 </table>
@@ -326,29 +326,33 @@ None after saving the data to a CSV file.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="pelicun.file_io.substitute_default_path">
 <span class="sig-prename descclassname"><span class="pre">pelicun.file_io.</span></span><span class="sig-name descname"><span class="pre">substitute_default_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_paths</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">DataFrame</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">DataFrame</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/pelicun/file_io.html#substitute_default_path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.file_io.substitute_default_path" title="Link to this definition"></a></dt>
-<dd><p>Substitute the default directory path with a specified path.</p>
+<dd><p>Substitute the default directory path.</p>
 <p>This function iterates over a list of data paths and replaces
-occurrences of the ‘PelicunDefault/’ substring with the path
-specified by <cite>base.pelicun_path</cite> concatenated with
-‘/resources/SimCenterDBDL/’. This operation is performed to update
-paths that are using a default location to a user-defined location
-within the pelicun framework. The updated list of paths is then
-returned.</p>
+occurrences of the ‘PelicunDefault/’ substring by looking up the
+filename in a resource mapping file located at
+<cite>{base.pelicun_path}/resources/dlml_resource_paths.json</cite>. If a
+match is found, the file path is replaced with the value found in
+the <cite>resource_paths</cite> dictionary.  The updated list of paths is
+then returned.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>data_paths: list of str</strong></dt><dd><p>A list containing the paths to data files. These paths may
+<dt><strong>data_paths: list of str or pd.DataFrame</strong></dt><dd><p>A list containing the paths to data files. These paths may
 include a placeholder directory ‘PelicunDefault/’ that needs
-to be substituted with the actual path specified in
-<cite>base.pelicun_path</cite>.</p>
+to be substituted with the actual path specified in the
+resource mapping.</p>
 </dd>
 </dl>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl class="simple">
-<dt>list of str</dt><dd><p>The list with updated paths where ‘PelicunDefault/’ has been
-replaced with the specified path in <cite>base.pelicun_path</cite>
-concatenated with ‘/resources/SimCenterDBDL/’.</p>
+<dt>list of str or pd.DataFrame</dt><dd></dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>KeyError</dt><dd><p>If the file after ‘PelicunDefault/’ does not exist in the
+<cite>resource_paths</cite> keys.</p>
 </dd>
 </dl>
 </dd>
@@ -360,13 +364,15 @@ initialized and points to the correct directory where resources
 are located.</p></li>
 <li><p>If a path in the input list does not contain ‘PelicunDefault/’,
 it is added to the output list unchanged.</p></li>
+<li><p>If the file after ‘PelicunDefault/’ does not exist in the
+<cite>resource_paths</cite> keys, a <cite>KeyError</cite> is raised.</p></li>
 </ul>
 <p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">data_paths</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;PelicunDefault/data/file1.txt&#39;</span><span class="p">,</span>
-<span class="go">    &#39;data/file2.txt&#39;]</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">data_paths</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;PelicunDefault/damage_DB_SimCenter_HU.csv&#39;</span><span class="p">,</span> <span class="s1">&#39;data/file2.txt&#39;</span><span class="p">]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">substitute_default_path</span><span class="p">(</span><span class="n">data_paths</span><span class="p">)</span>
-<span class="go">[&#39;{base.pelicun_path}/resources/SimCenterDBDL/data/file1.txt&#39;,</span>
-<span class="go">&#39;data/file2.txt&#39;]</span>
+<span class="go">[&#39;{base.pelicun_path}/resources/DamageAndLossModelLibrary/&#39;</span>
+<span class="go">  &#39;hurricane/building/component/fragility.csv&#39;,</span>
+<span class="go">  &#39;data/file2.txt&#39;]</span>
 </pre></div>
 </div>
 </dd></dl>

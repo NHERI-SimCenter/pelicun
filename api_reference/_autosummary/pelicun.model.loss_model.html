@@ -394,6 +394,20 @@ those not used will not be required.</p>
 </dd></dl>
 
 <dl class="py property">
+<dt class="sig sig-object py" id="pelicun.model.loss_model.LossModel.loss_params">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">loss_params</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">DataFrame</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></em><a class="headerlink" href="#pelicun.model.loss_model.LossModel.loss_params" title="Link to this definition"></a></dt>
+<dd><p>Combines the loss params of the ds_model and lf_model sub-models.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>pd.DataFrame</dt><dd><p>The combined loss parameter table</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
 <dt class="sig sig-object py" id="pelicun.model.loss_model.LossModel.sample">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">sample</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">DataFrame</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></em><a class="headerlink" href="#pelicun.model.loss_model.LossModel.sample" title="Link to this definition"></a></dt>
 <dd><p>Combines the samples of the ds_model and lf_model sub-models.</p>
@@ -410,12 +424,35 @@ those not used will not be required.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="pelicun.model.loss_model.LossModel.save_sample">
 <span class="sig-name descname"><span class="pre">save_sample</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_units</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">DataFrame</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><span class="pre">DataFrame</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Series</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/pelicun/model/loss_model.html#LossModel.save_sample"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.model.loss_model.LossModel.save_sample" title="Link to this definition"></a></dt>
-<dd><p>&lt;backwards compatibility&gt;.</p>
-<p>Saves the sample of the <cite>ds_model</cite>.</p>
+<dd><p>Save a combined sample of the <cite>ds_model</cite> and <cite>lf_model</cite>.</p>
+<p>This method handles the storage of a sample of loss estimates,
+which can either be saved directly to a file or returned as a
+DataFrame for further manipulation. When saving to a file,
+additional information such as unit conversion factors and
+column units can be included. If the data is not being saved
+to a file, the method can return the DataFrame with or without
+units as specified.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt>tuple</dt><dd><p>The output of {loss model}.ds_model.save_sample.</p>
+<dt><strong>filepath: str, optional</strong></dt><dd><p>The path to the file where the loss sample should be
+saved. If not provided, the sample is not saved to disk
+but returned.</p>
+</dd>
+<dt><strong>save_units: bool, default: False</strong></dt><dd><p>Indicates whether to include a row with unit information
+in the returned DataFrame. This parameter is ignored if a
+file path is provided.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>None or tuple</dt><dd><p>If <cite>filepath</cite> is provided, the function returns None after
+saving the data.
+If no <cite>filepath</cite> is specified, returns:
+* DataFrame containing the loss sample.
+* Optionally, a Series containing the units for each
+column if <cite>save_units</cite> is True.</p>
 </dd>
 </dl>
 </dd>

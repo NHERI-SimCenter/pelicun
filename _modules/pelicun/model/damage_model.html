@@ -300,7 +300,7 @@
         <span class="n">data_paths</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span> <span class="o">|</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">],</span>
         <span class="n">cmp_set</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
         <span class="o">*</span><span class="p">,</span>
-        <span class="n">warn_missing</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">warn_missing</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Load damage model parameters.</span>
@@ -772,6 +772,7 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">damage_params</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span>
         <span class="n">cmp_mask</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">damage_params</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">cmp_set</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">damage_params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">damage_params</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">cmp_mask</span><span class="p">,</span> <span class="p">:]</span></div>
 
 
