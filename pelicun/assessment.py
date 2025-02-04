@@ -83,6 +83,9 @@ default_damage_processes = {
         '1_excessive.coll.DEM': {'DS1': 'collapse_DS1'},
         '2_collapse': {'DS1': 'ALL_NA'},
         '3_excessiveRID': {'DS1': 'irreparable_DS1'},
+        '4_irreparable': {'DS1': 'ALL_NA'},
+        '5_irreparable': {'DS1': 'collapse_DS0'},
+
     },
     # TODO(AZ): expand with ground failure logic
     'Hazus Earthquake': {
