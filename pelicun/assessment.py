@@ -985,14 +985,16 @@ class DLCalculationAssessment(AssessmentBase):
             component_db = []
 
         if component_database_path is not None:
-            if custom_model_dir is None:
-                msg = (
-                    '`custom_model_dir` needs to be specified '
-                    'when `component_database_path` is not None.'
-                )
-                raise ValueError(msg)
 
             if 'CustomDLDataFolder' in component_database_path:
+
+                if custom_model_dir is None:
+                    msg = (
+                        '`custom_model_dir` needs to be specified '
+                        'when `component_database_path` includes CustomDLDataFolder.'
+                    )
+                    raise ValueError(msg)
+
                 component_database_path = component_database_path.replace(
                     'CustomDLDataFolder', custom_model_dir
                 )
@@ -1504,14 +1506,16 @@ class DLCalculationAssessment(AssessmentBase):
             conseq_df = pd.DataFrame()
 
         if consequence_database_path is not None:
-            if custom_model_dir is None:
-                msg = (
-                    'When `consequence_database_path` is specified, '
-                    '`custom_model_dir` needs to be specified as well.'
-                )
-                raise ValueError(msg)
 
             if 'CustomDLDataFolder' in consequence_database_path:
+
+                if custom_model_dir is None:
+                    msg = (
+                        'When `consequence_database_path` includes CustomDLDataFolder, '
+                        '`custom_model_dir` needs to be specified as well.'
+                    )
+                    raise ValueError(msg)
+
                 consequence_database_path = consequence_database_path.replace(
                     'CustomDLDataFolder', custom_model_dir
                 )
