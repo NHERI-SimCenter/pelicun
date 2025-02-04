@@ -1,26 +1,51 @@
 {
   "damage_DB_FEMA_P58_2nd.csv": "seismic/building/component/FEMA P-58 2nd Edition/fragility.csv",
   "damage_DB_FEMA_P58_2nd.json": "seismic/building/component/FEMA P-58 2nd Edition/fragility.json",
+  
   "damage_DB_Hazus_EQ_bldg.csv": "seismic/building/portfolio/Hazus v5.1/fragility.csv",
   "damage_DB_Hazus_EQ_bldg.json": "seismic/building/portfolio/Hazus v5.1/fragility.json",
+  
   "damage_DB_Hazus_EQ_story.csv": "seismic/building/subassembly/Hazus v5.1/fragility.csv",
   "damage_DB_Hazus_EQ_story.json": "seismic/building/subassembly/Hazus v5.1/fragility.json",
+  
   "damage_DB_Hazus_EQ_trnsp.csv": "seismic/transportation_network/portfolio/Hazus v5.1/fragility.csv",
   "damage_DB_Hazus_EQ_trnsp.json": "seismic/transportation_network/portfolio/Hazus v5.1/fragility.json",
+  
   "damage_DB_Hazus_EQ_water.csv": "seismic/water_network/portfolio/Hazus v6.1/fragility.csv",
+  
   "damage_DB_Hazus_EQ_power.csv": "seismic/power_network/portfolio/Hazus v5.1/fragility.csv",
-  "damage_DB_SimCenter_HU.csv": "hurricane/building/component/fragility.csv",
-  "damage_DB_SimCenter_HU.json": "hurricane/building/component/fragility.json",
-  "damage_DB_SimCenter_Hazus_HU_bldg.csv": "hurricane/building/portfolio/Hazus v5.1/fragility_fitted.csv",
+  "damage_DB_Hazus_EQ_power.json": "seismic/power_network/portfolio/Hazus v5.1/fragility.json",
+  
+  "damage_DB_SimCenter_HU.csv": "hurricane/building/component/SimCenter Wind Component Library/fragility.csv",
+  "damage_DB_SimCenter_HU.json": "hurricane/building/component/SimCenter Wind Component Library/fragility.json",
+  
+  "damage_DB_SimCenter_Hazus_HU_bldg.csv": "hurricane/building/portfolio/Hazus v5.1 coupled/fragility.csv",
+  "damage_DB_SimCenter_Hazus_HU_bldg.json": "hurricane/building/portfolio/Hazus v5.1 coupled/fragility.json",
+  
+  "damage_DB_Hazus_HU_bldg.csv": "hurricane/building/portfolio/Hazus v5.1 original/fragility.csv",
+  "damage_DB_Hazus_HU_bldg.json": "hurricane/building/portfolio/Hazus v5.1 original/fragility.json",
+  
+
   "loss_repair_DB_FEMA_P58_2nd.csv": "seismic/building/component/FEMA P-58 2nd Edition/consequence_repair.csv",
   "loss_repair_DB_FEMA_P58_2nd.json": "seismic/building/component/FEMA P-58 2nd Edition/consequence_repair.json",
+  
   "loss_repair_DB_Hazus_EQ_bldg.csv": "seismic/building/portfolio/Hazus v5.1/consequence_repair.csv",
   "loss_repair_DB_Hazus_EQ_bldg.json": "seismic/building/portfolio/Hazus v5.1/consequence_repair.json",
+  
   "loss_repair_DB_Hazus_EQ_story.csv": "seismic/building/subassembly/Hazus v5.1/consequence_repair.csv",
   "loss_repair_DB_Hazus_EQ_story.json": "seismic/building/subassembly/Hazus v5.1/consequence_repair.json",
+  
   "loss_repair_DB_Hazus_EQ_trnsp.csv": "seismic/transportation_network/portfolio/Hazus v5.1/consequence_repair.csv",
   "loss_repair_DB_Hazus_EQ_trnsp.json": "seismic/transportation_network/portfolio/Hazus v5.1/consequence_repair.json",
+  
+  "loss_repair_DB_SimCenter_Hazus_HU_bldg.csv": "hurricane/building/portfolio/Hazus v5.1 coupled/consequence_repair.csv",
+  "loss_repair_DB_SimCenter_Hazus_HU_bldg.json": "hurricane/building/portfolio/Hazus v5.1 coupled/consequence_repair.json",
+  
+  "loss_repair_DB_Hazus_HU_bldg.csv": "hurricane/building/portfolio/Hazus v5.1 original/loss_repair.csv",
+  "loss_repair_DB_Hazus_HU_bldg.csv": "hurricane/building/portfolio/Hazus v5.1 original/loss_repair.json",
+
   "loss_repair_DB_Hazus_FL_bldg.csv": "flood/building/portfolio/Hazus v6.1/loss_repair.csv",
-  "loss_repair_DB_SimCenter_Hazus_HU_bldg.csv": "hurricane/building/portfolio/Hazus v5.1/consequence_repair_fitted.csv",
-  "Wind_Flood_Hazus_HU_bldg.csv": "hurricane/building/portfolio/Hazus v5.1/combined_loss_matrices/Wind_Flood.csv"
+
+
+  "Wind_Flood_Hazus_HU_bldg.csv": "hurricane/building/portfolio/Hazus v5.1 coupled/combined_loss_matrices/Wind_Flood.csv"
 }
