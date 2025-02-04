@@ -47,5 +47,5 @@
   "loss_repair_DB_Hazus_FL_bldg.csv": "flood/building/portfolio/Hazus v6.1/loss_repair.csv",
 
 
-  "Wind_Flood_Hazus_HU_bldg.csv": "hurricane/building/portfolio/Hazus v5.1/combined_loss_matrices/Wind_Flood.csv"
+  "Wind_Flood_Hazus_HU_bldg.csv": "hurricane/building/portfolio/Hazus v5.1 coupled/combined_loss_matrices/Wind_Flood.csv"
 }
