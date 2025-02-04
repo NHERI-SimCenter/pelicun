@@ -1323,6 +1323,11 @@ EDP_to_demand_type = {
     'Peak Link Beam Chord Rotation': 'LBR',
     # Wind Intensity
     'Peak Gust Wind Speed': 'PWS',
+    # Wind Demands
+    'Peak Wind Force': 'PWF',
+    'Peak Internal Force': 'PIF',
+    'Peak Line Force': 'PLF',
+    'Peak Wind Pressure': 'PWP',
     # Inundation Intensity
     'Peak Inundation Height': 'PIH',
     # Shaking Intensity
