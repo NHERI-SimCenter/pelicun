@@ -1001,6 +1001,14 @@
 
     <span class="c1"># Ensure `DL/Damage/CollapseFragility` contains all required keys.</span>
     <span class="k">if</span> <span class="n">is_specified</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s1">&#39;DL/Damage/CollapseFragility&#39;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">is_unspecified</span><span class="p">(</span>
+            <span class="n">config</span><span class="p">,</span> <span class="s1">&#39;DL/Damage/CollapseFragility/CapacityDistribution&#39;</span>
+        <span class="p">):</span>
+            <span class="n">config</span><span class="p">[</span><span class="s1">&#39;DL&#39;</span><span class="p">][</span><span class="s1">&#39;Damage&#39;</span><span class="p">][</span><span class="s1">&#39;CollapseFragility&#39;</span><span class="p">][</span><span class="s1">&#39;CapacityDistribution&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="s1">&#39;deterministic&#39;</span>
+            <span class="p">)</span>
+            <span class="n">config</span><span class="p">[</span><span class="s1">&#39;DL&#39;</span><span class="p">][</span><span class="s1">&#39;Damage&#39;</span><span class="p">][</span><span class="s1">&#39;CollapseFragility&#39;</span><span class="p">][</span><span class="s1">&#39;Theta_1&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;N/A&#39;</span>
+
         <span class="k">for</span> <span class="n">thing</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;CapacityDistribution&#39;</span><span class="p">,</span> <span class="s1">&#39;CapacityMedian&#39;</span><span class="p">,</span> <span class="s1">&#39;Theta_1&#39;</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">is_unspecified</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;DL/Damage/CollapseFragility/</span><span class="si">{</span><span class="n">thing</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">):</span>
                 <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>

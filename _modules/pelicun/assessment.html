@@ -236,6 +236,8 @@
         <span class="s1">&#39;1_excessive.coll.DEM&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;DS1&#39;</span><span class="p">:</span> <span class="s1">&#39;collapse_DS1&#39;</span><span class="p">},</span>
         <span class="s1">&#39;2_collapse&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;DS1&#39;</span><span class="p">:</span> <span class="s1">&#39;ALL_NA&#39;</span><span class="p">},</span>
         <span class="s1">&#39;3_excessiveRID&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;DS1&#39;</span><span class="p">:</span> <span class="s1">&#39;irreparable_DS1&#39;</span><span class="p">},</span>
+        <span class="s1">&#39;4_irreparable&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;DS1&#39;</span><span class="p">:</span> <span class="s1">&#39;ALL_NA&#39;</span><span class="p">},</span>
+        <span class="s1">&#39;5_irreparable&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;DS1&#39;</span><span class="p">:</span> <span class="s1">&#39;collapse_DS0&#39;</span><span class="p">},</span>
     <span class="p">},</span>
     <span class="c1"># TODO(AZ): expand with ground failure logic</span>
     <span class="s1">&#39;Hazus Earthquake&#39;</span><span class="p">:</span> <span class="p">{</span>
@@ -1172,14 +1174,14 @@
             <span class="n">component_db</span> <span class="o">=</span> <span class="p">[]</span>
 
         <span class="k">if</span> <span class="n">component_database_path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">custom_model_dir</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
-                    <span class="s1">&#39;`custom_model_dir` needs to be specified &#39;</span>
-                    <span class="s1">&#39;when `component_database_path` is not None.&#39;</span>
-                <span class="p">)</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
-
             <span class="k">if</span> <span class="s1">&#39;CustomDLDataFolder&#39;</span> <span class="ow">in</span> <span class="n">component_database_path</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">custom_model_dir</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+                        <span class="s1">&#39;`custom_model_dir` needs to be specified &#39;</span>
+                        <span class="s1">&#39;when `component_database_path` includes CustomDLDataFolder.&#39;</span>
+                    <span class="p">)</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
                 <span class="n">component_database_path</span> <span class="o">=</span> <span class="n">component_database_path</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
                     <span class="s1">&#39;CustomDLDataFolder&#39;</span><span class="p">,</span> <span class="n">custom_model_dir</span>
                 <span class="p">)</span>
@@ -1697,14 +1699,14 @@
             <span class="n">conseq_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
 
         <span class="k">if</span> <span class="n">consequence_database_path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">custom_model_dir</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
-                    <span class="s1">&#39;When `consequence_database_path` is specified, &#39;</span>
-                    <span class="s1">&#39;`custom_model_dir` needs to be specified as well.&#39;</span>
-                <span class="p">)</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
-
             <span class="k">if</span> <span class="s1">&#39;CustomDLDataFolder&#39;</span> <span class="ow">in</span> <span class="n">consequence_database_path</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">custom_model_dir</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+                        <span class="s1">&#39;When `consequence_database_path` includes CustomDLDataFolder, &#39;</span>
+                        <span class="s1">&#39;`custom_model_dir` needs to be specified as well.&#39;</span>
+                    <span class="p">)</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
                 <span class="n">consequence_database_path</span> <span class="o">=</span> <span class="n">consequence_database_path</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
                     <span class="s1">&#39;CustomDLDataFolder&#39;</span><span class="p">,</span> <span class="n">custom_model_dir</span>
                 <span class="p">)</span>
