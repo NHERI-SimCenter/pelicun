@@ -839,6 +839,14 @@ def _parse_config_file(  # noqa: C901
 
     # Ensure `DL/Damage/CollapseFragility` contains all required keys.
     if is_specified(config, 'DL/Damage/CollapseFragility'):
+        if is_unspecified(
+            config, 'DL/Damage/CollapseFragility/CapacityDistribution'
+        ):
+            config['DL']['Damage']['CollapseFragility']['CapacityDistribution'] = (
+                'deterministic'
+            )
+            config['DL']['Damage']['CollapseFragility']['Theta_1'] = 'N/A'
+
         for thing in ('CapacityDistribution', 'CapacityMedian', 'Theta_1'):
             if is_unspecified(config, f'DL/Damage/CollapseFragility/{thing}'):
                 msg = (
