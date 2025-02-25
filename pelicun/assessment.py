@@ -93,6 +93,8 @@ default_damage_processes = {
         '3_excessive.coll.DEM': {'DS1': 'collapse_DS1'},
         '4_collapse': {'DS1': 'ALL_NA'},
         '5_excessiveRID': {'DS1': 'irreparable_DS1'},
+        '6_irreparable': {'DS1': 'ALL_NA'},
+        '7_irreparable': {'DS1': 'collapse_DS0'},
     },
     'Hazus Hurricane': {},
 }
