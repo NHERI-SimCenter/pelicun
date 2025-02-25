@@ -2,8 +2,8 @@
   "damage_DB_FEMA_P58_2nd.csv": "seismic/building/component/FEMA P-58 2nd Edition/fragility.csv",
   "damage_DB_FEMA_P58_2nd.json": "seismic/building/component/FEMA P-58 2nd Edition/fragility.json",
   
-  "damage_DB_Hazus_EQ_bldg.csv": "seismic/building/portfolio/Hazus v5.1/fragility.csv",
-  "damage_DB_Hazus_EQ_bldg.json": "seismic/building/portfolio/Hazus v5.1/fragility.json",
+  "damage_DB_Hazus_EQ_bldg.csv": "seismic/building/portfolio/Hazus v6.1/fragility.csv",
+  "damage_DB_Hazus_EQ_bldg.json": "seismic/building/portfolio/Hazus v6.1/fragility.json",
   
   "damage_DB_Hazus_EQ_story.csv": "seismic/building/subassembly/Hazus v5.1/fragility.csv",
   "damage_DB_Hazus_EQ_story.json": "seismic/building/subassembly/Hazus v5.1/fragility.json",
@@ -29,8 +29,8 @@
   "loss_repair_DB_FEMA_P58_2nd.csv": "seismic/building/component/FEMA P-58 2nd Edition/consequence_repair.csv",
   "loss_repair_DB_FEMA_P58_2nd.json": "seismic/building/component/FEMA P-58 2nd Edition/consequence_repair.json",
   
-  "loss_repair_DB_Hazus_EQ_bldg.csv": "seismic/building/portfolio/Hazus v5.1/consequence_repair.csv",
-  "loss_repair_DB_Hazus_EQ_bldg.json": "seismic/building/portfolio/Hazus v5.1/consequence_repair.json",
+  "loss_repair_DB_Hazus_EQ_bldg.csv": "seismic/building/portfolio/Hazus v6.1/consequence_repair.csv",
+  "loss_repair_DB_Hazus_EQ_bldg.json": "seismic/building/portfolio/Hazus v6.1/consequence_repair.json",
   
   "loss_repair_DB_Hazus_EQ_story.csv": "seismic/building/subassembly/Hazus v5.1/consequence_repair.csv",
   "loss_repair_DB_Hazus_EQ_story.json": "seismic/building/subassembly/Hazus v5.1/consequence_repair.json",
