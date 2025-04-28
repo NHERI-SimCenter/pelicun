@@ -70,6 +70,7 @@ from pelicun.base import (
     update,
     update_vals,
 )
+from pelicun.file_io import substitute_default_path
 from pelicun.pelicun_warnings import PelicunInvalidConfigError
 
 colorama.init()
@@ -316,6 +317,7 @@ def run_pelicun(  # noqa: C901
         demand_file,
         realizations,
         output_format,
+        Path(custom_model_dir).resolve() if custom_model_dir is not None else None,
         coupled_edp=coupled_edp,
         detailed_results=detailed_results,
     )
@@ -578,6 +580,7 @@ def _parse_config_file(  # noqa: C901
     demand_file: str,
     realizations: int,
     output_format: list | None,
+    custom_model_dir: Path | None,
     *,
     coupled_edp: bool,
     detailed_results: bool,
@@ -591,18 +594,21 @@ def _parse_config_file(  # noqa: C901
         Path to the configuration file.
     output_path : Path
         Directory for output files.
-    auto_script_path : str
+    auto_script_path : Path
         Path to the auto-generation script.
     demand_file : str
         Path to the demand data file.
     realizations : int
         Number of realizations.
+    output_format : str
+        Output format (CSV, JSON).
+    custom_model_dir: Path, optional
+        Path pointing to a directory with files that define user-provided model
+        parameters for a customized damage and loss assessment.
     coupled_EDP : bool
         Whether to consider coupled EDPs.
     detailed_results : bool
         Whether to generate detailed results.
-    output_format : str
-        Output format (CSV, JSON).
 
     Returns
     -------
@@ -638,16 +644,38 @@ def _parse_config_file(  # noqa: C901
         msg = 'The provided config file does not conform to the schema.'
         raise PelicunInvalidConfigError(msg) from exc
 
-    if is_unspecified(config, 'DL'):
-        log_msg('Damage and Loss configuration missing from config file. ')
+    # identify the folder with the damage and loss model data
+    dl_method = get(config, 'Applications/DL/ApplicationData/DL_Method')
+    if dl_method == "User-provided Models":
 
-        if auto_script_path is None:
-            msg = 'No `DL` entry in config file.'
+        if custom_model_dir != None:
+            dl_model_folder = custom_model_dir
+        else:
+            dl_model_folder = get(config, 'Applications/DL/ApplicationData/custom_model_dir')
+
+    else:
+        dl_model_folder = substitute_default_path(
+            [f'PelicunDefault/{dl_method}']
+            )[0]
+    
+    assert isinstance(dl_model_folder, str)
+    dl_model_folder = Path(dl_model_folder).resolve()
+    assert dl_model_folder.exists() and dl_model_folder.is_dir(), f"{dl_model_folder} does not exist or is not a directory"
+
+    if is_unspecified(config, 'DL'):
+        
+        auto_script_path = Path(dl_model_folder/"pelicun_config.py").resolve()
+        if not auto_script_path.exists():
+            msg = (
+                f"No `DL` entry in config file and the following path "
+                f"does not point to a valid pelicun configuration file: "
+                f"{auto_script_path}."
+            )
             raise PelicunInvalidConfigError(msg)
 
-        log_msg('Trying to auto-populate')
+        log_msg(f'Configuring Pelicun using {auto_script_path}')
 
-        # Add the demandFile to the config dict to allow demand dependent auto-population
+        # Add the demandFile to the config dict to allow demand-dependent auto-population
         update(config, '/DL/Demands/DemandFilePath', demand_file)
         update(config, '/DL/Demands/SampleSize', str(realizations))
 
