@@ -206,7 +206,7 @@ def convertBridgeToHAZUSclass(aim):  # noqa: C901
         else:
             bridge_class = 'HWB7'
 
-    elif structure_type in [205, 206]:
+    elif (structure_type in [205, 206]) and (int(state) == 6):
         if not seismic:
             bridge_class = 'HWB8'
         else:
