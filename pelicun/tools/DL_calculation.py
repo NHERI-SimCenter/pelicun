@@ -645,24 +645,24 @@ def _parse_config_file(  # noqa: C901
         raise PelicunInvalidConfigError(msg) from exc
 
     # identify the folder with the damage and loss model data
-    dl_method = get(config, 'Applications/DL/ApplicationData/DL_Method')
-    if dl_method == "User-provided Models":
-
-        if custom_model_dir != None:
-            dl_model_folder = custom_model_dir
-        else:
-            dl_model_folder = get(config, 'Applications/DL/ApplicationData/custom_model_dir')
-
-    else:
-        dl_model_folder = substitute_default_path(
-            [f'PelicunDefault/{dl_method}']
-            )[0]
-    
-    assert isinstance(dl_model_folder, str)
-    dl_model_folder = Path(dl_model_folder).resolve()
-    assert dl_model_folder.exists() and dl_model_folder.is_dir(), f"{dl_model_folder} does not exist or is not a directory"
-
     if is_unspecified(config, 'DL'):
+        dl_method = get(config, 'Applications/DL/ApplicationData/DL_Method')
+
+        if dl_method == "User-provided Models":
+
+            if custom_model_dir != None:
+                dl_model_folder = custom_model_dir
+            else:
+                dl_model_folder = get(config, 'Applications/DL/ApplicationData/custom_model_dir')
+
+        else:
+            dl_model_folder = substitute_default_path(
+                [f'PelicunDefault/{dl_method}']
+                )[0]
+        
+        assert isinstance(dl_model_folder, str)
+        dl_model_folder = Path(dl_model_folder).resolve()
+        assert dl_model_folder.exists() and dl_model_folder.is_dir(), f"{dl_model_folder} does not exist or is not a directory"
         
         auto_script_path = Path(dl_model_folder/"pelicun_config.py").resolve()
         if not auto_script_path.exists():
