@@ -81,6 +81,22 @@ HAZUS_occ_converter = {
     'AGR': 'Industrial',
 }
 
+legacy_names = {
+    'damage_DB_FEMA_P58_2nd': 'FEMA P-58',
+    'damage_DB_Hazus_EQ_bldg': 'Hazus Earthquake - Buildings',
+    'damage_DB_Hazus_EQ_story': 'Hazus Earthquake - Stories',
+    'damage_DB_Hazus_EQ_trnsp': 'Hazus Earthquake - Transportation',
+    'damage_DB_Hazus_EQ_water': 'Hazus Earthquake - Water',
+    'damage_DB_Hazus_EQ_power': 'Hazus Earthquake - Power',
+    'damage_DB_SimCenter_Hazus_HU_bldg': 'Hazus Hurricane Wind',
+
+    'loss_repair_DB_FEMA_P58_2nd': 'FEMA P-58',
+    'loss_repair_DB_Hazus_EQ_bldg': 'Hazus Earthquake - Buildings',
+    'loss_repair_DB_Hazus_EQ_story': 'Hazus Earthquake - Stories',
+    'loss_repair_DB_Hazus_EQ_trnsp': 'Hazus Earthquake - Transportation',
+    'loss_repair_DB_SimCenter_Hazus_HU_bldg': 'Hazus Hurricane Wind',   
+}
+
 
 def save_to_csv(  # noqa: C901
     data: pd.DataFrame | None,
@@ -249,17 +265,26 @@ def save_to_csv(  # noqa: C901
 
 def substitute_default_path(
     data_paths: list[str | pd.DataFrame],
+    log: base.Logger | None = None
 ) -> list[str | pd.DataFrame]:
     """
     Substitute the default directory path.
 
     This function iterates over a list of data paths and replaces
-    occurrences of the 'PelicunDefault/' substring by looking up the
-    filename in a resource mapping file located at
-    `{base.pelicun_path}/resources/dlml_resource_paths.json`. If a
-    match is found, the file path is replaced with the value found in
-    the `resource_paths` dictionary.  The updated list of paths is
-    then returned.
+    those with the 'PelicunDefault/' substring with the full paths to
+    model files in the built-in Damage and Loss Model Library. 
+    Default paths are expected to follow the 
+    `PelicunDefault/method_name/model_type.extension` structure. The 
+    `method_name` identifies the methodology from those available in the
+    `{base.pelicun_path}/resources/dlml_resource_paths.json` file. The 
+    `model_type` identifies the type of model requested. Currently, the
+    following types are supported: 'fragility', 'consequence_repair', 
+    'loss_repair'. The `extension` is intended to identify 'CSV' files with
+    model parameters and 'JSON' files with metadata.
+    The `model_type` and `extension` strings are not limited to the
+    supported values. If you know a particular file exists in the method's
+    folder, you can use the corresponding `model_type.extension` to access
+    that file.
 
     Parameters
     ----------
@@ -268,6 +293,9 @@ def substitute_default_path(
         include a placeholder directory 'PelicunDefault/' that needs
         to be substituted with the actual path specified in the
         resource mapping.
+    log: Logger
+        Logger object to be used. If no object is specified, no logging
+        is performed.
 
     Returns
     -------
@@ -276,7 +304,7 @@ def substitute_default_path(
     Raises
     ------
     KeyError
-      If the file after 'PelicunDefault/' does not exist in the
+      If the method_name after 'PelicunDefault/' does not exist in the
       `resource_paths` keys.
 
     Notes
@@ -285,16 +313,14 @@ def substitute_default_path(
       initialized and points to the correct directory where resources
       are located.
     - If a path in the input list does not contain 'PelicunDefault/',
-      it is added to the output list unchanged.
-    - If the file after 'PelicunDefault/' does not exist in the
-      `resource_paths` keys, a `KeyError` is raised.
+      the path is added to the output list unchanged.
 
     Examples
     --------
-    >>> data_paths = ['PelicunDefault/damage_DB_SimCenter_HU.csv', 'data/file2.txt']
+    >>> data_paths = ['PelicunDefault/Hazus Hurricane/fragility.csv', 'data/file2.txt']
     >>> substitute_default_path(data_paths)
     ['{base.pelicun_path}/resources/DamageAndLossModelLibrary/'
-      'hurricane/building/component/fragility.csv',
+      'hurricane/building/portfolio/Hazus v5.1 coupled/fragility.csv',
       'data/file2.txt']
 
     """
@@ -309,22 +335,58 @@ def substitute_default_path(
     for data_path_str in data_paths:
         if isinstance(data_path_str, str) and 'PelicunDefault/' in data_path_str:
             data_path = Path(data_path_str)
-            # Extract the filename after 'PelicunDefault/'
+            # Extract the filename from the end after 'PelicunDefault/'
             file_name = data_path.parts[-1]
 
-            # Check if the filename exists in the resource paths
-            # dictionary
-            if file_name not in resource_paths:
-                msg = f'File `{file_name}` not found in resource paths.'
-                raise KeyError(msg)
+            # Check if there is a method name identified
+            method_name = data_path.parts[-2]
 
-            # Substitute the path with the corresponding value from
-            # the dictionary
+            # <backwards compatibility>
+            if method_name == 'PelicunDefault':
+                # No method name, check for legacy input
+                if file_name.startswith((
+                    'fragility_DB', 'damage_DB', 
+                    'bldg_repair_DB', 'loss_repair_DB'
+                    )):
+                    if log:
+                        log.warning(
+                            'Default libraries are no longer referenced using '
+                            'the following placeholder filenames after "PelicunDB/": '
+                            '`fragility_DB...`, `damage_DB...`, `bldg_repair_DB...`, '
+                            '`loss_repair_DB...`. Such inputs will lead to errors in '
+                            'future versions of pelicun. Please replace such '
+                            'references with a combination of a specific method and '
+                            'data type. For example, use '
+                            '`PelicunDefault/FEMA P-58/fragility` to get FEMA P-58 '
+                            'damage models, and '
+                            '`PelicunDefault/Hazus Hurricane/consequence_repair` to '
+                            'get Hazus hurricane consequence models. See the online '
+                            'documentation for more details.'
+                        )
+
+                    method_name = legacy_names[file_name]
+                    if file_name.startswith(('fragility', 'damage')):
+                        data_type = 'fragility'
+                    else:
+                        data_type = 'consequence_repair'
+
+                    extension = file_name.split('.')[-1]
+                    file_name = f'{data_type}.{extension}'
+
+            # Check if the method name exists in the resource paths dictionary
+            if method_name not in resource_paths:
+                msg = f'Method `{method_name}` not found in resource paths.'
+                raise KeyError(msg)
+            else:
+                method_folder = resource_paths[method_name]            
+
+            # Substitute the default path with a full path to the file
             updated_path = str(
                 Path(base.pelicun_path)
                 / 'resources'
                 / 'DamageAndLossModelLibrary'
-                / resource_paths[file_name]
+                / method_folder
+                / file_name
             )
             updated_paths.append(updated_path)
         else:

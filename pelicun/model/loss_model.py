@@ -346,7 +346,7 @@ class LossModel(PelicunModel):
         self.log.msg('Loading loss parameters...')
 
         # replace `PelicunDefault/` flag with default data path
-        data_paths = file_io.substitute_default_path(data_paths)
+        data_paths = file_io.substitute_default_path(data_paths, log=self.log)
 
         #
         # load loss parameter data into the models
