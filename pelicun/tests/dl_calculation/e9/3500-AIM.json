@@ -116,14 +116,11 @@
       "ApplicationData": {
         "DL_Method": "User-provided Models",
         "Realizations": 500,
-        "auto_script": "custom_pop.py",
         "coupled_EDP": true,
         "custom_model_dir": "CustomDLModels",
         "detailed_results": false,
         "ground_failure": false,
         "log_file": true,
-        "path_to_auto_script": "/Users/adamzs/Examples/R2D/00_Built_ins/E9Tsunami/input_data/ruleset",
-        "path_to_custom_model_dir": "/Users/adamzs/Examples/R2D/00_Built_ins/E9Tsunami/input_data/DL_Models",
         "regional": "true"
       }
     }

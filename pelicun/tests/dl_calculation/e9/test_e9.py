@@ -72,24 +72,17 @@ def test_dl_calculation_9(obtain_temp_dir: tuple[str, str]) -> None:
     # All outputs will also go there.
     # This approach is more robust to changes in the output files over
     # time.
-    ruleset_files = [
-        path.resolve()
-        for path in Path('pelicun/tests/dl_calculation/rulesets').glob(
-            '*Rulesets.py'
-        )
-    ]
 
     dl_models_dir = Path(f'{this_dir}/CustomDLModels').resolve()
     os.chdir(this_dir)
     temp_dir = tempfile.mkdtemp()
     # copy input files
-    for file_name in ('3500-AIM.json', 'response.csv', 'custom_pop.py'):
+    for file_name in ('3500-AIM.json', 'response.csv'):
         shutil.copy(f'{this_dir}/{file_name}', f'{temp_dir}/{file_name}')
-    # copy ruleset files
-    for file_path in ruleset_files:
-        shutil.copy(str(file_path), f'{temp_dir}/{file_path.name}')
+    
     # copy the custom models
     shutil.copytree(str(dl_models_dir), f'{temp_dir}/{dl_models_dir.name}')
+    
     # change directory to there
     os.chdir(temp_dir)
 
@@ -100,16 +93,11 @@ def test_dl_calculation_9(obtain_temp_dir: tuple[str, str]) -> None:
         output_path=None,
         coupled_edp=True,
         realizations=100,
-        auto_script_path='custom_pop.py',
+        auto_script_path='',
         detailed_results=False,
         output_format=None,
         custom_model_dir='./CustomDLModels',
     )
-
-    # now remove the ruleset files and auto script
-    for file_path in ruleset_files:
-        Path(f'{temp_dir}/{file_path.name}').unlink()
-    Path('custom_pop.py').unlink()
 
     #
     # Test files

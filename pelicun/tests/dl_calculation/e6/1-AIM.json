@@ -9,6 +9,8 @@
     "Latitude": 37.557583,
     "Longitude": -122.307781,
     "PlanArea": 1945.0,
+    "HeightClass": "",
+    "DesignLevel": "Moderate-Code",
     "NumberOfStories": 1,
     "YearBuilt": 1948,
     "OccupancyClass": "RES1",
@@ -85,9 +87,10 @@
     "DL": {
       "Application": "Pelicun3",
       "ApplicationData": {
-        "DL_Method": "HAZUS MH EQ IM",
+        "DL_Method": "Hazus Earthquake - Buildings",
         "Realizations": 100,
-        "auto_script": "PelicunDefault/Hazus_Earthquake_IM.py",
+        "auto_script": "",
+        "lifeline_facility": true,
         "coupled_EDP": true,
         "detailed_results": false,
         "ground_failure": false,

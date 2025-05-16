@@ -205,7 +205,7 @@ class AssessmentBase:
             # Legacy inputs will have a filename provided instead of a 
             # method name
             data_path = file_io.substitute_default_path(
-                [f'PelicunDefault/{method_name}'],
+                [f'PelicunDefault/{method_name}.csv'],
                 log=self.log
             )[0]
 
@@ -254,7 +254,7 @@ class AssessmentBase:
             # Legacy inputs will have a filename provided instead of a 
             # method name
             data_path = file_io.substitute_default_path(
-                [f'PelicunDefault/{method_name}'],
+                [f'PelicunDefault/{method_name}.json'],
                 log=self.log
             )[0]
 

@@ -366,7 +366,7 @@ def substitute_default_path(
                             'documentation for more details.'
                         )
 
-                    method_name = legacy_names[file_name]
+                    method_name = legacy_names[file_name.split('.')[0]]
                     if file_name.startswith(('fragility', 'damage')):
                         data_type = 'fragility'
                     else:

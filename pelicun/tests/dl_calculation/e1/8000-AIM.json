@@ -1,5 +1,7 @@
 {
   "GeneralInformation": {
+    "HeightClass": "Low-Rise",
+    "DesignLevel": "Pre-Code",
     "NumberOfStories": 1,
     "YearBuilt": 1900,
     "StructureType": "C1",
@@ -14,7 +16,9 @@
   "Applications": {
     "DL": {
       "ApplicationData": {
-        "ground_failure": false
+        "DL_Method": "Hazus Earthquake - Buildings",
+        "ground_failure": false,
+        "lifeline_facility": true
       }
     }
   }

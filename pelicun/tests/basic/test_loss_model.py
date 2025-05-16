@@ -451,7 +451,7 @@ class TestLossModel(TestPelicunModel):
         l_comb = 0.904
 
         file_path = file_io.substitute_default_path(
-            ['PelicunDefault/Wind_Flood_Hazus_HU_bldg.csv']
+            ['PelicunDefault/Hazus Hurricane Wind/combine_wind_flood.csv']
         )[0]
         assert isinstance(file_path, str)
         combination_array = pd.read_csv(
