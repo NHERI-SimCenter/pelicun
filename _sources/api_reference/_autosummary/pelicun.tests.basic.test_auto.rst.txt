@@ -17,10 +17,8 @@ pelicun.tests.basic.test\_auto
       setup_auto_script_path
       setup_expected_base_path
       setup_valid_config
-      test_auto_population_script_execution
       test_missing_general_information
       test_pelicun_default_path_replacement
-      test_valid_inputs
    
    
 

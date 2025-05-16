@@ -509,7 +509,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">msg</span><span class="p">(</span><span class="s1">&#39;Loading loss parameters...&#39;</span><span class="p">)</span>
 
         <span class="c1"># replace `PelicunDefault/` flag with default data path</span>
-        <span class="n">data_paths</span> <span class="o">=</span> <span class="n">file_io</span><span class="o">.</span><span class="n">substitute_default_path</span><span class="p">(</span><span class="n">data_paths</span><span class="p">)</span>
+        <span class="n">data_paths</span> <span class="o">=</span> <span class="n">file_io</span><span class="o">.</span><span class="n">substitute_default_path</span><span class="p">(</span><span class="n">data_paths</span><span class="p">,</span> <span class="n">log</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">)</span>
 
         <span class="c1">#</span>
         <span class="c1"># load loss parameter data into the models</span>

@@ -29,6 +29,5 @@ pelicun.tests.dl\_calculation.e8
    :template: custom-module-template.rst
    :recursive:
 
-   auto_HU_LA
    test_e8
 

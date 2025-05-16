@@ -29,6 +29,5 @@ pelicun.tests.dl\_calculation.e7
    :template: custom-module-template.rst
    :recursive:
 
-   auto_HU_NJ
    test_e7
 

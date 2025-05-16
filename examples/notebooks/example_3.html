@@ -209,13 +209,13 @@ pelicun 3.5.1 |
 
 System Information:
          local time zone: UTC
-         start time: 2025-02-25T07:26:40
-         python: 3.10.16 (main, Dec 12 2024, 19:07:59) [GCC 13.2.0]
+         start time: 2025-05-16T18:40:32
+         python: 3.10.17 (main, Apr  8 2025, 21:28:33) [GCC 13.3.0]
          numpy: 1.26.4
          pandas: 2.2.3
 
          --------------------------------------------------------------------------------
-07:26:40 Assessment Started
+18:40:32 Assessment Started
 </pre></div></div>
 </div>
 <div class="nbinput nblast docutils container">
@@ -331,11 +331,11 @@ System Information:
 <div class="output_area docutils container">
 <div class="highlight"><pre>
          --------------------------------------------------------------------------------
-07:26:40 Loading demand model...
+18:40:32 Loading demand model...
          Unit conversion successful.
          Demand model successfully loaded.
          --------------------------------------------------------------------------------
-07:26:40 Generating sample from demand variables...
+18:40:32 Generating sample from demand variables...
 
          18 random variables created.
 
@@ -347,7 +347,7 @@ System Information:
          Converting units...
          Unit conversion successful.
          --------------------------------------------------------------------------------
-07:26:41 Loading demand data...
+18:40:32 Loading demand data...
          Converting units...
          Unit conversion successful.
          Demand data successfully parsed.
@@ -381,7 +381,7 @@ System Information:
 <div class="output_area docutils container">
 <div class="highlight"><pre>
          --------------------------------------------------------------------------------
-07:26:41 Loading component model...
+18:40:32 Loading component model...
          Unit conversion successful.
          Model parameters successfully parsed. 8 performance groups identified
          Converting model parameters to internal units...
@@ -399,7 +399,7 @@ System Information:
          testing.component   1   1   0        1.0       1    ea
          testing.component.2 1   1   0        2.0       4    ea
          --------------------------------------------------------------------------------
-07:26:41 Generating sample from component quantity variables...
+18:40:32 Generating sample from component quantity variables...
 
          8 random variables created.
 
@@ -448,32 +448,35 @@ System Information:
 <div class="highlight"><pre>
          --------------------------------------------------------------------------------
          Loading damage model...
+
+         Default libraries are no longer referenced using the following placeholder filenames after &#34;PelicunDB/&#34;: `fragility_DB...`, `damage_DB...`, `bldg_repair_DB...`, `loss_repair_DB...`. Such inputs will lead to errors in future versions of pelicun. Please replace such references with a combination of a specific method and data type. For example, use `PelicunDefault/FEMA P-58/fragility` to get FEMA P-58 damage models, and `PelicunDefault/Hazus Hurricane/consequence_repair` to get Hazus hurricane consequence models. See the online documentation for more details.
+
          Damage model parameters loaded successfully.
          Removing unused damage model parameters.
          Converting damage model parameter units.
          Checking damage model parameter availability for all components in the asset model.
 
-         The damage model does not provide damage information for the following component(s) in the asset model: [&#39;testing.component&#39;, &#39;testing.component.2&#39;, &#39;missing.component&#39;].
+         The damage model does not provide damage information for the following component(s) in the asset model: [&#39;missing.component&#39;, &#39;testing.component.2&#39;, &#39;testing.component&#39;].
 
          --------------------------------------------------------------------------------
-07:26:41 Calculating damages...
+18:40:32 Calculating damages...
          Number of Performance Groups in Asset Model: 8
          Number of Component Blocks: 5
          1 batches of Performance Groups prepared for damage assessment
-07:26:41 Calculating damage states for PG batch 1 with 5 blocks
+18:40:32 Calculating damage states for PG batch 1 with 5 blocks
          Damage state calculation successful.
-07:26:41 Applying damage processes.
+18:40:32 Applying damage processes.
          Damage processes successfully applied.
          Damage calculation completed.
          --------------------------------------------------------------------------------
-07:26:41 Saving damage sample...
-         Saving data to `/tmp/tmpr4bapcdk/out.csv`...
+18:40:32 Saving damage sample...
+         Saving data to `/tmp/tmpjv473pgt/out.csv`...
          Converting units...
          Unit conversion successful.
          Data successfully saved to file.
          Damage sample successfully saved.
          --------------------------------------------------------------------------------
-07:26:41 Loading damage sample...
+18:40:33 Loading damage sample...
          Converting units...
          Unit conversion successful.
          Damage sample successfully loaded.
@@ -559,24 +562,24 @@ dtype: float64
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-07:26:41 Loading loss map...
+18:40:33 Loading loss map...
          Loss map is provided.
-07:26:41 Loss map loaded successfully.
+18:40:33 Loss map loaded successfully.
          --------------------------------------------------------------------------------
-07:26:41 Loading loss parameters...
+18:40:33 Loading loss parameters...
          Loss model parameters loaded successfully.
          Removing unused loss model parameters.
          Converting loss model parameter units.
          Checking loss model parameter availability for all components in the asset model.
          --------------------------------------------------------------------------------
-07:26:41 Calculating losses...
+18:40:33 Calculating losses...
 
          Aggregating damage quantities...
          Successfully aggregated damage quantities.
 
          Calculating the median repair consequences...
          Successfully determined median repair consequences.
-07:26:41
+18:40:33
          Considering deviations from the median values to obtain random DV sample...
          Preparing random variables for repair consequences...
 
@@ -587,7 +590,7 @@ dtype: float64
 
          Calculating the median repair consequences...
          Successfully determined median repair consequences.
-07:26:41
+18:40:33
          Considering deviations from the median values to obtain random DV sample...
          Preparing random variables for repair cost and time...
 
@@ -595,16 +598,16 @@ dtype: float64
 
          Successfully generated 10000 realizations of deviation from the median consequences.
          Successfully obtained DV sample.
-07:26:41 Loss calculation successful.
+18:40:33 Loss calculation successful.
          --------------------------------------------------------------------------------
-07:26:41 Saving loss sample...
-         Saving data to `/tmp/tmpr4bapcdk/sample.csv`...
+18:40:33 Saving loss sample...
+         Saving data to `/tmp/tmpjv473pgt/sample.csv`...
          Converting units...
          Unit conversion successful.
          Data successfully saved to file.
          Loss sample successfully saved.
          --------------------------------------------------------------------------------
-07:26:42 Loading loss sample...
+18:40:33 Loading loss sample...
          Converting units...
          Unit conversion successful.
          Loss sample successfully loaded.

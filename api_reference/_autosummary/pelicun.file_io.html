@@ -169,7 +169,7 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#pelicun.file_io.save_to_csv" title="pelicun.file_io.save_to_csv"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_to_csv</span></code></a>(data, filepath[, units, ...])</p></td>
 <td><p>Save data to a CSV file following the standard SimCenter schema.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pelicun.file_io.substitute_default_path" title="pelicun.file_io.substitute_default_path"><code class="xref py py-obj docutils literal notranslate"><span class="pre">substitute_default_path</span></code></a>(data_paths)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pelicun.file_io.substitute_default_path" title="pelicun.file_io.substitute_default_path"><code class="xref py py-obj docutils literal notranslate"><span class="pre">substitute_default_path</span></code></a>(data_paths[, log])</p></td>
 <td><p>Substitute the default directory path.</p></td>
 </tr>
 </tbody>
@@ -325,15 +325,23 @@ None after saving the data to a CSV file.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pelicun.file_io.substitute_default_path">
-<span class="sig-prename descclassname"><span class="pre">pelicun.file_io.</span></span><span class="sig-name descname"><span class="pre">substitute_default_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_paths</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">DataFrame</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">DataFrame</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/pelicun/file_io.html#substitute_default_path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.file_io.substitute_default_path" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">pelicun.file_io.</span></span><span class="sig-name descname"><span class="pre">substitute_default_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_paths</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">DataFrame</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pelicun.base.html#pelicun.base.Logger" title="pelicun.base.Logger"><span class="pre">Logger</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">DataFrame</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/pelicun/file_io.html#substitute_default_path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.file_io.substitute_default_path" title="Link to this definition"></a></dt>
 <dd><p>Substitute the default directory path.</p>
 <p>This function iterates over a list of data paths and replaces
-occurrences of the ‘PelicunDefault/’ substring by looking up the
-filename in a resource mapping file located at
-<cite>{base.pelicun_path}/resources/dlml_resource_paths.json</cite>. If a
-match is found, the file path is replaced with the value found in
-the <cite>resource_paths</cite> dictionary.  The updated list of paths is
-then returned.</p>
+those with the ‘PelicunDefault/’ substring with the full paths to
+model files in the built-in Damage and Loss Model Library.
+Default paths are expected to follow the
+<cite>PelicunDefault/method_name/model_type.extension</cite> structure. The
+<cite>method_name</cite> identifies the methodology from those available in the
+<cite>{base.pelicun_path}/resources/dlml_resource_paths.json</cite> file. The
+<cite>model_type</cite> identifies the type of model requested. Currently, the
+following types are supported: ‘fragility’, ‘consequence_repair’,
+‘loss_repair’. The <cite>extension</cite> is intended to identify ‘CSV’ files with
+model parameters and ‘JSON’ files with metadata.
+The <cite>model_type</cite> and <cite>extension</cite> strings are not limited to the
+supported values. If you know a particular file exists in the method’s
+folder, you can use the corresponding <cite>model_type.extension</cite> to access
+that file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
@@ -341,6 +349,9 @@ then returned.</p>
 include a placeholder directory ‘PelicunDefault/’ that needs
 to be substituted with the actual path specified in the
 resource mapping.</p>
+</dd>
+<dt><strong>log: Logger</strong></dt><dd><p>Logger object to be used. If no object is specified, no logging
+is performed.</p>
 </dd>
 </dl>
 </dd>
@@ -351,8 +362,10 @@ resource mapping.</p>
 </dd>
 <dt class="field-odd">Raises<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt>KeyError</dt><dd><p>If the file after ‘PelicunDefault/’ does not exist in the
-<cite>resource_paths</cite> keys.</p>
+<dt>KeyError</dt><dd><p>If the method_name after ‘PelicunDefault/’ does not exist in the
+<cite>resource_paths</cite> keys.
+If the method_name after ‘PelicunDefault/’ does not exist in the
+legacy list of filenames preserved for backwards compatibility.</p>
 </dd>
 </dl>
 </dd>
@@ -363,15 +376,13 @@ resource mapping.</p>
 initialized and points to the correct directory where resources
 are located.</p></li>
 <li><p>If a path in the input list does not contain ‘PelicunDefault/’,
-it is added to the output list unchanged.</p></li>
-<li><p>If the file after ‘PelicunDefault/’ does not exist in the
-<cite>resource_paths</cite> keys, a <cite>KeyError</cite> is raised.</p></li>
+the path is added to the output list unchanged.</p></li>
 </ul>
 <p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">data_paths</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;PelicunDefault/damage_DB_SimCenter_HU.csv&#39;</span><span class="p">,</span> <span class="s1">&#39;data/file2.txt&#39;</span><span class="p">]</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">data_paths</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;PelicunDefault/Hazus Hurricane/fragility.csv&#39;</span><span class="p">,</span> <span class="s1">&#39;data/file2.txt&#39;</span><span class="p">]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">substitute_default_path</span><span class="p">(</span><span class="n">data_paths</span><span class="p">)</span>
 <span class="go">[&#39;{base.pelicun_path}/resources/DamageAndLossModelLibrary/&#39;</span>
-<span class="go">  &#39;hurricane/building/component/fragility.csv&#39;,</span>
+<span class="go">  &#39;hurricane/building/portfolio/Hazus v5.1 coupled/fragility.csv&#39;,</span>
 <span class="go">  &#39;data/file2.txt&#39;]</span>
 </pre></div>
 </div>

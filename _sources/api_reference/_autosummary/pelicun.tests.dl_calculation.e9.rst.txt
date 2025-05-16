@@ -29,6 +29,5 @@ pelicun.tests.dl\_calculation.e9
    :template: custom-module-template.rst
    :recursive:
 
-   custom_pop
    test_e9
 

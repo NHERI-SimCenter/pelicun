@@ -234,6 +234,21 @@
     <span class="s1">&#39;AGR&#39;</span><span class="p">:</span> <span class="s1">&#39;Industrial&#39;</span><span class="p">,</span>
 <span class="p">}</span>
 
+<span class="n">legacy_names</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;damage_DB_FEMA_P58_2nd&#39;</span><span class="p">:</span> <span class="s1">&#39;FEMA P-58&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;damage_DB_Hazus_EQ_bldg&#39;</span><span class="p">:</span> <span class="s1">&#39;Hazus Earthquake - Buildings&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;damage_DB_Hazus_EQ_story&#39;</span><span class="p">:</span> <span class="s1">&#39;Hazus Earthquake - Stories&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;damage_DB_Hazus_EQ_trnsp&#39;</span><span class="p">:</span> <span class="s1">&#39;Hazus Earthquake - Transportation&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;damage_DB_Hazus_EQ_water&#39;</span><span class="p">:</span> <span class="s1">&#39;Hazus Earthquake - Water&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;damage_DB_Hazus_EQ_power&#39;</span><span class="p">:</span> <span class="s1">&#39;Hazus Earthquake - Power&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;damage_DB_SimCenter_Hazus_HU_bldg&#39;</span><span class="p">:</span> <span class="s1">&#39;Hazus Hurricane Wind&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;loss_repair_DB_FEMA_P58_2nd&#39;</span><span class="p">:</span> <span class="s1">&#39;FEMA P-58&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;loss_repair_DB_Hazus_EQ_bldg&#39;</span><span class="p">:</span> <span class="s1">&#39;Hazus Earthquake - Buildings&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;loss_repair_DB_Hazus_EQ_story&#39;</span><span class="p">:</span> <span class="s1">&#39;Hazus Earthquake - Stories&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;loss_repair_DB_Hazus_EQ_trnsp&#39;</span><span class="p">:</span> <span class="s1">&#39;Hazus Earthquake - Transportation&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;loss_repair_DB_SimCenter_Hazus_HU_bldg&#39;</span><span class="p">:</span> <span class="s1">&#39;Hazus Hurricane Wind&#39;</span><span class="p">,</span>
+<span class="p">}</span>
+
 
 <div class="viewcode-block" id="save_to_csv">
 <a class="viewcode-back" href="../../api_reference/_autosummary/pelicun.file_io.html#pelicun.file_io.save_to_csv">[docs]</a>
@@ -406,18 +421,26 @@
 <div class="viewcode-block" id="substitute_default_path">
 <a class="viewcode-back" href="../../api_reference/_autosummary/pelicun.file_io.html#pelicun.file_io.substitute_default_path">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">substitute_default_path</span><span class="p">(</span>
-    <span class="n">data_paths</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span> <span class="o">|</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">],</span>
+    <span class="n">data_paths</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span> <span class="o">|</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">],</span> <span class="n">log</span><span class="p">:</span> <span class="n">base</span><span class="o">.</span><span class="n">Logger</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span> <span class="o">|</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Substitute the default directory path.</span>
 
 <span class="sd">    This function iterates over a list of data paths and replaces</span>
-<span class="sd">    occurrences of the &#39;PelicunDefault/&#39; substring by looking up the</span>
-<span class="sd">    filename in a resource mapping file located at</span>
-<span class="sd">    `{base.pelicun_path}/resources/dlml_resource_paths.json`. If a</span>
-<span class="sd">    match is found, the file path is replaced with the value found in</span>
-<span class="sd">    the `resource_paths` dictionary.  The updated list of paths is</span>
-<span class="sd">    then returned.</span>
+<span class="sd">    those with the &#39;PelicunDefault/&#39; substring with the full paths to</span>
+<span class="sd">    model files in the built-in Damage and Loss Model Library.</span>
+<span class="sd">    Default paths are expected to follow the</span>
+<span class="sd">    `PelicunDefault/method_name/model_type.extension` structure. The</span>
+<span class="sd">    `method_name` identifies the methodology from those available in the</span>
+<span class="sd">    `{base.pelicun_path}/resources/dlml_resource_paths.json` file. The</span>
+<span class="sd">    `model_type` identifies the type of model requested. Currently, the</span>
+<span class="sd">    following types are supported: &#39;fragility&#39;, &#39;consequence_repair&#39;,</span>
+<span class="sd">    &#39;loss_repair&#39;. The `extension` is intended to identify &#39;CSV&#39; files with</span>
+<span class="sd">    model parameters and &#39;JSON&#39; files with metadata.</span>
+<span class="sd">    The `model_type` and `extension` strings are not limited to the</span>
+<span class="sd">    supported values. If you know a particular file exists in the method&#39;s</span>
+<span class="sd">    folder, you can use the corresponding `model_type.extension` to access</span>
+<span class="sd">    that file.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -426,6 +449,9 @@
 <span class="sd">        include a placeholder directory &#39;PelicunDefault/&#39; that needs</span>
 <span class="sd">        to be substituted with the actual path specified in the</span>
 <span class="sd">        resource mapping.</span>
+<span class="sd">    log: Logger</span>
+<span class="sd">        Logger object to be used. If no object is specified, no logging</span>
+<span class="sd">        is performed.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -434,8 +460,10 @@
 <span class="sd">    Raises</span>
 <span class="sd">    ------</span>
 <span class="sd">    KeyError</span>
-<span class="sd">      If the file after &#39;PelicunDefault/&#39; does not exist in the</span>
+<span class="sd">      If the method_name after &#39;PelicunDefault/&#39; does not exist in the</span>
 <span class="sd">      `resource_paths` keys.</span>
+<span class="sd">      If the method_name after &#39;PelicunDefault/&#39; does not exist in the</span>
+<span class="sd">      legacy list of filenames preserved for backwards compatibility.</span>
 
 <span class="sd">    Notes</span>
 <span class="sd">    -----</span>
@@ -443,16 +471,14 @@
 <span class="sd">      initialized and points to the correct directory where resources</span>
 <span class="sd">      are located.</span>
 <span class="sd">    - If a path in the input list does not contain &#39;PelicunDefault/&#39;,</span>
-<span class="sd">      it is added to the output list unchanged.</span>
-<span class="sd">    - If the file after &#39;PelicunDefault/&#39; does not exist in the</span>
-<span class="sd">      `resource_paths` keys, a `KeyError` is raised.</span>
+<span class="sd">      the path is added to the output list unchanged.</span>
 
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
-<span class="sd">    &gt;&gt;&gt; data_paths = [&#39;PelicunDefault/damage_DB_SimCenter_HU.csv&#39;, &#39;data/file2.txt&#39;]</span>
+<span class="sd">    &gt;&gt;&gt; data_paths = [&#39;PelicunDefault/Hazus Hurricane/fragility.csv&#39;, &#39;data/file2.txt&#39;]</span>
 <span class="sd">    &gt;&gt;&gt; substitute_default_path(data_paths)</span>
 <span class="sd">    [&#39;{base.pelicun_path}/resources/DamageAndLossModelLibrary/&#39;</span>
-<span class="sd">      &#39;hurricane/building/component/fragility.csv&#39;,</span>
+<span class="sd">      &#39;hurricane/building/portfolio/Hazus v5.1 coupled/fragility.csv&#39;,</span>
 <span class="sd">      &#39;data/file2.txt&#39;]</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -467,22 +493,60 @@
     <span class="k">for</span> <span class="n">data_path_str</span> <span class="ow">in</span> <span class="n">data_paths</span><span class="p">:</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data_path_str</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="s1">&#39;PelicunDefault/&#39;</span> <span class="ow">in</span> <span class="n">data_path_str</span><span class="p">:</span>
             <span class="n">data_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">data_path_str</span><span class="p">)</span>
-            <span class="c1"># Extract the filename after &#39;PelicunDefault/&#39;</span>
+            <span class="c1"># Extract the filename from the end after &#39;PelicunDefault/&#39;</span>
             <span class="n">file_name</span> <span class="o">=</span> <span class="n">data_path</span><span class="o">.</span><span class="n">parts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
 
-            <span class="c1"># Check if the filename exists in the resource paths</span>
-            <span class="c1"># dictionary</span>
-            <span class="k">if</span> <span class="n">file_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">resource_paths</span><span class="p">:</span>
-                <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;File `</span><span class="si">{</span><span class="n">file_name</span><span class="si">}</span><span class="s1">` not found in resource paths.&#39;</span>
-                <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+            <span class="c1"># Check if there is a method name identified</span>
+            <span class="n">method_name</span> <span class="o">=</span> <span class="n">data_path</span><span class="o">.</span><span class="n">parts</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span>
 
-            <span class="c1"># Substitute the path with the corresponding value from</span>
-            <span class="c1"># the dictionary</span>
+            <span class="c1"># &lt;backwards compatibility&gt;</span>
+            <span class="k">if</span> <span class="n">method_name</span> <span class="o">==</span> <span class="s1">&#39;PelicunDefault&#39;</span><span class="p">:</span>
+                <span class="c1"># No method name, check for legacy input</span>
+                <span class="k">if</span> <span class="n">file_name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span>
+                    <span class="p">(</span><span class="s1">&#39;fragility_DB&#39;</span><span class="p">,</span> <span class="s1">&#39;damage_DB&#39;</span><span class="p">,</span> <span class="s1">&#39;bldg_repair_DB&#39;</span><span class="p">,</span> <span class="s1">&#39;loss_repair_DB&#39;</span><span class="p">)</span>
+                <span class="p">):</span>
+                    <span class="k">if</span> <span class="n">log</span><span class="p">:</span>
+                        <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                            <span class="s1">&#39;Default libraries are no longer referenced using &#39;</span>
+                            <span class="s1">&#39;the following placeholder filenames after &quot;PelicunDB/&quot;: &#39;</span>
+                            <span class="s1">&#39;`fragility_DB...`, `damage_DB...`, `bldg_repair_DB...`, &#39;</span>
+                            <span class="s1">&#39;`loss_repair_DB...`. Such inputs will lead to errors in &#39;</span>
+                            <span class="s1">&#39;future versions of pelicun. Please replace such &#39;</span>
+                            <span class="s1">&#39;references with a combination of a specific method and &#39;</span>
+                            <span class="s1">&#39;data type. For example, use &#39;</span>
+                            <span class="s1">&#39;`PelicunDefault/FEMA P-58/fragility` to get FEMA P-58 &#39;</span>
+                            <span class="s1">&#39;damage models, and &#39;</span>
+                            <span class="s1">&#39;`PelicunDefault/Hazus Hurricane/consequence_repair` to &#39;</span>
+                            <span class="s1">&#39;get Hazus hurricane consequence models. See the online &#39;</span>
+                            <span class="s1">&#39;documentation for more details.&#39;</span>
+                        <span class="p">)</span>
+
+                    <span class="n">method_name</span> <span class="o">=</span> <span class="n">legacy_names</span><span class="p">[</span><span class="n">file_name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]]</span>
+                    <span class="k">if</span> <span class="n">file_name</span><span class="o">.</span><span class="n">startswith</span><span class="p">((</span><span class="s1">&#39;fragility&#39;</span><span class="p">,</span> <span class="s1">&#39;damage&#39;</span><span class="p">)):</span>
+                        <span class="n">data_type</span> <span class="o">=</span> <span class="s1">&#39;fragility&#39;</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">data_type</span> <span class="o">=</span> <span class="s1">&#39;consequence_repair&#39;</span>
+
+                    <span class="n">extension</span> <span class="o">=</span> <span class="n">file_name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                    <span class="n">file_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">data_type</span><span class="si">}</span><span class="s1">.</span><span class="si">{</span><span class="n">extension</span><span class="si">}</span><span class="s1">&#39;</span>
+
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;Default data path `</span><span class="si">{</span><span class="n">data_path_str</span><span class="si">}</span><span class="s1">` not recognized.&#39;</span>
+                    <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+            <span class="c1"># Check if the method name exists in the resource paths dictionary</span>
+            <span class="k">if</span> <span class="n">method_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">resource_paths</span><span class="p">:</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;Method `</span><span class="si">{</span><span class="n">method_name</span><span class="si">}</span><span class="s1">` not found in resource paths.&#39;</span>
+                <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+            <span class="n">method_folder</span> <span class="o">=</span> <span class="n">resource_paths</span><span class="p">[</span><span class="n">method_name</span><span class="p">]</span>
+
+            <span class="c1"># Substitute the default path with a full path to the file</span>
             <span class="n">updated_path</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span>
                 <span class="n">Path</span><span class="p">(</span><span class="n">base</span><span class="o">.</span><span class="n">pelicun_path</span><span class="p">)</span>
                 <span class="o">/</span> <span class="s1">&#39;resources&#39;</span>
                 <span class="o">/</span> <span class="s1">&#39;DamageAndLossModelLibrary&#39;</span>
-                <span class="o">/</span> <span class="n">resource_paths</span><span class="p">[</span><span class="n">file_name</span><span class="p">]</span>
+                <span class="o">/</span> <span class="n">method_folder</span>
+                <span class="o">/</span> <span class="n">file_name</span>
             <span class="p">)</span>
             <span class="n">updated_paths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">updated_path</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>

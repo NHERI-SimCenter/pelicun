@@ -39,5 +39,4 @@ pelicun.tests.dl\_calculation
    e7
    e8
    e9
-   rulesets
 
