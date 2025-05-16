@@ -89,12 +89,11 @@ legacy_names = {
     'damage_DB_Hazus_EQ_water': 'Hazus Earthquake - Water',
     'damage_DB_Hazus_EQ_power': 'Hazus Earthquake - Power',
     'damage_DB_SimCenter_Hazus_HU_bldg': 'Hazus Hurricane Wind',
-
     'loss_repair_DB_FEMA_P58_2nd': 'FEMA P-58',
     'loss_repair_DB_Hazus_EQ_bldg': 'Hazus Earthquake - Buildings',
     'loss_repair_DB_Hazus_EQ_story': 'Hazus Earthquake - Stories',
     'loss_repair_DB_Hazus_EQ_trnsp': 'Hazus Earthquake - Transportation',
-    'loss_repair_DB_SimCenter_Hazus_HU_bldg': 'Hazus Hurricane Wind',   
+    'loss_repair_DB_SimCenter_Hazus_HU_bldg': 'Hazus Hurricane Wind',
 }
 
 
@@ -264,21 +263,20 @@ def save_to_csv(  # noqa: C901
 
 
 def substitute_default_path(
-    data_paths: list[str | pd.DataFrame],
-    log: base.Logger | None = None
+    data_paths: list[str | pd.DataFrame], log: base.Logger | None = None
 ) -> list[str | pd.DataFrame]:
     """
     Substitute the default directory path.
 
     This function iterates over a list of data paths and replaces
     those with the 'PelicunDefault/' substring with the full paths to
-    model files in the built-in Damage and Loss Model Library. 
-    Default paths are expected to follow the 
-    `PelicunDefault/method_name/model_type.extension` structure. The 
+    model files in the built-in Damage and Loss Model Library.
+    Default paths are expected to follow the
+    `PelicunDefault/method_name/model_type.extension` structure. The
     `method_name` identifies the methodology from those available in the
-    `{base.pelicun_path}/resources/dlml_resource_paths.json` file. The 
+    `{base.pelicun_path}/resources/dlml_resource_paths.json` file. The
     `model_type` identifies the type of model requested. Currently, the
-    following types are supported: 'fragility', 'consequence_repair', 
+    following types are supported: 'fragility', 'consequence_repair',
     'loss_repair'. The `extension` is intended to identify 'CSV' files with
     model parameters and 'JSON' files with metadata.
     The `model_type` and `extension` strings are not limited to the
@@ -346,10 +344,9 @@ def substitute_default_path(
             # <backwards compatibility>
             if method_name == 'PelicunDefault':
                 # No method name, check for legacy input
-                if file_name.startswith((
-                    'fragility_DB', 'damage_DB', 
-                    'bldg_repair_DB', 'loss_repair_DB'
-                    )):
+                if file_name.startswith(
+                    ('fragility_DB', 'damage_DB', 'bldg_repair_DB', 'loss_repair_DB')
+                ):
                     if log:
                         log.warning(
                             'Default libraries are no longer referenced using '
@@ -383,8 +380,7 @@ def substitute_default_path(
             if method_name not in resource_paths:
                 msg = f'Method `{method_name}` not found in resource paths.'
                 raise KeyError(msg)
-            else:
-                method_folder = resource_paths[method_name]            
+            method_folder = resource_paths[method_name]
 
             # Substitute the default path with a full path to the file
             updated_path = str(

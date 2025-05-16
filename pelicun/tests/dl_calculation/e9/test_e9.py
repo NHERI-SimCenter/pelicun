@@ -79,10 +79,10 @@ def test_dl_calculation_9(obtain_temp_dir: tuple[str, str]) -> None:
     # copy input files
     for file_name in ('3500-AIM.json', 'response.csv'):
         shutil.copy(f'{this_dir}/{file_name}', f'{temp_dir}/{file_name}')
-    
+
     # copy the custom models
     shutil.copytree(str(dl_models_dir), f'{temp_dir}/{dl_models_dir.name}')
-    
+
     # change directory to there
     os.chdir(temp_dir)
 

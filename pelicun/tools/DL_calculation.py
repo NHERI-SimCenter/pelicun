@@ -648,18 +648,22 @@ def _parse_config_file(  # noqa: C901
     if is_unspecified(config, 'DL'):
         dl_method = get(config, 'Applications/DL/ApplicationData/DL_Method')
 
-        if dl_method == "User-provided Models":
-
-            if custom_model_dir != None:
+        if dl_method == 'User-provided Models':
+            if custom_model_dir is not None:
                 dl_model_folder = custom_model_dir
             else:
-                dl_model_folder = get(config, 'Applications/DL/ApplicationData/custom_model_dir')
+                dl_model_folder = get(
+                    config, 'Applications/DL/ApplicationData/custom_model_dir'
+                )
 
             assert isinstance(dl_model_folder, str)
             dl_model_folder = Path(dl_model_folder).resolve()
-            assert dl_model_folder.exists() and dl_model_folder.is_dir(), f"{dl_model_folder} does not exist or is not a directory"
+            assert dl_model_folder.exists(), f'{dl_model_folder} does not exist'
+            assert dl_model_folder.is_dir(), f'{dl_model_folder} is not a directory'
 
-            auto_script_paths = [Path(dl_model_folder/"pelicun_config.py").resolve(),]
+            auto_script_paths = [
+                Path(dl_model_folder / 'pelicun_config.py').resolve()
+            ]
 
         else:
             dl_methods = [m.strip() for m in dl_method.split(',')]
@@ -668,16 +672,15 @@ def _parse_config_file(  # noqa: C901
             for dl_method in dl_methods:
                 auto_script_path = substitute_default_path(
                     [f'PelicunDefault/{dl_method}/pelicun_config.py']
-                    )[0]
+                )[0]
                 auto_script_paths.append(Path(auto_script_path).resolve())
-        
-        for auto_script_path in auto_script_paths:
 
+        for auto_script_path in auto_script_paths:
             if not auto_script_path.exists():
                 msg = (
-                    f"No `DL` entry in config file and the following path "
-                    f"does not point to a valid pelicun configuration file: "
-                    f"{auto_script_path}."
+                    f'No `DL` entry in config file and the following path '
+                    f'does not point to a valid pelicun configuration file: '
+                    f'{auto_script_path}.'
                 )
                 raise PelicunInvalidConfigError(msg)
 
@@ -686,14 +689,15 @@ def _parse_config_file(  # noqa: C901
         update(config, '/DL/Demands/SampleSize', str(realizations))
 
         for script_id, auto_script_path in enumerate(auto_script_paths):
-
             log_msg(f'Configuring Pelicun using {auto_script_path}')
 
             if script_id == 0:
                 config_ap, comp = auto_populate(config, auto_script_path, script_id)
 
             else:
-                config_ap_i, comp_i = auto_populate(config, auto_script_path, script_id)
+                config_ap_i, comp_i = auto_populate(
+                    config, auto_script_path, script_id
+                )
 
                 comp = pd.concat([comp, comp_i])
 
@@ -702,17 +706,29 @@ def _parse_config_file(  # noqa: C901
                 # config is updated.
                 # Requires further updating to make it more generic and support more than
                 # just hurricane wind & surge
-                update(config_ap, 'DL/Asset/ComponentDatabase',(
-                    f"{get(config_ap,'DL/Asset/ComponentDatabase')},"
-                    f"{get(config_ap_i,'DL/Asset/ComponentDatabase')}"
-                    ))
+                update(
+                    config_ap,
+                    'DL/Asset/ComponentDatabase',
+                    (
+                        f"{get(config_ap, 'DL/Asset/ComponentDatabase')},"
+                        f"{get(config_ap_i, 'DL/Asset/ComponentDatabase')}"
+                    ),
+                )
 
-                update(config_ap, 'DL/Losses/Repair/ConsequenceDatabase',(
-                    f"{get(config_ap,'DL/Losses/Repair/ConsequenceDatabase')},"
-                    f"{get(config_ap_i,'DL/Losses/Repair/ConsequenceDatabase')}"
-                    ))
+                update(
+                    config_ap,
+                    'DL/Losses/Repair/ConsequenceDatabase',
+                    (
+                        f"{get(config_ap, 'DL/Losses/Repair/ConsequenceDatabase')},"
+                        f"{get(config_ap_i, 'DL/Losses/Repair/ConsequenceDatabase')}"
+                    ),
+                )
 
-                update(config_ap, 'DL/Losses/Repair/CombinationMethod','Hazus Hurricane')
+                update(
+                    config_ap,
+                    'DL/Losses/Repair/CombinationMethod',
+                    'Hazus Hurricane',
+                )
 
         if is_unspecified(config_ap, 'DL'):
             msg = (

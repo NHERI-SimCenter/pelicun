@@ -84,7 +84,6 @@ def test_assessment_get_default_metadata() -> None:
         'loss_repair_DB_FEMA_P58_2nd',
         'loss_repair_DB_Hazus_EQ_bldg',
         'loss_repair_DB_Hazus_EQ_trnsp',
-
         # current valid values
         'Hazus Earthquake - Buildings',
         'Hazus Earthquake - Stories',
@@ -92,14 +91,10 @@ def test_assessment_get_default_metadata() -> None:
         'Hazus Hurricane Wind - Buildings',
     )
 
-
-
     for method_name in method_names:
-
         for model_type in ['fragility', 'consequence_repair']:
-
             if method_name.startswith(('damage', 'loss')):
-                model_type = None
+                model_type = None  # noqa: PLW2901
 
             # here we just test that we can load the data file, without
             # checking the contents.

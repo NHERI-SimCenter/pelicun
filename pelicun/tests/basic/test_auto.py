@@ -73,6 +73,7 @@ def setup_auto_script_path() -> str:
 def setup_expected_base_path() -> str:
     return '/expected/path/resources/auto/'
 
+
 """
 def test_valid_inputs(setup_valid_config: dict, setup_auto_script_path: str) -> None:
     with patch('pelicun.base.pelicun_path', '/expected/path'), patch(
@@ -105,6 +106,7 @@ def test_pelicun_default_path_replacement(
         'PelicunDefault/', setup_expected_base_path
     )
     assert modified_path.startswith(setup_expected_base_path)
+
 
 """
 def test_auto_population_script_execution(
