@@ -96,9 +96,9 @@
     "DL": {
       "Application": "Pelicun3",
       "ApplicationData": {
-        "DL_Method": "HAZUS MH EQ Story",
+        "DL_Method": "Hazus Earthquake - Stories",
         "Realizations": 500,
-        "auto_script": "PelicunDefault/Hazus_Earthquake_Story.py",
+        "auto_script": "",
         "coupled_EDP": true,
         "detailed_results": false,
         "ground_failure": false,

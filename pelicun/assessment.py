@@ -56,41 +56,26 @@ from pelicun.base import EDP_to_demand_type, get
 if TYPE_CHECKING:
     from pelicun.base import Logger
 
-default_dbs = {
-    'fragility': {
-        'FEMA P-58': 'damage_DB_FEMA_P58_2nd.csv',
-        'Hazus Earthquake - Buildings': 'damage_DB_Hazus_EQ_bldg.csv',
-        'Hazus Earthquake - Stories': 'damage_DB_Hazus_EQ_story.csv',
-        'Hazus Earthquake - Transportation': 'damage_DB_Hazus_EQ_trnsp.csv',
-        'Hazus Earthquake - Water': 'damage_DB_Hazus_EQ_water.csv',
-        'Hazus Earthquake - Power': 'damage_DB_Hazus_EQ_power.csv',
-        'Hazus Hurricane': 'damage_DB_SimCenter_Hazus_HU_bldg.csv',
-    },
-    'repair': {
-        'FEMA P-58': 'loss_repair_DB_FEMA_P58_2nd.csv',
-        'Hazus Earthquake - Buildings': 'loss_repair_DB_Hazus_EQ_bldg.csv',
-        'Hazus Earthquake - Stories': 'loss_repair_DB_Hazus_EQ_story.csv',
-        'Hazus Earthquake - Transportation': 'loss_repair_DB_Hazus_EQ_trnsp.csv',
-        'Hazus Hurricane': (
-            'loss_repair_DB_SimCenter_Hazus_HU_bldg.csv,'
-            'loss_repair_DB_Hazus_FL_bldg.csv'
-        ),
-    },
-}
-
 default_damage_processes = {
     'FEMA P-58': {
         '1_excessive.coll.DEM': {'DS1': 'collapse_DS1'},
         '2_collapse': {'DS1': 'ALL_NA'},
         '3_excessiveRID': {'DS1': 'irreparable_DS1'},
+        '4_irreparable': {'DS1': 'ALL_NA'},
+        '5_irreparable': {'DS1': 'collapse_DS0'},
     },
     # TODO(AZ): expand with ground failure logic
-    'Hazus Earthquake': {
+    'Hazus Earthquake - Lifeline Facilities': {
+        '1_LF': {'DS5': 'collapse_DS1'},
+        '2_collapse': {'DS1': 'ALL_NA'},
+    },
+    'Hazus Earthquake - Buildings': {
         '1_STR': {'DS5': 'collapse_DS1'},
-        '2_LF': {'DS5': 'collapse_DS1'},
-        '3_excessive.coll.DEM': {'DS1': 'collapse_DS1'},
-        '4_collapse': {'DS1': 'ALL_NA'},
-        '5_excessiveRID': {'DS1': 'irreparable_DS1'},
+        '2_excessive.coll.DEM': {'DS1': 'collapse_DS1'},
+        '3_collapse': {'DS1': 'ALL_NA'},
+        '4_excessiveRID': {'DS1': 'irreparable_DS1'},
+        '5_irreparable': {'DS1': 'ALL_NA'},
+        '6_irreparable': {'DS1': 'collapse_DS0'},
     },
     'Hazus Hurricane': {},
 }
@@ -183,7 +168,9 @@ class AssessmentBase:
         )
         return self.loss
 
-    def get_default_data(self, data_name: str) -> pd.DataFrame:
+    def get_default_data(
+        self, method_name: str, model_type: str | None = None
+    ) -> pd.DataFrame:
         """
         Load a default data file.
 
@@ -194,37 +181,34 @@ class AssessmentBase:
 
         Parameters
         ----------
-        data_name: str
-            The name of the CSV file to be loaded, without the '.csv'
-            extension. This name is used to construct the full path to
-            the file.
+        method_name: str
+            The name of the method to be used. This name is used to look
+            up the full path to the model files in the Damage and Loss Model
+            Library.
+        model_type: str
+            The type of model requested. Currently, the following types
+            are supported: 'fragility', 'consequence_repair',
+            'loss_repair'
 
         Returns
         -------
         pd.DataFrame
             The DataFrame containing the data loaded from the
-            specified CSV file.
+            model CSV file.
 
         """
         # <backwards compatibility>
-        if 'fragility_DB' in data_name:
-            data_name = data_name.replace('fragility_DB', 'damage_DB')
-            self.log.warning(
-                '`fragility_DB` is deprecated and will be dropped in '
-                'future versions of pelicun. '
-                'Please use `damage_DB` instead.'
-            )
-        if 'bldg_repair_DB' in data_name:
-            data_name = data_name.replace('bldg_repair_DB', 'loss_repair_DB')
-            self.log.warning(
-                '`bldg_repair_DB` is deprecated and will be dropped in '
-                'future versions of pelicun. '
-                'Please use `loss_repair_DB` instead.'
-            )
+        if model_type is None:
+            # Legacy inputs will have a filename provided instead of a
+            # method name
+            data_path = file_io.substitute_default_path(
+                [f'PelicunDefault/{method_name}.csv'], log=self.log
+            )[0]
 
-        data_path = file_io.substitute_default_path(
-            [f'PelicunDefault/{data_name}.csv']
-        )[0]
+        else:
+            data_path = file_io.substitute_default_path(
+                [f'PelicunDefault/{method_name}/{model_type}.csv'], log=self.log
+            )[0]
         assert isinstance(data_path, str)
 
         data = file_io.load_data(
@@ -234,31 +218,42 @@ class AssessmentBase:
         assert isinstance(data, pd.DataFrame)
         return data
 
-    def get_default_metadata(self, data_name: str) -> dict:
+    def get_default_metadata(
+        self, method_name: str, model_type: str | None = None
+    ) -> dict:
         """
         Load a default metadata file and pass it to the user.
 
         Parameters
         ----------
-        data_name: string
-            Name of the json file to be loaded
+        method_name: string
+            The name of the method to be used. This name is used to look
+            up the full path to the model files in the Damage and Loss Model
+            Library.
+        model_type: str
+            The type of model requested. Currently, the following types
+            are supported: 'fragility', 'consequence_repair',
+            'loss_repair'
 
         Returns
         -------
         dict
-            Default metadata
+            Default metadata describing the models available for the
+            specified method.
 
         """
         # <backwards compatibility>
-        if 'fragility_DB' in data_name:
-            data_name = data_name.replace('fragility_DB', 'damage_DB')
-            self.log.warning(
-                '`fragility_DB` is deprecated and will be dropped in '
-                'future versions of pelicun. Please use `damage_DB` instead.'
-            )
-        data_path = file_io.substitute_default_path(
-            [f'PelicunDefault/{data_name}.json']
-        )[0]
+        if model_type is None:
+            # Legacy inputs will have a filename provided instead of a
+            # method name
+            data_path = file_io.substitute_default_path(
+                [f'PelicunDefault/{method_name}.json'], log=self.log
+            )[0]
+
+        else:
+            data_path = file_io.substitute_default_path(
+                [f'PelicunDefault/{method_name}/{model_type}.json'], log=self.log
+            )[0]
         assert isinstance(data_path, str)
 
         with Path(data_path).open(encoding='utf-8') as f:
@@ -971,25 +966,38 @@ class DLCalculationAssessment(AssessmentBase):
 
         """
         # load the fragility information
-        if component_database in default_dbs['fragility']:
-            component_db = [
-                'PelicunDefault/' + filename
-                for filename in default_dbs['fragility'][component_database].split(
-                    ','
-                )
-            ]
-        else:
-            component_db = []
+        component_db = []
+
+        if not pd.isna(component_database):
+            for method_name in [
+                cdb.strip() for cdb in component_database.split(',')
+            ]:
+                if method_name == 'None':
+                    continue
+
+                # <backwards compatibility>
+                if method_name.endswith(('csv', 'CSV')):
+                    component_db_path = file_io.substitute_default_path(
+                        [f'PelicunDefault/{method_name}'], log=self.log
+                    )[0]
+                else:
+                    component_db_path = file_io.substitute_default_path(
+                        [f'PelicunDefault/{method_name}/fragility.csv'], log=self.log
+                    )[0]
+                assert isinstance(component_db_path, str)
+
+                if Path(component_db_path).is_file():
+                    component_db.append(component_db_path)
 
         if component_database_path is not None:
-            if custom_model_dir is None:
-                msg = (
-                    '`custom_model_dir` needs to be specified '
-                    'when `component_database_path` is not None.'
-                )
-                raise ValueError(msg)
-
             if 'CustomDLDataFolder' in component_database_path:
+                if custom_model_dir is None:
+                    msg = (
+                        '`custom_model_dir` needs to be specified '
+                        'when `component_database_path` includes CustomDLDataFolder.'
+                    )
+                    raise ValueError(msg)
+
                 component_database_path = component_database_path.replace(
                     'CustomDLDataFolder', custom_model_dir
                 )
@@ -1001,7 +1009,7 @@ class DLCalculationAssessment(AssessmentBase):
         # prepare additional fragility data
 
         # get the database header from the default P58 db
-        p58_data = self.get_default_data('damage_DB_FEMA_P58_2nd')
+        p58_data = self.get_default_data('FEMA P-58', 'fragility')
 
         adf = pd.DataFrame(columns=p58_data.columns)
 
@@ -1155,7 +1163,11 @@ class DLCalculationAssessment(AssessmentBase):
                 dmg_process = default_damage_processes[damage_process_approach]
 
                 # For Hazus Earthquake, we need to specify the component ids
-                if damage_process_approach == 'Hazus Earthquake':
+                if damage_process_approach in {
+                    'Hazus Earthquake',
+                    'Hazus Earthquake - Buildings',
+                    'Hazus Earthquake - Lifeline Facilities',
+                }:
                     cmp_sample = self.asset.save_cmp_sample()
                     assert isinstance(cmp_sample, pd.DataFrame)
 
@@ -1418,7 +1430,8 @@ class DLCalculationAssessment(AssessmentBase):
             # assemble the combination dict for wind and storm surge
             # open the base combination matrix
             file_path = file_io.substitute_default_path(
-                ['PelicunDefault/Wind_Flood_Hazus_HU_bldg.csv']
+                ['PelicunDefault/Hazus Hurricane Wind/combine_wind_flood.csv'],
+                log=self.log,
             )[0]
             assert isinstance(file_path, str)
             combination_array = pd.read_csv(
@@ -1480,35 +1493,67 @@ class DLCalculationAssessment(AssessmentBase):
             With invalid combinations of arguments.
 
         """
-        if consequence_database in default_dbs['repair']:
-            default_consequence_dbs = default_dbs['repair'][
-                consequence_database
-            ].split(',')
+        # load the consequence information
+        consequence_db = []
+        conseq_df = pd.DataFrame()
 
-            consequence_db = [
-                'PelicunDefault/' + filename for filename in default_consequence_dbs
-            ]
+        if not pd.isna(consequence_database):
+            for method_name in [
+                cdb.strip() for cdb in consequence_database.split(',')
+            ]:
+                if method_name == 'None':
+                    continue
 
-            conseq_df = pd.concat(
-                [
-                    self.get_default_data(filename[:-4])
-                    for filename in default_consequence_dbs
-                ]
-            )
-        else:
-            consequence_db = []
+                # <backwards compatibility>
+                if method_name.endswith(('csv', 'CSV')):
+                    consequence_db_path = file_io.substitute_default_path(
+                        [f'PelicunDefault/{method_name}'], log=self.log
+                    )[0]
+                else:
+                    consequence_db_path = file_io.substitute_default_path(
+                        [f'PelicunDefault/{method_name}/consequence_repair.csv'],
+                        log=self.log,
+                    )[0]
+                assert isinstance(consequence_db_path, str)
 
-            conseq_df = pd.DataFrame()
+                if Path(consequence_db_path).is_file():
+                    consequence_db.append(consequence_db_path)
+
+                    conseq_df = pd.concat(
+                        [
+                            conseq_df,
+                            self.get_default_data(method_name, 'consequence_repair'),
+                        ]
+                    )
+                    assert isinstance(conseq_df, pd.DataFrame)
+
+                else:
+                    # try loading loss functions instead
+                    loss_db_path = file_io.substitute_default_path(
+                        [f'PelicunDefault/{method_name}/loss_repair.csv'],
+                        log=self.log,
+                    )[0]
+
+                    if Path(loss_db_path).is_file():
+                        consequence_db.append(loss_db_path)
+
+                        conseq_df = pd.concat(
+                            [
+                                conseq_df,
+                                self.get_default_data(method_name, 'loss_repair'),
+                            ]
+                        )
+                        assert isinstance(conseq_df, pd.DataFrame)
 
         if consequence_database_path is not None:
-            if custom_model_dir is None:
-                msg = (
-                    'When `consequence_database_path` is specified, '
-                    '`custom_model_dir` needs to be specified as well.'
-                )
-                raise ValueError(msg)
-
             if 'CustomDLDataFolder' in consequence_database_path:
+                if custom_model_dir is None:
+                    msg = (
+                        'When `consequence_database_path` includes CustomDLDataFolder, '
+                        '`custom_model_dir` needs to be specified as well.'
+                    )
+                    raise ValueError(msg)
+
                 consequence_database_path = consequence_database_path.replace(
                     'CustomDLDataFolder', custom_model_dir
                 )
@@ -1520,13 +1565,12 @@ class DLCalculationAssessment(AssessmentBase):
                 unit_conversion_factors=None,
                 orientation=1,
                 reindex=False,
+                log=self.log,
             )
             assert isinstance(extra_conseq_df, pd.DataFrame)
 
-            if isinstance(conseq_df, pd.DataFrame):
-                conseq_df = pd.concat([conseq_df, extra_conseq_df])
-            else:
-                conseq_df = extra_conseq_df
+            conseq_df = pd.concat([conseq_df, extra_conseq_df])
+            assert isinstance(conseq_df, pd.DataFrame)
 
         consequence_db = consequence_db[::-1]
 
@@ -1809,6 +1853,15 @@ def _loss__add_replacement_time(
             (f'STR.{occupancy_type}', 'Time'), ('DS5', 'Theta_0')
         ]
 
+    elif damage_process_approach == 'Hazus Earthquake - Lifeline Facilities':
+        adf.loc[rt, ('Quantity', 'Unit')] = '1 EA'
+        adf.loc[rt, ('DV', 'Unit')] = 'day'
+
+        # load the replacement time that corresponds to total loss
+        adf.loc[rt, ('DS1', 'Theta_0')] = conseq_df.loc[
+            (f'LF.{occupancy_type}', 'Time'), ('DS5', 'Theta_0')
+        ]
+
     # otherwise, use 1 (and expect to have it defined by the user)
     else:
         adf.loc[rt, ('Quantity', 'Unit')] = '1 EA'
@@ -1990,6 +2043,8 @@ def _loss__map_auto(
 
     elif dl_method in {
         'Hazus Earthquake',
+        'Hazus Earthquake - Buildings',
+        'Hazus Earthquake - Lifeline Facilities',
         'Hazus Earthquake Transportation',
     }:
         # with Hazus Earthquake we assume that consequence

@@ -70,6 +70,7 @@ from pelicun.base import (
     update,
     update_vals,
 )
+from pelicun.file_io import substitute_default_path
 from pelicun.pelicun_warnings import PelicunInvalidConfigError
 
 colorama.init()
@@ -316,6 +317,7 @@ def run_pelicun(  # noqa: C901
         demand_file,
         realizations,
         output_format,
+        custom_model_dir,
         coupled_edp=coupled_edp,
         detailed_results=detailed_results,
     )
@@ -578,6 +580,7 @@ def _parse_config_file(  # noqa: C901
     demand_file: str,
     realizations: int,
     output_format: list | None,
+    custom_model_dir: str | None,
     *,
     coupled_edp: bool,
     detailed_results: bool,
@@ -591,18 +594,21 @@ def _parse_config_file(  # noqa: C901
         Path to the configuration file.
     output_path : Path
         Directory for output files.
-    auto_script_path : str
+    auto_script_path : Path
         Path to the auto-generation script.
     demand_file : str
         Path to the demand data file.
     realizations : int
         Number of realizations.
+    output_format : str
+        Output format (CSV, JSON).
+    custom_model_dir: str, optional
+        String pointing to a directory with files that define user-provided model
+        parameters for a customized damage and loss assessment.
     coupled_EDP : bool
         Whether to consider coupled EDPs.
     detailed_results : bool
         Whether to generate detailed results.
-    output_format : str
-        Output format (CSV, JSON).
 
     Returns
     -------
@@ -638,20 +644,91 @@ def _parse_config_file(  # noqa: C901
         msg = 'The provided config file does not conform to the schema.'
         raise PelicunInvalidConfigError(msg) from exc
 
+    # identify the folder with the damage and loss model data
     if is_unspecified(config, 'DL'):
-        log_msg('Damage and Loss configuration missing from config file. ')
+        dl_method = get(config, 'Applications/DL/ApplicationData/DL_Method')
 
-        if auto_script_path is None:
-            msg = 'No `DL` entry in config file.'
-            raise PelicunInvalidConfigError(msg)
+        if dl_method == 'User-provided Models':
+            if custom_model_dir is not None:
+                dl_model_folder = custom_model_dir
+            else:
+                dl_model_folder = get(
+                    config, 'Applications/DL/ApplicationData/custom_model_dir'
+                )
 
-        log_msg('Trying to auto-populate')
+            assert isinstance(dl_model_folder, str)
+            dl_model_folder = Path(dl_model_folder).resolve()
+            assert dl_model_folder.exists(), f'{dl_model_folder} does not exist'
+            assert dl_model_folder.is_dir(), f'{dl_model_folder} is not a directory'
 
-        # Add the demandFile to the config dict to allow demand dependent auto-population
+            auto_script_paths = [
+                Path(dl_model_folder / 'pelicun_config.py').resolve()
+            ]
+
+        else:
+            dl_methods = [m.strip() for m in dl_method.split(',')]
+
+            auto_script_paths = []
+            for dl_method in dl_methods:
+                auto_script_path = substitute_default_path(
+                    [f'PelicunDefault/{dl_method}/pelicun_config.py']
+                )[0]
+                auto_script_paths.append(Path(auto_script_path).resolve())
+
+        for auto_script_path in auto_script_paths:
+            if not auto_script_path.exists():
+                msg = (
+                    f'No `DL` entry in config file and the following path '
+                    f'does not point to a valid pelicun configuration file: '
+                    f'{auto_script_path}.'
+                )
+                raise PelicunInvalidConfigError(msg)
+
+        # Add the demandFile to the config dict to allow demand-dependent auto-population
         update(config, '/DL/Demands/DemandFilePath', demand_file)
         update(config, '/DL/Demands/SampleSize', str(realizations))
 
-        config_ap, comp = auto_populate(config, auto_script_path)
+        for script_id, auto_script_path in enumerate(auto_script_paths):
+            log_msg(f'Configuring Pelicun using {auto_script_path}')
+
+            if script_id == 0:
+                config_ap, comp = auto_populate(config, auto_script_path, script_id)
+
+            else:
+                config_ap_i, comp_i = auto_populate(
+                    config, auto_script_path, script_id
+                )
+
+                comp = pd.concat([comp, comp_i])
+
+                # TODO(AZS): Currently, this is set up to work with the old flood rules
+                # Requires updating once the inference is moved to BRAILS and the flood
+                # config is updated.
+                # Requires further updating to make it more generic and support more than
+                # just hurricane wind & surge
+                update(
+                    config_ap,
+                    'DL/Asset/ComponentDatabase',
+                    (
+                        f"{get(config_ap, 'DL/Asset/ComponentDatabase')},"
+                        f"{get(config_ap_i, 'DL/Asset/ComponentDatabase')}"
+                    ),
+                )
+
+                update(
+                    config_ap,
+                    'DL/Losses/Repair/ConsequenceDatabase',
+                    (
+                        f"{get(config_ap, 'DL/Losses/Repair/ConsequenceDatabase')},"
+                        f"{get(config_ap_i, 'DL/Losses/Repair/ConsequenceDatabase')}"
+                    ),
+                )
+
+                update(
+                    config_ap,
+                    'DL/Losses/Repair/CombinationMethod',
+                    'Hazus Hurricane',
+                )
 
         if is_unspecified(config_ap, 'DL'):
             msg = (
@@ -839,6 +916,14 @@ def _parse_config_file(  # noqa: C901
 
     # Ensure `DL/Damage/CollapseFragility` contains all required keys.
     if is_specified(config, 'DL/Damage/CollapseFragility'):
+        if is_unspecified(
+            config, 'DL/Damage/CollapseFragility/CapacityDistribution'
+        ):
+            config['DL']['Damage']['CollapseFragility']['CapacityDistribution'] = (
+                'deterministic'
+            )
+            config['DL']['Damage']['CollapseFragility']['Theta_1'] = 'N/A'
+
         for thing in ('CapacityDistribution', 'CapacityMedian', 'Theta_1'):
             if is_unspecified(config, f'DL/Damage/CollapseFragility/{thing}'):
                 msg = (
@@ -995,7 +1080,7 @@ def _result_summary(
 
     """
     damage_sample = assessment.damage.save_sample()
-    if damage_sample is None or agg_repair is None:
+    if damage_sample is None and agg_repair is None:
         return pd.DataFrame(), pd.DataFrame()
 
     assert isinstance(damage_sample, pd.DataFrame)

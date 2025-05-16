@@ -74,22 +74,11 @@ def test_dl_calculation_7(obtain_temp_dir: tuple[str, str]) -> None:
     # This approach is more robust to changes in the output files over
     # time.
 
-    ruleset_files = [
-        path.resolve()
-        for path in Path('pelicun/tests/dl_calculation/rulesets').glob(
-            '*Rulesets.py'
-        )
-    ]
-
     os.chdir(this_dir)
     temp_dir = tempfile.mkdtemp()
     # copy input files
-    for file_name in ('1-AIM.json', 'response.csv', 'auto_HU_NJ.py'):
+    for file_name in ('1-AIM.json', 'response.csv'):
         shutil.copy(f'{this_dir}/{file_name}', f'{temp_dir}/{file_name}')
-
-    # copy ruleset files
-    for file_path in ruleset_files:
-        shutil.copy(str(file_path), f'{temp_dir}/{file_path.name}')
 
     # change directory to there
     os.chdir(temp_dir)
@@ -101,16 +90,11 @@ def test_dl_calculation_7(obtain_temp_dir: tuple[str, str]) -> None:
         output_path=None,
         coupled_edp=True,
         realizations=100,
-        auto_script_path='auto_HU_NJ.py',
+        auto_script_path='',
         detailed_results=False,
         output_format=None,
         custom_model_dir=None,
     )
-
-    # now remove the ruleset files and auto script
-    for file_path in ruleset_files:
-        Path(f'{temp_dir}/{file_path.name}').unlink()
-    Path('auto_HU_NJ.py').unlink()
 
     #
     # Test files

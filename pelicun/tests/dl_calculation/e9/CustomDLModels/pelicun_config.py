@@ -1,9 +1,8 @@
-# -*- coding: utf-8 -*-
 #
 # Copyright (c) 2018 Leland Stanford Junior University
 # Copyright (c) 2018 The Regents of the University of California
 #
-# This file is part of the SimCenter Backend Applications
+# This file is part of pelicun.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -32,105 +31,97 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 # You should have received a copy of the BSD 3-Clause License along with
-# this file. If not, see <http://www.opensource.org/licenses/>.
+# pelicun. If not, see <http://www.opensource.org/licenses/>.
 #
+
 # Contributors:
-# Adam Zsarnóczay
-# Kuanshi Zhong
-# Frank McKenna
-#
-# Based on rulesets developed by:
-# Karen Angeles
-# Meredith Lockhead
-# Tracy Kijewski-Correa
+# Stevan Gavrilovic
+# Adam Zsarnoczay
+# Example 9 Tsunami, Seaside
 
 import pandas as pd
 
-from pelicun.tests.dl_calculation.rulesets.MetaVarRulesets import parse_BIM
-from pelicun.tests.dl_calculation.rulesets.BldgClassRulesets import building_class
-from pelicun.tests.dl_calculation.rulesets.WindWSFRulesets import WSF_config
-from pelicun.tests.dl_calculation.rulesets.WindWMUHRulesets import WMUH_config
+# noqa: INP001
 
 
-def auto_populate(aim):
+def auto_populate(aim: dict):  # noqa: ANN201
     """
-    Populates the DL model for hurricane assessments in Atlantic County, NJ
+    Populates the DL model for tsunami example using custom fragility functions
 
     Assumptions:
-    - Everything relevant to auto-population is provided in the Buiding
-    Information Model (AIM).
-    - The information expected in the AIM file is described in the parse_GI
-    method.
+    * Everything relevant to auto-population is provided in the
+    Building Information Model (AIM).
+    * The information expected in the AIM file is described in the
+    parse_AIM method.
 
     Parameters
     ----------
     aim: dictionary
         Contains the information that is available about the asset and will be
-        used to auto-popualate the damage and loss model.
+        used to auto-populate the damage and loss model.
 
     Returns
     -------
-    GI_ap: dictionary
-        Containes the extended BIM data.
-    DL_ap: dictionary
+    gi_ap: dictionary
+        Contains the extended AIM data.
+    dl_ap: dictionary
         Contains the auto-populated loss model.
     """
 
+    # parse the AIM data
+    # print(aim) # Look in the AIM.json file to see what you can access here
+
     # extract the General Information
-    GI = aim.get('GeneralInformation', None)
+    gi = aim.get('GeneralInformation')
 
-    # parse the GI data
-    GI_ap = parse_BIM(
-        GI,
-        location='LA',
-        hazards=[
-            'wind',
-        ],
-    )
+    # gi_ap is the 'extended AIM data - this case no extended AIM data
+    gi_ap = gi.copy()
 
-    # identify the building class
-    bldg_class = building_class(GI_ap, hazard='wind')
-    GI_ap.update({'HazusClassW': bldg_class})
+    # Get the number of Stories - note the column heading needs to be exactly
+    # 'NumberOfStories'.
+    nstories = gi_ap.get('NumberOfStories')
+    if nstories is None:
+        print('NumberOfStories attribute missing from AIM file.')  # noqa: T201
+        return None, None, None
 
-    # prepare the building configuration string
-    if bldg_class == 'WSF':
-        bldg_config = WSF_config(GI_ap)
-    elif bldg_class == 'WMUH':
-        bldg_config = WMUH_config(GI_ap)
+    # Get the fragility tag according to some building attribute; the
+    # NumberOfStories in this case. The fragility tag needs to be unique, i.e.,
+    # one tag for each fragility group. The fragility tag has to match the file
+    # name of the json file in the 'ComponentDataFolder' (without the .json
+    # suffix)
+
+    if nstories == 1:
+        fragility_function_tag = 'building.1'
+    elif nstories == 2:
+        fragility_function_tag = 'building.2'
+    elif nstories >= 3:
+        fragility_function_tag = 'building.3andAbove'
     else:
-        raise ValueError(
-            f'Building class {bldg_class} not recognized by the '
-            f'auto-population routine.'
-        )
-
-    # drop keys of internal variables from GI_ap dict
-    internal_vars = ['V_ult', 'V_asd']
-    for var in internal_vars:
-        try:
-            GI_ap.pop(var)
-        except KeyError:
-            pass
+        print(f'Invalid number of storeys provided: {nstories}')  # noqa: T201
 
     # prepare the component assignment
-    CMP = pd.DataFrame(
-        {f'{bldg_config}': ['ea', 1, 1, 1, 'N/A']},
+    comp = pd.DataFrame(
+        {f'{fragility_function_tag}': ['ea', 1, 1, 1, 'N/A']},
         index=['Units', 'Location', 'Direction', 'Theta_0', 'Family'],
     ).T
 
-    DL_ap = {
+    # Populate the dl_ap
+    dl_ap = {
         'Asset': {
             'ComponentAssignmentFile': 'CMP_QNT.csv',
-            'ComponentDatabase': 'Hazus Hurricane',
-            'NumberOfStories': f"{GI_ap['NumberOfStories']}",
-            'OccupancyType': f"{GI_ap['OccupancyClass']}",
-            'PlanArea': f"{GI_ap['PlanArea']}",
+            'ComponentDatabase': 'None',
+            'ComponentDatabasePath': 'CustomDLDataFolder/damage_Tsunami.csv',
         },
-        'Damage': {'DamageProcess': 'Hazus Hurricane'},
+        'Damage': {'DamageProcess': 'None'},
         'Demands': {},
         'Losses': {
-            'BldgRepair': {
-                'ConsequenceDatabase': 'Hazus Hurricane',
-                'MapApproach': 'Automatic',
+            'Repair': {
+                'ConsequenceDatabase': 'None',
+                'ConsequenceDatabasePath': (
+                    'CustomDLDataFolder/loss_repair_Tsunami.csv'
+                ),
+                'MapApproach': 'User Defined',
+                'MapFilePath': 'CustomDLDataFolder/loss_map.csv',
                 'DecisionVariables': {
                     'Cost': True,
                     'Carbon': False,
@@ -141,4 +132,4 @@ def auto_populate(aim):
         },
     }
 
-    return GI_ap, DL_ap, CMP
+    return gi_ap, dl_ap, comp

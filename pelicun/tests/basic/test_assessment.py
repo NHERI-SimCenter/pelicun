@@ -76,20 +76,30 @@ def test_Assessment_init() -> None:
 def test_assessment_get_default_metadata() -> None:
     asmt = create_assessment_obj()
 
-    data_sources = (
+    method_names = (
+        # test for backwards compatibility
         'damage_DB_FEMA_P58_2nd',
         'damage_DB_Hazus_EQ_bldg',
         'damage_DB_Hazus_EQ_trnsp',
         'loss_repair_DB_FEMA_P58_2nd',
         'loss_repair_DB_Hazus_EQ_bldg',
         'loss_repair_DB_Hazus_EQ_trnsp',
+        # current valid values
+        'Hazus Earthquake - Buildings',
+        'Hazus Earthquake - Stories',
+        'Hazus Earthquake - Transportation',
+        'Hazus Hurricane Wind - Buildings',
     )
 
-    for data_source in data_sources:
-        # here we just test that we can load the data file, without
-        # checking the contents.
-        asmt.get_default_data(data_source)
-        asmt.get_default_metadata(data_source)
+    for method_name in method_names:
+        for model_type in ['fragility', 'consequence_repair']:
+            if method_name.startswith(('damage', 'loss')):
+                model_type = None  # noqa: PLW2901
+
+            # here we just test that we can load the data file, without
+            # checking the contents.
+            asmt.get_default_data(method_name, model_type)
+            asmt.get_default_metadata(method_name, model_type)
 
 
 def test_assessment_calc_unit_scale_factor() -> None:
