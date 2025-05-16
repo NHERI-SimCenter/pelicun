@@ -306,6 +306,8 @@ def substitute_default_path(
     KeyError
       If the method_name after 'PelicunDefault/' does not exist in the
       `resource_paths` keys.
+      If the method_name after 'PelicunDefault/' does not exist in the
+      legacy list of filenames preserved for backwards compatibility.
 
     Notes
     -----
@@ -372,6 +374,10 @@ def substitute_default_path(
 
                     extension = file_name.split('.')[-1]
                     file_name = f'{data_type}.{extension}'
+
+                else:
+                    msg = f'Default data path `{data_path_str}` not recognized.'
+                    raise KeyError(msg)
 
             # Check if the method name exists in the resource paths dictionary
             if method_name not in resource_paths:

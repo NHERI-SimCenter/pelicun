@@ -1,16 +1,18 @@
 {
-  "HAZUS MH EQ IM": "seismic/building/portfolio/Hazus v6.1/",
-  "HAZUS MH HU": "hurricane/building/portfolio/Hazus v5.1 coupled/",
-
   "FEMA P-58": "seismic/building/component/FEMA P-58 2nd Edition/",
 
   "Hazus Earthquake - Buildings": "seismic/building/portfolio/Hazus v6.1/",
   "Hazus Earthquake - Stories": "seismic/building/subassembly/Hazus v5.1/",
   "Hazus Earthquake - Transportation": "seismic/transportation_network/portfolio/Hazus v5.1/",
-  "Hazus Earthquake - Water": "seismic/water_network/portfolio/Hazus v6.1/",
-  "Hazus Earthquake - Power": "seismic/power_network/portfolio/Hazus v5.1/",
+  "Hazus Earthquake - Potable Water": "seismic/water_network/portfolio/Hazus v6.1/",
+  "Hazus Earthquake - Electric Power": "seismic/power_network/portfolio/Hazus v5.1/",
+
   "Hazus Hurricane": "hurricane/building/portfolio/Hazus v5.1 coupled/",
   "Hazus Hurricane Wind": "hurricane/building/portfolio/Hazus v5.1 coupled/",
+  "Hazus Hurricane Wind - Buildings": "hurricane/building/portfolio/Hazus v5.1 coupled/",
+  "Hazus Hurricane Wind - Buildings - Coupled": "hurricane/building/portfolio/Hazus v5.1 coupled/",
+  "Hazus Hurricane Wind - Buildings - Original": "hurricane/building/portfolio/Hazus v5.1 original/",
+  "Hazus Hurricane Storm Surge - Buildings": "flood/building/portfolio/Hazus v6.1/",
 
-  "SimCenter Wind Component Library": "hurricane/building/component/SimCenter Wind Component Library"
+  "SimCenter Wind Component Library": "hurricane/building/component/SimCenter Wind Component Library/"
 }

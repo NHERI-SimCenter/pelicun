@@ -317,7 +317,7 @@ def run_pelicun(  # noqa: C901
         demand_file,
         realizations,
         output_format,
-        Path(custom_model_dir).resolve() if custom_model_dir is not None else None,
+        custom_model_dir,
         coupled_edp=coupled_edp,
         detailed_results=detailed_results,
     )
@@ -580,7 +580,7 @@ def _parse_config_file(  # noqa: C901
     demand_file: str,
     realizations: int,
     output_format: list | None,
-    custom_model_dir: Path | None,
+    custom_model_dir: str | None,
     *,
     coupled_edp: bool,
     detailed_results: bool,
@@ -602,8 +602,8 @@ def _parse_config_file(  # noqa: C901
         Number of realizations.
     output_format : str
         Output format (CSV, JSON).
-    custom_model_dir: Path, optional
-        Path pointing to a directory with files that define user-provided model
+    custom_model_dir: str, optional
+        String pointing to a directory with files that define user-provided model
         parameters for a customized damage and loss assessment.
     coupled_EDP : bool
         Whether to consider coupled EDPs.
@@ -655,31 +655,64 @@ def _parse_config_file(  # noqa: C901
             else:
                 dl_model_folder = get(config, 'Applications/DL/ApplicationData/custom_model_dir')
 
-        else:
-            dl_model_folder = substitute_default_path(
-                [f'PelicunDefault/{dl_method}']
-                )[0]
-        
-        assert isinstance(dl_model_folder, str)
-        dl_model_folder = Path(dl_model_folder).resolve()
-        assert dl_model_folder.exists() and dl_model_folder.is_dir(), f"{dl_model_folder} does not exist or is not a directory"
-        
-        auto_script_path = Path(dl_model_folder/"pelicun_config.py").resolve()
-        if not auto_script_path.exists():
-            msg = (
-                f"No `DL` entry in config file and the following path "
-                f"does not point to a valid pelicun configuration file: "
-                f"{auto_script_path}."
-            )
-            raise PelicunInvalidConfigError(msg)
+            assert isinstance(dl_model_folder, str)
+            dl_model_folder = Path(dl_model_folder).resolve()
+            assert dl_model_folder.exists() and dl_model_folder.is_dir(), f"{dl_model_folder} does not exist or is not a directory"
 
-        log_msg(f'Configuring Pelicun using {auto_script_path}')
+            auto_script_paths = [Path(dl_model_folder/"pelicun_config.py").resolve(),]
+
+        else:
+            dl_methods = [m.strip() for m in dl_method.split(',')]
+
+            auto_script_paths = []
+            for dl_method in dl_methods:
+                auto_script_path = substitute_default_path(
+                    [f'PelicunDefault/{dl_method}/pelicun_config.py']
+                    )[0]
+                auto_script_paths.append(Path(auto_script_path).resolve())
+        
+        for auto_script_path in auto_script_paths:
+
+            if not auto_script_path.exists():
+                msg = (
+                    f"No `DL` entry in config file and the following path "
+                    f"does not point to a valid pelicun configuration file: "
+                    f"{auto_script_path}."
+                )
+                raise PelicunInvalidConfigError(msg)
 
         # Add the demandFile to the config dict to allow demand-dependent auto-population
         update(config, '/DL/Demands/DemandFilePath', demand_file)
         update(config, '/DL/Demands/SampleSize', str(realizations))
 
-        config_ap, comp = auto_populate(config, auto_script_path)
+        for script_id, auto_script_path in enumerate(auto_script_paths):
+
+            log_msg(f'Configuring Pelicun using {auto_script_path}')
+
+            if script_id == 0:
+                config_ap, comp = auto_populate(config, auto_script_path, script_id)
+
+            else:
+                config_ap_i, comp_i = auto_populate(config, auto_script_path, script_id)
+
+                comp = pd.concat([comp, comp_i])
+
+                # TODO(AZS): Currently, this is set up to work with the old flood rules
+                # Requires updating once the inference is moved to BRAILS and the flood
+                # config is updated.
+                # Requires further updating to make it more generic and support more than
+                # just hurricane wind & surge
+                update(config_ap, 'DL/Asset/ComponentDatabase',(
+                    f"{get(config_ap,'DL/Asset/ComponentDatabase')},"
+                    f"{get(config_ap_i,'DL/Asset/ComponentDatabase')}"
+                    ))
+
+                update(config_ap, 'DL/Losses/Repair/ConsequenceDatabase',(
+                    f"{get(config_ap,'DL/Losses/Repair/ConsequenceDatabase')},"
+                    f"{get(config_ap_i,'DL/Losses/Repair/ConsequenceDatabase')}"
+                    ))
+
+                update(config_ap, 'DL/Losses/Repair/CombinationMethod','Hazus Hurricane')
 
         if is_unspecified(config_ap, 'DL'):
             msg = (
@@ -1031,7 +1064,7 @@ def _result_summary(
 
     """
     damage_sample = assessment.damage.save_sample()
-    if damage_sample is None or agg_repair is None:
+    if damage_sample is None and agg_repair is None:
         return pd.DataFrame(), pd.DataFrame()
 
     assert isinstance(damage_sample, pd.DataFrame)

@@ -65,14 +65,17 @@ default_damage_processes = {
         '5_irreparable': {'DS1': 'collapse_DS0'},
     },
     # TODO(AZ): expand with ground failure logic
-    'Hazus Earthquake': {
+    'Hazus Earthquake - Lifeline Facilities': {        
+        '1_LF': {'DS5': 'collapse_DS1'},        
+        '2_collapse': {'DS1': 'ALL_NA'},        
+    },
+    'Hazus Earthquake - Buildings': {
         '1_STR': {'DS5': 'collapse_DS1'},
-        '2_LF': {'DS5': 'collapse_DS1'},
-        '3_excessive.coll.DEM': {'DS1': 'collapse_DS1'},
-        '4_collapse': {'DS1': 'ALL_NA'},
-        '5_excessiveRID': {'DS1': 'irreparable_DS1'},
-        '6_irreparable': {'DS1': 'ALL_NA'},
-        '7_irreparable': {'DS1': 'collapse_DS0'},
+        '2_excessive.coll.DEM': {'DS1': 'collapse_DS1'},
+        '3_collapse': {'DS1': 'ALL_NA'},
+        '4_excessiveRID': {'DS1': 'irreparable_DS1'},
+        '5_irreparable': {'DS1': 'ALL_NA'},
+        '6_irreparable': {'DS1': 'collapse_DS0'},
     },
     'Hazus Hurricane': {},
 }
@@ -976,7 +979,11 @@ class DLCalculationAssessment(AssessmentBase):
         component_db = []
 
         if not pd.isna(component_database):
-            for method_name in component_database.split(','):
+            for method_name in [cdb.strip() for cdb in component_database.split(',')]:
+
+                if method_name == "None":
+                    continue
+
                 # <backwards compatibility>
                 if method_name.endswith(('csv','CSV')):
                     component_db_path = file_io.substitute_default_path(
@@ -990,7 +997,8 @@ class DLCalculationAssessment(AssessmentBase):
                     )[0]
                 assert isinstance(component_db_path, str)
 
-                component_db.append(component_db_path)
+                if Path(component_db_path).is_file():
+                    component_db.append(component_db_path)
 
         if component_database_path is not None:
             if 'CustomDLDataFolder' in component_database_path:
@@ -1166,7 +1174,11 @@ class DLCalculationAssessment(AssessmentBase):
                 dmg_process = default_damage_processes[damage_process_approach]
 
                 # For Hazus Earthquake, we need to specify the component ids
-                if damage_process_approach == 'Hazus Earthquake':
+                if damage_process_approach in [
+                    'Hazus Earthquake',
+                    'Hazus Earthquake - Buildings',
+                    'Hazus Earthquake - Lifeline Facilities'
+                ]:
                     cmp_sample = self.asset.save_cmp_sample()
                     assert isinstance(cmp_sample, pd.DataFrame)
 
@@ -1429,7 +1441,7 @@ class DLCalculationAssessment(AssessmentBase):
             # assemble the combination dict for wind and storm surge
             # open the base combination matrix
             file_path = file_io.substitute_default_path(
-                ['PelicunDefault/Hazus Hurricane Wind/Wind_Flood_Hazus_HU_bldg.csv'],
+                ['PelicunDefault/Hazus Hurricane Wind/combine_wind_flood.csv'],
                 log=self.log
             )[0]
             assert isinstance(file_path, str)
@@ -1498,7 +1510,11 @@ class DLCalculationAssessment(AssessmentBase):
         conseq_df = pd.DataFrame()
 
         if not pd.isna(consequence_database):
-            for method_name in consequence_database.split(','):
+            for method_name in [cdb.strip() for cdb in consequence_database.split(',')]:
+
+                if method_name == "None":
+                    continue
+
                 # <backwards compatibility>
                 if method_name.endswith(('csv','CSV')):
                     consequence_db_path = file_io.substitute_default_path(
@@ -1512,13 +1528,31 @@ class DLCalculationAssessment(AssessmentBase):
                     )[0]
                 assert isinstance(consequence_db_path, str)
 
-                consequence_db.append(consequence_db_path)
+                if Path(consequence_db_path).is_file():
+                    consequence_db.append(consequence_db_path)                
 
-                conseq_df = pd.concat([
-                    conseq_df, 
-                    self.get_default_data(method_name,'consequence_repair')
-                ])
-                assert isinstance(conseq_df, pd.DataFrame)
+                    conseq_df = pd.concat([
+                        conseq_df, 
+                        self.get_default_data(method_name,'consequence_repair')
+                    ])
+                    assert isinstance(conseq_df, pd.DataFrame)
+
+                else:
+                    # try loading loss functions instead
+                    loss_db_path = file_io.substitute_default_path(
+                        [f'PelicunDefault/{method_name}/loss_repair.csv'],
+                        log=self.log
+                    )[0]
+
+                    if Path(loss_db_path).is_file():
+                        consequence_db.append(loss_db_path) 
+
+                        conseq_df = pd.concat([
+                            conseq_df, 
+                            self.get_default_data(method_name,'loss_repair')
+                        ])
+                        assert isinstance(conseq_df, pd.DataFrame)
+
 
         if consequence_database_path is not None:
             if 'CustomDLDataFolder' in consequence_database_path:
@@ -1828,6 +1862,15 @@ def _loss__add_replacement_time(
             (f'STR.{occupancy_type}', 'Time'), ('DS5', 'Theta_0')
         ]
 
+    elif damage_process_approach == 'Hazus Earthquake - Lifeline Facilities':
+        adf.loc[rt, ('Quantity', 'Unit')] = '1 EA'
+        adf.loc[rt, ('DV', 'Unit')] = 'day'
+
+        # load the replacement time that corresponds to total loss
+        adf.loc[rt, ('DS1', 'Theta_0')] = conseq_df.loc[
+            (f'LF.{occupancy_type}', 'Time'), ('DS5', 'Theta_0')
+        ]
+
     # otherwise, use 1 (and expect to have it defined by the user)
     else:
         adf.loc[rt, ('Quantity', 'Unit')] = '1 EA'
@@ -2009,6 +2052,8 @@ def _loss__map_auto(
 
     elif dl_method in {
         'Hazus Earthquake',
+        'Hazus Earthquake - Buildings',
+        'Hazus Earthquake - Lifeline Facilities',
         'Hazus Earthquake Transportation',
     }:
         # with Hazus Earthquake we assume that consequence

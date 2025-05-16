@@ -56,6 +56,7 @@ if TYPE_CHECKING:
 def auto_populate(
     config: dict,
     auto_script_path: Path,
+    unique_id: int = 1,
     **kwargs,  # noqa: ANN003
 ) -> tuple[dict, pd.DataFrame]:
     """
@@ -80,6 +81,9 @@ def auto_populate(
         rules. Built-in scripts can be referenced using the
         'PelicunDefault/XY' format where 'XY' is the name of the
         script.
+    unique_id: int
+        This id is required when multiple auto population scripts are
+        run in sequence. It helps keep the imported module names unique.
     kwargs
         Keyword arguments.
 
@@ -122,8 +126,13 @@ def auto_populate(
     # load the auto population module
     asp = Path(auto_script_path).resolve()
     sys.path.insert(0, str(asp.parent) + '/')
-    auto_script = importlib.__import__(asp.name[:-3], globals(), locals(), [], 0)
-    auto_populate_ext = auto_script.auto_populate
+    spec = importlib.util.spec_from_file_location(f"auto_script_{unique_id}", asp)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    auto_populate_ext = module.auto_populate
+
+    #auto_script = importlib.__import__(asp.name[:-3], globals(), locals(), [], 0)
+    #auto_populate_ext = auto_script.auto_populate
 
     # generate the DL input data
     aim_ap, dl_ap, comp = auto_populate_ext(aim=config_autopopulated)
