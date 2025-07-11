@@ -88,6 +88,8 @@ setup(
         'colorama>=0.4.0, <0.5.0',
         'numexpr>=2.8, <3.0',
         'jsonschema>=4.22.0, <5.0',
+        'requests',
+        'tqdm'
         # 'tables>=3.7.0',
     ],
     extras_require={
