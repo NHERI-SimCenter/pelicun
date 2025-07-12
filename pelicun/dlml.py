@@ -335,23 +335,39 @@ def download_data_files(version="latest", commit=None, use_cache=True):
 
     print(f"DLML model data download complete. Downloaded {total_files - skipped_count} files, skipped {skipped_count} unchanged files.")
 
-if __name__ == "__main__":
+def main(argv=None):
+    """
+    Main CLI function for the DLML module.
+
+    Parameters
+    ----------
+    argv: list, optional
+        Command line arguments. If None, uses sys.argv.
+
+    Returns
+    -------
+    int
+        Exit code (0 for success, 1 for failure)
+    """
+    if argv is None:
+        argv = sys.argv
+
     # Example usage for post-installation updates
     # Allows users to run:
     # `python -m pelicun.dlml update <version_tag>` - e.g., `python -m pelicun.dlml update v1.2.0` or `latest`
     # `python -m pelicun.dlml update commit <commit_sha>` - e.g., `python -m pelicun.dlml update commit abc1234` or `latest`
     # `python -m pelicun.dlml update --no-cache [version|commit <commit_sha>]` - Disable caching
 
-    if len(sys.argv) < 2 or sys.argv[1] != "update":
+    if len(argv) < 2 or argv[1] != "update":
         print("Usage: python -m pelicun.dlml update [--no-cache] [version|commit <commit_sha>]")
         print("  --no-cache: Disable caching to force re-download of all files")
         print("  version: A release tag (e.g., v1.2.0) or 'latest'")
         print("  commit: Use 'commit' followed by a 7-character commit SHA or 'latest'")
-        sys.exit(1)
+        return 1
 
     # Check for --no-cache flag
     use_cache = True
-    args = sys.argv[2:]
+    args = argv[2:]
     if "--no-cache" in args:
         use_cache = False
         args.remove("--no-cache")
@@ -365,6 +381,11 @@ if __name__ == "__main__":
             # Handle version-based download
             version_arg = args[0] if args else "latest"
             download_data_files(version=version_arg, use_cache=use_cache)
+        return 0
     except (RuntimeError, ValueError) as e:
         print(f"Data download failed: {e}", file=sys.stderr)
-        sys.exit(1)
+        return 1
+
+
+if __name__ == "__main__":
+    sys.exit(main())
