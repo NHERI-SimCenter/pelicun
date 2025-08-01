@@ -2,4 +2,6 @@
 omit = 
     db.py
     */tests/*
+    */resources/*
+    */tools/HDF_to_CSV.py
 [report]

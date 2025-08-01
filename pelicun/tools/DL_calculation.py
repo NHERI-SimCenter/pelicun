@@ -806,6 +806,15 @@ def _parse_config_file(  # noqa: C901
         if is_unspecified(config_ap, 'DL/Losses'):
             update(config_ap, 'DL/Outputs/Loss', {})
 
+        if is_specified(config, 'outputs'):
+            if (config['outputs']['IM'] == False and
+                config['outputs']['EDP'] == False):
+                update(config_ap, 'DL/Outputs/Demand', {})
+            if config['outputs']['DM'] == False:
+                update(config_ap, 'DL/Outputs/Damage', {})
+            if config['outputs']['DV'] == False:
+                update(config_ap, 'DL/Outputs/Loss', {})
+
         # save the extended config to a file
         config_ap_path = Path(config_path.stem + '_ap.json').resolve()
 
@@ -1083,20 +1092,26 @@ def _result_summary(
     if damage_sample is None and agg_repair is None:
         return pd.DataFrame(), pd.DataFrame()
 
-    assert isinstance(damage_sample, pd.DataFrame)
-    damage_sample = damage_sample.groupby(level=['cmp', 'ds'], axis=1).sum()  # type: ignore
-    assert isinstance(damage_sample, pd.DataFrame)
-    damage_sample_s = convert_to_SimpleIndex(damage_sample, axis=1)
+    if damage_sample is not None:
+        assert isinstance(damage_sample, pd.DataFrame)
+        damage_sample = damage_sample.groupby(level=['cmp', 'ds'], axis=1).sum()  # type: ignore
+        assert isinstance(damage_sample, pd.DataFrame)
+        damage_sample_s = convert_to_SimpleIndex(damage_sample, axis=1)
 
-    if 'collapse-1' in damage_sample_s.columns:
-        damage_sample_s['collapse'] = damage_sample_s['collapse-1']
-    else:
-        damage_sample_s['collapse'] = np.zeros(damage_sample_s.shape[0])
+        if 'collapse-1' in damage_sample_s.columns:
+            damage_sample_s['collapse'] = damage_sample_s['collapse-1']
+        else:
+            damage_sample_s['collapse'] = np.zeros(damage_sample_s.shape[0])
 
-    if 'irreparable-1' in damage_sample_s.columns:
-        damage_sample_s['irreparable'] = damage_sample_s['irreparable-1']
+        if 'irreparable-1' in damage_sample_s.columns:
+            damage_sample_s['irreparable'] = damage_sample_s['irreparable-1']
+        else:
+            damage_sample_s['irreparable'] = np.zeros(damage_sample_s.shape[0])
+
+        damage_sample_s = damage_sample_s[['collapse', 'irreparable']]
+
     else:
-        damage_sample_s['irreparable'] = np.zeros(damage_sample_s.shape[0])
+        damage_sample_s = pd.DataFrame()
 
     if agg_repair is not None:
         agg_repair_s = convert_to_SimpleIndex(agg_repair, axis=1)
@@ -1105,7 +1120,7 @@ def _result_summary(
         agg_repair_s = pd.DataFrame()
 
     summary = pd.concat(
-        [agg_repair_s, damage_sample_s[['collapse', 'irreparable']]], axis=1
+        [agg_repair_s, damage_sample_s], axis=1
     )
 
     summary_stats = describe(summary)
@@ -1422,12 +1437,22 @@ def _loss_save(
     repair_units = repair_units_series.to_frame().T
 
     if aggregate_colocated:
-        repair_units = repair_units.groupby(  # type: ignore
-            level=['dv', 'loss', 'dmg', 'ds', 'loc', 'dir'], axis=1
-        ).first()
-        repair_groupby_uid = repair_sample.groupby(  # type: ignore
-            level=['dv', 'loss', 'dmg', 'ds', 'loc', 'dir'], axis=1
-        )
+
+        if 'ds' in repair_units.columns.names:
+            repair_units = repair_units.groupby(  # type: ignore
+                level=['dv', 'loss', 'dmg', 'ds', 'loc', 'dir'], axis=1
+            ).first()
+            repair_groupby_uid = repair_sample.groupby(  # type: ignore
+                level=['dv', 'loss', 'dmg', 'ds', 'loc', 'dir'], axis=1
+            )
+        else:
+            repair_units = repair_units.groupby(  # type: ignore
+                level=['dv', 'loss', 'dmg', 'loc', 'dir'], axis=1
+            ).first()
+            repair_groupby_uid = repair_sample.groupby(  # type: ignore
+                level=['dv', 'loss', 'dmg', 'loc', 'dir'], axis=1
+            )
+
         repair_sample = repair_groupby_uid.sum().mask(
             repair_groupby_uid.count() == 0, np.nan
         )
