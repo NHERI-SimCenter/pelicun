@@ -573,7 +573,7 @@ def _summary_save(
         out_files.append('DL_summary_stats.csv')
 
 
-def _parse_config_file(  # noqa: C901
+def _parse_config_file(  # noqa: C901, PLR0912
     config_path: Path,
     output_path: Path,
     auto_script_path: Path | None,
@@ -807,12 +807,11 @@ def _parse_config_file(  # noqa: C901
             update(config_ap, 'DL/Outputs/Loss', {})
 
         if is_specified(config, 'outputs'):
-            if (config['outputs']['IM'] == False and
-                config['outputs']['EDP'] == False):
+            if (not config['outputs']['IM']) and (not config['outputs']['EDP']):
                 update(config_ap, 'DL/Outputs/Demand', {})
-            if config['outputs']['DM'] == False:
+            if not config['outputs']['DM']:
                 update(config_ap, 'DL/Outputs/Damage', {})
-            if config['outputs']['DV'] == False:
+            if not config['outputs']['DV']:
                 update(config_ap, 'DL/Outputs/Loss', {})
 
         # save the extended config to a file
@@ -1044,20 +1043,27 @@ def _create_json_files_if_requested(
                 pd.read_csv(output_path / filename, index_col=0), axis=1
             )
 
-        if 'Units' in data.index:
+        # Check for units information (case-insensitive)
+        units_key = None
+        for key in data.index:
+            if str(key).lower() == 'units':
+                units_key = key
+                break
+
+        if units_key is not None:
             df_units = convert_to_SimpleIndex(
-                data.loc['Units', :].to_frame().T,  # type: ignore
+                data.loc[units_key, :].to_frame().T,  # type: ignore
                 axis=1,
             )
 
-            data = data.drop('Units', axis=0)
+            data = data.drop(units_key, axis=0)
 
             out_dict = convert_df_to_dict(data)
 
             out_dict.update(
                 {
                     'Units': {
-                        col: df_units.loc['Units', col] for col in df_units.columns
+                        col: df_units.loc[units_key, col] for col in df_units.columns
                     }
                 }
             )
@@ -1403,7 +1409,7 @@ def _damage_save(
             out_files.append('DMG_grp_stats.csv')
 
 
-def _loss_save(
+def _loss_save(  # noqa: C901
     output_config: dict,
     assessment: DLCalculationAssessment,
     output_path: Path,

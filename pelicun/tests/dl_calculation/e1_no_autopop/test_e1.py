@@ -102,16 +102,15 @@ def test_dl_calculation_1(obtain_temp_dir: str) -> None:
 
     # Get all files in the directory
     all_files = [entry.name for entry in Path(temp_dir).iterdir() if entry.is_file()]
-    print(f"Files in directory: {all_files}")
+    # print(f"Files in directory: {all_files}")
 
     # Ensure the number of files is as expected
     num_files = len(all_files)
-    assert num_files == 19  # Updated to expect 19 files instead of 18
+    assert num_files == 18
 
     # Verify their names
     files = {
         '8000-AIM.json',
-        '8000-AIM_ap.json',  # Added the auto-populated config file
         'CMP_QNT.csv',
         'CMP_sample.json',
         'DEM_sample.json',
