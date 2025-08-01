@@ -1,0 +1,372 @@
+#  # noqa: N999
+# Copyright (c) 2018 Leland Stanford Junior University
+# Copyright (c) 2018 The Regents of the University of California
+#
+# This file is part of pelicun.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+#
+# 1. Redistributions of source code must retain the above copyright notice,
+# this list of conditions and the following disclaimer.
+#
+# 2. Redistributions in binary form must reproduce the above copyright notice,
+# this list of conditions and the following disclaimer in the documentation
+# and/or other materials provided with the distribution.
+#
+# 3. Neither the name of the copyright holder nor the names of its contributors
+# may be used to endorse or promote products derived from this software without
+# specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+# ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+# LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+# CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+# SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+# INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+# CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+# ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+#
+# You should have received a copy of the BSD 3-Clause License along with
+# pelicun. If not, see <http://www.opensource.org/licenses/>.
+#
+# Contributors:
+# Adam Zsarnóczay
+
+"""Temporary solution that provides regional simulation capability to Pelicun"""
+
+import numpy as np
+import pandas as pd
+import json
+
+from pelicun.auto import auto_populate
+from pelicun.file_io import substitute_default_path
+from pelicun.assessment import Assessment
+
+from pelicun.tools.NNR import NNR
+
+def unique_list(x):
+
+    vals = x.unique().astype(str)
+
+    if len(vals) > 1:
+        return f'{",".join(vals)}'
+
+    else:
+        return f"{vals[0]}"
+
+def regional_sim(config_file='inputRWHALE.json'):
+
+    with open(config_file, 'r') as f:
+        config = json.load(f)
+
+    sample_size_demand = config['Applications']['RegionalMapping']['Buildings']['ApplicationData']['samples']
+    sample_size_damage = config['Applications']['DL']['Buildings']['ApplicationData']['Realizations']
+
+    # 1 Earthquake Event
+    # Load gridded event IM information from a standard SimCenter EventGrid file and the corresponding site files.
+
+    event_data_folder = config['RegionalEvent']['eventFilePath']
+    event_grid_path = f"{event_data_folder}/{config['RegionalEvent']['eventFile']}"
+
+    grid_points = pd.read_csv(event_grid_path)
+
+    grid_point_data_array = []
+
+    for grid_point_file in grid_points['GP_file']:
+        grid_point_data = pd.read_csv(f'{event_data_folder}/{grid_point_file}')
+
+        grid_point_data_array.append(grid_point_data)
+
+    grid_data = pd.concat(grid_point_data_array, axis=1, keys=grid_points.index)
+
+    # 2 Building Inventory
+    # Load probabilistic building inventory from a CSV file
+
+    bldg_data_folder = config['Applications']['Assets']['Buildings']['ApplicationData']['pathToSource']
+    bldg_data_path = f"{bldg_data_folder}/{config['Applications']['Assets']['Buildings']['ApplicationData']['assetSourceFile']}"
+
+    bldg_df = pd.read_csv(bldg_data_path, index_col=0)
+
+    # TODO: Refactor this to be an input parameter and also to have batches
+    bldg_df = bldg_df.iloc[:1000]
+
+    # 3 Event-to-Building Mapping
+    # Map event IMs to building centroids using the nearest neighbor method
+
+    X = grid_points[['Longitude','Latitude']].values
+    Z = grid_data.T.values
+
+    X_t = bldg_df[['Longitude','Latitude']].values
+
+    Z_hat = NNR(X_t, X, Z, sample_size=-1, n_neighbors=8, weight='distance2')
+
+    # Prepare IM information as demands in the Pelicun format
+
+    #TODO: allow for more flexible columns
+    demand_sample = pd.DataFrame(
+        np.vstack([Z_hat.T,np.full((1, Z_hat.shape[0]), 'g')]),
+        columns=[f'PGA-{loc}-1' for loc in bldg_df.index],
+        index = list(range(sample_size_demand)) +['Units']
+    )
+
+    # 4 Building-to-Archetype Mapping
+    # Use Pelicun and the built-in mapping for Hazus IM-based damage models to map each building in the inventory to an archetype
+
+    dl_method = config['Applications']['DL']['Buildings']['ApplicationData']['DL_Method']
+    auto_script_path = substitute_default_path(
+        [f'PelicunDefault/{dl_method}/pelicun_config.py']
+    )[0]
+
+    CMP_list = []
+
+    for bldg_id, row_data in bldg_df.iloc[:].iterrows():
+
+        DL_ap, CMP = auto_populate(
+            {
+                'GeneralInformation':dict(row_data),
+                'assetType':'Buildings',
+                'Applications':{'DL':{'ApplicationData':{
+                    'coupled_EDP': True,
+                    'lifeline_facility': True,
+                    'ground_failure':False
+                }}}
+            },
+            auto_script_path
+        )
+
+        CMP['Location'] = bldg_id
+
+        CMP_list.append(CMP)
+
+    cmp_marginals = pd.concat(CMP_list)
+
+    cmp_marginals_raw = cmp_marginals.copy()
+
+    cmp_marginals = cmp_marginals_raw.groupby(cmp_marginals_raw.index).agg({
+        'Units': unique_list,
+        'Location': unique_list,
+        'Direction': unique_list,
+        'Theta_0': unique_list
+    })
+
+    # 5 Calculate Damage
+    # Calculate damage with a deterministic inventory realization
+
+    # initialize assessment object
+    PAL = Assessment({
+        "LogFile": "pelicun_log.txt",
+        "Verbose": True,
+        "NonDirectionalMultipliers": {"ALL": 1.0}
+    })
+
+    # load demands
+    PAL.demand.load_sample(demand_sample)
+
+    PAL.demand.calibrate_model({"ALL": {"DistributionFamily": "empirical"}})
+
+    PAL.demand.generate_sample(
+            {
+                "SampleSize": sample_size_damage,
+                'PreserveRawOrder': True
+            }
+        )
+
+    # load component assignment
+    PAL.asset.load_cmp_model({'marginals': cmp_marginals})
+
+    PAL.asset.generate_cmp_sample()
+
+    # get the path to the built-in fragility functions
+    component_db_path = substitute_default_path(
+        [f'PelicunDefault/{dl_method}/fragility.csv']
+    )[0]
+
+    # import the required fragility functions
+    cmp_set = PAL.asset.list_unique_component_ids()
+
+    PAL.damage.load_model_parameters([component_db_path,],cmp_set)
+
+    # run the damage calculation
+    PAL.damage.calculate()
+
+    # retrieve damage information
+    damage_sample, damage_units = PAL.damage.save_sample(save_units=True)
+
+    damage_units = damage_units.to_frame().T
+
+    # aggregate across uid
+    # this is trivial since we don't have multiple identical components at the same location
+    damage_units = damage_units.groupby(level=['cmp', 'loc', 'dir', 'ds'], axis=1).first()
+
+    damage_groupby_uid = damage_sample.groupby(level=['cmp', 'loc', 'dir', 'ds'], axis=1)
+    damage_sample = damage_groupby_uid.sum().mask(damage_groupby_uid.count() == 0, np.nan)
+
+    # aggregate across dir
+    # also trivial, all results are in dir 1
+
+    damage_groupby = damage_sample.groupby(level=['cmp', 'loc', 'ds'], axis=1)
+
+    damage_units = damage_units.groupby(level=['cmp', 'loc', 'ds'], axis=1).first()
+    grp_damage = damage_groupby.sum().mask(damage_groupby.count() == 0, np.nan)
+
+    # replace non-zero values with 1
+    # this is probably not making any meaningful changes since we have 1 ea quantity of each component
+    # Honestly, I am not quite sure why we need this step...
+    grp_damage = grp_damage.mask(
+        grp_damage.astype(np.float64).values > 0, 1
+    )
+
+    # get the corresponding DS for each column
+    ds_list = grp_damage.columns.get_level_values('ds').astype(int)
+
+    # replace ones with the corresponding DS in each cell
+    grp_damage = grp_damage.mul(ds_list, axis=1)
+
+    # aggregate across damage state indices
+    damage_groupby_2 = grp_damage.groupby(level=['cmp', 'loc'], axis=1)
+
+    # choose the max value
+    # i.e., the governing DS for each comp-loc pair
+    # Note that in each realization, each component will have only one non-zero damage state result,
+    # so this is not picking the max damage state, but rather picking the realized damage state
+    grp_damage = damage_groupby_2.max().mask(damage_groupby_2.count() == 0, np.nan)
+
+    # aggregate units to the same format
+    # assume identical units across locations for each comp
+    damage_units = damage_units.groupby(level=['cmp', 'loc'], axis=1).first()
+
+    grp_damage = grp_damage.astype(int).T.reorder_levels(['loc','cmp'])
+
+    damage_df = grp_damage.copy()
+
+    # assuming there's only one component in each building, we can drop the component info
+    damage_df = damage_df.groupby(level='loc').sum()
+    damage_df.index = damage_df.index.astype(int)
+    damage_df.sort_index(inplace=True)
+
+    # 6 Calculate Losses
+
+    # get the path to the built-in consequence functions
+    consequence_db_path = substitute_default_path(
+        [f'PelicunDefault/{dl_method}/consequence_repair.csv']
+    )[0]
+
+    # Hazus consequence functions depend only on occupancy class
+    # we need to list building IDs for each occupancy type first
+    loss_groups = bldg_df[['StructureType','OccupancyClass']].copy()
+    loss_groups['IDs'] = loss_groups.index
+
+    loss_groups = loss_groups.groupby(['OccupancyClass']).agg({'IDs': unique_list})
+
+    # create a lookup table to find which fragility IDs are at which location
+    dmg_sample = PAL.damage.save_sample()
+    cmp_loc = dmg_sample.groupby(level=['cmp','loc'], axis=1).first()
+
+    cmp_lookup = pd.Series(
+        cmp_loc.columns.get_level_values('cmp'),
+        index=cmp_loc.columns.get_level_values('loc').astype(int)
+    ).sort_index()
+
+    # Loss calculation is a bit complicated now. I need to add a new feature to Pelicun to make it work as smoothly as the damage does.
+    # What I do below is brute force, but it works, and still takes only a few minutes to run.
+    # I'll enhance Pelicun in the coming weeks to do more sophisticated loss mapping and be able to handle the following calculations faster without the for loop
+
+    # we'll collect the results in this dict
+    loss_results = {'Cost': [], 'Time': []}
+
+    # start by extracting the full damage sample and preserving it
+    full_dmg_sample = PAL.damage.save_sample()
+
+    for occ_type, raw_building_ids in loss_groups.iloc[:].iterrows():
+
+        # convert the building id list to a numpy array of ints
+        building_ids = np.array(raw_building_ids.values[0].split(',')).astype(int)
+
+        # and make sure those IDs are in the component lookup table
+        building_ids = [building_id for building_id in building_ids if building_id in cmp_lookup.index]
+
+        # load only the subset of the damage sample that is needed for the calculation
+        idx = pd.IndexSlice
+        dmg_subset = full_dmg_sample.loc[:,idx[:,np.array(building_ids, dtype=str),:,:,:]]
+        PAL.damage.load_sample(dmg_subset)
+
+        # create a loss map that maps every fragility ID to a consequence for the given occupancy type
+        loss_cmp = f'LF.{occ_type}'
+
+        drivers = []
+        loss_models = []
+
+        dmg_cmps = dmg_subset.columns.get_level_values('cmp').unique()
+
+        for cmp_id in dmg_cmps.unique():
+            drivers.append(f'{cmp_id}')
+            loss_models.append(loss_cmp)
+
+        loss_map = pd.DataFrame(
+            loss_models,
+            columns=['Repair'],
+            index=drivers
+        )
+
+        decision_variables = ['Cost','Time']
+
+        PAL.loss.decision_variables = decision_variables
+        PAL.loss.add_loss_map(loss_map, loss_map_policy=None)
+        PAL.loss.load_model_parameters([consequence_db_path,])
+
+        PAL.loss.calculate()
+
+        # - - - - - -
+
+        repair_sample, repair_units = PAL.loss.save_sample(save_units=True)
+
+        # aggregate across uid
+        # this is trivial since we don't have multiple identical components at the same location
+        repair_units = repair_units.groupby(level=['dv','loss','dmg','ds','loc','dir']).first()
+
+        repair_groupby_uid = repair_sample.groupby(level=['dv','loss','dmg','ds','loc','dir'], axis=1)
+
+        repair_sample = repair_groupby_uid.sum().mask(
+            repair_groupby_uid.count() == 0, np.nan
+        )
+
+        # now aggregate across loss, dmg, damage state, and direction
+        # all of those are only one value per location, so they do not provide additional information
+        repair_groupby = repair_sample.groupby(level=['dv', 'loc'], axis=1)
+
+        repair_units = repair_units.groupby(level=['dv', 'loc']).first()
+
+        grp_repair = repair_groupby.sum().mask(
+            repair_groupby.count() == 0, np.nan
+        )
+
+        # - - - -
+
+        # append the results to the main dict
+        for DV_type in ['Cost','Time']:
+            grp_repair_dv = grp_repair[DV_type].copy()
+            grp_repair_dv.columns = grp_repair_dv.columns.astype(int)
+
+            # we did not preserve the units for now; we can add them here if needed
+
+            loss_results[DV_type].append(grp_repair_dv.loc[:, building_ids])
+
+    repair_costs = pd.concat(loss_results['Cost'],axis=1).sort_index(axis=1).T
+    repair_times = pd.concat(loss_results['Time'],axis=1).sort_index(axis=1).T
+
+    # finish by putting the full damage sample back to the assessment object
+    PAL.damage.load_sample(full_dmg_sample)
+
+    # 7 Save results
+
+    demand_sample.to_csv('demand.csv')
+    damage_df.to_csv('damage.csv')
+    repair_costs.to_csv('repair_costs.csv')
+    repair_times.to_csv('repair_times.csv')
+
+if __name__ == '__main__':
+    regional_sim()
