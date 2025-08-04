@@ -45,6 +45,7 @@ import time
 import os
 import tempfile
 from tqdm import tqdm
+from joblib import Parallel, delayed
 
 from pelicun.auto import auto_populate
 from pelicun.file_io import substitute_default_path
@@ -88,12 +89,9 @@ def process_buildings_chunk(bldg_df_chunk, grid_points, grid_data, sample_size_d
     - repair_costs: DataFrame with repair cost results
     - repair_times: DataFrame with repair time results
     """
-    # Initialize start time for timestamp tracking
-    start_time = time.time()
     
     # 3 Event-to-Building Mapping
     # Map event IMs to building centroids using the nearest neighbor method
-    print(f"[{format_elapsed_time(start_time)}] 3 Event-to-Building Mapping")
 
     X = grid_points[['Longitude','Latitude']].values
     Z = grid_data.T.values
@@ -152,7 +150,6 @@ def process_buildings_chunk(bldg_df_chunk, grid_points, grid_data, sample_size_d
 
     # 5 Calculate Damage
     # Calculate damage with a deterministic inventory realization
-    print(f"[{format_elapsed_time(start_time)}] 5 Calculate Damage")
 
     # initialize assessment object
     PAL = Assessment({
@@ -361,6 +358,31 @@ def process_buildings_chunk(bldg_df_chunk, grid_points, grid_data, sample_size_d
     
     return demand_sample, damage_df, repair_costs, repair_times
 
+def process_and_save_chunk(i, chunk, temp_dir, grid_points, grid_data, sample_size_demand, sample_size_damage, dl_method):
+    """
+    Process a single chunk of buildings and save results to temporary files.
+    
+    Parameters:
+    - i: chunk index
+    - chunk: DataFrame chunk to process
+    - temp_dir: temporary directory path
+    - grid_points: DataFrame with grid point coordinates
+    - grid_data: DataFrame with grid data
+    - sample_size_demand: Number of demand samples
+    - sample_size_damage: Number of damage samples
+    - dl_method: Damage and loss method
+    """
+    # Process buildings through steps 3-6
+    demand_sample_chunk, damage_df_chunk, repair_costs_chunk, repair_times_chunk = process_buildings_chunk(
+        chunk, grid_points, grid_data, sample_size_demand, sample_size_damage, dl_method
+    )
+    
+    # Save each result DataFrame to compressed CSV files
+    demand_sample_chunk.to_csv(f"{temp_dir}/demand_part_{i}.csv", compression='zip')
+    damage_df_chunk.to_csv(f"{temp_dir}/damage_part_{i}.csv", compression='zip')
+    repair_costs_chunk.to_csv(f"{temp_dir}/repair_costs_part_{i}.csv", compression='zip')
+    repair_times_chunk.to_csv(f"{temp_dir}/repair_times_part_{i}.csv", compression='zip')
+
 def regional_sim(config_file='inputRWHALE.json'):
 
     batch_size = 1000 # 984 / 394
@@ -401,7 +423,7 @@ def regional_sim(config_file='inputRWHALE.json'):
 
     bldg_df = pd.read_csv(bldg_data_path, index_col=0)
 
-    bldg_df = bldg_df.iloc[:batch_size*3]
+    #bldg_df = bldg_df.iloc[:batch_size*5]
 
     # Get DL method for processing
     dl_method = config['Applications']['DL']['Buildings']['ApplicationData']['DL_Method']
@@ -410,18 +432,22 @@ def regional_sim(config_file='inputRWHALE.json'):
         # Chunk the DataFrame into a list of smaller DataFrames
         bldg_chunks = [bldg_df.iloc[i:i + batch_size] for i in range(0, len(bldg_df), batch_size)]
         
-        # Process each chunk
-        for i, chunk in enumerate(tqdm(bldg_chunks, desc="Processing building chunks")):
-            # Process buildings through steps 3-6
-            demand_sample_chunk, damage_df_chunk, repair_costs_chunk, repair_times_chunk = process_buildings_chunk(
-                chunk, grid_points, grid_data, sample_size_demand, sample_size_damage, dl_method
-            )
-            
-            # Save each result DataFrame to compressed CSV files
-            demand_sample_chunk.to_csv(f"{temp_dir}/demand_part_{i}.csv", compression='zip')
-            damage_df_chunk.to_csv(f"{temp_dir}/damage_part_{i}.csv", compression='zip')
-            repair_costs_chunk.to_csv(f"{temp_dir}/repair_costs_part_{i}.csv", compression='zip')
-            repair_times_chunk.to_csv(f"{temp_dir}/repair_times_part_{i}.csv", compression='zip')
+        # Determine the number of CPU cores to use
+        n_jobs = max(1, os.cpu_count() - 1)
+        
+        # Process chunks in parallel
+        Parallel(n_jobs=n_jobs)(
+            delayed(process_and_save_chunk)(
+                i,
+                chunk,
+                temp_dir,
+                grid_points,
+                grid_data,
+                sample_size_demand,
+                sample_size_damage,
+                dl_method
+            ) for i, chunk in tqdm(enumerate(bldg_chunks), total=len(bldg_chunks), desc="Processing building chunks")
+        )
 
         # Read and combine all temporary files
         demand_list = []
