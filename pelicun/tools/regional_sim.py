@@ -45,6 +45,8 @@ import time
 import os
 import tempfile
 import argparse
+import contextlib
+import joblib
 from tqdm import tqdm
 from joblib import Parallel, delayed
 
@@ -71,6 +73,22 @@ def format_elapsed_time(start_time):
     minutes = int((elapsed % 3600) // 60)
     seconds = int(elapsed % 60)
     return f"{hours:02d}:{minutes:02d}:{seconds:02d}"
+
+@contextlib.contextmanager
+def tqdm_joblib(tqdm_object):
+    """Context manager to patch joblib to report into tqdm progress bar."""
+    class TqdmBatchCompletionCallback(joblib.parallel.BatchCompletionCallBack):
+        def __call__(self, *args, **kwargs):
+            tqdm_object.update(n=self.batch_size)
+            return super().__call__(*args, **kwargs)
+
+    old_batch_callback = joblib.parallel.BatchCompletionCallBack
+    joblib.parallel.BatchCompletionCallBack = TqdmBatchCompletionCallback
+    try:
+        yield
+    finally:
+        joblib.parallel.BatchCompletionCallBack = old_batch_callback
+        tqdm_object.close()
 
 def process_buildings_chunk(bldg_df_chunk, grid_points, grid_data, sample_size_demand, sample_size_damage, dl_method):
     """
@@ -423,6 +441,8 @@ def regional_sim(config_file, num_cores=None):
     bldg_data_path = f"{bldg_data_folder}/{config['Applications']['Assets']['Buildings']['ApplicationData']['assetSourceFile']}"
 
     bldg_df = pd.read_csv(bldg_data_path, index_col=0)
+    original_index = bldg_df.index
+    bldg_df.sort_values(by='OccupancyClass', inplace=True)
 
     #bldg_df = bldg_df.iloc[:batch_size*5]
 
@@ -438,20 +458,22 @@ def regional_sim(config_file, num_cores=None):
             n_jobs = num_cores
         else:
             n_jobs = max(1, os.cpu_count() - 1)
-        
-        # Process chunks in parallel
-        Parallel(n_jobs=n_jobs)(
-            delayed(process_and_save_chunk)(
-                i,
-                chunk,
-                temp_dir,
-                grid_points,
-                grid_data,
-                sample_size_demand,
-                sample_size_damage,
-                dl_method
-            ) for i, chunk in tqdm(enumerate(bldg_chunks), total=len(bldg_chunks), desc="Processing building chunks")
-        )
+
+        # Process chunks in parallel with a proper progress bar
+        with tqdm(total=len(bldg_chunks), desc="Processing building chunks") as pbar:
+            with tqdm_joblib(pbar):
+                Parallel(n_jobs=n_jobs)(
+                    delayed(process_and_save_chunk)(
+                        i,
+                        chunk,
+                        temp_dir,
+                        grid_points,
+                        grid_data,
+                        sample_size_demand,
+                        sample_size_damage,
+                        dl_method
+                    ) for i, chunk in enumerate(bldg_chunks)
+                )
 
         # Read and combine all temporary files
         demand_list = []
@@ -475,6 +497,12 @@ def regional_sim(config_file, num_cores=None):
         damage_df = pd.concat(damage_list, axis=0)
         repair_costs = pd.concat(costs_list, axis=0)
         repair_times = pd.concat(times_list, axis=0)
+
+        # Restore original building order for all result files
+        demand_sample = demand_sample.reindex(columns=[f'PGA-{loc}-1' for loc in original_index])
+        damage_df = damage_df.reindex(original_index)
+        repair_costs = repair_costs.reindex(original_index)
+        repair_times = repair_times.reindex(original_index)
 
         # 7 Save results
         print(f"[{format_elapsed_time(start_time)}] 7 Save results")
