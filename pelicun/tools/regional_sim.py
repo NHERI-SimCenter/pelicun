@@ -42,6 +42,8 @@ import numpy as np
 import pandas as pd
 import json
 import time
+import os
+import tempfile
 from tqdm import tqdm
 
 from pelicun.auto import auto_populate
@@ -362,7 +364,7 @@ def process_buildings_chunk(bldg_df_chunk, grid_points, grid_data, sample_size_d
 def regional_sim(config_file='inputRWHALE.json'):
 
     batch_size = 1000 # 984 / 394
-    batch_size = 5000 # 3356 / 1269 for 500 sample | 821 / 575 for 50 sample
+    #batch_size = 5000 # 3356 / 1269 for 500 sample | 821 / 575 for 50 sample
 
     # Initialize start time for timestamp tracking
     start_time = time.time()
@@ -399,24 +401,58 @@ def regional_sim(config_file='inputRWHALE.json'):
 
     bldg_df = pd.read_csv(bldg_data_path, index_col=0)
 
-    # TODO: Refactor this to be an input parameter and also to have batches
-    bldg_df = bldg_df.iloc[:batch_size]
+    bldg_df = bldg_df.iloc[:batch_size*3]
 
     # Get DL method for processing
     dl_method = config['Applications']['DL']['Buildings']['ApplicationData']['DL_Method']
     
-    # Process buildings through steps 3-6
-    demand_sample, damage_df, repair_costs, repair_times = process_buildings_chunk(
-        bldg_df, grid_points, grid_data, sample_size_demand, sample_size_damage, dl_method
-    )
+    with tempfile.TemporaryDirectory() as temp_dir:
+        # Chunk the DataFrame into a list of smaller DataFrames
+        bldg_chunks = [bldg_df.iloc[i:i + batch_size] for i in range(0, len(bldg_df), batch_size)]
+        
+        # Process each chunk
+        for i, chunk in enumerate(tqdm(bldg_chunks, desc="Processing building chunks")):
+            # Process buildings through steps 3-6
+            demand_sample_chunk, damage_df_chunk, repair_costs_chunk, repair_times_chunk = process_buildings_chunk(
+                chunk, grid_points, grid_data, sample_size_demand, sample_size_damage, dl_method
+            )
+            
+            # Save each result DataFrame to compressed CSV files
+            demand_sample_chunk.to_csv(f"{temp_dir}/demand_part_{i}.csv", compression='zip')
+            damage_df_chunk.to_csv(f"{temp_dir}/damage_part_{i}.csv", compression='zip')
+            repair_costs_chunk.to_csv(f"{temp_dir}/repair_costs_part_{i}.csv", compression='zip')
+            repair_times_chunk.to_csv(f"{temp_dir}/repair_times_part_{i}.csv", compression='zip')
 
-    # 7 Save results
-    print(f"[{format_elapsed_time(start_time)}] 7 Save results")
+        # Read and combine all temporary files
+        demand_list = []
+        damage_list = []
+        costs_list = []
+        times_list = []
+        
+        for filename in os.listdir(temp_dir):
+            filepath = os.path.join(temp_dir, filename)
+            if filename.startswith("demand_part_"):
+                demand_list.append(pd.read_csv(filepath, index_col=0, compression='zip'))
+            elif filename.startswith("damage_part_"):
+                damage_list.append(pd.read_csv(filepath, index_col=0, compression='zip'))
+            elif filename.startswith("repair_costs_part_"):
+                costs_list.append(pd.read_csv(filepath, index_col=0, compression='zip'))
+            elif filename.startswith("repair_times_part_"):
+                times_list.append(pd.read_csv(filepath, index_col=0, compression='zip'))
+        
+        # Concatenate all parts into final DataFrames
+        demand_sample = pd.concat(demand_list, axis=1)
+        damage_df = pd.concat(damage_list, axis=0)
+        repair_costs = pd.concat(costs_list, axis=0)
+        repair_times = pd.concat(times_list, axis=0)
 
-    demand_sample.to_csv('demand.csv')
-    damage_df.to_csv('damage.csv')
-    repair_costs.to_csv('repair_costs.csv')
-    repair_times.to_csv('repair_times.csv')
+        # 7 Save results
+        print(f"[{format_elapsed_time(start_time)}] 7 Save results")
+
+        demand_sample.to_csv('demand.csv')
+        damage_df.to_csv('damage.csv')
+        repair_costs.to_csv('repair_costs.csv')
+        repair_times.to_csv('repair_times.csv')
 
 if __name__ == '__main__':
     regional_sim()
