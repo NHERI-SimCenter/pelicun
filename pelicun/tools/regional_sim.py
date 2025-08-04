@@ -68,49 +68,27 @@ def format_elapsed_time(start_time):
     seconds = int(elapsed % 60)
     return f"{hours:02d}:{minutes:02d}:{seconds:02d}"
 
-def regional_sim(config_file='inputRWHALE.json'):
-
-    batch_size = 1000 # 984 / 394
-    batch_size = 5000 # 3356 / 1269 for 500 sample | 821 / 575 for 50 sample
-
+def process_buildings_chunk(bldg_df_chunk, grid_points, grid_data, sample_size_demand, sample_size_damage, dl_method):
+    """
+    Process a chunk of buildings through the simulation pipeline.
+    
+    Parameters:
+    - bldg_df_chunk: DataFrame containing building data chunk
+    - grid_points: DataFrame with grid point coordinates
+    - grid_data: DataFrame with grid data
+    - sample_size_demand: Number of demand samples
+    - sample_size_damage: Number of damage samples
+    - dl_method: Damage and loss method
+    
+    Returns:
+    - demand_sample: DataFrame with demand sample results
+    - damage_df: DataFrame with damage results
+    - repair_costs: DataFrame with repair cost results
+    - repair_times: DataFrame with repair time results
+    """
     # Initialize start time for timestamp tracking
     start_time = time.time()
-
-    with open(config_file, 'r') as f:
-        config = json.load(f)
-
-    sample_size_demand = config['Applications']['RegionalMapping']['Buildings']['ApplicationData']['samples']
-    sample_size_damage = config['Applications']['DL']['Buildings']['ApplicationData']['Realizations']
-
-    # 1 Earthquake Event
-    # Load gridded event IM information from a standard SimCenter EventGrid file and the corresponding site files.
-
-    event_data_folder = config['RegionalEvent']['eventFilePath']
-    event_grid_path = f"{event_data_folder}/{config['RegionalEvent']['eventFile']}"
-
-    grid_points = pd.read_csv(event_grid_path)
-
-    grid_point_data_array = []
-
-    for grid_point_file in tqdm(grid_points['GP_file'], desc=f"[{format_elapsed_time(start_time)}] 1 Earthquake Event - Loading grid point data"):
-        grid_point_data = pd.read_csv(f'{event_data_folder}/{grid_point_file}')
-
-        grid_point_data_array.append(grid_point_data)
-
-    grid_data = pd.concat(grid_point_data_array, axis=1, keys=grid_points.index)
-
-    # 2 Building Inventory
-    # Load probabilistic building inventory from a CSV file
-    print(f"[{format_elapsed_time(start_time)}] 2 Building Inventory")
-
-    bldg_data_folder = config['Applications']['Assets']['Buildings']['ApplicationData']['pathToSource']
-    bldg_data_path = f"{bldg_data_folder}/{config['Applications']['Assets']['Buildings']['ApplicationData']['assetSourceFile']}"
-
-    bldg_df = pd.read_csv(bldg_data_path, index_col=0)
-
-    # TODO: Refactor this to be an input parameter and also to have batches
-    bldg_df = bldg_df.iloc[:batch_size]
-
+    
     # 3 Event-to-Building Mapping
     # Map event IMs to building centroids using the nearest neighbor method
     print(f"[{format_elapsed_time(start_time)}] 3 Event-to-Building Mapping")
@@ -118,7 +96,7 @@ def regional_sim(config_file='inputRWHALE.json'):
     X = grid_points[['Longitude','Latitude']].values
     Z = grid_data.T.values
 
-    X_t = bldg_df[['Longitude','Latitude']].values
+    X_t = bldg_df_chunk[['Longitude','Latitude']].values
 
     Z_hat = NNR(X_t, X, Z, sample_size=-1, n_neighbors=8, weight='distance2')
 
@@ -127,21 +105,20 @@ def regional_sim(config_file='inputRWHALE.json'):
     #TODO: allow for more flexible columns
     demand_sample = pd.DataFrame(
         np.vstack([Z_hat.T,np.full((1, Z_hat.shape[0]), 'g')]),
-        columns=[f'PGA-{loc}-1' for loc in bldg_df.index],
+        columns=[f'PGA-{loc}-1' for loc in bldg_df_chunk.index],
         index = list(range(sample_size_demand)) +['Units']
     )
 
     # 4 Building-to-Archetype Mapping
     # Use Pelicun and the built-in mapping for Hazus IM-based damage models to map each building in the inventory to an archetype
 
-    dl_method = config['Applications']['DL']['Buildings']['ApplicationData']['DL_Method']
     auto_script_path = substitute_default_path(
         [f'PelicunDefault/{dl_method}/pelicun_config.py']
     )[0]
 
     CMP_list = []
 
-    for bldg_id, row_data in tqdm(bldg_df.iloc[:].iterrows(), desc=f"[{format_elapsed_time(start_time)}] 4 Building-to-Archetype Mapping", total=len(bldg_df)):
+    for bldg_id, row_data in bldg_df_chunk.iloc[:].iterrows():
 
         DL_ap, CMP = auto_populate(
             {
@@ -276,7 +253,7 @@ def regional_sim(config_file='inputRWHALE.json'):
 
     # Hazus consequence functions depend only on occupancy class
     # we need to list building IDs for each occupancy type first
-    loss_groups = bldg_df[['StructureType','OccupancyClass']].copy()
+    loss_groups = bldg_df_chunk[['StructureType','OccupancyClass']].copy()
     loss_groups['IDs'] = loss_groups.index
 
     loss_groups = loss_groups.groupby(['OccupancyClass']).agg({'IDs': unique_list})
@@ -300,7 +277,7 @@ def regional_sim(config_file='inputRWHALE.json'):
     # start by extracting the full damage sample and preserving it
     full_dmg_sample = PAL.damage.save_sample()
 
-    for occ_type, raw_building_ids in tqdm(loss_groups.iloc[:].iterrows(), desc=f"[{format_elapsed_time(start_time)}] 6 Calculate Losses - Processing occupancy types", total=len(loss_groups)):
+    for occ_type, raw_building_ids in loss_groups.iloc[:].iterrows():
 
         # convert the building id list to a numpy array of ints
         building_ids = np.array(raw_building_ids.values[0].split(',')).astype(int)
@@ -379,6 +356,59 @@ def regional_sim(config_file='inputRWHALE.json'):
 
     # finish by putting the full damage sample back to the assessment object
     PAL.damage.load_sample(full_dmg_sample)
+    
+    return demand_sample, damage_df, repair_costs, repair_times
+
+def regional_sim(config_file='inputRWHALE.json'):
+
+    batch_size = 1000 # 984 / 394
+    batch_size = 5000 # 3356 / 1269 for 500 sample | 821 / 575 for 50 sample
+
+    # Initialize start time for timestamp tracking
+    start_time = time.time()
+
+    with open(config_file, 'r') as f:
+        config = json.load(f)
+
+    sample_size_demand = config['Applications']['RegionalMapping']['Buildings']['ApplicationData']['samples']
+    sample_size_damage = config['Applications']['DL']['Buildings']['ApplicationData']['Realizations']
+
+    # 1 Earthquake Event
+    # Load gridded event IM information from a standard SimCenter EventGrid file and the corresponding site files.
+
+    event_data_folder = config['RegionalEvent']['eventFilePath']
+    event_grid_path = f"{event_data_folder}/{config['RegionalEvent']['eventFile']}"
+
+    grid_points = pd.read_csv(event_grid_path)
+
+    grid_point_data_array = []
+
+    for grid_point_file in tqdm(grid_points['GP_file'], desc=f"[{format_elapsed_time(start_time)}] 1 Earthquake Event - Loading grid point data"):
+        grid_point_data = pd.read_csv(f'{event_data_folder}/{grid_point_file}')
+
+        grid_point_data_array.append(grid_point_data)
+
+    grid_data = pd.concat(grid_point_data_array, axis=1, keys=grid_points.index)
+
+    # 2 Building Inventory
+    # Load probabilistic building inventory from a CSV file
+    print(f"[{format_elapsed_time(start_time)}] 2 Building Inventory")
+
+    bldg_data_folder = config['Applications']['Assets']['Buildings']['ApplicationData']['pathToSource']
+    bldg_data_path = f"{bldg_data_folder}/{config['Applications']['Assets']['Buildings']['ApplicationData']['assetSourceFile']}"
+
+    bldg_df = pd.read_csv(bldg_data_path, index_col=0)
+
+    # TODO: Refactor this to be an input parameter and also to have batches
+    bldg_df = bldg_df.iloc[:batch_size]
+
+    # Get DL method for processing
+    dl_method = config['Applications']['DL']['Buildings']['ApplicationData']['DL_Method']
+    
+    # Process buildings through steps 3-6
+    demand_sample, damage_df, repair_costs, repair_times = process_buildings_chunk(
+        bldg_df, grid_points, grid_data, sample_size_demand, sample_size_damage, dl_method
+    )
 
     # 7 Save results
     print(f"[{format_elapsed_time(start_time)}] 7 Save results")
