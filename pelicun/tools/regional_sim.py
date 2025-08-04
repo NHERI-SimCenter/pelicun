@@ -41,6 +41,8 @@
 import numpy as np
 import pandas as pd
 import json
+import time
+from tqdm import tqdm
 
 from pelicun.auto import auto_populate
 from pelicun.file_io import substitute_default_path
@@ -58,7 +60,21 @@ def unique_list(x):
     else:
         return f"{vals[0]}"
 
+def format_elapsed_time(start_time):
+    """Format elapsed time as hh:mm:ss"""
+    elapsed = time.time() - start_time
+    hours = int(elapsed // 3600)
+    minutes = int((elapsed % 3600) // 60)
+    seconds = int(elapsed % 60)
+    return f"{hours:02d}:{minutes:02d}:{seconds:02d}"
+
 def regional_sim(config_file='inputRWHALE.json'):
+
+    batch_size = 1000 # 984 / 394
+    batch_size = 5000 # 3356 / 1269 for 500 sample | 821 / 575 for 50 sample
+
+    # Initialize start time for timestamp tracking
+    start_time = time.time()
 
     with open(config_file, 'r') as f:
         config = json.load(f)
@@ -76,7 +92,7 @@ def regional_sim(config_file='inputRWHALE.json'):
 
     grid_point_data_array = []
 
-    for grid_point_file in grid_points['GP_file']:
+    for grid_point_file in tqdm(grid_points['GP_file'], desc=f"[{format_elapsed_time(start_time)}] 1 Earthquake Event - Loading grid point data"):
         grid_point_data = pd.read_csv(f'{event_data_folder}/{grid_point_file}')
 
         grid_point_data_array.append(grid_point_data)
@@ -85,6 +101,7 @@ def regional_sim(config_file='inputRWHALE.json'):
 
     # 2 Building Inventory
     # Load probabilistic building inventory from a CSV file
+    print(f"[{format_elapsed_time(start_time)}] 2 Building Inventory")
 
     bldg_data_folder = config['Applications']['Assets']['Buildings']['ApplicationData']['pathToSource']
     bldg_data_path = f"{bldg_data_folder}/{config['Applications']['Assets']['Buildings']['ApplicationData']['assetSourceFile']}"
@@ -92,10 +109,11 @@ def regional_sim(config_file='inputRWHALE.json'):
     bldg_df = pd.read_csv(bldg_data_path, index_col=0)
 
     # TODO: Refactor this to be an input parameter and also to have batches
-    bldg_df = bldg_df.iloc[:1000]
+    bldg_df = bldg_df.iloc[:batch_size]
 
     # 3 Event-to-Building Mapping
     # Map event IMs to building centroids using the nearest neighbor method
+    print(f"[{format_elapsed_time(start_time)}] 3 Event-to-Building Mapping")
 
     X = grid_points[['Longitude','Latitude']].values
     Z = grid_data.T.values
@@ -123,7 +141,7 @@ def regional_sim(config_file='inputRWHALE.json'):
 
     CMP_list = []
 
-    for bldg_id, row_data in bldg_df.iloc[:].iterrows():
+    for bldg_id, row_data in tqdm(bldg_df.iloc[:].iterrows(), desc=f"[{format_elapsed_time(start_time)}] 4 Building-to-Archetype Mapping", total=len(bldg_df)):
 
         DL_ap, CMP = auto_populate(
             {
@@ -155,6 +173,7 @@ def regional_sim(config_file='inputRWHALE.json'):
 
     # 5 Calculate Damage
     # Calculate damage with a deterministic inventory realization
+    print(f"[{format_elapsed_time(start_time)}] 5 Calculate Damage")
 
     # initialize assessment object
     PAL = Assessment({
@@ -281,7 +300,7 @@ def regional_sim(config_file='inputRWHALE.json'):
     # start by extracting the full damage sample and preserving it
     full_dmg_sample = PAL.damage.save_sample()
 
-    for occ_type, raw_building_ids in loss_groups.iloc[:].iterrows():
+    for occ_type, raw_building_ids in tqdm(loss_groups.iloc[:].iterrows(), desc=f"[{format_elapsed_time(start_time)}] 6 Calculate Losses - Processing occupancy types", total=len(loss_groups)):
 
         # convert the building id list to a numpy array of ints
         building_ids = np.array(raw_building_ids.values[0].split(',')).astype(int)
@@ -362,6 +381,7 @@ def regional_sim(config_file='inputRWHALE.json'):
     PAL.damage.load_sample(full_dmg_sample)
 
     # 7 Save results
+    print(f"[{format_elapsed_time(start_time)}] 7 Save results")
 
     demand_sample.to_csv('demand.csv')
     damage_df.to_csv('damage.csv')
