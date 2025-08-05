@@ -37,9 +37,14 @@
 
 """Pelicun library."""
 
+from importlib import metadata
+
 name = 'pelicun'
 
-__version__ = '3.6.1'
+try:
+    __version__ = metadata.version("pelicun")
+except metadata.PackageNotFoundError:
+    __version__ = "0.0.0-local"
 
 __copyright__ = (
     'Copyright (c) 2018 Leland Stanford '

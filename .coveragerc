@@ -1,7 +1,6 @@
 [run]
-omit = 
-    db.py
+omit =
     */tests/*
     */resources/*
-    */tools/HDF_to_CSV.py
+    */tools/NNR.py
 [report]
