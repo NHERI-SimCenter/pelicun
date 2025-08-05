@@ -41,10 +41,17 @@
 import numpy as np
 from sklearn.neighbors import NearestNeighbors
 
-# Nearest Neighbors Regression
-def NNR(target, source, known_values, sample_size=-1, n_neighbors=4,
-        weight='distance2', seed=None):
 
+# Nearest Neighbors Regression
+def NNR(
+    target,
+    source,
+    known_values,
+    sample_size=-1,
+    n_neighbors=4,
+    weight='distance2',
+    seed=None,
+):
     if source.ndim == 1:
         X = source.reshape(-1, 1)
         X_t = target.reshape(-1, 1)
@@ -58,7 +65,9 @@ def NNR(target, source, known_values, sample_size=-1, n_neighbors=4,
     feature_count = Z.shape[1]
 
     if sample_size > 0:
-        predicted_values = np.full((X_t.shape[0], feature_count, sample_size), np.nan)
+        predicted_values = np.full(
+            (X_t.shape[0], feature_count, sample_size), np.nan
+        )
     else:
         predicted_values = np.full((X_t.shape[0], feature_count), np.nan)
     Z_hat = predicted_values
@@ -68,7 +77,7 @@ def NNR(target, source, known_values, sample_size=-1, n_neighbors=4,
 
     # collect the neighbor indices and distances for every target point
     distances, indices = nbrs.kneighbors(X_t)
-    distances = distances + 1e-20 # this is to avoid zero distance
+    distances = distances + 1e-20  # this is to avoid zero distance
 
     # initialize the random generator
     if seed is not None:
@@ -78,19 +87,18 @@ def NNR(target, source, known_values, sample_size=-1, n_neighbors=4,
 
     # iterate through the target points and store the sampled neighbors in an array
     for target_i, (dist_list, ind_list) in enumerate(zip(distances, indices)):
-
         if weight == 'distance2':
             # calculate the weights for each neighbor based on their squared distance
-            dist_list = 1./(dist_list**2.0)
-            weights = np.array(dist_list)/np.sum(dist_list)
+            dist_list = 1.0 / (dist_list**2.0)
+            weights = np.array(dist_list) / np.sum(dist_list)
 
         elif weight == 'uniform':
-            weights = np.full(dist_list.shape, 1./n_neighbors)
+            weights = np.full(dist_list.shape, 1.0 / n_neighbors)
 
         elif weight == 'distance1':
             # calculate the weights for each neighbor based on their distance
-            dist_list = 1./dist_list
-            weights = np.array(dist_list)/np.sum(dist_list)
+            dist_list = 1.0 / dist_list
+            weights = np.array(dist_list) / np.sum(dist_list)
 
         if sample_size > 0:
             # get the pre-defined number of samples for each neighbor
@@ -102,9 +110,8 @@ def NNR(target, source, known_values, sample_size=-1, n_neighbors=4,
 
             # for each unique neighbor
             for sample_j, nbr in enumerate(nbr_unique):
-
                 # get the realizations from this neighbor
-                nbr_mask = np.where(nbr_samples==nbr)[0]
+                nbr_mask = np.where(nbr_samples == nbr)[0]
 
                 # get the index of the nth neighbor
                 nbr_index = ind_list[nbr]
@@ -117,24 +124,26 @@ def NNR(target, source, known_values, sample_size=-1, n_neighbors=4,
                     val_list[:, nbr_mask] = Z[nbr_index, :, value_j].T
 
                 elif Z.ndim == 2:
-                    val_list[:, nbr_mask] = np.broadcast_to(Z[nbr_index, :],
-                                                            (nbr_mask.size, feature_count)).T
+                    val_list[:, nbr_mask] = np.broadcast_to(
+                        Z[nbr_index, :], (nbr_mask.size, feature_count)
+                    ).T
 
                 else:
                     val_list[:, nbr_mask] = Z[nbr_index, :].T
 
         # if sample_size is -1, the expected value is returned
         else:
-
             if Z.ndim == 3:
                 val_list = []
                 for feature_i in range(feature_count):
-                    val_list.append(weights @ np.mean(Z[ind_list,feature_i,:], axis=1).T)
+                    val_list.append(
+                        weights @ np.mean(Z[ind_list, feature_i, :], axis=1).T
+                    )
 
             elif Z.ndim == 2:
                 val_list = []
                 for feature_i in range(feature_count):
-                    val_list.append(weights @ Z[ind_list,feature_i].T)
+                    val_list.append(weights @ Z[ind_list, feature_i].T)
 
             else:
                 val_list = weights @ np.mean(Z, axis=1)[ind_list].T
