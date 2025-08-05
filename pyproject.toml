@@ -1,7 +1,9 @@
 [tool.ruff]
 line-length = 85
 exclude = [
-  "rulesets", 
+  "rulesets",
+  "examples",
+  "*.ipynb",
   "pelicun/tests/dl_calculation/e7/auto_HU_NJ.py",
   "pelicun/tests/dl_calculation/e8/auto_HU_LA.py",
   "pelicun/tests/dl_calculation/e9/custom_pop.py",
@@ -11,7 +13,30 @@ exclude = [
 [tool.ruff.lint]
 # Enable all known categories
 select = ["ALL"]
-ignore = ["ANN101", "D211", "D212", "Q000", "Q003", "COM812", "D203", "ISC001", "E501", "ERA001", "PGH003", "FIX002", "TD003", "S101", "N801", "S311", "G004", "SIM102", "SIM108", "NPY002", "F401", "TRY003"]
+ignore = [
+  "ANN101",
+  "D211",
+  "D212",
+  "Q000",
+  "Q003",
+  "COM812",
+  "D203",
+  "ISC001",
+  "E501",
+  "ERA001",
+  "PGH003",
+  "FIX002",
+  "TD003",
+  "S101",
+  "N801",
+  "S311",
+  "G004",
+  "SIM102",
+  "SIM108",
+  "NPY002",
+  "F401",
+  "TRY003"
+]
 preview = true
 
 [tool.ruff.lint.pydocstyle]
@@ -39,7 +64,21 @@ quote-style = "single"
 
 [tool.codespell]
 ignore-words = ["ignore_words.txt"]
-skip = ["*.html", "./htmlcov/*", "./doc_src/build/*", "./pelicun.egg-info/*", "./doc_src/*", "./doc/build/*", "*/rulesets/*", "custom_pop.py", "*/SimCenterDBDL/*", "auto_HU_NJ.py", "auto_HU_LA.py", "custom_pop.py", "*/resources/DamageAndLossModelLibrary/*"]
+skip = [
+  "*.html",
+  "*.ipynb",
+  "./htmlcov/*",
+  "./doc_src/build/*",
+  "./pelicun.egg-info/*",
+  "./doc_src/*",
+  "./doc/build/*",
+  "*/rulesets/*",
+  "custom_pop.py",
+  "*/SimCenterDBDL/*",
+  "auto_HU_NJ.py",
+  "auto_HU_LA.py",
+  "custom_pop.py",
+  "*/resources/DamageAndLossModelLibrary/*"]
 
 [tool.mypy]
 ignore_missing_imports = true
