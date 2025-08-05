@@ -44,7 +44,6 @@ import json
 import time
 import os
 import tempfile
-import argparse
 import contextlib
 import joblib
 from tqdm import tqdm
@@ -404,8 +403,7 @@ def process_and_save_chunk(i, chunk, temp_dir, grid_points, grid_data, sample_si
 
 def regional_sim(config_file, num_cores=None):
 
-    batch_size = 1000 # 984 / 394
-    #batch_size = 5000 # 3356 / 1269 for 500 sample | 821 / 575 for 50 sample
+    batch_size = 1000
 
     # Initialize start time for timestamp tracking
     start_time = time.time()
@@ -511,22 +509,3 @@ def regional_sim(config_file, num_cores=None):
         damage_df.to_csv('damage.csv')
         repair_costs.to_csv('repair_costs.csv')
         repair_times.to_csv('repair_times.csv')
-
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser(
-        description="Perform a regional-scale disaster impact simulation using Pelicun."
-    )
-    parser.add_argument("config_file",
-                        nargs='?',
-                        default="inputRWHALE.json",
-                        help="Path to the input configuration JSON file. "
-                             "Defaults to 'inputRWHALE.json'.")
-    parser.add_argument("-n", "--num-cores",
-                        type=int,
-                        default=None,
-                        help="Number of CPU cores to use for parallel processing. "
-                             "Defaults to all available cores minus one.")
-
-    args = parser.parse_args()
-
-    regional_sim(config_file=args.config_file, num_cores=args.num_cores)
