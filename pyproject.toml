@@ -38,7 +38,8 @@ dependencies = [
     "numexpr>=2.8, <3.0",
     "jsonschema>=4.22.0, <5.0",
     "tqdm",
-    "joblib"
+    "joblib",
+    "scikit-learn"
 ]
 
 [project.optional-dependencies]

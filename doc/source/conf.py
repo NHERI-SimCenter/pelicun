@@ -15,6 +15,7 @@
 #
 import os
 import sys
+import re
 from datetime import datetime
 from pathlib import Path
 
@@ -40,12 +41,11 @@ extensions = [
     'nbsphinx',
     'sphinxcontrib.bibtex',
     'sphinx.ext.autodoc',
+    'sphinx.ext.autosummary',
     'sphinx.ext.intersphinx',
     'sphinx.ext.mathjax',
     'sphinx.ext.viewcode',
     'sphinx.ext.githubpages',
-    'sphinx.ext.autosummary',
-    'sphinx.ext.intersphinx',
     'sphinx.ext.doctest',
     # our own extension to get latest citation from zenodo.
     'latest_citation',
@@ -65,7 +65,10 @@ html_js_files = ['hide_empty_pre.js']
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
-exclude_patterns = ['_build', '**/tests/*']
+exclude_patterns = [
+    '_build',
+    '**/tests/*'
+]
 
 # Extension configuration
 
@@ -82,6 +85,19 @@ numpydoc_show_class_members = False  # TODO(JVM): remove and extend docstrings
 nbsphinx_custom_formats = {
     '.pct.py': ['jupytext.reads', {'fmt': 'py:percent'}],
 }
+
+def autodoc_skip_member(app, what, name, obj, skip, options):
+    # The patterns to exclude.
+    exclude_patterns = [
+        r'pelicun\.tests(\..*)?$',      # Exclude the tests module and any submodules
+        r'pelicun\.pelicun_warnings$',
+    ]
+
+    for pattern in exclude_patterns:
+        if re.match(pattern, name):
+            return True
+
+    return skip
 
 # -- Options for HTML output -------------------------------------------------
 
@@ -106,3 +122,6 @@ html_show_sourcelink = (
 numfig = True
 bibtex_bibfiles = ['references.bib']
 bibtex_style = 'plain'
+
+def setup(app):
+    app.connect('autodoc-skip-member', autodoc_skip_member)

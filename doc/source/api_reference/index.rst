@@ -13,11 +13,4 @@ API Reference
    :template: custom-module-template.rst
    :recursive:
 
-   pelicun.assessment
-   pelicun.auto
-   pelicun.base
-   pelicun.cli
-   pelicun.file_io
-   pelicun.model
-   pelicun.tools
-   pelicun.uq
+   pelicun
