@@ -1,0 +1,42 @@
+.. _changes_v3_7_0:
+
+==============================
+Version 3.7.0 (August 6, 2025)
+==============================
+
+Added
+-----
+
+**Regional Simulation Tool**: A new regional simulation capability has been added to Pelicun as a temporary solution while the integrated feature is being developed. The tool currently supports Hazus EQ simulation using lifeline facility fragilities and includes:
+
+- **Batch Processing**: Memory-efficient sequential and parallel batch processing using joblib for handling large-scale regional simulations
+- **Progress Reporting**: Time and progress information output to track simulation status
+- **Command-line Interface**: A new CLI system with ``pelicun`` as an installable command and ``regional_sim`` as the first available subcommand
+
+**Installable CLI**: Pelicun now provides a modern command-line interface through a ``console_scripts`` entry point. The new ``pelicun/cli.py`` module serves as a subcommand dispatcher, making the tool easier to install and use from the command line.
+
+**Case-insensitive Unit Handling**: Implemented case-insensitive unit label handling in input data processing, improving robustness when processing data with varying unit label capitalization.
+
+Changed
+-------
+
+**Modernized Packaging**: The project has been modernized to align with current Python packaging standards (PEP 621):
+
+- All static package metadata (version, dependencies, etc.) has been migrated from ``setup.py`` to ``pyproject.toml``
+- ``pyproject.toml`` is now the single source of truth for package configuration
+- Version number source has been moved to ``pyproject.toml``
+- ``setup.py`` file is now minimal, reserved for future dynamic build logic
+
+Removed
+-------
+
+**Deprecated Tools**: Removed ``HDF_to_CSV`` from tools as it is no longer used.
+
+Fixed
+-----
+
+**Pandas Deprecation Warning**: Fixed a minor issue in ``loss_model`` to avoid pandas deprecation warnings, ensuring compatibility with newer pandas versions.
+
+**R2D Configuration Handling**: Applied bugfixes to handle advanced configurations from R2D.
+
+**Documentation Build Issues**: Resolved various Sphinx warnings and build errors to ensure clean documentation generation.
