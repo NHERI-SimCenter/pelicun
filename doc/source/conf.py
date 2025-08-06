@@ -14,8 +14,8 @@
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
 import os
-import sys
 import re
+import sys
 from datetime import datetime
 from pathlib import Path
 
@@ -65,10 +65,7 @@ html_js_files = ['hide_empty_pre.js']
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
-exclude_patterns = [
-    '_build',
-    '**/tests/*'
-]
+exclude_patterns = ['_build', '**/tests/*']
 
 # Extension configuration
 
@@ -86,10 +83,35 @@ nbsphinx_custom_formats = {
     '.pct.py': ['jupytext.reads', {'fmt': 'py:percent'}],
 }
 
-def autodoc_skip_member(app, what, name, obj, skip, options):
+
+def autodoc_skip_member(app, what, name: str, obj, skip: bool, options) -> bool:  # noqa: ANN001, ARG001, FBT001
+    """
+    Skip certain members during autodoc processing.
+
+    Parameters
+    ----------
+    app: Sphinx application object
+        Sphinx application object (unused).
+    what: str
+        Type of object being documented (unused).
+    name: str
+        Name of the object being documented.
+    obj: object
+        The object being documented (unused).
+    skip: bool
+        Whether to skip this member.
+    options: dict
+        Options for autodoc (unused).
+
+    Returns
+    -------
+    bool
+        True if the member should be skipped, False otherwise.
+
+    """
     # The patterns to exclude.
     exclude_patterns = [
-        r'pelicun\.tests(\..*)?$',      # Exclude the tests module and any submodules
+        r'pelicun\.tests(\..*)?$',  # Exclude the tests module and any submodules
         r'pelicun\.pelicun_warnings$',
     ]
 
@@ -98,6 +120,7 @@ def autodoc_skip_member(app, what, name, obj, skip, options):
             return True
 
     return skip
+
 
 # -- Options for HTML output -------------------------------------------------
 
@@ -123,5 +146,15 @@ numfig = True
 bibtex_bibfiles = ['references.bib']
 bibtex_style = 'plain'
 
-def setup(app):
+
+def setup(app) -> None:  # noqa: ANN001
+    """
+    Set up the Sphinx extension.
+
+    Parameters
+    ----------
+    app: Sphinx application object
+        Sphinx application object.
+
+    """
     app.connect('autodoc-skip-member', autodoc_skip_member)
