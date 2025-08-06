@@ -14,6 +14,7 @@
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
 import os
+import re
 import sys
 from datetime import datetime
 from pathlib import Path
@@ -40,12 +41,11 @@ extensions = [
     'nbsphinx',
     'sphinxcontrib.bibtex',
     'sphinx.ext.autodoc',
+    'sphinx.ext.autosummary',
     'sphinx.ext.intersphinx',
     'sphinx.ext.mathjax',
     'sphinx.ext.viewcode',
     'sphinx.ext.githubpages',
-    'sphinx.ext.autosummary',
-    'sphinx.ext.intersphinx',
     'sphinx.ext.doctest',
     # our own extension to get latest citation from zenodo.
     'latest_citation',
@@ -83,6 +83,45 @@ nbsphinx_custom_formats = {
     '.pct.py': ['jupytext.reads', {'fmt': 'py:percent'}],
 }
 
+
+def autodoc_skip_member(app, what, name: str, obj, skip: bool, options) -> bool:  # noqa: ANN001, ARG001, FBT001
+    """
+    Skip certain members during autodoc processing.
+
+    Parameters
+    ----------
+    app: Sphinx application object
+        Sphinx application object (unused).
+    what: str
+        Type of object being documented (unused).
+    name: str
+        Name of the object being documented.
+    obj: object
+        The object being documented (unused).
+    skip: bool
+        Whether to skip this member.
+    options: dict
+        Options for autodoc (unused).
+
+    Returns
+    -------
+    bool
+        True if the member should be skipped, False otherwise.
+
+    """
+    # The patterns to exclude.
+    exclude_patterns = [
+        r'pelicun\.tests(\..*)?$',  # Exclude the tests module and any submodules
+        r'pelicun\.pelicun_warnings$',
+    ]
+
+    for pattern in exclude_patterns:
+        if re.match(pattern, name):
+            return True
+
+    return skip
+
+
 # -- Options for HTML output -------------------------------------------------
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
@@ -106,3 +145,16 @@ html_show_sourcelink = (
 numfig = True
 bibtex_bibfiles = ['references.bib']
 bibtex_style = 'plain'
+
+
+def setup(app) -> None:  # noqa: ANN001
+    """
+    Set up the Sphinx extension.
+
+    Parameters
+    ----------
+    app: Sphinx application object
+        Sphinx application object.
+
+    """
+    app.connect('autodoc-skip-member', autodoc_skip_member)

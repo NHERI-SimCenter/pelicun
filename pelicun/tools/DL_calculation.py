@@ -1125,9 +1125,7 @@ def _result_summary(
     else:
         agg_repair_s = pd.DataFrame()
 
-    summary = pd.concat(
-        [agg_repair_s, damage_sample_s], axis=1
-    )
+    summary = pd.concat([agg_repair_s, damage_sample_s], axis=1)
 
     summary_stats = describe(summary)
 
@@ -1443,7 +1441,6 @@ def _loss_save(  # noqa: C901
     repair_units = repair_units_series.to_frame().T
 
     if aggregate_colocated:
-
         if 'ds' in repair_units.columns.names:
             repair_units = repair_units.groupby(  # type: ignore
                 level=['dv', 'loss', 'dmg', 'ds', 'loc', 'dir'], axis=1

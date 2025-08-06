@@ -1,9 +1,99 @@
+
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pelicun"
+version = "3.6.1"
+description = "Probabilistic Estimation of Losses, Injuries, and Community resilience Under Natural hazard events"
+readme = "README.md"
+license = {text = "BSD-3-Clause"}
+authors = [
+    {name = "Adam Zsarnóczay", email = "adamzs@stanford.edu"}
+]
+classifiers = [
+    "Programming Language :: Python",
+    "Development Status :: 5 - Production/Stable",
+    "Natural Language :: English",
+    "Environment :: Console",
+    "Framework :: Jupyter",
+    "Intended Audience :: Education",
+    "Intended Audience :: Science/Research",
+    "Natural Language :: English",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: MacOS :: MacOS X",
+    "Operating System :: Unix",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering",
+]
+dependencies = [
+    "numpy>=1.22.0, <2.0",
+    "scipy>=1.7.0, <=1.15.3",
+    "pandas>=1.4.0, <3.0",
+    "colorama>=0.4.0, <0.5.0",
+    "numexpr>=2.8, <3.0",
+    "jsonschema>=4.22.0, <5.0",
+    "tqdm",
+    "joblib",
+    "scikit-learn"
+]
+
+[project.optional-dependencies]
+development = [
+    "codespell",
+    "flake8",
+    "flake8-bugbear",
+    "flake8-rst",
+    "flake8-rst",
+    "flake8-rst-docstrings",
+    "glob2",
+    "jsonpath2",
+    "jupyter",
+    "jupytext",
+    "mypy",
+    "nbsphinx",
+    "numpydoc",
+    "pandas-stubs",
+    "pydocstyle",
+    "pylint",
+    "pylint-pytest",
+    "pytest",
+    "pytest-cov",
+    "pytest-xdist",
+    "rendre>0.0.14",
+    "ruff==0.7.0",
+    "sphinx",
+    "sphinx-autoapi",
+    "sphinx-rtd-theme",
+    "sphinx_design",
+    "sphinxcontrib-bibtex",
+    "types-colorama",
+]
+
+[project.scripts]
+pelicun = "pelicun.cli:main"
+
+[project.urls]
+Homepage = "http://nheri-simcenter.github.io/pelicun/"
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+include = ["pelicun*"]
+exclude = ["doc_src*"]
+
 [tool.ruff]
 line-length = 85
 exclude = [
   "rulesets",
   "examples",
   "*.ipynb",
+  "NNR.py",
   "pelicun/tests/dl_calculation/e7/auto_HU_NJ.py",
   "pelicun/tests/dl_calculation/e8/auto_HU_LA.py",
   "pelicun/tests/dl_calculation/e9/custom_pop.py",
