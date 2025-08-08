@@ -1,0 +1,35 @@
+pelicun.tools.regional\_sim
+===========================
+
+.. automodule:: pelicun.tools.regional_sim
+   :members:
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      format_elapsed_time
+      process_and_save_chunk
+      process_buildings_chunk
+      regional_sim
+      tqdm_joblib
+      unique_list
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

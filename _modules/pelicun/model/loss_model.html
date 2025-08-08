@@ -2432,7 +2432,7 @@
         <span class="n">damage_states</span> <span class="o">=</span> <span class="n">case_df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;cmp&#39;</span><span class="p">)[</span><span class="s1">&#39;ds&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
         <span class="c1"># maps `cmp`-`ds` to tuple of `loc`-`dir`-`uid` tuples</span>
         <span class="n">loc_dir_uids</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="n">case_df</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s1">&#39;cmp&#39;</span><span class="p">,</span> <span class="s1">&#39;ds&#39;</span><span class="p">])</span>
+            <span class="n">case_df</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s1">&#39;cmp&#39;</span><span class="p">,</span> <span class="s1">&#39;ds&#39;</span><span class="p">])[[</span><span class="s1">&#39;loc&#39;</span><span class="p">,</span> <span class="s1">&#39;dir&#39;</span><span class="p">,</span> <span class="s1">&#39;uid&#39;</span><span class="p">]]</span>
             <span class="o">.</span><span class="n">apply</span><span class="p">(</span>
                 <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">(</span>  <span class="c1"># type: ignore</span>
                     <span class="nb">zip</span><span class="p">(</span>

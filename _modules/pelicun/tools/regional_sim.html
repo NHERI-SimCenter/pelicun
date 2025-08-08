@@ -1,0 +1,914 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pelicun.tools.regional_sim &mdash; pelicun  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=f9bf6728" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="../../../_static/hide_empty_pre.js?v=a807066b"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #F2F2F2" >
+
+          
+          
+          <a href="../../../index.html">
+            
+              <img src="../../../_static/pelicun-Logo-grey.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">About</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../about/license.html">1. Copyright and license</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../about/cite.html">2. Citing pelicun</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../about/cite.html#logo">3. Logo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../about/acknowledgments.html">4. Acknowledgments</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../about/acknowledgments.html#national-science-foundation">4.1. National Science Foundation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../about/acknowledgments.html#contributors">4.2. Contributors</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../release_notes/index.html">5. Release Notes</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../release_notes/index.html#version-3-0">5.1. Version 3.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../release_notes/index.html#version-2-0">5.2. Version 2.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../release_notes/index.html#version-1-0">5.3. Version 1.0</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_guide/install.html">1. Getting started</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/install.html#staying-up-to-date">1.1. Staying up to date</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_guide/pelicun_framework.html">2. The Pelicun Framework</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/pelicun_framework.html#abbreviations">2.1. Abbreviations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/pelicun_framework.html#introduction-to-pelicun">2.2. Introduction to Pelicun</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/pelicun_framework.html#overview">2.3. Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/pelicun_framework.html#performance-assessment-workflow">2.4. Performance Assessment Workflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/pelicun_framework.html#response-model">2.5. Response Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/pelicun_framework.html#performance-model">2.6. Performance Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/pelicun_framework.html#damage-model">2.7. Damage Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/pelicun_framework.html#loss-model">2.8. Loss Model</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_guide/feature_overview.html">3. Overview of pelicun features</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/feature_overview.html#saving-loading-samples">3.1. Saving/loading samples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/feature_overview.html#logging-support">3.2. Logging support</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/feature_overview.html#uncertainty-quantification">3.3. Uncertainty quantification</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/feature_overview.html#assessment-types">3.4. Assessment types</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/feature_overview.html#demand-simulation">3.5. Demand simulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/feature_overview.html#damage-estimation">3.6. Damage estimation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/feature_overview.html#loss-estimation">3.7. Loss estimation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/feature_overview.html#command-line-support">3.8. Command-line support</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/feature_overview.html#standalone-tools">3.9. Standalone tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/feature_overview.html#feature-overview-and-examples">3.10. Feature overview and examples</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_guide/damage_and_loss_library.html">4. Damage and loss library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_guide/bug_reports_and_feature_requests.html">5. Bug reports and feature requests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_guide/resources_for_new_python_users.html">6. Resources for new python users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples/index.html">7. Examples</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../examples/notebooks/example_1.html">7.1. Example 1: Simple loss function.</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../examples/notebooks/example_2.html">7.2. Example 2: Damage state validation.</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../examples/notebooks/example_3.html">7.3. Example 3: Combining fragility-based damage consequences and loss functions.</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api_reference/index.html">8. API Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../api_reference/_autosummary/pelicun.html">8.1. pelicun</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../developer_guide/getting_started.html">1. Getting started</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../developer_guide/getting_started.html#code-of-conduct">1.1. Code of conduct</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../developer_guide/getting_started.html#how-to-contribute">1.2. How to contribute</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developer_guide/development_environment.html">2. Setting up a development environment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developer_guide/code_quality.html">3. Coding practice</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../developer_guide/code_quality.html#code-quality-assurance">3.1. Code quality assurance</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../developer_guide/code_quality.html#unit-tests">3.2. Unit tests</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../developer_guide/code_quality.html#documentation">3.3. Documentation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developer_guide/internals.html">4. Package architecture</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../developer_guide/internals.html#overview-of-files">4.1. Overview of files</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #F2F2F2" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">pelicun</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">pelicun.tools.regional_sim</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for pelicun.tools.regional_sim</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright (c) 2018 Leland Stanford Junior University</span>
+<span class="c1"># Copyright (c) 2018 The Regents of the University of California</span>
+<span class="c1">#</span>
+<span class="c1"># This file is part of pelicun.</span>
+<span class="c1">#</span>
+<span class="c1"># Redistribution and use in source and binary forms, with or without</span>
+<span class="c1"># modification, are permitted provided that the following conditions are met:</span>
+<span class="c1">#</span>
+<span class="c1"># 1. Redistributions of source code must retain the above copyright notice,</span>
+<span class="c1"># this list of conditions and the following disclaimer.</span>
+<span class="c1">#</span>
+<span class="c1"># 2. Redistributions in binary form must reproduce the above copyright notice,</span>
+<span class="c1"># this list of conditions and the following disclaimer in the documentation</span>
+<span class="c1"># and/or other materials provided with the distribution.</span>
+<span class="c1">#</span>
+<span class="c1"># 3. Neither the name of the copyright holder nor the names of its contributors</span>
+<span class="c1"># may be used to endorse or promote products derived from this software without</span>
+<span class="c1"># specific prior written permission.</span>
+<span class="c1">#</span>
+<span class="c1"># THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS &quot;AS IS&quot;</span>
+<span class="c1"># AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE</span>
+<span class="c1"># IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE</span>
+<span class="c1"># ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE</span>
+<span class="c1"># LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR</span>
+<span class="c1"># CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF</span>
+<span class="c1"># SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS</span>
+<span class="c1"># INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN</span>
+<span class="c1"># CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)</span>
+<span class="c1"># ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE</span>
+<span class="c1"># POSSIBILITY OF SUCH DAMAGE.</span>
+<span class="c1">#</span>
+<span class="c1"># You should have received a copy of the BSD 3-Clause License along with</span>
+<span class="c1"># pelicun. If not, see &lt;http://www.opensource.org/licenses/&gt;.</span>
+<span class="c1">#</span>
+<span class="c1"># Contributors:</span>
+<span class="c1"># Adam Zsarnóczay</span>
+
+<span class="sd">&quot;&quot;&quot;Temporary solution that provides regional simulation capability to Pelicun.&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">contextlib</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">joblib</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">joblib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Parallel</span><span class="p">,</span> <span class="n">delayed</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqdm</span><span class="w"> </span><span class="kn">import</span> <span class="n">tqdm</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pelicun.assessment</span><span class="w"> </span><span class="kn">import</span> <span class="n">Assessment</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pelicun.auto</span><span class="w"> </span><span class="kn">import</span> <span class="n">auto_populate</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pelicun.file_io</span><span class="w"> </span><span class="kn">import</span> <span class="n">substitute_default_path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pelicun.tools.NNR</span><span class="w"> </span><span class="kn">import</span> <span class="n">NNR</span>
+
+
+<div class="viewcode-block" id="unique_list">
+<a class="viewcode-back" href="../../../api_reference/_autosummary/pelicun.tools.regional_sim.html#pelicun.tools.regional_sim.unique_list">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">unique_list</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return unique values in a pandas Series as a comma-separated string.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    x : pd.Series</span>
+<span class="sd">        pandas Series containing values to extract unique elements from</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    str</span>
+<span class="sd">        Comma-separated string of unique values, or single value if only one unique value exists</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">vals</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">vals</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">vals</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span>
+
+    <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">vals</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span></div>
+
+
+
+<div class="viewcode-block" id="format_elapsed_time">
+<a class="viewcode-back" href="../../../api_reference/_autosummary/pelicun.tools.regional_sim.html#pelicun.tools.regional_sim.format_elapsed_time">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">format_elapsed_time</span><span class="p">(</span><span class="n">start_time</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Format elapsed time from a start timestamp to current time as hh:mm:ss.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    start_time : float</span>
+<span class="sd">        Start time as a float timestamp (from time.time())</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    str</span>
+<span class="sd">        Formatted elapsed time string in hh:mm:ss format</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">elapsed</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start_time</span>
+    <span class="n">hours</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">elapsed</span> <span class="o">//</span> <span class="mi">3600</span><span class="p">)</span>
+    <span class="n">minutes</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="n">elapsed</span> <span class="o">%</span> <span class="mi">3600</span><span class="p">)</span> <span class="o">//</span> <span class="mi">60</span><span class="p">)</span>
+    <span class="n">seconds</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">elapsed</span> <span class="o">%</span> <span class="mi">60</span><span class="p">)</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">hours</span><span class="si">:</span><span class="s1">02d</span><span class="si">}</span><span class="s1">:</span><span class="si">{</span><span class="n">minutes</span><span class="si">:</span><span class="s1">02d</span><span class="si">}</span><span class="s1">:</span><span class="si">{</span><span class="n">seconds</span><span class="si">:</span><span class="s1">02d</span><span class="si">}</span><span class="s1">&#39;</span></div>
+
+
+
+<div class="viewcode-block" id="tqdm_joblib">
+<a class="viewcode-back" href="../../../api_reference/_autosummary/pelicun.tools.regional_sim.html#pelicun.tools.regional_sim.tqdm_joblib">[docs]</a>
+<span class="nd">@contextlib</span><span class="o">.</span><span class="n">contextmanager</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">tqdm_joblib</span><span class="p">(</span><span class="n">tqdm_object</span><span class="p">:</span> <span class="n">tqdm</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">contextlib</span><span class="o">.</span><span class="n">Generator</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Context manager to patch joblib to report progress into a tqdm progress bar.</span>
+
+<span class="sd">    This function temporarily replaces joblib&#39;s BatchCompletionCallBack to update</span>
+<span class="sd">    the provided tqdm progress bar with batch completion information during</span>
+<span class="sd">    parallel processing.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    tqdm_object : tqdm</span>
+<span class="sd">        tqdm progress bar object to update with progress information</span>
+
+<span class="sd">    Yields</span>
+<span class="sd">    ------</span>
+<span class="sd">    None</span>
+<span class="sd">        Context manager yields control to the calling code</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">class</span><span class="w"> </span><span class="nc">TqdmBatchCompletionCallback</span><span class="p">(</span><span class="n">joblib</span><span class="o">.</span><span class="n">parallel</span><span class="o">.</span><span class="n">BatchCompletionCallBack</span><span class="p">):</span>
+        <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>  <span class="c1"># noqa: ANN204, ANN002, ANN003</span>
+            <span class="n">tqdm_object</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span><span class="p">)</span>
+            <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__call__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="n">old_batch_callback</span> <span class="o">=</span> <span class="n">joblib</span><span class="o">.</span><span class="n">parallel</span><span class="o">.</span><span class="n">BatchCompletionCallBack</span>
+    <span class="n">joblib</span><span class="o">.</span><span class="n">parallel</span><span class="o">.</span><span class="n">BatchCompletionCallBack</span> <span class="o">=</span> <span class="n">TqdmBatchCompletionCallback</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">yield</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="n">joblib</span><span class="o">.</span><span class="n">parallel</span><span class="o">.</span><span class="n">BatchCompletionCallBack</span> <span class="o">=</span> <span class="n">old_batch_callback</span>
+        <span class="n">tqdm_object</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+
+
+<div class="viewcode-block" id="process_buildings_chunk">
+<a class="viewcode-back" href="../../../api_reference/_autosummary/pelicun.tools.regional_sim.html#pelicun.tools.regional_sim.process_buildings_chunk">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">process_buildings_chunk</span><span class="p">(</span>
+    <span class="n">bldg_df_chunk</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">grid_points</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">grid_data</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">sample_size_demand</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">sample_size_damage</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">dl_method</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Process a chunk of buildings through the complete regional simulation pipeline.</span>
+
+<span class="sd">    This function performs event-to-building mapping, building-to-archetype mapping,</span>
+<span class="sd">    damage calculation, and loss calculation for a subset of buildings. It uses</span>
+<span class="sd">    nearest neighbor regression to map grid-based intensity measures to building</span>
+<span class="sd">    locations, then applies Pelicun assessment methods to calculate damage and losses.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    bldg_df_chunk : pd.DataFrame</span>
+<span class="sd">        DataFrame containing building inventory data for this chunk,</span>
+<span class="sd">        must include Longitude, Latitude, and building characteristics</span>
+<span class="sd">    grid_points : pd.DataFrame</span>
+<span class="sd">        DataFrame with grid point coordinates (Longitude, Latitude)</span>
+<span class="sd">    grid_data : pd.DataFrame</span>
+<span class="sd">        DataFrame with intensity measure data for each grid point</span>
+<span class="sd">    sample_size_demand : int</span>
+<span class="sd">        Number of demand realizations available</span>
+<span class="sd">    sample_size_damage : int</span>
+<span class="sd">        Number of damage realizations to generate</span>
+<span class="sd">    dl_method : str</span>
+<span class="sd">        Damage and loss methodology</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    tuple</span>
+<span class="sd">        demand_sample : pd.DataFrame</span>
+<span class="sd">            DataFrame with demand sample results (intensity measures)</span>
+<span class="sd">        damage_df : pd.DataFrame</span>
+<span class="sd">            DataFrame with damage state results for each component</span>
+<span class="sd">        repair_costs : pd.DataFrame</span>
+<span class="sd">            DataFrame with repair cost estimates</span>
+<span class="sd">        repair_times : pd.DataFrame</span>
+<span class="sd">            DataFrame with repair time estimates</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># 3 Event-to-Building Mapping</span>
+    <span class="c1"># Map event IMs to building centroids using the nearest neighbor method</span>
+
+    <span class="n">X</span> <span class="o">=</span> <span class="n">grid_points</span><span class="p">[[</span><span class="s1">&#39;Longitude&#39;</span><span class="p">,</span> <span class="s1">&#39;Latitude&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>  <span class="c1"># noqa: N806</span>
+    <span class="n">Z</span> <span class="o">=</span> <span class="n">grid_data</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>  <span class="c1"># noqa: N806</span>
+
+    <span class="n">X_t</span> <span class="o">=</span> <span class="n">bldg_df_chunk</span><span class="p">[[</span><span class="s1">&#39;Longitude&#39;</span><span class="p">,</span> <span class="s1">&#39;Latitude&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>  <span class="c1"># noqa: N806</span>
+
+    <span class="n">Z_hat</span> <span class="o">=</span> <span class="n">NNR</span><span class="p">(</span><span class="n">X_t</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">Z</span><span class="p">,</span> <span class="n">sample_size</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">n_neighbors</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="s1">&#39;distance2&#39;</span><span class="p">)</span>  <span class="c1"># noqa: N806</span>
+
+    <span class="c1"># Prepare IM information as demands in the Pelicun format</span>
+
+    <span class="c1"># TODO: allow for more flexible columns  # noqa: TD002</span>
+    <span class="n">demand_sample</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">([</span><span class="n">Z_hat</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="n">Z_hat</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="s1">&#39;g&#39;</span><span class="p">)]),</span>
+        <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;PGA-</span><span class="si">{</span><span class="n">loc</span><span class="si">}</span><span class="s1">-1&#39;</span> <span class="k">for</span> <span class="n">loc</span> <span class="ow">in</span> <span class="n">bldg_df_chunk</span><span class="o">.</span><span class="n">index</span><span class="p">],</span>
+        <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="o">*</span><span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">sample_size_demand</span><span class="p">)),</span> <span class="s1">&#39;Units&#39;</span><span class="p">],</span>
+    <span class="p">)</span>
+
+    <span class="c1"># 4 Building-to-Archetype Mapping</span>
+    <span class="c1"># Use Pelicun and the built-in mapping for Hazus IM-based damage models to map each building in the inventory to an archetype</span>
+
+    <span class="n">auto_script_path</span> <span class="o">=</span> <span class="n">substitute_default_path</span><span class="p">(</span>
+        <span class="p">[</span><span class="sa">f</span><span class="s1">&#39;PelicunDefault/</span><span class="si">{</span><span class="n">dl_method</span><span class="si">}</span><span class="s1">/pelicun_config.py&#39;</span><span class="p">]</span>
+    <span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="n">CMP_list</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># noqa: N806</span>
+
+    <span class="k">for</span> <span class="n">bldg_id</span><span class="p">,</span> <span class="n">row_data</span> <span class="ow">in</span> <span class="n">bldg_df_chunk</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:]</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">CMP</span> <span class="o">=</span> <span class="n">auto_populate</span><span class="p">(</span>  <span class="c1"># noqa: N806</span>
+            <span class="p">{</span>
+                <span class="s1">&#39;GeneralInformation&#39;</span><span class="p">:</span> <span class="nb">dict</span><span class="p">(</span><span class="n">row_data</span><span class="p">),</span>
+                <span class="s1">&#39;assetType&#39;</span><span class="p">:</span> <span class="s1">&#39;Buildings&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;Applications&#39;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s1">&#39;DL&#39;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s1">&#39;ApplicationData&#39;</span><span class="p">:</span> <span class="p">{</span>
+                            <span class="s1">&#39;coupled_EDP&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+                            <span class="s1">&#39;lifeline_facility&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+                            <span class="s1">&#39;ground_failure&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+                        <span class="p">}</span>
+                    <span class="p">}</span>
+                <span class="p">},</span>
+            <span class="p">},</span>
+            <span class="n">auto_script_path</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">CMP</span><span class="p">[</span><span class="s1">&#39;Location&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">bldg_id</span>
+
+        <span class="n">CMP_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">CMP</span><span class="p">)</span>
+
+    <span class="n">cmp_marginals</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">CMP_list</span><span class="p">)</span>
+
+    <span class="n">cmp_marginals_raw</span> <span class="o">=</span> <span class="n">cmp_marginals</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+    <span class="n">cmp_marginals</span> <span class="o">=</span> <span class="n">cmp_marginals_raw</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">cmp_marginals_raw</span><span class="o">.</span><span class="n">index</span><span class="p">)</span><span class="o">.</span><span class="n">agg</span><span class="p">(</span>
+        <span class="p">{</span>
+            <span class="s1">&#39;Units&#39;</span><span class="p">:</span> <span class="n">unique_list</span><span class="p">,</span>
+            <span class="s1">&#39;Location&#39;</span><span class="p">:</span> <span class="n">unique_list</span><span class="p">,</span>
+            <span class="s1">&#39;Direction&#39;</span><span class="p">:</span> <span class="n">unique_list</span><span class="p">,</span>
+            <span class="s1">&#39;Theta_0&#39;</span><span class="p">:</span> <span class="n">unique_list</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
+
+    <span class="c1"># 5 Calculate Damage</span>
+    <span class="c1"># Calculate damage with a deterministic inventory realization</span>
+
+    <span class="c1"># initialize assessment object</span>
+    <span class="n">PAL</span> <span class="o">=</span> <span class="n">Assessment</span><span class="p">(</span>  <span class="c1"># noqa: N806</span>
+        <span class="p">{</span>
+            <span class="s1">&#39;LogFile&#39;</span><span class="p">:</span> <span class="s1">&#39;pelicun_log.txt&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;Verbose&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="s1">&#39;NonDirectionalMultipliers&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;ALL&#39;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">},</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
+
+    <span class="c1"># load demands</span>
+    <span class="n">PAL</span><span class="o">.</span><span class="n">demand</span><span class="o">.</span><span class="n">load_sample</span><span class="p">(</span><span class="n">demand_sample</span><span class="p">)</span>
+
+    <span class="n">PAL</span><span class="o">.</span><span class="n">demand</span><span class="o">.</span><span class="n">calibrate_model</span><span class="p">({</span><span class="s1">&#39;ALL&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;DistributionFamily&#39;</span><span class="p">:</span> <span class="s1">&#39;empirical&#39;</span><span class="p">}})</span>
+
+    <span class="n">PAL</span><span class="o">.</span><span class="n">demand</span><span class="o">.</span><span class="n">generate_sample</span><span class="p">(</span>
+        <span class="p">{</span><span class="s1">&#39;SampleSize&#39;</span><span class="p">:</span> <span class="n">sample_size_damage</span><span class="p">,</span> <span class="s1">&#39;PreserveRawOrder&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">}</span>
+    <span class="p">)</span>
+
+    <span class="c1"># load component assignment</span>
+    <span class="n">PAL</span><span class="o">.</span><span class="n">asset</span><span class="o">.</span><span class="n">load_cmp_model</span><span class="p">({</span><span class="s1">&#39;marginals&#39;</span><span class="p">:</span> <span class="n">cmp_marginals</span><span class="p">})</span>
+
+    <span class="n">PAL</span><span class="o">.</span><span class="n">asset</span><span class="o">.</span><span class="n">generate_cmp_sample</span><span class="p">()</span>
+
+    <span class="c1"># get the path to the built-in fragility functions</span>
+    <span class="n">component_db_path</span> <span class="o">=</span> <span class="n">substitute_default_path</span><span class="p">(</span>
+        <span class="p">[</span><span class="sa">f</span><span class="s1">&#39;PelicunDefault/</span><span class="si">{</span><span class="n">dl_method</span><span class="si">}</span><span class="s1">/fragility.csv&#39;</span><span class="p">]</span>
+    <span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="c1"># import the required fragility functions</span>
+    <span class="n">cmp_set</span> <span class="o">=</span> <span class="n">PAL</span><span class="o">.</span><span class="n">asset</span><span class="o">.</span><span class="n">list_unique_component_ids</span><span class="p">()</span>
+
+    <span class="n">PAL</span><span class="o">.</span><span class="n">damage</span><span class="o">.</span><span class="n">load_model_parameters</span><span class="p">(</span>
+        <span class="p">[</span>
+            <span class="n">component_db_path</span><span class="p">,</span>
+        <span class="p">],</span>
+        <span class="n">cmp_set</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># run the damage calculation</span>
+    <span class="n">PAL</span><span class="o">.</span><span class="n">damage</span><span class="o">.</span><span class="n">calculate</span><span class="p">()</span>
+
+    <span class="c1"># retrieve damage information</span>
+    <span class="n">damage_sample</span><span class="p">,</span> <span class="n">damage_units</span> <span class="o">=</span> <span class="n">PAL</span><span class="o">.</span><span class="n">damage</span><span class="o">.</span><span class="n">save_sample</span><span class="p">(</span><span class="n">save_units</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">damage_units</span> <span class="o">=</span> <span class="n">damage_units</span><span class="o">.</span><span class="n">to_frame</span><span class="p">()</span><span class="o">.</span><span class="n">T</span>
+
+    <span class="c1"># aggregate across uid</span>
+    <span class="c1"># this is trivial since we don&#39;t have multiple identical components at the same location</span>
+    <span class="n">damage_units</span> <span class="o">=</span> <span class="n">damage_units</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span>
+        <span class="n">level</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;cmp&#39;</span><span class="p">,</span> <span class="s1">&#39;loc&#39;</span><span class="p">,</span> <span class="s1">&#39;dir&#39;</span><span class="p">,</span> <span class="s1">&#39;ds&#39;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+
+    <span class="n">damage_groupby_uid</span> <span class="o">=</span> <span class="n">damage_sample</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span>
+        <span class="n">level</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;cmp&#39;</span><span class="p">,</span> <span class="s1">&#39;loc&#39;</span><span class="p">,</span> <span class="s1">&#39;dir&#39;</span><span class="p">,</span> <span class="s1">&#39;ds&#39;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span>
+    <span class="p">)</span>
+    <span class="n">damage_sample</span> <span class="o">=</span> <span class="n">damage_groupby_uid</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">mask</span><span class="p">(</span>
+        <span class="n">damage_groupby_uid</span><span class="o">.</span><span class="n">count</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+    <span class="p">)</span>
+
+    <span class="c1"># aggregate across dir</span>
+    <span class="c1"># also trivial, all results are in dir 1</span>
+
+    <span class="n">damage_groupby</span> <span class="o">=</span> <span class="n">damage_sample</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;cmp&#39;</span><span class="p">,</span> <span class="s1">&#39;loc&#39;</span><span class="p">,</span> <span class="s1">&#39;ds&#39;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="n">damage_units</span> <span class="o">=</span> <span class="n">damage_units</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;cmp&#39;</span><span class="p">,</span> <span class="s1">&#39;loc&#39;</span><span class="p">,</span> <span class="s1">&#39;ds&#39;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+    <span class="n">grp_damage</span> <span class="o">=</span> <span class="n">damage_groupby</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">mask</span><span class="p">(</span><span class="n">damage_groupby</span><span class="o">.</span><span class="n">count</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+
+    <span class="c1"># replace non-zero values with 1</span>
+    <span class="c1"># this is probably not making any meaningful changes since we have 1 ea quantity of each component</span>
+    <span class="c1"># Honestly, I am not quite sure why we need this step...</span>
+    <span class="n">grp_damage</span> <span class="o">=</span> <span class="n">grp_damage</span><span class="o">.</span><span class="n">mask</span><span class="p">(</span><span class="n">grp_damage</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+    <span class="c1"># get the corresponding DS for each column</span>
+    <span class="n">ds_list</span> <span class="o">=</span> <span class="n">grp_damage</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s1">&#39;ds&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+
+    <span class="c1"># replace ones with the corresponding DS in each cell</span>
+    <span class="n">grp_damage</span> <span class="o">=</span> <span class="n">grp_damage</span><span class="o">.</span><span class="n">mul</span><span class="p">(</span><span class="n">ds_list</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="c1"># aggregate across damage state indices</span>
+    <span class="n">damage_groupby_2</span> <span class="o">=</span> <span class="n">grp_damage</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;cmp&#39;</span><span class="p">,</span> <span class="s1">&#39;loc&#39;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="c1"># choose the max value</span>
+    <span class="c1"># i.e., the governing DS for each comp-loc pair</span>
+    <span class="c1"># Note that in each realization, each component will have only one non-zero damage state result,</span>
+    <span class="c1"># so this is not picking the max damage state, but rather picking the realized damage state</span>
+    <span class="n">grp_damage</span> <span class="o">=</span> <span class="n">damage_groupby_2</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="o">.</span><span class="n">mask</span><span class="p">(</span><span class="n">damage_groupby_2</span><span class="o">.</span><span class="n">count</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+
+    <span class="c1"># aggregate units to the same format</span>
+    <span class="c1"># assume identical units across locations for each comp</span>
+    <span class="n">damage_units</span> <span class="o">=</span> <span class="n">damage_units</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;cmp&#39;</span><span class="p">,</span> <span class="s1">&#39;loc&#39;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+
+    <span class="n">grp_damage</span> <span class="o">=</span> <span class="n">grp_damage</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">reorder_levels</span><span class="p">([</span><span class="s1">&#39;loc&#39;</span><span class="p">,</span> <span class="s1">&#39;cmp&#39;</span><span class="p">])</span>
+
+    <span class="n">damage_df</span> <span class="o">=</span> <span class="n">grp_damage</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+    <span class="c1"># assuming there&#39;s only one component in each building, we can drop the component info</span>
+    <span class="n">damage_df</span> <span class="o">=</span> <span class="n">damage_df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="s1">&#39;loc&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+    <span class="n">damage_df</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">damage_df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+    <span class="n">damage_df</span> <span class="o">=</span> <span class="n">damage_df</span><span class="o">.</span><span class="n">sort_index</span><span class="p">()</span>
+
+    <span class="c1"># 6 Calculate Losses</span>
+
+    <span class="c1"># get the path to the built-in consequence functions</span>
+    <span class="n">consequence_db_path</span> <span class="o">=</span> <span class="n">substitute_default_path</span><span class="p">(</span>
+        <span class="p">[</span><span class="sa">f</span><span class="s1">&#39;PelicunDefault/</span><span class="si">{</span><span class="n">dl_method</span><span class="si">}</span><span class="s1">/consequence_repair.csv&#39;</span><span class="p">]</span>
+    <span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="c1"># Hazus consequence functions depend only on occupancy class</span>
+    <span class="c1"># we need to list building IDs for each occupancy type first</span>
+    <span class="n">loss_groups</span> <span class="o">=</span> <span class="n">bldg_df_chunk</span><span class="p">[[</span><span class="s1">&#39;StructureType&#39;</span><span class="p">,</span> <span class="s1">&#39;OccupancyClass&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">loss_groups</span><span class="p">[</span><span class="s1">&#39;IDs&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">loss_groups</span><span class="o">.</span><span class="n">index</span>
+
+    <span class="n">loss_groups</span> <span class="o">=</span> <span class="n">loss_groups</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s1">&#39;OccupancyClass&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">agg</span><span class="p">({</span><span class="s1">&#39;IDs&#39;</span><span class="p">:</span> <span class="n">unique_list</span><span class="p">})</span>
+
+    <span class="c1"># create a lookup table to find which fragility IDs are at which location</span>
+    <span class="n">dmg_sample</span> <span class="o">=</span> <span class="n">PAL</span><span class="o">.</span><span class="n">damage</span><span class="o">.</span><span class="n">save_sample</span><span class="p">()</span>
+    <span class="n">cmp_loc</span> <span class="o">=</span> <span class="n">dmg_sample</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;cmp&#39;</span><span class="p">,</span> <span class="s1">&#39;loc&#39;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+
+    <span class="n">cmp_lookup</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span>
+        <span class="n">cmp_loc</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s1">&#39;cmp&#39;</span><span class="p">),</span>
+        <span class="n">index</span><span class="o">=</span><span class="n">cmp_loc</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s1">&#39;loc&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">sort_index</span><span class="p">()</span>
+
+    <span class="c1"># Loss calculation is a bit complicated now. I need to add a new feature to Pelicun to make it work as smoothly as the damage does.</span>
+    <span class="c1"># What I do below is brute force, but it works, and still takes only a few minutes to run.</span>
+    <span class="c1"># I&#39;ll enhance Pelicun in the coming weeks to do more sophisticated loss mapping and be able to handle the following calculations faster without the for loop</span>
+
+    <span class="c1"># we&#39;ll collect the results in this dict</span>
+    <span class="n">loss_results</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;Cost&#39;</span><span class="p">:</span> <span class="p">[],</span> <span class="s1">&#39;Time&#39;</span><span class="p">:</span> <span class="p">[]}</span>
+
+    <span class="c1"># start by extracting the full damage sample and preserving it</span>
+    <span class="n">full_dmg_sample</span> <span class="o">=</span> <span class="n">PAL</span><span class="o">.</span><span class="n">damage</span><span class="o">.</span><span class="n">save_sample</span><span class="p">()</span>
+
+    <span class="k">for</span> <span class="n">occ_type</span><span class="p">,</span> <span class="n">raw_building_ids</span> <span class="ow">in</span> <span class="n">loss_groups</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:]</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
+        <span class="c1"># convert the building id list to a numpy array of ints</span>
+        <span class="n">building_ids</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">raw_building_ids</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span>
+            <span class="nb">int</span>
+        <span class="p">)</span>
+
+        <span class="c1"># and make sure those IDs are in the component lookup table</span>
+        <span class="n">building_ids</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">building_id</span>
+            <span class="k">for</span> <span class="n">building_id</span> <span class="ow">in</span> <span class="n">building_ids</span>
+            <span class="k">if</span> <span class="n">building_id</span> <span class="ow">in</span> <span class="n">cmp_lookup</span><span class="o">.</span><span class="n">index</span>
+        <span class="p">]</span>
+
+        <span class="c1"># load only the subset of the damage sample that is needed for the calculation</span>
+        <span class="n">idx</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">IndexSlice</span>
+        <span class="n">dmg_subset</span> <span class="o">=</span> <span class="n">full_dmg_sample</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+            <span class="p">:,</span> <span class="n">idx</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">building_ids</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">str</span><span class="p">),</span> <span class="p">:,</span> <span class="p">:,</span> <span class="p">:]</span>
+        <span class="p">]</span>
+        <span class="n">PAL</span><span class="o">.</span><span class="n">damage</span><span class="o">.</span><span class="n">load_sample</span><span class="p">(</span><span class="n">dmg_subset</span><span class="p">)</span>
+
+        <span class="c1"># create a loss map that maps every fragility ID to a consequence for the given occupancy type</span>
+        <span class="n">loss_cmp</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;LF.</span><span class="si">{</span><span class="n">occ_type</span><span class="si">}</span><span class="s1">&#39;</span>
+
+        <span class="n">drivers</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">loss_models</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="n">dmg_cmps</span> <span class="o">=</span> <span class="n">dmg_subset</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s1">&#39;cmp&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
+
+        <span class="k">for</span> <span class="n">cmp_id</span> <span class="ow">in</span> <span class="n">dmg_cmps</span><span class="o">.</span><span class="n">unique</span><span class="p">():</span>
+            <span class="n">drivers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">cmp_id</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">loss_models</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">loss_cmp</span><span class="p">)</span>
+
+        <span class="n">loss_map</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">loss_models</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Repair&#39;</span><span class="p">],</span> <span class="n">index</span><span class="o">=</span><span class="n">drivers</span><span class="p">)</span>
+
+        <span class="n">decision_variables</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Cost&#39;</span><span class="p">,</span> <span class="s1">&#39;Time&#39;</span><span class="p">]</span>
+
+        <span class="n">PAL</span><span class="o">.</span><span class="n">loss</span><span class="o">.</span><span class="n">decision_variables</span> <span class="o">=</span> <span class="n">decision_variables</span>
+        <span class="n">PAL</span><span class="o">.</span><span class="n">loss</span><span class="o">.</span><span class="n">add_loss_map</span><span class="p">(</span><span class="n">loss_map</span><span class="p">,</span> <span class="n">loss_map_policy</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+        <span class="n">PAL</span><span class="o">.</span><span class="n">loss</span><span class="o">.</span><span class="n">load_model_parameters</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="n">consequence_db_path</span><span class="p">,</span>
+            <span class="p">]</span>
+        <span class="p">)</span>
+
+        <span class="n">PAL</span><span class="o">.</span><span class="n">loss</span><span class="o">.</span><span class="n">calculate</span><span class="p">()</span>
+
+        <span class="c1"># - - - - - -</span>
+
+        <span class="n">repair_sample</span><span class="p">,</span> <span class="n">repair_units</span> <span class="o">=</span> <span class="n">PAL</span><span class="o">.</span><span class="n">loss</span><span class="o">.</span><span class="n">save_sample</span><span class="p">(</span><span class="n">save_units</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1"># aggregate across uid</span>
+        <span class="c1"># this is trivial since we don&#39;t have multiple identical components at the same location</span>
+        <span class="n">repair_units</span> <span class="o">=</span> <span class="n">repair_units</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span>
+            <span class="n">level</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;dv&#39;</span><span class="p">,</span> <span class="s1">&#39;loss&#39;</span><span class="p">,</span> <span class="s1">&#39;dmg&#39;</span><span class="p">,</span> <span class="s1">&#39;ds&#39;</span><span class="p">,</span> <span class="s1">&#39;loc&#39;</span><span class="p">,</span> <span class="s1">&#39;dir&#39;</span><span class="p">]</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+
+        <span class="n">repair_groupby_uid</span> <span class="o">=</span> <span class="n">repair_sample</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span>
+            <span class="n">level</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;dv&#39;</span><span class="p">,</span> <span class="s1">&#39;loss&#39;</span><span class="p">,</span> <span class="s1">&#39;dmg&#39;</span><span class="p">,</span> <span class="s1">&#39;ds&#39;</span><span class="p">,</span> <span class="s1">&#39;loc&#39;</span><span class="p">,</span> <span class="s1">&#39;dir&#39;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span>
+        <span class="p">)</span>
+
+        <span class="n">repair_sample</span> <span class="o">=</span> <span class="n">repair_groupby_uid</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">mask</span><span class="p">(</span>
+            <span class="n">repair_groupby_uid</span><span class="o">.</span><span class="n">count</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        <span class="p">)</span>
+
+        <span class="c1"># now aggregate across loss, dmg, damage state, and direction</span>
+        <span class="c1"># all of those are only one value per location, so they do not provide additional information</span>
+        <span class="n">repair_groupby</span> <span class="o">=</span> <span class="n">repair_sample</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;dv&#39;</span><span class="p">,</span> <span class="s1">&#39;loc&#39;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="n">repair_units</span> <span class="o">=</span> <span class="n">repair_units</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;dv&#39;</span><span class="p">,</span> <span class="s1">&#39;loc&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+
+        <span class="n">grp_repair</span> <span class="o">=</span> <span class="n">repair_groupby</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">mask</span><span class="p">(</span><span class="n">repair_groupby</span><span class="o">.</span><span class="n">count</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+
+        <span class="c1"># - - - -</span>
+
+        <span class="c1"># append the results to the main dict</span>
+        <span class="k">for</span> <span class="n">DV_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;Cost&#39;</span><span class="p">,</span> <span class="s1">&#39;Time&#39;</span><span class="p">]:</span>  <span class="c1"># noqa: N806</span>
+            <span class="n">grp_repair_dv</span> <span class="o">=</span> <span class="n">grp_repair</span><span class="p">[</span><span class="n">DV_type</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">grp_repair_dv</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">grp_repair_dv</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+
+            <span class="c1"># we did not preserve the units for now; we can add them here if needed</span>
+
+            <span class="n">loss_results</span><span class="p">[</span><span class="n">DV_type</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">grp_repair_dv</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="n">building_ids</span><span class="p">])</span>
+
+    <span class="n">repair_costs</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">loss_results</span><span class="p">[</span><span class="s1">&#39;Cost&#39;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">sort_index</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+    <span class="n">repair_times</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">loss_results</span><span class="p">[</span><span class="s1">&#39;Time&#39;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">sort_index</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+
+    <span class="c1"># finish by putting the full damage sample back to the assessment object</span>
+    <span class="n">PAL</span><span class="o">.</span><span class="n">damage</span><span class="o">.</span><span class="n">load_sample</span><span class="p">(</span><span class="n">full_dmg_sample</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">demand_sample</span><span class="p">,</span> <span class="n">damage_df</span><span class="p">,</span> <span class="n">repair_costs</span><span class="p">,</span> <span class="n">repair_times</span></div>
+
+
+
+<div class="viewcode-block" id="process_and_save_chunk">
+<a class="viewcode-back" href="../../../api_reference/_autosummary/pelicun.tools.regional_sim.html#pelicun.tools.regional_sim.process_and_save_chunk">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">process_and_save_chunk</span><span class="p">(</span>
+    <span class="n">i</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">chunk</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">temp_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">grid_points</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">grid_data</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">sample_size_demand</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">sample_size_damage</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">dl_method</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Process a single chunk of buildings and save results to temporary compressed CSV files.</span>
+
+<span class="sd">    This function serves as a wrapper around process_buildings_chunk that handles</span>
+<span class="sd">    the file I/O operations for parallel processing. It processes a chunk of buildings</span>
+<span class="sd">    through the complete simulation pipeline and saves the results to temporary files</span>
+<span class="sd">    for later aggregation.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    i : int</span>
+<span class="sd">        Chunk index number used for naming output files</span>
+<span class="sd">    chunk : pd.DataFrame</span>
+<span class="sd">        DataFrame containing building inventory data for this specific chunk</span>
+<span class="sd">    temp_dir : str</span>
+<span class="sd">        Path to temporary directory where results will be saved</span>
+<span class="sd">    grid_points : pd.DataFrame</span>
+<span class="sd">        DataFrame with grid point coordinates (Longitude, Latitude)</span>
+<span class="sd">    grid_data : pd.DataFrame</span>
+<span class="sd">        DataFrame with intensity measure data for each grid point</span>
+<span class="sd">    sample_size_demand : int</span>
+<span class="sd">        Number of demand realizations available</span>
+<span class="sd">    sample_size_damage : int</span>
+<span class="sd">        Number of damage realizations to generate</span>
+<span class="sd">    dl_method : str</span>
+<span class="sd">        Damage and loss methodology</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Process buildings through steps 3-6</span>
+    <span class="n">demand_sample_chunk</span><span class="p">,</span> <span class="n">damage_df_chunk</span><span class="p">,</span> <span class="n">repair_costs_chunk</span><span class="p">,</span> <span class="n">repair_times_chunk</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">process_buildings_chunk</span><span class="p">(</span>
+            <span class="n">chunk</span><span class="p">,</span>
+            <span class="n">grid_points</span><span class="p">,</span>
+            <span class="n">grid_data</span><span class="p">,</span>
+            <span class="n">sample_size_demand</span><span class="p">,</span>
+            <span class="n">sample_size_damage</span><span class="p">,</span>
+            <span class="n">dl_method</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Save each result DataFrame to compressed CSV files</span>
+    <span class="n">demand_sample_chunk</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">temp_dir</span><span class="si">}</span><span class="s1">/demand_part_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s1">.csv&#39;</span><span class="p">,</span> <span class="n">compression</span><span class="o">=</span><span class="s1">&#39;zip&#39;</span><span class="p">)</span>
+    <span class="n">damage_df_chunk</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">temp_dir</span><span class="si">}</span><span class="s1">/damage_part_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s1">.csv&#39;</span><span class="p">,</span> <span class="n">compression</span><span class="o">=</span><span class="s1">&#39;zip&#39;</span><span class="p">)</span>
+    <span class="n">repair_costs_chunk</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">temp_dir</span><span class="si">}</span><span class="s1">/repair_costs_part_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s1">.csv&#39;</span><span class="p">,</span> <span class="n">compression</span><span class="o">=</span><span class="s1">&#39;zip&#39;</span>
+    <span class="p">)</span>
+    <span class="n">repair_times_chunk</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">temp_dir</span><span class="si">}</span><span class="s1">/repair_times_part_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s1">.csv&#39;</span><span class="p">,</span> <span class="n">compression</span><span class="o">=</span><span class="s1">&#39;zip&#39;</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="regional_sim">
+<a class="viewcode-back" href="../../../api_reference/_autosummary/pelicun.tools.regional_sim.html#pelicun.tools.regional_sim.regional_sim">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">regional_sim</span><span class="p">(</span><span class="n">config_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">num_cores</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Perform a regional-scale disaster impact simulation.</span>
+
+<span class="sd">    This function orchestrates the complete regional simulation workflow including:</span>
+<span class="sd">    1. Loading earthquake event data from gridded intensity measure files</span>
+<span class="sd">    2. Loading building inventory data</span>
+<span class="sd">    3. Mapping event intensity measures to building locations using nearest neighbor regression</span>
+<span class="sd">    4. Mapping buildings to damage/loss archetypes using Pelicun auto-population</span>
+<span class="sd">    5. Calculating damage states for all buildings</span>
+<span class="sd">    6. Calculating repair costs and times</span>
+<span class="sd">    7. Aggregating and saving results to CSV files</span>
+
+<span class="sd">    The simulation is performed in parallel chunks to handle large building inventories</span>
+<span class="sd">    efficiently. Results are saved as compressed CSV files for demand samples, damage</span>
+<span class="sd">    states, repair costs, and repair times.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    config_file : str</span>
+<span class="sd">        Path to JSON configuration file containing simulation parameters,</span>
+<span class="sd">        file paths, and analysis settings (inputRWHALE.json from SimCenter&#39;s R2D Tool)</span>
+<span class="sd">    num_cores : int, optional</span>
+<span class="sd">        Number of CPU cores to use for parallel processing. If None,</span>
+<span class="sd">        uses all available cores minus one</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    Output Files:</span>
+<span class="sd">        - demand_sample.csv: Intensity measure realizations for all buildings</span>
+<span class="sd">        - damage_sample.csv: Damage state realizations for all building components</span>
+<span class="sd">        - repair_cost_sample.csv: Repair cost estimates for all buildings</span>
+<span class="sd">        - repair_time_sample.csv: Repair time estimates for all buildings</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">batch_size</span> <span class="o">=</span> <span class="mi">1000</span>
+
+    <span class="c1"># Initialize start time for timestamp tracking</span>
+    <span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+
+    <span class="k">with</span> <span class="n">Path</span><span class="p">(</span><span class="n">config_file</span><span class="p">)</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+
+    <span class="n">sample_size_demand</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;Applications&#39;</span><span class="p">][</span><span class="s1">&#39;RegionalMapping&#39;</span><span class="p">][</span><span class="s1">&#39;Buildings&#39;</span><span class="p">][</span>
+        <span class="s1">&#39;ApplicationData&#39;</span>
+    <span class="p">][</span><span class="s1">&#39;samples&#39;</span><span class="p">]</span>
+    <span class="n">sample_size_damage</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;Applications&#39;</span><span class="p">][</span><span class="s1">&#39;DL&#39;</span><span class="p">][</span><span class="s1">&#39;Buildings&#39;</span><span class="p">][</span>
+        <span class="s1">&#39;ApplicationData&#39;</span>
+    <span class="p">][</span><span class="s1">&#39;Realizations&#39;</span><span class="p">]</span>
+
+    <span class="c1"># 1 Earthquake Event</span>
+    <span class="c1"># Load gridded event IM information from a standard SimCenter EventGrid file and the corresponding site files.</span>
+
+    <span class="n">event_data_folder</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;RegionalEvent&#39;</span><span class="p">][</span><span class="s1">&#39;eventFilePath&#39;</span><span class="p">]</span>
+    <span class="n">event_grid_path</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">event_data_folder</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;RegionalEvent&#39;</span><span class="p">][</span><span class="s1">&#39;eventFile&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
+
+    <span class="n">grid_points</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">event_grid_path</span><span class="p">)</span>
+
+    <span class="n">grid_point_data_array</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">for</span> <span class="n">grid_point_file</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span>
+        <span class="n">grid_points</span><span class="p">[</span><span class="s1">&#39;GP_file&#39;</span><span class="p">],</span>
+        <span class="n">desc</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;[</span><span class="si">{</span><span class="n">format_elapsed_time</span><span class="p">(</span><span class="n">start_time</span><span class="p">)</span><span class="si">}</span><span class="s1">] 1 Earthquake Event - Loading grid point data&#39;</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="n">grid_point_data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">event_data_folder</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">grid_point_file</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+        <span class="n">grid_point_data_array</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">grid_point_data</span><span class="p">)</span>
+
+    <span class="n">grid_data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">grid_point_data_array</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">keys</span><span class="o">=</span><span class="n">grid_points</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+
+    <span class="c1"># 2 Building Inventory</span>
+    <span class="c1"># Load probabilistic building inventory from a CSV file</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;[</span><span class="si">{</span><span class="n">format_elapsed_time</span><span class="p">(</span><span class="n">start_time</span><span class="p">)</span><span class="si">}</span><span class="s1">] 2 Building Inventory&#39;</span><span class="p">)</span>  <span class="c1"># noqa: T201</span>
+
+    <span class="n">bldg_data_folder</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;Applications&#39;</span><span class="p">][</span><span class="s1">&#39;Assets&#39;</span><span class="p">][</span><span class="s1">&#39;Buildings&#39;</span><span class="p">][</span>
+        <span class="s1">&#39;ApplicationData&#39;</span>
+    <span class="p">][</span><span class="s1">&#39;pathToSource&#39;</span><span class="p">]</span>
+    <span class="n">bldg_data_path</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">bldg_data_folder</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;Applications&#39;</span><span class="p">][</span><span class="s1">&#39;Assets&#39;</span><span class="p">][</span><span class="s1">&#39;Buildings&#39;</span><span class="p">][</span><span class="s1">&#39;ApplicationData&#39;</span><span class="p">][</span><span class="s1">&#39;assetSourceFile&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
+
+    <span class="n">bldg_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">bldg_data_path</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">original_index</span> <span class="o">=</span> <span class="n">bldg_df</span><span class="o">.</span><span class="n">index</span>
+    <span class="n">bldg_df</span> <span class="o">=</span> <span class="n">bldg_df</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="s1">&#39;OccupancyClass&#39;</span><span class="p">)</span>
+
+    <span class="c1"># bldg_df = bldg_df.iloc[:batch_size*5]</span>
+
+    <span class="c1"># Get DL method for processing</span>
+    <span class="n">dl_method</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;Applications&#39;</span><span class="p">][</span><span class="s1">&#39;DL&#39;</span><span class="p">][</span><span class="s1">&#39;Buildings&#39;</span><span class="p">][</span><span class="s1">&#39;ApplicationData&#39;</span><span class="p">][</span>
+        <span class="s1">&#39;DL_Method&#39;</span>
+    <span class="p">]</span>
+
+    <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">temp_dir</span><span class="p">:</span>
+        <span class="c1"># Chunk the DataFrame into a list of smaller DataFrames</span>
+        <span class="n">bldg_chunks</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">bldg_df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">i</span> <span class="p">:</span> <span class="n">i</span> <span class="o">+</span> <span class="n">batch_size</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">bldg_df</span><span class="p">),</span> <span class="n">batch_size</span><span class="p">)</span>
+        <span class="p">]</span>
+
+        <span class="c1"># Determine the number of CPU cores to use</span>
+        <span class="k">if</span> <span class="n">num_cores</span><span class="p">:</span>
+            <span class="n">n_jobs</span> <span class="o">=</span> <span class="n">num_cores</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">n_jobs</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">()</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="c1"># Process chunks in parallel with a proper progress bar</span>
+        <span class="k">with</span> <span class="p">(</span>
+            <span class="n">tqdm</span><span class="p">(</span><span class="n">total</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">bldg_chunks</span><span class="p">),</span> <span class="n">desc</span><span class="o">=</span><span class="s1">&#39;Processing building chunks&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">pbar</span><span class="p">,</span>
+            <span class="n">tqdm_joblib</span><span class="p">(</span><span class="n">pbar</span><span class="p">),</span>
+        <span class="p">):</span>
+            <span class="n">Parallel</span><span class="p">(</span><span class="n">n_jobs</span><span class="o">=</span><span class="n">n_jobs</span><span class="p">)(</span>
+                <span class="n">delayed</span><span class="p">(</span><span class="n">process_and_save_chunk</span><span class="p">)(</span>
+                    <span class="n">i</span><span class="p">,</span>
+                    <span class="n">chunk</span><span class="p">,</span>
+                    <span class="n">temp_dir</span><span class="p">,</span>
+                    <span class="n">grid_points</span><span class="p">,</span>
+                    <span class="n">grid_data</span><span class="p">,</span>
+                    <span class="n">sample_size_demand</span><span class="p">,</span>
+                    <span class="n">sample_size_damage</span><span class="p">,</span>
+                    <span class="n">dl_method</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">chunk</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">bldg_chunks</span><span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="c1"># Read and combine all temporary files</span>
+        <span class="n">demand_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">damage_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">costs_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">times_list</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">temp_dir</span><span class="p">):</span>
+            <span class="n">filepath</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">temp_dir</span><span class="p">)</span> <span class="o">/</span> <span class="n">filename</span>
+            <span class="k">if</span> <span class="n">filename</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;demand_part_&#39;</span><span class="p">):</span>
+                <span class="n">demand_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">compression</span><span class="o">=</span><span class="s1">&#39;zip&#39;</span><span class="p">)</span>
+                <span class="p">)</span>
+            <span class="k">elif</span> <span class="n">filename</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;damage_part_&#39;</span><span class="p">):</span>
+                <span class="n">damage_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">compression</span><span class="o">=</span><span class="s1">&#39;zip&#39;</span><span class="p">)</span>
+                <span class="p">)</span>
+            <span class="k">elif</span> <span class="n">filename</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;repair_costs_part_&#39;</span><span class="p">):</span>
+                <span class="n">costs_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">compression</span><span class="o">=</span><span class="s1">&#39;zip&#39;</span><span class="p">)</span>
+                <span class="p">)</span>
+            <span class="k">elif</span> <span class="n">filename</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;repair_times_part_&#39;</span><span class="p">):</span>
+                <span class="n">times_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">compression</span><span class="o">=</span><span class="s1">&#39;zip&#39;</span><span class="p">)</span>
+                <span class="p">)</span>
+
+        <span class="c1"># Concatenate all parts into final DataFrames</span>
+        <span class="n">demand_sample</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">demand_list</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">damage_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">damage_list</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">repair_costs</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">costs_list</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">repair_times</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">times_list</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="c1"># Restore original building order for all result files</span>
+        <span class="n">demand_sample</span> <span class="o">=</span> <span class="n">demand_sample</span><span class="o">.</span><span class="n">reindex</span><span class="p">(</span>
+            <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;PGA-</span><span class="si">{</span><span class="n">loc</span><span class="si">}</span><span class="s1">-1&#39;</span> <span class="k">for</span> <span class="n">loc</span> <span class="ow">in</span> <span class="n">original_index</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="n">damage_df</span> <span class="o">=</span> <span class="n">damage_df</span><span class="o">.</span><span class="n">reindex</span><span class="p">(</span><span class="n">original_index</span><span class="p">)</span>
+        <span class="n">repair_costs</span> <span class="o">=</span> <span class="n">repair_costs</span><span class="o">.</span><span class="n">reindex</span><span class="p">(</span><span class="n">original_index</span><span class="p">)</span>
+        <span class="n">repair_times</span> <span class="o">=</span> <span class="n">repair_times</span><span class="o">.</span><span class="n">reindex</span><span class="p">(</span><span class="n">original_index</span><span class="p">)</span>
+
+        <span class="c1"># 7 Save results</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;[</span><span class="si">{</span><span class="n">format_elapsed_time</span><span class="p">(</span><span class="n">start_time</span><span class="p">)</span><span class="si">}</span><span class="s1">] 7 Save results&#39;</span><span class="p">)</span>  <span class="c1"># noqa: T201</span>
+
+        <span class="n">demand_sample</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="s1">&#39;demand.csv&#39;</span><span class="p">)</span>
+        <span class="n">damage_df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="s1">&#39;damage.csv&#39;</span><span class="p">)</span>
+        <span class="n">repair_costs</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="s1">&#39;repair_costs.csv&#39;</span><span class="p">)</span>
+        <span class="n">repair_times</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="s1">&#39;repair_times.csv&#39;</span><span class="p">)</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Leland Stanford Junior University and The Regents of the University of California.</p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+    <!-- Theme Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-158130480-7"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'UA-158130480-7', {
+          'anonymize_ip': false,
+      });
+    </script> 
+
+</body>
+</html>

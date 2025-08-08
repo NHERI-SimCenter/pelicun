@@ -30,5 +30,6 @@ pelicun.tools
    :recursive:
 
    DL_calculation
-   HDF_to_CSV
+   NNR
+   regional_sim
 

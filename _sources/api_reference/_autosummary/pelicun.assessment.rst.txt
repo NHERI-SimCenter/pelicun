@@ -10,6 +10,18 @@ pelicun.assessment
 
    
    
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      _add_units
+      _loss__add_replacement_carbon
+      _loss__add_replacement_cost
+      _loss__add_replacement_energy
+      _loss__add_replacement_time
+      _loss__map_auto
+      _loss__map_user
+   
    
 
    

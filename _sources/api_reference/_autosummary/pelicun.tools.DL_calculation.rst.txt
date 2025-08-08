@@ -14,6 +14,18 @@ pelicun.tools.DL\_calculation
 
    .. autosummary::
    
+      _asset_save
+      _create_json_files_if_requested
+      _damage_save
+      _demand_save
+      _loss_save
+      _parse_config_file
+      _parse_decision_variables
+      _parse_requested_output_file_names
+      _remove_csv_files_if_not_requested
+      _remove_existing_files
+      _result_summary
+      _summary_save
       convert_df_to_dict
       log_msg
       main

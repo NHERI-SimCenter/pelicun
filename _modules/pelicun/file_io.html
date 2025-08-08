@@ -630,11 +630,18 @@
     <span class="n">axis</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span> <span class="mi">0</span><span class="p">}</span>
     <span class="n">the_index</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">columns</span> <span class="k">if</span> <span class="n">orientation</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="n">data</span><span class="o">.</span><span class="n">index</span>
 
+    <span class="c1"># Check for units information (case-insensitive)</span>
     <span class="c1"># if there is information about units, separate that information</span>
     <span class="c1"># and optionally apply conversions to all numeric values</span>
-    <span class="k">if</span> <span class="s1">&#39;Units&#39;</span> <span class="ow">in</span> <span class="n">the_index</span><span class="p">:</span>
-        <span class="n">units</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;Units&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="n">orientation</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="n">data</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s1">&#39;Units&#39;</span><span class="p">]</span>
-        <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">drop</span><span class="p">([</span><span class="s1">&#39;Units&#39;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="n">orientation</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
+    <span class="n">units_key</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">the_index</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">key</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;units&#39;</span><span class="p">:</span>
+            <span class="n">units_key</span> <span class="o">=</span> <span class="n">key</span>
+            <span class="k">break</span>
+
+    <span class="k">if</span> <span class="n">units_key</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">units</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">units_key</span><span class="p">]</span> <span class="k">if</span> <span class="n">orientation</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="n">data</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">units_key</span><span class="p">]</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">drop</span><span class="p">([</span><span class="n">units_key</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="n">orientation</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
         <span class="n">data</span> <span class="o">=</span> <span class="n">base</span><span class="o">.</span><span class="n">convert_dtypes</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">unit_conversion_factors</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>

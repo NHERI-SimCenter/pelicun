@@ -10,6 +10,15 @@ pelicun.model.demand\_model
 
    
    
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      _assemble_required_demand_data
+      _clean_up_expression
+      _get_required_demand_type
+      _verify_edps_available
+   
    
 
    

@@ -1,7 +1,7 @@
-pelicun.tools.HDF\_to\_CSV
-==========================
+pelicun.cli
+===========
 
-.. automodule:: pelicun.tools.HDF_to_CSV
+.. automodule:: pelicun.cli
    :members:
 
    
@@ -14,7 +14,7 @@ pelicun.tools.HDF\_to\_CSV
 
    .. autosummary::
    
-      convert_HDF
+      main
    
    
 

@@ -10,6 +10,15 @@ pelicun.model.loss\_model
 
    
    
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      _is_for_ds_model
+      _is_for_lf_model
+      _prep_bounded_multilinear_median_DV
+      _prep_constant_median_DV
+   
    
 
    

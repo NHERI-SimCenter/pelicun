@@ -1,0 +1,63 @@
+.. _changes_v3_5_0:
+
+==============================
+Version 3.5.0 (February 4, 2025)
+==============================
+
+Added
+-----
+
+**Power Network Infrastructure Support**: Added comprehensive support for power network assessments including:
+
+- **Power Fragility Models**: New fragility models for power substations, circuits, and generation facilities
+- **Power Auto-population**: Extended auto-population scripts to recognize power network assets and map them to appropriate archetypes
+- **Power Units**: Added support for power-related units including 'kW' and 'MW' with proper unit conversions
+
+**Wind Demand Recognition**: Added wind demands to the list of recognized Engineering Demand Parameters (EDPs), expanding multi-hazard assessment capabilities.
+
+**Line Force Units**: Added support for line forces in the default units configuration, enabling proper conversion and handling of forces distributed along a line (e.g., N/m, kN/m). This enhancement improves the modeling of structural components where distributed loads are relevant.
+
+**Submodule Integration**: Transitioned to using submodule resource files for better resource management and version control of damage and loss model libraries.
+
+**Enhanced Loss Processing**: Improved loss aggregation and processing capabilities:
+
+- **Comprehensive Loss Results**: Enhanced DL_calculation to save additional information about component-level losses, making it easier to trace the contribution of individual components to the total loss.
+- **Grouped Loss Statistics**: Added capability to save grouped loss statistics when running regional simulations
+
+Changed
+-------
+
+**Input Validation Flexibility**: Added more flexibility in input validation by allowing ``Distribution`` and ``Theta_1`` to be missing for CollapseFragility and Replacement consequences, with sensible defaults applied automatically.
+
+**GitHub Workflows**: Updated GitHub Actions workflows to:
+
+- Initialize submodules at checkout for proper resource file handling
+- Use trusted publisher approach for PyPI deployment
+- Improve documentation build and deployment processes
+
+**Code Quality Improvements**: Enhanced code quality through:
+
+- Comprehensive type annotations and checking throughout the codebase
+- Enhanced random variable parameter handling when sampling from distributions.
+
+**DLML Resource Management**: Updated Damage and Loss Model Library (DLML) resource paths and submodule pointers to the most recent version.
+
+Fixed
+-----
+
+**Bug Fixes**: Resolved several critical issues:
+
+- **Irreparable Damage Handling**: Fixed bug ensuring no component losses are counted on top of replacement when damage is irreparable
+- **Exponentiation Operator**: Fixed incorrect exponentiation operator usage in power network damage model autopopulation script
+- **Anchor Property Validation**: Improved anchor property parser to throw appropriate errors for invalid inputs
+- **Bridge Modeling**: Fixed marginal case handling for single span bridges longer than 150m
+- **Water Network Fragility Database Updates**: Updated water network damage databases with corrected fragility parameters
+- **Custom Model Directory Handling**: Improved ``custom_model_dir`` functionality to only check for custom model directories when the path actually contains the placeholder `CustomDLDataFolder`.
+- **Archetype ID Corrections**: Fixed typos in archetype IDs, including correcting "EP.C" to "EP.G" and ensuring proper capitalization in base ID strings for power network assets.
+
+**Input Validation**: Replaced checking for falsy values with explicit checks for ``None`` to prevent unexpected behavior with zero values.
+
+**Documentation and Formatting**: Fixed various documentation issues, indentation bugs in YAML files, and applied consistent code formatting using ruff.
+
+**Unit Test Fixes**: Resolved unit test issues and formatting problems to ensure reliable testing.
+

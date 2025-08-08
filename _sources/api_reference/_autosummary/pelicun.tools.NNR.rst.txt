@@ -1,0 +1,30 @@
+pelicun.tools.NNR
+=================
+
+.. automodule:: pelicun.tools.NNR
+   :members:
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      NNR
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

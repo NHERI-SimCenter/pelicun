@@ -14,6 +14,13 @@ pelicun.uq
 
    .. autosummary::
    
+      _OLS_percentiles
+      _get_limit_probs
+      _get_std_corr_matrix
+      _get_std_samples
+      _get_theta
+      _mvn_scale
+      _neg_log_likelihood
       fit_distribution_to_percentiles
       fit_distribution_to_sample
       mvn_orthotope_density

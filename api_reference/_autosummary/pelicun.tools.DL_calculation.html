@@ -24,7 +24,7 @@
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="pelicun.tools.HDF_to_CSV" href="pelicun.tools.HDF_to_CSV.html" />
+    <link rel="next" title="pelicun.tools.NNR" href="pelicun.tools.NNR.html" />
     <link rel="prev" title="pelicun.tools" href="pelicun.tools.html" /> 
 </head>
 
@@ -161,6 +161,42 @@
 <p class="rubric">Functions</p>
 <table class="autosummary longtable docutils align-default">
 <tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_asset_save</span></code>(output_config, assessment, ...)</p></td>
+<td><p>Save asset results to files based on the output config.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_create_json_files_if_requested</span></code>(config, ...)</p></td>
+<td><p>Create JSON files if requested in the config.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_damage_save</span></code>(output_config, assessment, ...)</p></td>
+<td><p>Save damage results to files based on the output config.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_demand_save</span></code>(output_config, assessment, ...)</p></td>
+<td><p>Save demand results to files based on the output config.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_loss_save</span></code>(output_config, assessment, ...[, ...])</p></td>
+<td><p>Save loss results to files based on the output config.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_parse_config_file</span></code>(config_path, output_path, ...)</p></td>
+<td><p>Parse and validate the config file for Pelicun.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_parse_decision_variables</span></code>(config)</p></td>
+<td><p>Parse decision variables from the config file.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_parse_requested_output_file_names</span></code>(output_config)</p></td>
+<td><p>Parse the output file names from the output configuration.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_remove_csv_files_if_not_requested</span></code>(config, ...)</p></td>
+<td><p>Remove CSV files if not requested in config.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_remove_existing_files</span></code>(output_path, ...)</p></td>
+<td><p>Remove known existing files from the specified output path.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_result_summary</span></code>(assessment, agg_repair)</p></td>
+<td><p>Generate a summary of the results.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_summary_save</span></code>(summary, summary_stats, ...)</p></td>
+<td><p>Save summary results to CSV files.</p></td>
+</tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pelicun.tools.DL_calculation.convert_df_to_dict" title="pelicun.tools.DL_calculation.convert_df_to_dict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">convert_df_to_dict</span></code></a>(data[, axis])</p></td>
 <td><p>Convert a pandas DataFrame to a dictionary.</p></td>
 </tr>

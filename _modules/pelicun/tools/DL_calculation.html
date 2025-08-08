@@ -735,7 +735,7 @@
         <span class="n">out_files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;DL_summary_stats.csv&#39;</span><span class="p">)</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_parse_config_file</span><span class="p">(</span>  <span class="c1"># noqa: C901</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_parse_config_file</span><span class="p">(</span>  <span class="c1"># noqa: C901, PLR0912</span>
     <span class="n">config_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
     <span class="n">output_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
     <span class="n">auto_script_path</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
@@ -968,6 +968,14 @@
         <span class="k">if</span> <span class="n">is_unspecified</span><span class="p">(</span><span class="n">config_ap</span><span class="p">,</span> <span class="s1">&#39;DL/Losses&#39;</span><span class="p">):</span>
             <span class="n">update</span><span class="p">(</span><span class="n">config_ap</span><span class="p">,</span> <span class="s1">&#39;DL/Outputs/Loss&#39;</span><span class="p">,</span> <span class="p">{})</span>
 
+        <span class="k">if</span> <span class="n">is_specified</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s1">&#39;outputs&#39;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;outputs&#39;</span><span class="p">][</span><span class="s1">&#39;IM&#39;</span><span class="p">])</span> <span class="ow">and</span> <span class="p">(</span><span class="ow">not</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;outputs&#39;</span><span class="p">][</span><span class="s1">&#39;EDP&#39;</span><span class="p">]):</span>
+                <span class="n">update</span><span class="p">(</span><span class="n">config_ap</span><span class="p">,</span> <span class="s1">&#39;DL/Outputs/Demand&#39;</span><span class="p">,</span> <span class="p">{})</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;outputs&#39;</span><span class="p">][</span><span class="s1">&#39;DM&#39;</span><span class="p">]:</span>
+                <span class="n">update</span><span class="p">(</span><span class="n">config_ap</span><span class="p">,</span> <span class="s1">&#39;DL/Outputs/Damage&#39;</span><span class="p">,</span> <span class="p">{})</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;outputs&#39;</span><span class="p">][</span><span class="s1">&#39;DV&#39;</span><span class="p">]:</span>
+                <span class="n">update</span><span class="p">(</span><span class="n">config_ap</span><span class="p">,</span> <span class="s1">&#39;DL/Outputs/Loss&#39;</span><span class="p">,</span> <span class="p">{})</span>
+
         <span class="c1"># save the extended config to a file</span>
         <span class="n">config_ap_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">config_path</span><span class="o">.</span><span class="n">stem</span> <span class="o">+</span> <span class="s1">&#39;_ap.json&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
 
@@ -1197,20 +1205,27 @@
                 <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">output_path</span> <span class="o">/</span> <span class="n">filename</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span>
             <span class="p">)</span>
 
-        <span class="k">if</span> <span class="s1">&#39;Units&#39;</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">index</span><span class="p">:</span>
+        <span class="c1"># Check for units information (case-insensitive)</span>
+        <span class="n">units_key</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">index</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">key</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;units&#39;</span><span class="p">:</span>
+                <span class="n">units_key</span> <span class="o">=</span> <span class="n">key</span>
+                <span class="k">break</span>
+
+        <span class="k">if</span> <span class="n">units_key</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">df_units</span> <span class="o">=</span> <span class="n">convert_to_SimpleIndex</span><span class="p">(</span>
-                <span class="n">data</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s1">&#39;Units&#39;</span><span class="p">,</span> <span class="p">:]</span><span class="o">.</span><span class="n">to_frame</span><span class="p">()</span><span class="o">.</span><span class="n">T</span><span class="p">,</span>  <span class="c1"># type: ignore</span>
+                <span class="n">data</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">units_key</span><span class="p">,</span> <span class="p">:]</span><span class="o">.</span><span class="n">to_frame</span><span class="p">()</span><span class="o">.</span><span class="n">T</span><span class="p">,</span>  <span class="c1"># type: ignore</span>
                 <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
             <span class="p">)</span>
 
-            <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="s1">&#39;Units&#39;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">units_key</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 
             <span class="n">out_dict</span> <span class="o">=</span> <span class="n">convert_df_to_dict</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
 
             <span class="n">out_dict</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
                 <span class="p">{</span>
                     <span class="s1">&#39;Units&#39;</span><span class="p">:</span> <span class="p">{</span>
-                        <span class="n">col</span><span class="p">:</span> <span class="n">df_units</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s1">&#39;Units&#39;</span><span class="p">,</span> <span class="n">col</span><span class="p">]</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">df_units</span><span class="o">.</span><span class="n">columns</span>
+                        <span class="n">col</span><span class="p">:</span> <span class="n">df_units</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">units_key</span><span class="p">,</span> <span class="n">col</span><span class="p">]</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">df_units</span><span class="o">.</span><span class="n">columns</span>
                     <span class="p">}</span>
                 <span class="p">}</span>
             <span class="p">)</span>
@@ -1245,20 +1260,26 @@
     <span class="k">if</span> <span class="n">damage_sample</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">agg_repair</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(),</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
 
-    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">damage_sample</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span>
-    <span class="n">damage_sample</span> <span class="o">=</span> <span class="n">damage_sample</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;cmp&#39;</span><span class="p">,</span> <span class="s1">&#39;ds&#39;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>  <span class="c1"># type: ignore</span>
-    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">damage_sample</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span>
-    <span class="n">damage_sample_s</span> <span class="o">=</span> <span class="n">convert_to_SimpleIndex</span><span class="p">(</span><span class="n">damage_sample</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">damage_sample</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">damage_sample</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span>
+        <span class="n">damage_sample</span> <span class="o">=</span> <span class="n">damage_sample</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;cmp&#39;</span><span class="p">,</span> <span class="s1">&#39;ds&#39;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>  <span class="c1"># type: ignore</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">damage_sample</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span>
+        <span class="n">damage_sample_s</span> <span class="o">=</span> <span class="n">convert_to_SimpleIndex</span><span class="p">(</span><span class="n">damage_sample</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="s1">&#39;collapse-1&#39;</span> <span class="ow">in</span> <span class="n">damage_sample_s</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
-        <span class="n">damage_sample_s</span><span class="p">[</span><span class="s1">&#39;collapse&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">damage_sample_s</span><span class="p">[</span><span class="s1">&#39;collapse-1&#39;</span><span class="p">]</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">damage_sample_s</span><span class="p">[</span><span class="s1">&#39;collapse&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">damage_sample_s</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">if</span> <span class="s1">&#39;collapse-1&#39;</span> <span class="ow">in</span> <span class="n">damage_sample_s</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="n">damage_sample_s</span><span class="p">[</span><span class="s1">&#39;collapse&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">damage_sample_s</span><span class="p">[</span><span class="s1">&#39;collapse-1&#39;</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">damage_sample_s</span><span class="p">[</span><span class="s1">&#39;collapse&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">damage_sample_s</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
 
-    <span class="k">if</span> <span class="s1">&#39;irreparable-1&#39;</span> <span class="ow">in</span> <span class="n">damage_sample_s</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
-        <span class="n">damage_sample_s</span><span class="p">[</span><span class="s1">&#39;irreparable&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">damage_sample_s</span><span class="p">[</span><span class="s1">&#39;irreparable-1&#39;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="s1">&#39;irreparable-1&#39;</span> <span class="ow">in</span> <span class="n">damage_sample_s</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="n">damage_sample_s</span><span class="p">[</span><span class="s1">&#39;irreparable&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">damage_sample_s</span><span class="p">[</span><span class="s1">&#39;irreparable-1&#39;</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">damage_sample_s</span><span class="p">[</span><span class="s1">&#39;irreparable&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">damage_sample_s</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+        <span class="n">damage_sample_s</span> <span class="o">=</span> <span class="n">damage_sample_s</span><span class="p">[[</span><span class="s1">&#39;collapse&#39;</span><span class="p">,</span> <span class="s1">&#39;irreparable&#39;</span><span class="p">]]</span>
+
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">damage_sample_s</span><span class="p">[</span><span class="s1">&#39;irreparable&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">damage_sample_s</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">damage_sample_s</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
 
     <span class="k">if</span> <span class="n">agg_repair</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">agg_repair_s</span> <span class="o">=</span> <span class="n">convert_to_SimpleIndex</span><span class="p">(</span><span class="n">agg_repair</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
@@ -1266,9 +1287,7 @@
     <span class="k">else</span><span class="p">:</span>
         <span class="n">agg_repair_s</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
 
-    <span class="n">summary</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
-        <span class="p">[</span><span class="n">agg_repair_s</span><span class="p">,</span> <span class="n">damage_sample_s</span><span class="p">[[</span><span class="s1">&#39;collapse&#39;</span><span class="p">,</span> <span class="s1">&#39;irreparable&#39;</span><span class="p">]]],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span>
-    <span class="p">)</span>
+    <span class="n">summary</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">agg_repair_s</span><span class="p">,</span> <span class="n">damage_sample_s</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 
     <span class="n">summary_stats</span> <span class="o">=</span> <span class="n">describe</span><span class="p">(</span><span class="n">summary</span><span class="p">)</span>
 
@@ -1550,7 +1569,7 @@
             <span class="n">out_files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;DMG_grp_stats.csv&#39;</span><span class="p">)</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_loss_save</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_loss_save</span><span class="p">(</span>  <span class="c1"># noqa: C901</span>
     <span class="n">output_config</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
     <span class="n">assessment</span><span class="p">:</span> <span class="n">DLCalculationAssessment</span><span class="p">,</span>
     <span class="n">output_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
@@ -1584,12 +1603,21 @@
     <span class="n">repair_units</span> <span class="o">=</span> <span class="n">repair_units_series</span><span class="o">.</span><span class="n">to_frame</span><span class="p">()</span><span class="o">.</span><span class="n">T</span>
 
     <span class="k">if</span> <span class="n">aggregate_colocated</span><span class="p">:</span>
-        <span class="n">repair_units</span> <span class="o">=</span> <span class="n">repair_units</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span>  <span class="c1"># type: ignore</span>
-            <span class="n">level</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;dv&#39;</span><span class="p">,</span> <span class="s1">&#39;loss&#39;</span><span class="p">,</span> <span class="s1">&#39;dmg&#39;</span><span class="p">,</span> <span class="s1">&#39;ds&#39;</span><span class="p">,</span> <span class="s1">&#39;loc&#39;</span><span class="p">,</span> <span class="s1">&#39;dir&#39;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span>
-        <span class="p">)</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
-        <span class="n">repair_groupby_uid</span> <span class="o">=</span> <span class="n">repair_sample</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span>  <span class="c1"># type: ignore</span>
-            <span class="n">level</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;dv&#39;</span><span class="p">,</span> <span class="s1">&#39;loss&#39;</span><span class="p">,</span> <span class="s1">&#39;dmg&#39;</span><span class="p">,</span> <span class="s1">&#39;ds&#39;</span><span class="p">,</span> <span class="s1">&#39;loc&#39;</span><span class="p">,</span> <span class="s1">&#39;dir&#39;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span>
-        <span class="p">)</span>
+        <span class="k">if</span> <span class="s1">&#39;ds&#39;</span> <span class="ow">in</span> <span class="n">repair_units</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">names</span><span class="p">:</span>
+            <span class="n">repair_units</span> <span class="o">=</span> <span class="n">repair_units</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span>  <span class="c1"># type: ignore</span>
+                <span class="n">level</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;dv&#39;</span><span class="p">,</span> <span class="s1">&#39;loss&#39;</span><span class="p">,</span> <span class="s1">&#39;dmg&#39;</span><span class="p">,</span> <span class="s1">&#39;ds&#39;</span><span class="p">,</span> <span class="s1">&#39;loc&#39;</span><span class="p">,</span> <span class="s1">&#39;dir&#39;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+            <span class="n">repair_groupby_uid</span> <span class="o">=</span> <span class="n">repair_sample</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span>  <span class="c1"># type: ignore</span>
+                <span class="n">level</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;dv&#39;</span><span class="p">,</span> <span class="s1">&#39;loss&#39;</span><span class="p">,</span> <span class="s1">&#39;dmg&#39;</span><span class="p">,</span> <span class="s1">&#39;ds&#39;</span><span class="p">,</span> <span class="s1">&#39;loc&#39;</span><span class="p">,</span> <span class="s1">&#39;dir&#39;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">repair_units</span> <span class="o">=</span> <span class="n">repair_units</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span>  <span class="c1"># type: ignore</span>
+                <span class="n">level</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;dv&#39;</span><span class="p">,</span> <span class="s1">&#39;loss&#39;</span><span class="p">,</span> <span class="s1">&#39;dmg&#39;</span><span class="p">,</span> <span class="s1">&#39;loc&#39;</span><span class="p">,</span> <span class="s1">&#39;dir&#39;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+            <span class="n">repair_groupby_uid</span> <span class="o">=</span> <span class="n">repair_sample</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span>  <span class="c1"># type: ignore</span>
+                <span class="n">level</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;dv&#39;</span><span class="p">,</span> <span class="s1">&#39;loss&#39;</span><span class="p">,</span> <span class="s1">&#39;dmg&#39;</span><span class="p">,</span> <span class="s1">&#39;loc&#39;</span><span class="p">,</span> <span class="s1">&#39;dir&#39;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span>
+            <span class="p">)</span>
+
         <span class="n">repair_sample</span> <span class="o">=</span> <span class="n">repair_groupby_uid</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">mask</span><span class="p">(</span>
             <span class="n">repair_groupby_uid</span><span class="o">.</span><span class="n">count</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
         <span class="p">)</span>

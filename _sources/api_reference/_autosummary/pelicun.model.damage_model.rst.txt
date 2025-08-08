@@ -10,6 +10,12 @@ pelicun.model.damage\_model
 
    
    
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      _is_for_ds_model
+   
    
 
    
