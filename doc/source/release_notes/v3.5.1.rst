@@ -1,8 +1,8 @@
 .. _changes_v3_5_1:
 
-================================
+=================================
 Version 3.5.1 (February 24, 2025)
-================================
+=================================
 
 This is a patch release that addresses issues in the Hazus damage process and updates the Damage and Loss Model Library to the latest version.
 
