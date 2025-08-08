@@ -469,11 +469,18 @@ def load_data(  # noqa: C901
     axis = {0: 1, 1: 0}
     the_index = data.columns if orientation == 1 else data.index
 
+    # Check for units information (case-insensitive)
     # if there is information about units, separate that information
     # and optionally apply conversions to all numeric values
-    if 'Units' in the_index:
-        units = data['Units'] if orientation == 1 else data.loc['Units']
-        data = data.drop(['Units'], axis=orientation)  # type: ignore
+    units_key = None
+    for key in the_index:
+        if str(key).lower() == 'units':
+            units_key = key
+            break
+
+    if units_key is not None:
+        units = data[units_key] if orientation == 1 else data.loc[units_key]
+        data = data.drop([units_key], axis=orientation)  # type: ignore
         data = base.convert_dtypes(data)
 
         if unit_conversion_factors is not None:
