@@ -1,0 +1,17 @@
+.. _changes_v3_5_1:
+
+================================
+Version 3.5.1 (February 24, 2025)
+================================
+
+This is a patch release that addresses issues in the Hazus damage process and updates the Damage and Loss Model Library to the latest version.
+
+Fixed
+-----
+
+**Hazus Damage Process**: Added proper handling for irreparable damage states to ensure that all damage states are properly accounted for in Hazus earthquake assessments.
+
+Changed
+-------
+
+**Damage and Loss Model Library**: Updated the DLML submodule and resource paths to point to Hazus v6.1, ensuring users have access to the most current fragility and consequence models for seismic building assessments.
