@@ -1,0 +1,12 @@
+.. _changes_v3_6_1:
+
+================================
+Version 3.6.1 (May 16, 2025)
+================================
+
+This is a patch release that addresses a bug in the Damage and Loss Model Library configuration files.
+
+Changed
+-------
+
+**Damage and Loss Model Library**: Updated the DLML submodule to the latest version to incorporate bug fixes and ensure users have access to properly functioning configuration files for all supported assessment methodologies.
