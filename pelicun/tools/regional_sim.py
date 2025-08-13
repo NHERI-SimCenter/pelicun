@@ -599,7 +599,9 @@ def regional_sim(config_file: str, num_cores: int | None = None) -> None:
         grid_points['GP_file'],
         desc=f'[{format_elapsed_time(start_time)}] 1 Earthquake Event - Loading grid point data',
     ):
-        grid_point_data = pd.read_csv(f'{event_data_folder}/{grid_point_file}')
+        grid_point_data = pd.read_csv(
+            f'{event_data_folder}/{grid_point_file}', nrows=sample_size_demand
+        )
 
         grid_point_data_array.append(grid_point_data)
 
