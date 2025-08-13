@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Version 3.7.0 (August 7, 2025) &mdash; pelicun  documentation</title>
+  <title>Version 3.7.1 (August 12, 2025) &mdash; pelicun  documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
@@ -24,8 +24,8 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Version 3.6.1 (May 16, 2025)" href="v3.6.1.html" />
-    <link rel="prev" title="Version 3.7.1 (August 12, 2025)" href="v3.7.1.html" /> 
+    <link rel="next" title="Version 3.7.0 (August 7, 2025)" href="v3.7.0.html" />
+    <link rel="prev" title="Unreleased" href="unreleased.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -144,7 +144,7 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="index.html"><span class="section-number">5. </span>Release Notes</a></li>
-      <li class="breadcrumb-item active">Version 3.7.0 (August 7, 2025)</li>
+      <li class="breadcrumb-item active">Version 3.7.1 (August 12, 2025)</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -153,39 +153,9 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="version-3-7-0-august-7-2025">
-<span id="changes-v3-7-0"></span><h1>Version 3.7.0 (August 7, 2025)<a class="headerlink" href="#version-3-7-0-august-7-2025" title="Link to this heading"></a></h1>
-<section id="added">
-<h2>Added<a class="headerlink" href="#added" title="Link to this heading"></a></h2>
-<p><strong>Regional Simulation Tool</strong>: A new regional simulation capability has been added to Pelicun as a temporary solution while the integrated feature is being developed. The tool currently supports Hazus EQ simulation using lifeline facility fragilities and includes:</p>
-<ul class="simple">
-<li><p><strong>Batch Processing</strong>: Memory-efficient sequential and parallel batch processing using joblib for handling large-scale regional simulations</p></li>
-<li><p><strong>Progress Reporting</strong>: Time and progress information output to track simulation status</p></li>
-<li><p><strong>Command-line Interface</strong>: A new CLI system with <code class="docutils literal notranslate"><span class="pre">pelicun</span></code> as an installable command and <code class="docutils literal notranslate"><span class="pre">regional_sim</span></code> as the first available subcommand</p></li>
-</ul>
-<p><strong>Installable CLI</strong>: Pelicun now provides a modern command-line interface through a <code class="docutils literal notranslate"><span class="pre">console_scripts</span></code> entry point. The new <code class="docutils literal notranslate"><span class="pre">pelicun/cli.py</span></code> module serves as a subcommand dispatcher, making the tool easier to install and use from the command line.</p>
-<p><strong>Case-insensitive Unit Handling</strong>: Implemented case-insensitive unit label handling in input data processing, improving robustness when processing data with varying unit label capitalization.</p>
-</section>
-<section id="changed">
-<h2>Changed<a class="headerlink" href="#changed" title="Link to this heading"></a></h2>
-<p><strong>Modernized Packaging</strong>: The project has been modernized to align with current Python packaging standards (PEP 621):</p>
-<ul class="simple">
-<li><p>All static package metadata (version, dependencies, etc.) has been migrated from <code class="docutils literal notranslate"><span class="pre">setup.py</span></code> to <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code> is now the single source of truth for package configuration</p></li>
-<li><p>Version number source has been moved to <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">setup.py</span></code> file is now minimal, reserved for future dynamic build logic</p></li>
-</ul>
-</section>
-<section id="removed">
-<h2>Removed<a class="headerlink" href="#removed" title="Link to this heading"></a></h2>
-<p><strong>Deprecated Tools</strong>: Removed <code class="docutils literal notranslate"><span class="pre">HDF_to_CSV</span></code> from tools as it is no longer used.</p>
-</section>
-<section id="fixed">
-<h2>Fixed<a class="headerlink" href="#fixed" title="Link to this heading"></a></h2>
-<p><strong>Pandas Deprecation Warning</strong>: Fixed a minor issue in <code class="docutils literal notranslate"><span class="pre">loss_model</span></code> to avoid pandas deprecation warnings, ensuring compatibility with newer pandas versions.</p>
-<p><strong>R2D Configuration Handling</strong>: Applied bugfixes to handle advanced configurations from R2D.</p>
-<p><strong>Documentation Build Issues</strong>: Resolved various Sphinx warnings and build errors to ensure clean documentation generation.</p>
-</section>
+  <section id="version-3-7-1-august-12-2025">
+<span id="changes-v3-7-1"></span><h1>Version 3.7.1 (August 12, 2025)<a class="headerlink" href="#version-3-7-1-august-12-2025" title="Link to this heading"></a></h1>
+<p>This is a patch release that enables flood loss simulation through SimCenter’s backend and addresses a few bugs.</p>
 </section>
 
 

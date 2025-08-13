@@ -2213,11 +2213,18 @@
 <span class="sd">      differentiated by occupancy type.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c1"># get the damage sample</span>
-    <span class="n">dmg_sample</span> <span class="o">=</span> <span class="n">assessment</span><span class="o">.</span><span class="n">damage</span><span class="o">.</span><span class="n">save_sample</span><span class="p">()</span>
+    <span class="n">identical_damage_and_conseqence_ids</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="k">if</span> <span class="n">dl_method</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;Hazus Earthquake&#39;</span><span class="p">):</span>
+        <span class="n">identical_damage_and_conseqence_ids</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="c1"># get the component sample</span>
     <span class="n">asset_sample</span> <span class="o">=</span> <span class="n">assessment</span><span class="o">.</span><span class="n">asset</span><span class="o">.</span><span class="n">save_cmp_sample</span><span class="p">()</span>
-    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dmg_sample</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span>
     <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">asset_sample</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span>
+
+    <span class="c1"># get the damage sample</span>
+    <span class="c1"># TODO(AZ): check why the damage sample was needed here</span>
+    <span class="c1"># dmg_sample = assessment.damage.save_sample()</span>
+    <span class="c1"># assert isinstance(dmg_sample, pd.DataFrame)</span>
 
     <span class="c1"># create a mapping for all components that are also in</span>
     <span class="c1"># the prescribed consequence database</span>
@@ -2227,7 +2234,7 @@
     <span class="n">drivers</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">loss_models</span> <span class="o">=</span> <span class="p">[]</span>
 
-    <span class="k">if</span> <span class="n">dl_method</span> <span class="ow">in</span> <span class="p">{</span><span class="s1">&#39;FEMA P-58&#39;</span><span class="p">,</span> <span class="s1">&#39;Hazus Hurricane&#39;</span><span class="p">}:</span>
+    <span class="k">if</span> <span class="n">identical_damage_and_conseqence_ids</span><span class="p">:</span>
         <span class="c1"># with these methods, we assume fragility and consequence data</span>
         <span class="c1"># have the same IDs</span>
 
@@ -2239,12 +2246,8 @@
                 <span class="n">drivers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">asset_cmp</span><span class="p">)</span>
                 <span class="n">loss_models</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">asset_cmp</span><span class="p">)</span>
 
-    <span class="k">elif</span> <span class="n">dl_method</span> <span class="ow">in</span> <span class="p">{</span>
-        <span class="s1">&#39;Hazus Earthquake&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;Hazus Earthquake - Buildings&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;Hazus Earthquake - Lifeline Facilities&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;Hazus Earthquake Transportation&#39;</span><span class="p">,</span>
-    <span class="p">}:</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># Currently, we only get here with Hazus Earthquake</span>
         <span class="c1"># with Hazus Earthquake we assume that consequence</span>
         <span class="c1"># archetypes are only differentiated by occupancy type</span>
         <span class="k">for</span> <span class="n">asset_cmp</span> <span class="ow">in</span> <span class="n">asset_cmps</span><span class="p">:</span>

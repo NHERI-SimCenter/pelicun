@@ -769,7 +769,9 @@
         <span class="n">grid_points</span><span class="p">[</span><span class="s1">&#39;GP_file&#39;</span><span class="p">],</span>
         <span class="n">desc</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;[</span><span class="si">{</span><span class="n">format_elapsed_time</span><span class="p">(</span><span class="n">start_time</span><span class="p">)</span><span class="si">}</span><span class="s1">] 1 Earthquake Event - Loading grid point data&#39;</span><span class="p">,</span>
     <span class="p">):</span>
-        <span class="n">grid_point_data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">event_data_folder</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">grid_point_file</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">grid_point_data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">event_data_folder</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">grid_point_file</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">nrows</span><span class="o">=</span><span class="n">sample_size_demand</span>
+        <span class="p">)</span>
 
         <span class="n">grid_point_data_array</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">grid_point_data</span><span class="p">)</span>
 
