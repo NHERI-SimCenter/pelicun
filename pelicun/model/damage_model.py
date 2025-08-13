@@ -519,10 +519,9 @@ class DamageModel_Base(PelicunModel):
             data = pd.concat((self.damage_params, data), axis=0)
 
         # drop redefinitions of components
-        data = data.groupby(data.index).first()
+        data = data.groupby(data.index).first(skipna=False)
 
         # TODO(AZ): load defaults for Demand-Offset and Demand-Directional
-
         self.damage_params = data
 
     def convert_damage_parameter_units(self) -> None:

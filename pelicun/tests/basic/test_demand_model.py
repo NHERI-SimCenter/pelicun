@@ -569,7 +569,7 @@ class TestDemandModel(TestModelModule):  # noqa: PLR0904
 
         # Utility demand case: two demands are required
         damage_model = assessment_instance.damage
-        cmp_set = {'testing.component'}
+        cmp_set = {'testing.component2'}
         damage_model.load_model_parameters(
             [
                 'pelicun/tests/basic/data/model/test_DemandModel/'
@@ -578,7 +578,7 @@ class TestDemandModel(TestModelModule):  # noqa: PLR0904
             cmp_set,
         )
         pgb = pd.DataFrame(
-            {('testing.component', '1', '1', '1'): [1]}, index=['Blocks']
+            {('testing.component2', '1', '1', '1'): [1]}, index=['Blocks']
         ).T.rename_axis(index=['cmp', 'loc', 'dir', 'uid'])
         demand_offset = {'PFA': 0}
         required = _get_required_demand_type(
@@ -588,7 +588,7 @@ class TestDemandModel(TestModelModule):  # noqa: PLR0904
             list,
             {
                 (('PID-1-1', 'PFA-1-1'), 'sqrt(X1^2+X2^2)'): [  # type: ignore
-                    ('testing.component', '1', '1', '1')
+                    ('testing.component2', '1', '1', '1')
                 ]
             },
         )

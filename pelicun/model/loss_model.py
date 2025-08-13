@@ -2217,7 +2217,7 @@ class RepairModel_DS(RepairModel_Base):
         damage_states = case_df.groupby('cmp')['ds'].unique().to_dict()
         # maps `cmp`-`ds` to tuple of `loc`-`dir`-`uid` tuples
         loc_dir_uids = (
-            case_df.groupby(['cmp', 'ds'])
+            case_df.groupby(['cmp', 'ds'])[['loc', 'dir', 'uid']]
             .apply(
                 lambda x: tuple(  # type: ignore
                     zip(

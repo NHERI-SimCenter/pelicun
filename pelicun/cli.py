@@ -1,4 +1,3 @@
-#
 # Copyright (c) 2018 Leland Stanford Junior University
 # Copyright (c) 2018 The Regents of the University of California
 #
@@ -32,36 +31,61 @@
 #
 # You should have received a copy of the BSD 3-Clause License along with
 # pelicun. If not, see <http://www.opensource.org/licenses/>.
+#
+# Contributors:
+# Adam Zsarnóczay
+
+"""Provides a command-line interface for Pelicun."""
 
 from __future__ import annotations
 
 import argparse
-import sys
-from pathlib import Path
 
-import pandas as pd
+from pelicun.tools.regional_sim import regional_sim
 
 
-def convert_HDF(hdf_path) -> None:  # noqa: N802
-    hdf_ext = hdf_path.split('.')[-1]
-    csv_base = hdf_path[: -len(hdf_ext) - 1]
+def main() -> None:
+    """
+    Provide main command-line interface for Pelicun.
 
-    hdf_path = Path(hdf_path).resolve()
+    This function dispatches subcommands.
 
-    store = pd.HDFStore(hdf_path)
+    """
+    # Main parser
+    parser = argparse.ArgumentParser(
+        description='Main command-line interface for Pelicun.'
+    )
+    subparsers = parser.add_subparsers(
+        dest='subcommand', required=True, help='Available subcommands'
+    )
 
-    for key in store:
-        store[key].to_csv(f'{csv_base}_{key[1:].replace("/", "_")}.csv')
+    # Create the parser for the "regional_sim" subcommand
+    parser_regional = subparsers.add_parser(
+        'regional_sim', help='Perform a regional-scale disaster impact simulation.'
+    )
 
-    store.close()
+    # Add the arguments specific to regional_sim
+    parser_regional.add_argument(
+        'config_file',
+        nargs='?',
+        default='inputRWHALE.json',
+        help='Path to the input configuration JSON file. '
+        "Defaults to 'inputRWHALE.json'.",
+    )
+    parser_regional.add_argument(
+        '-n',
+        '--num-cores',
+        type=int,
+        default=None,
+        help='Number of CPU cores to use for parallel processing. '
+        'Defaults to all available cores minus one.',
+    )
+    # Associate the regional_sim function with this subparser
+    parser_regional.set_defaults(func=regional_sim)
 
+    # Parse the arguments from the command line
+    args = parser.parse_args()
 
-if __name__ == '__main__':
-    args = sys.argv[1:]
-
-    parser = argparse.ArgumentParser()
-    parser.add_argument('HDF_path')
-
-    parser_args = parser.parse_args(args)
-
-    convert_HDF(parser_args.HDF_path)
+    # Call the function associated with the chosen subcommand
+    if args.subcommand == 'regional_sim':
+        args.func(config_file=args.config_file, num_cores=args.num_cores)

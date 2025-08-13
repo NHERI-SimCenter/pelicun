@@ -573,7 +573,7 @@ def _summary_save(
         out_files.append('DL_summary_stats.csv')
 
 
-def _parse_config_file(  # noqa: C901
+def _parse_config_file(  # noqa: C901, PLR0912
     config_path: Path,
     output_path: Path,
     auto_script_path: Path | None,
@@ -806,6 +806,14 @@ def _parse_config_file(  # noqa: C901
         if is_unspecified(config_ap, 'DL/Losses'):
             update(config_ap, 'DL/Outputs/Loss', {})
 
+        if is_specified(config, 'outputs'):
+            if (not config['outputs']['IM']) and (not config['outputs']['EDP']):
+                update(config_ap, 'DL/Outputs/Demand', {})
+            if not config['outputs']['DM']:
+                update(config_ap, 'DL/Outputs/Damage', {})
+            if not config['outputs']['DV']:
+                update(config_ap, 'DL/Outputs/Loss', {})
+
         # save the extended config to a file
         config_ap_path = Path(config_path.stem + '_ap.json').resolve()
 
@@ -1035,20 +1043,27 @@ def _create_json_files_if_requested(
                 pd.read_csv(output_path / filename, index_col=0), axis=1
             )
 
-        if 'Units' in data.index:
+        # Check for units information (case-insensitive)
+        units_key = None
+        for key in data.index:
+            if str(key).lower() == 'units':
+                units_key = key
+                break
+
+        if units_key is not None:
             df_units = convert_to_SimpleIndex(
-                data.loc['Units', :].to_frame().T,  # type: ignore
+                data.loc[units_key, :].to_frame().T,  # type: ignore
                 axis=1,
             )
 
-            data = data.drop('Units', axis=0)
+            data = data.drop(units_key, axis=0)
 
             out_dict = convert_df_to_dict(data)
 
             out_dict.update(
                 {
                     'Units': {
-                        col: df_units.loc['Units', col] for col in df_units.columns
+                        col: df_units.loc[units_key, col] for col in df_units.columns
                     }
                 }
             )
@@ -1083,20 +1098,26 @@ def _result_summary(
     if damage_sample is None and agg_repair is None:
         return pd.DataFrame(), pd.DataFrame()
 
-    assert isinstance(damage_sample, pd.DataFrame)
-    damage_sample = damage_sample.groupby(level=['cmp', 'ds'], axis=1).sum()  # type: ignore
-    assert isinstance(damage_sample, pd.DataFrame)
-    damage_sample_s = convert_to_SimpleIndex(damage_sample, axis=1)
+    if damage_sample is not None:
+        assert isinstance(damage_sample, pd.DataFrame)
+        damage_sample = damage_sample.groupby(level=['cmp', 'ds'], axis=1).sum()  # type: ignore
+        assert isinstance(damage_sample, pd.DataFrame)
+        damage_sample_s = convert_to_SimpleIndex(damage_sample, axis=1)
 
-    if 'collapse-1' in damage_sample_s.columns:
-        damage_sample_s['collapse'] = damage_sample_s['collapse-1']
-    else:
-        damage_sample_s['collapse'] = np.zeros(damage_sample_s.shape[0])
+        if 'collapse-1' in damage_sample_s.columns:
+            damage_sample_s['collapse'] = damage_sample_s['collapse-1']
+        else:
+            damage_sample_s['collapse'] = np.zeros(damage_sample_s.shape[0])
 
-    if 'irreparable-1' in damage_sample_s.columns:
-        damage_sample_s['irreparable'] = damage_sample_s['irreparable-1']
+        if 'irreparable-1' in damage_sample_s.columns:
+            damage_sample_s['irreparable'] = damage_sample_s['irreparable-1']
+        else:
+            damage_sample_s['irreparable'] = np.zeros(damage_sample_s.shape[0])
+
+        damage_sample_s = damage_sample_s[['collapse', 'irreparable']]
+
     else:
-        damage_sample_s['irreparable'] = np.zeros(damage_sample_s.shape[0])
+        damage_sample_s = pd.DataFrame()
 
     if agg_repair is not None:
         agg_repair_s = convert_to_SimpleIndex(agg_repair, axis=1)
@@ -1104,9 +1125,7 @@ def _result_summary(
     else:
         agg_repair_s = pd.DataFrame()
 
-    summary = pd.concat(
-        [agg_repair_s, damage_sample_s[['collapse', 'irreparable']]], axis=1
-    )
+    summary = pd.concat([agg_repair_s, damage_sample_s], axis=1)
 
     summary_stats = describe(summary)
 
@@ -1388,7 +1407,7 @@ def _damage_save(
             out_files.append('DMG_grp_stats.csv')
 
 
-def _loss_save(
+def _loss_save(  # noqa: C901
     output_config: dict,
     assessment: DLCalculationAssessment,
     output_path: Path,
@@ -1422,12 +1441,21 @@ def _loss_save(
     repair_units = repair_units_series.to_frame().T
 
     if aggregate_colocated:
-        repair_units = repair_units.groupby(  # type: ignore
-            level=['dv', 'loss', 'dmg', 'ds', 'loc', 'dir'], axis=1
-        ).first()
-        repair_groupby_uid = repair_sample.groupby(  # type: ignore
-            level=['dv', 'loss', 'dmg', 'ds', 'loc', 'dir'], axis=1
-        )
+        if 'ds' in repair_units.columns.names:
+            repair_units = repair_units.groupby(  # type: ignore
+                level=['dv', 'loss', 'dmg', 'ds', 'loc', 'dir'], axis=1
+            ).first()
+            repair_groupby_uid = repair_sample.groupby(  # type: ignore
+                level=['dv', 'loss', 'dmg', 'ds', 'loc', 'dir'], axis=1
+            )
+        else:
+            repair_units = repair_units.groupby(  # type: ignore
+                level=['dv', 'loss', 'dmg', 'loc', 'dir'], axis=1
+            ).first()
+            repair_groupby_uid = repair_sample.groupby(  # type: ignore
+                level=['dv', 'loss', 'dmg', 'loc', 'dir'], axis=1
+            )
+
         repair_sample = repair_groupby_uid.sum().mask(
             repair_groupby_uid.count() == 0, np.nan
         )

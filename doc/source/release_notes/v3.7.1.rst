@@ -1,0 +1,7 @@
+.. _changes_v3_7_1:
+
+================================
+Version 3.7.1 (August 12, 2025)
+================================
+
+This is a patch release that enables flood loss simulation through SimCenter's backend and addresses a few bugs.
