@@ -2015,11 +2015,18 @@ def _loss__map_auto(
       differentiated by occupancy type.
 
     """
-    # get the damage sample
-    dmg_sample = assessment.damage.save_sample()
+    identical_damage_and_conseqence_ids = True
+    if dl_method.startswith('Hazus Earthquake'):
+        identical_damage_and_conseqence_ids = False
+
+    # get the component sample
     asset_sample = assessment.asset.save_cmp_sample()
-    assert isinstance(dmg_sample, pd.DataFrame)
     assert isinstance(asset_sample, pd.DataFrame)
+
+    # get the damage sample
+    # TODO(AZ): check why the damage sample was needed here
+    # dmg_sample = assessment.damage.save_sample()
+    # assert isinstance(dmg_sample, pd.DataFrame)
 
     # create a mapping for all components that are also in
     # the prescribed consequence database
@@ -2029,7 +2036,7 @@ def _loss__map_auto(
     drivers = []
     loss_models = []
 
-    if dl_method in {'FEMA P-58', 'Hazus Hurricane'}:
+    if identical_damage_and_conseqence_ids:
         # with these methods, we assume fragility and consequence data
         # have the same IDs
 
@@ -2041,12 +2048,8 @@ def _loss__map_auto(
                 drivers.append(asset_cmp)
                 loss_models.append(asset_cmp)
 
-    elif dl_method in {
-        'Hazus Earthquake',
-        'Hazus Earthquake - Buildings',
-        'Hazus Earthquake - Lifeline Facilities',
-        'Hazus Earthquake Transportation',
-    }:
+    else:
+        # Currently, we only get here with Hazus Earthquake
         # with Hazus Earthquake we assume that consequence
         # archetypes are only differentiated by occupancy type
         for asset_cmp in asset_cmps:

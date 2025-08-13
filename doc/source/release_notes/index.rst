@@ -14,6 +14,7 @@ Version 3.0
    :maxdepth: 2
 
    unreleased
+   v3.7.1
    v3.7.0
    v3.6.1
    v3.6.0
