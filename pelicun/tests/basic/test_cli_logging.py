@@ -43,15 +43,15 @@ from __future__ import annotations
 import logging
 import os
 import tempfile
-from unittest.mock import patch, MagicMock
 from pathlib import Path
+from unittest.mock import MagicMock, patch
 
 import pytest
 
 from pelicun.cli import setup_dlml_logging
 
 
-def test_setup_dlml_logging_stdout_only():
+def test_setup_dlml_logging_stdout_only() -> None:
     """Test setup_dlml_logging with stdout logging only."""
     # Clear any existing handlers
     logger = logging.getLogger('pelicun.dlml')
@@ -76,7 +76,7 @@ def test_setup_dlml_logging_stdout_only():
     logger.handlers.clear()
 
 
-def test_setup_dlml_logging_with_file():
+def test_setup_dlml_logging_with_file() -> None:
     """Test setup_dlml_logging with file logging."""
     # Clear any existing handlers
     logger = logging.getLogger('pelicun.dlml')
@@ -121,21 +121,20 @@ def test_setup_dlml_logging_with_file():
             os.unlink(temp_filename)
 
 
-def test_setup_dlml_logging_with_timestamp_file():
+def test_setup_dlml_logging_with_timestamp_file() -> None:
     """Test setup_dlml_logging with automatic timestamp file creation."""
     # Clear any existing handlers
     logger = logging.getLogger('pelicun.dlml')
     logger.handlers.clear()
 
-    with patch('builtins.print') as mock_print:
-        with patch('pelicun.cli.datetime') as mock_datetime:
-            # Mock datetime to return predictable timestamp
-            mock_datetime.now.return_value.strftime.return_value = (
-                '2025-08-13_22-30-00'
-            )
+    with patch('builtins.print') as mock_print, patch(
+        'pelicun.cli.datetime'
+    ) as mock_datetime:
+        # Mock datetime to return predictable timestamp
+        mock_datetime.now.return_value.strftime.return_value = '2025-08-13_22-30-00'
 
-            # Setup logging with True (auto-timestamp)
-            setup_dlml_logging(log_file=True)
+        # Setup logging with True (auto-timestamp)
+        setup_dlml_logging(log_file=True)
 
     # Verify logger configuration
     assert logger.level == logging.INFO
@@ -152,7 +151,7 @@ def test_setup_dlml_logging_with_timestamp_file():
         os.unlink(expected_filename)
 
 
-def test_setup_dlml_logging_no_duplicate_handlers():
+def test_setup_dlml_logging_no_duplicate_handlers() -> None:
     """Test that setup_dlml_logging doesn't add duplicate handlers."""
     # Clear any existing handlers
     logger = logging.getLogger('pelicun.dlml')
@@ -172,7 +171,7 @@ def test_setup_dlml_logging_no_duplicate_handlers():
     logger.handlers.clear()
 
 
-def test_setup_dlml_logging_file_creation():
+def test_setup_dlml_logging_file_creation() -> None:
     """Test that file logging actually creates and writes to the log file."""
     # Clear any existing handlers
     logger = logging.getLogger('pelicun.dlml')
@@ -205,7 +204,7 @@ def test_setup_dlml_logging_file_creation():
             os.unlink(temp_filename)
 
 
-def test_cli_integration_with_logging():
+def test_cli_integration_with_logging() -> None:
     """Test CLI integration with logging setup."""
     import subprocess
     import sys

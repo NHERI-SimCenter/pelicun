@@ -40,24 +40,23 @@
 
 from __future__ import annotations
 
-import os
 import json
+import os
 import subprocess
 import sys
 import tempfile
 from pathlib import Path
-from unittest.mock import patch, MagicMock, mock_open
+from unittest.mock import MagicMock, mock_open, patch
 
 import pytest
 import requests
 
 from pelicun.tools import dlml
 
-
 # --- Commit SHA Validation Tests ---
 
 
-def test_validate_commit_sha_valid():
+def test_validate_commit_sha_valid() -> None:
     """Test validation of valid 7-character commit SHA."""
     # Test valid 7-character hexadecimal SHA
     assert dlml.validate_commit_sha('1234567') is True
@@ -65,7 +64,7 @@ def test_validate_commit_sha_valid():
     assert dlml.validate_commit_sha('7890ABC') is True  # Mixed case
 
 
-def test_validate_commit_sha_invalid():
+def test_validate_commit_sha_invalid() -> None:
     """Test validation of invalid commit SHA."""
     # Test invalid SHAs
     assert dlml.validate_commit_sha('123456') is False  # Too short
@@ -73,7 +72,7 @@ def test_validate_commit_sha_invalid():
     assert dlml.validate_commit_sha('123xyz!') is False  # Invalid characters
 
 
-def test_validate_commit_sha_latest():
+def test_validate_commit_sha_latest() -> None:
     """Test validation of the special 'latest' value."""
     assert dlml.validate_commit_sha('latest') is True
 
@@ -81,7 +80,7 @@ def test_validate_commit_sha_latest():
 # --- File Hash Calculation Tests ---
 
 
-def test_get_file_hash_existing_file():
+def test_get_file_hash_existing_file() -> None:
     """Test hash calculation for existing files."""
     # Create a temporary file with known content
     with tempfile.NamedTemporaryFile(delete=False) as temp_file:
@@ -101,7 +100,7 @@ def test_get_file_hash_existing_file():
         os.unlink(temp_file_path)
 
 
-def test_get_file_hash_nonexistent_file():
+def test_get_file_hash_nonexistent_file() -> None:
     """Test hash calculation for non-existent files."""
     # Use a path that definitely doesn't exist
     nonexistent_path = '/path/that/definitely/does/not/exist'
@@ -113,7 +112,7 @@ def test_get_file_hash_nonexistent_file():
     assert file_hash is None
 
 
-def test_get_file_hash_different_content():
+def test_get_file_hash_different_content() -> None:
     """Test hash calculation for files with different content."""
     # Create two temporary files with different content
     with tempfile.NamedTemporaryFile(delete=False) as temp_file1:
@@ -137,7 +136,7 @@ def test_get_file_hash_different_content():
         os.unlink(temp_file2_path)
 
 
-def test_get_file_hash_empty_file():
+def test_get_file_hash_empty_file() -> None:
     """Test hash calculation for empty files."""
     # Create a temporary empty file
     with tempfile.NamedTemporaryFile(delete=False) as temp_file:
@@ -162,7 +161,7 @@ def test_get_file_hash_empty_file():
 # --- Cache Management Tests ---
 
 
-def test_load_cache_valid_file():
+def test_load_cache_valid_file() -> None:
     """Test loading from a valid cache file."""
     # Create a mock cache file
     cache_data = {'commit_sha': '1234567', 'files': {'file1.txt': 'hash1'}}
@@ -179,7 +178,7 @@ def test_load_cache_valid_file():
         assert loaded_cache == cache_data
 
 
-def test_load_cache_nonexistent_file():
+def test_load_cache_nonexistent_file() -> None:
     """Test loading from a non-existent cache file."""
     # Mock os.path.exists to return False
     with patch('os.path.exists', return_value=False):
@@ -190,7 +189,7 @@ def test_load_cache_nonexistent_file():
         assert loaded_cache == {}
 
 
-def test_load_cache_corrupted_file():
+def test_load_cache_corrupted_file() -> None:
     """Test loading from a corrupted cache file."""
     # Create a mock corrupted cache file
     mock_file = mock_open(read_data='invalid json')
@@ -206,7 +205,7 @@ def test_load_cache_corrupted_file():
         assert loaded_cache == {}
 
 
-def test_save_cache():
+def test_save_cache() -> None:
     """Test saving cache data to a file."""
     # Create mock cache data
     cache_data = {'commit_sha': '1234567', 'files': {'file1.txt': 'hash1'}}
@@ -233,7 +232,7 @@ def test_save_cache():
 # --- File Download Tests ---
 
 
-def test_download_file_success():
+def test_download_file_success() -> None:
     """Test downloading a file from a valid URL."""
     # Create a mock response
     mock_response = MagicMock()
@@ -262,7 +261,7 @@ def test_download_file_success():
         handle.write.assert_any_call(b'chunk2')
 
 
-def test_download_file_request_exception():
+def test_download_file_request_exception() -> None:
     """Test handling of download failures."""
     # Mock requests.get to raise an exception
     with patch(
@@ -281,7 +280,7 @@ def test_download_file_request_exception():
 # --- DLML Download Function Tests ---
 
 
-def test_download_data_files_with_version():
+def test_download_data_files_with_version() -> None:
     """Test downloading with a specific version."""
     # Mock responses
     mock_release_response = MagicMock()
@@ -312,7 +311,7 @@ def test_download_data_files_with_version():
         assert mock_download.call_count == 3  # model_files.txt + 2 files
 
 
-def test_download_data_files_with_commit():
+def test_download_data_files_with_commit() -> None:
     """Test downloading with a specific commit."""
     # Mock functions
     with patch('pelicun.tools.dlml.validate_commit_sha', return_value=True), patch(
@@ -333,7 +332,7 @@ def test_download_data_files_with_commit():
         assert mock_download.call_count == 3  # model_files.txt + 2 files
 
 
-def test_download_data_files_with_latest_commit():
+def test_download_data_files_with_latest_commit() -> None:
     """Test downloading with the 'latest' commit."""
     # Mock responses
     mock_commits_response = MagicMock()
@@ -364,7 +363,7 @@ def test_download_data_files_with_latest_commit():
         assert mock_download.call_count == 3  # model_files.txt + 2 files
 
 
-def test_download_data_files_with_cache():
+def test_download_data_files_with_cache() -> None:
     """Test downloading with caching enabled."""
     # Mock cache with existing files
     mock_cache = {
@@ -391,7 +390,7 @@ def test_download_data_files_with_cache():
         assert mock_download.call_count == 0
 
 
-def test_download_data_files_invalid_commit():
+def test_download_data_files_invalid_commit() -> None:
     """Test handling of invalid versions or commits."""
     # Mock functions
     with patch('pelicun.tools.dlml.validate_commit_sha', return_value=False):
@@ -403,7 +402,7 @@ def test_download_data_files_invalid_commit():
         assert 'Invalid commit SHA format' in str(excinfo.value)
 
 
-def test_download_data_files_network_error():
+def test_download_data_files_network_error() -> None:
     """Test handling of network errors during API calls."""
     # Mock requests.get to raise an exception
     with patch(
@@ -422,18 +421,16 @@ def test_download_data_files_network_error():
 # --- Error Handling Tests ---
 
 
-def test_download_data_files_empty_repository():
+def test_download_data_files_empty_repository() -> None:
     """Test handling when GitHub API returns empty commits list."""
     # Mock responses - empty commits list
     mock_commits_response = MagicMock()
     mock_commits_response.json.return_value = []  # Empty commits list
 
     # Mock functions
-    with patch(
-        'requests.get', return_value=mock_commits_response
-    ) as mock_get, patch('os.path.dirname', return_value='/path'), patch(
-        'os.path.join', return_value='/path/to/file'
-    ), patch('os.makedirs'):
+    with patch('requests.get', return_value=mock_commits_response), patch(
+        'os.path.dirname', return_value='/path'
+    ), patch('os.path.join', return_value='/path/to/file'), patch('os.makedirs'):
         # Download data files with latest commit and verify exception is raised
         with pytest.raises(RuntimeError) as excinfo:
             dlml.download_data_files(commit='latest')
@@ -442,7 +439,7 @@ def test_download_data_files_empty_repository():
         assert 'No commits found in the repository' in str(excinfo.value)
 
 
-def test_download_data_files_missing_commit_sha_in_release():
+def test_download_data_files_missing_commit_sha_in_release() -> None:
     """Test handling when release data doesn't contain target_commitish."""
     # Mock responses - release data without target_commitish
     mock_release_response = MagicMock()
@@ -451,11 +448,9 @@ def test_download_data_files_missing_commit_sha_in_release():
     }  # Missing target_commitish
 
     # Mock functions
-    with patch(
-        'requests.get', return_value=mock_release_response
-    ) as mock_get, patch('os.path.dirname', return_value='/path'), patch(
-        'os.path.join', return_value='/path/to/file'
-    ), patch('os.makedirs'):
+    with patch('requests.get', return_value=mock_release_response), patch(
+        'os.path.dirname', return_value='/path'
+    ), patch('os.path.join', return_value='/path/to/file'), patch('os.makedirs'):
         # Download data files and verify exception is raised
         with pytest.raises(RuntimeError) as excinfo:
             dlml.download_data_files(version='v1.0.0')
@@ -464,7 +459,7 @@ def test_download_data_files_missing_commit_sha_in_release():
         assert "Could not find commit SHA for release 'v1.0.0'" in str(excinfo.value)
 
 
-def test_download_data_files_model_file_not_found():
+def test_download_data_files_model_file_not_found() -> None:
     """Test handling when model_files.txt doesn't exist after download."""
     # Mock responses
     mock_release_response = MagicMock()
@@ -486,7 +481,7 @@ def test_download_data_files_model_file_not_found():
         assert 'Model file list not found at' in str(excinfo.value)
 
 
-def test_download_data_files_model_file_read_error():
+def test_download_data_files_model_file_read_error() -> None:
     """Test handling of general file reading exceptions."""
     # Mock responses
     mock_release_response = MagicMock()
@@ -511,7 +506,7 @@ def test_download_data_files_model_file_read_error():
 # --- Progress Reporting Tests ---
 
 
-def test_progress_bar_initialization():
+def test_progress_bar_initialization() -> None:
     """Test progress bar initialization with different file counts."""
     # Mock tqdm
     with patch('pelicun.tools.dlml.tqdm') as mock_tqdm, patch(
@@ -535,13 +530,13 @@ def test_progress_bar_initialization():
 
         # Verify tqdm was called with the correct arguments
         mock_tqdm.assert_called_once()
-        args, kwargs = mock_tqdm.call_args
+        _args, kwargs = mock_tqdm.call_args
         assert kwargs['total'] == 2  # 2 files in model_files.txt
         assert kwargs['desc'] == 'Downloading files'
         assert kwargs['unit'] == 'file'
 
 
-def test_progress_bar_updates():
+def test_progress_bar_updates() -> None:
     """Test progress bar updates during downloads."""
     # Mock tqdm as a context manager
     mock_progress = MagicMock()
@@ -574,7 +569,7 @@ def test_progress_bar_updates():
         )  # Called at least once for each file
 
 
-def test_progress_reporting_for_skipped_files():
+def test_progress_reporting_for_skipped_files() -> None:
     """Test progress reporting for skipped files."""
     # Mock cache with existing files but different commit SHA to avoid early return
     mock_cache = {
@@ -631,7 +626,7 @@ def test_progress_reporting_for_skipped_files():
 
 
 # Integration tests that verify the actual CLI interface works
-def test_cli_integration_invalid_action():
+def test_cli_integration_invalid_action() -> None:
     """Integration test: CLI with invalid action (not 'update')."""
     # Run the CLI with invalid action
     result = subprocess.run(
@@ -643,7 +638,7 @@ def test_cli_integration_invalid_action():
     assert "invalid choice: 'invalid'" in result.stderr
 
 
-def test_cli_integration_missing_arguments():
+def test_cli_integration_missing_arguments() -> None:
     """Integration test: CLI with insufficient arguments."""
     # Run the CLI with no arguments for dlml
     result = subprocess.run(['pelicun', 'dlml'], capture_output=True, text=True)
@@ -656,7 +651,7 @@ def test_cli_integration_missing_arguments():
 # Unit tests for the main() function
 
 
-def test_main_version_download():
+def test_main_version_download() -> None:
     """Test successful version-based download via dlml_update() function."""
     with patch('pelicun.tools.dlml.download_data_files') as mock_download:
         # Test dlml_update function with version argument
@@ -666,7 +661,7 @@ def test_main_version_download():
         mock_download.assert_called_once_with(version='v1.0.0', use_cache=True)
 
 
-def test_main_commit_download():
+def test_main_commit_download() -> None:
     """Test successful commit-based download via dlml_update() function."""
     with patch('pelicun.tools.dlml.download_data_files') as mock_download:
         # Test dlml_update function with commit argument
@@ -676,7 +671,7 @@ def test_main_commit_download():
         mock_download.assert_called_once_with(commit='1234567', use_cache=True)
 
 
-def test_main_no_cache_flag():
+def test_main_no_cache_flag() -> None:
     """Test no-cache functionality via dlml_update() function."""
     with patch('pelicun.tools.dlml.download_data_files') as mock_download:
         # Test dlml_update function with use_cache=False
@@ -686,18 +681,17 @@ def test_main_no_cache_flag():
         mock_download.assert_called_once_with(version='v1.0.0', use_cache=False)
 
 
-def test_main_download_error_handling():
+def test_main_download_error_handling() -> None:
     """Test error handling when download_data_files raises exceptions via dlml_update() function."""
     with patch(
         'pelicun.tools.dlml.download_data_files',
         side_effect=RuntimeError('Test error'),
-    ):
+    ), pytest.raises(RuntimeError, match='Data download failed: Test error'):
         # Test dlml_update function with mocked exception
-        with pytest.raises(RuntimeError, match='Data download failed: Test error'):
-            dlml.dlml_update(version='v1.0.0', use_cache=True)
+        dlml.dlml_update(version='v1.0.0', use_cache=True)
 
 
-def test_main_commit_with_no_cache():
+def test_main_commit_with_no_cache() -> None:
     """Test dlml_update() function with commit and no cache."""
     with patch('pelicun.tools.dlml.download_data_files') as mock_download:
         # Test dlml_update function with commit and use_cache=False
@@ -707,7 +701,7 @@ def test_main_commit_with_no_cache():
         mock_download.assert_called_once_with(commit='1234567', use_cache=False)
 
 
-def test_main_default_latest_version():
+def test_main_default_latest_version() -> None:
     """Test dlml_update() function with default 'latest' version when no version specified."""
     with patch('pelicun.tools.dlml.download_data_files') as mock_download:
         # Test dlml_update function with default latest version
@@ -720,12 +714,12 @@ def test_main_default_latest_version():
 # --- Enhanced DLML Features Tests ---
 
 
-def test_check_dlml_version_with_cached_result():
+def test_check_dlml_version_with_cached_result() -> None:
     """Test check_dlml_version returns cached result when within 24 hours."""
     from datetime import datetime, timedelta
 
     # Mock cache data with recent version check
-    recent_time = datetime.now() - timedelta(hours=12)
+    recent_time = datetime.now() - timedelta(hours=12)  # noqa: DTZ005
     mock_cache = {
         'last_version_check': recent_time.isoformat(),
         'update_available': True,
@@ -749,12 +743,12 @@ def test_check_dlml_version_with_cached_result():
         assert result['error'] is None
 
 
-def test_check_dlml_version_with_expired_cache():
+def test_check_dlml_version_with_expired_cache() -> None:
     """Test check_dlml_version performs new check when cache is expired."""
     from datetime import datetime, timedelta
 
     # Mock cache data with old version check
-    old_time = datetime.now() - timedelta(days=2)
+    old_time = datetime.now() - timedelta(days=2)  # noqa: DTZ005
     mock_cache = {'last_version_check': old_time.isoformat(), 'version': 'v1.0.0'}
 
     # Mock GitHub API response
@@ -781,7 +775,7 @@ def test_check_dlml_version_with_expired_cache():
         mock_save.assert_called_once()
 
 
-def test_check_dlml_version_with_network_error():
+def test_check_dlml_version_with_network_error() -> None:
     """Test check_dlml_version handles network errors gracefully."""
     mock_cache = {'version': 'v1.0.0'}
 
@@ -802,7 +796,7 @@ def test_check_dlml_version_with_network_error():
         assert 'Failed to check for updates' in result['error']
 
 
-def test_check_dlml_version_semantic_version_comparison():
+def test_check_dlml_version_semantic_version_comparison() -> None:
     """Test check_dlml_version correctly compares semantic versions."""
     mock_cache = {'version': 'v1.2.0'}
 
@@ -826,7 +820,7 @@ def test_check_dlml_version_semantic_version_comparison():
         assert result['latest_version'] == 'v1.3.0'
 
 
-def test_check_dlml_version_with_commit_based_version():
+def test_check_dlml_version_with_commit_based_version() -> None:
     """Test check_dlml_version handles commit-based versions."""
     mock_cache = {'version': 'commit-abc1234'}
 
@@ -850,7 +844,7 @@ def test_check_dlml_version_with_commit_based_version():
         assert result['latest_version'] == 'v1.1.0'
 
 
-def test_check_dlml_data_with_missing_data():
+def test_check_dlml_data_with_missing_data() -> None:
     """Test check_dlml_data downloads data when missing."""
     with patch('os.path.exists', return_value=False), patch(
         'pelicun.tools.dlml.download_data_files'
@@ -866,7 +860,7 @@ def test_check_dlml_data_with_missing_data():
         assert mock_logger.info.call_count >= 2
 
 
-def test_check_dlml_data_with_existing_data_no_update():
+def test_check_dlml_data_with_existing_data_no_update() -> None:
     """Test check_dlml_data with existing data and no update available."""
     # Mock version check result - no update available
     mock_version_info = {
@@ -887,7 +881,7 @@ def test_check_dlml_data_with_existing_data_no_update():
         dlml.check_dlml_data()
 
 
-def test_check_dlml_data_with_existing_data_update_available():
+def test_check_dlml_data_with_existing_data_update_available() -> None:
     """Test check_dlml_data with existing data and update available."""
     # Mock version check result - update available
     mock_version_info = {
@@ -915,7 +909,7 @@ def test_check_dlml_data_with_existing_data_update_available():
         assert 'pelicun dlml update' in warning_msg
 
 
-def test_check_dlml_data_download_failure():
+def test_check_dlml_data_download_failure() -> None:
     """Test check_dlml_data handles download failures appropriately."""
     with patch('os.path.exists', return_value=False), patch(
         'pelicun.tools.dlml.download_data_files',
@@ -932,7 +926,7 @@ def test_check_dlml_data_download_failure():
         assert 'pelicun dlml update' in error_msg
 
 
-def test_check_dlml_data_permission_error():
+def test_check_dlml_data_permission_error() -> None:
     """Test check_dlml_data handles permission errors appropriately."""
     with patch('os.path.exists', return_value=False), patch(
         'pelicun.tools.dlml.download_data_files',
@@ -949,7 +943,7 @@ def test_check_dlml_data_permission_error():
         assert 'permissions' in error_msg
 
 
-def test_check_dlml_data_version_check_failure():
+def test_check_dlml_data_version_check_failure() -> None:
     """Test check_dlml_data handles version check failures gracefully."""
     with patch('os.path.exists', return_value=True), patch(
         'os.path.isdir', return_value=True
@@ -968,7 +962,7 @@ def test_check_dlml_data_version_check_failure():
         assert 'Version check failed' in debug_msg
 
 
-def test_enhanced_cache_with_version_metadata():
+def test_enhanced_cache_with_version_metadata() -> None:
     """Test that download_data_files stores version metadata in cache."""
     mock_cache = {}
 
@@ -1005,7 +999,7 @@ def test_enhanced_cache_with_version_metadata():
         assert 'files' in saved_cache
 
 
-def test_enhanced_cache_with_commit_metadata():
+def test_enhanced_cache_with_commit_metadata() -> None:
     """Test that download_data_files stores commit metadata in cache."""
     mock_cache = {}
 

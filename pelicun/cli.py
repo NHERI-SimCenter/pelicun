@@ -43,11 +43,11 @@ import argparse
 import logging
 from datetime import datetime
 
-from pelicun.tools.regional_sim import regional_sim
 from pelicun.tools.dlml import dlml_update
+from pelicun.tools.regional_sim import regional_sim
 
 
-def setup_dlml_logging(log_file=None):
+def setup_dlml_logging(log_file: str | bool | None = None) -> None:
     """
     Configure logging for DLML operations.
 
@@ -69,7 +69,7 @@ def setup_dlml_logging(log_file=None):
         # Add file handler if requested
         if log_file:
             if log_file is True:  # --log without filename
-                timestamp = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+                timestamp = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')  # noqa: DTZ005
                 log_file = f'dlml_update_{timestamp}.log'
 
             file_handler = logging.FileHandler(log_file)

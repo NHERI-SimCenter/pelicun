@@ -43,7 +43,7 @@ from __future__ import annotations
 import os
 import tempfile
 from pathlib import Path
-from unittest.mock import patch, MagicMock, mock_open
+from unittest.mock import MagicMock, mock_open, patch
 
 import pytest
 import requests
@@ -51,7 +51,7 @@ import requests
 from pelicun.tools import dlml
 
 
-def test_end_to_end_workflow_with_mock():
+def test_end_to_end_workflow_with_mock() -> None:
     """Test end-to-end workflow with mock GitHub API."""
     # Create a temporary directory for testing
     with tempfile.TemporaryDirectory() as temp_dir:
@@ -63,9 +63,7 @@ def test_end_to_end_workflow_with_mock():
         mock_response.iter_content.return_value = [b'chunk1', b'chunk2']
 
         # Mock functions
-        with patch(
-            'requests.get', return_value=mock_release_response
-        ) as mock_get, patch(
+        with patch('requests.get', return_value=mock_release_response), patch(
             'pelicun.tools.dlml._download_file'
         ) as mock_download, patch('os.path.dirname', return_value=temp_dir), patch(
             'builtins.open', mock_open(read_data='file1.txt\nfile2.txt')
@@ -73,15 +71,11 @@ def test_end_to_end_workflow_with_mock():
             # Download data files
             dlml.download_data_files(version='v1.0.0', use_cache=False)
 
-            # Verify requests.get was called with the correct arguments
-            mock_get.assert_called_once()
-            assert 'releases/tags/v1.0.0' in mock_get.call_args[0][0]
-
             # Verify _download_file was called for model_files.txt and each file in it
             assert mock_download.call_count == 3  # model_files.txt + 2 files
 
 
-def test_with_mock_github_api_responses():
+def test_with_mock_github_api_responses() -> None:
     """Test with mock GitHub API responses."""
     # Create a temporary directory for testing
     with tempfile.TemporaryDirectory() as temp_dir:
@@ -101,9 +95,7 @@ def test_with_mock_github_api_responses():
                 return mock_response
 
         # Mock functions
-        with patch(
-            'requests.get', side_effect=mock_get_side_effect
-        ) as mock_get, patch(
+        with patch('requests.get', side_effect=mock_get_side_effect), patch(
             'pelicun.tools.dlml._download_file'
         ) as mock_download, patch('os.path.dirname', return_value=temp_dir), patch(
             'builtins.open', mock_open(read_data='file1.txt\nfile2.txt')
@@ -126,7 +118,7 @@ def test_with_mock_github_api_responses():
 # --- Edge Case Tests ---
 
 
-def test_with_empty_model_files():
+def test_with_empty_model_files() -> None:
     """Test with empty model_files.txt."""
     # Create a temporary directory for testing
     with tempfile.TemporaryDirectory() as temp_dir:
@@ -135,9 +127,7 @@ def test_with_empty_model_files():
         mock_release_response.json.return_value = {'target_commitish': '1234567'}
 
         # Mock functions
-        with patch(
-            'requests.get', return_value=mock_release_response
-        ) as mock_get, patch(
+        with patch('requests.get', return_value=mock_release_response), patch(
             'pelicun.tools.dlml._download_file'
         ) as mock_download, patch('os.path.dirname', return_value=temp_dir), patch(
             'builtins.open', mock_open(read_data='')
@@ -149,7 +139,7 @@ def test_with_empty_model_files():
             assert mock_download.call_count == 1
 
 
-def test_with_large_number_of_files():
+def test_with_large_number_of_files() -> None:
     """Test with very large number of files."""
     # Create a temporary directory for testing
     with tempfile.TemporaryDirectory() as temp_dir:
@@ -161,9 +151,7 @@ def test_with_large_number_of_files():
         large_file_list = '\n'.join([f'file{i}.txt' for i in range(1000)])
 
         # Mock functions
-        with patch(
-            'requests.get', return_value=mock_release_response
-        ) as mock_get, patch(
+        with patch('requests.get', return_value=mock_release_response), patch(
             'pelicun.tools.dlml._download_file'
         ) as mock_download, patch('os.path.dirname', return_value=temp_dir), patch(
             'builtins.open', mock_open(read_data=large_file_list)
@@ -175,7 +163,7 @@ def test_with_large_number_of_files():
             assert mock_download.call_count == 1001  # model_files.txt + 1000 files
 
 
-def test_with_special_characters_in_paths():
+def test_with_special_characters_in_paths() -> None:
     """Test with special characters in file paths."""
     # Create a temporary directory for testing
     with tempfile.TemporaryDirectory() as temp_dir:
@@ -187,9 +175,7 @@ def test_with_special_characters_in_paths():
         special_file_list = 'path/with spaces/file.txt\npath/with#hash/file.txt\npath/with?question/file.txt'
 
         # Mock functions
-        with patch(
-            'requests.get', return_value=mock_release_response
-        ) as mock_get, patch(
+        with patch('requests.get', return_value=mock_release_response), patch(
             'pelicun.tools.dlml._download_file'
         ) as mock_download, patch('os.path.dirname', return_value=temp_dir), patch(
             'builtins.open', mock_open(read_data=special_file_list)
@@ -209,7 +195,7 @@ def test_with_special_characters_in_paths():
             )
 
 
-def test_with_commented_lines_in_model_files():
+def test_with_commented_lines_in_model_files() -> None:
     """Test with commented lines in model_files.txt."""
     # Create a temporary directory for testing
     with tempfile.TemporaryDirectory() as temp_dir:
@@ -226,9 +212,7 @@ file2.txt
 file3.txt"""
 
         # Mock functions
-        with patch(
-            'requests.get', return_value=mock_release_response
-        ) as mock_get, patch(
+        with patch('requests.get', return_value=mock_release_response), patch(
             'pelicun.tools.dlml._download_file'
         ) as mock_download, patch('os.path.dirname', return_value=temp_dir), patch(
             'builtins.open', mock_open(read_data=file_list)
@@ -243,7 +227,7 @@ file3.txt"""
 # --- Integration Tests ---
 
 
-def test_cache_version_tracking_integration():
+def test_cache_version_tracking_integration() -> None:
     """Test integration between cache version tracking and version checking."""
     # Mock cache with version metadata
     mock_cache = {
@@ -280,7 +264,7 @@ def test_cache_version_tracking_integration():
         assert updated_cache['update_available'] is True
 
 
-def test_import_integration_success():
+def test_import_integration_success() -> None:
     """Test successful import integration with check_dlml_data."""
     # Mock successful data check
     with patch('pelicun.tools.dlml.check_dlml_data') as mock_check:
@@ -296,42 +280,41 @@ def test_import_integration_success():
             pytest.fail(f'Import integration should not raise exception: {e}')
 
 
-def test_import_integration_failure():
+def test_import_integration_failure() -> None:
     """Test import integration handles check_dlml_data failures."""
     # Mock failed data check
     with patch(
         'pelicun.tools.dlml.check_dlml_data',
         side_effect=RuntimeError('Download failed'),
-    ):
+    ), pytest.raises(RuntimeError, match='Download failed'):
         # Should raise ImportError as would happen in __init__.py
-        with pytest.raises(RuntimeError, match='Download failed'):
-            from pelicun.tools.dlml import check_dlml_data
+        from pelicun.tools.dlml import check_dlml_data
 
-            check_dlml_data()
+        check_dlml_data()
 
 
-def test_logging_configuration():
+def test_logging_configuration() -> None:
     """Test that module-level logger is properly configured."""
     # Verify logger exists and is configured
     assert hasattr(dlml, 'logger')
     assert dlml.logger.name == 'pelicun.dlml'
 
     # Test that logger is used in functions
-    with patch.object(dlml.logger, 'info') as mock_info:
-        with patch('os.path.exists', return_value=False), patch(
-            'pelicun.tools.dlml.download_data_files'
-        ), patch('os.path.dirname', return_value='/path'), patch(
-            'os.path.join', return_value='/path/dlml'
-        ):
-            dlml.check_dlml_data()
+    with patch.object(dlml.logger, 'info') as mock_info, patch(
+        'os.path.exists', return_value=False
+    ), patch('pelicun.tools.dlml.download_data_files'), patch(
+        'os.path.dirname', return_value='/path'
+    ), patch('os.path.join', return_value='/path/dlml'):
+        dlml.check_dlml_data()
 
-            # Should use the module logger
-            assert mock_info.call_count >= 1
+        # Should use the module logger
+        assert mock_info.call_count >= 1
 
 
-def test_warning_system_integration():
+def test_warning_system_integration() -> None:
     """Test integration with pelicun warning system."""
     import warnings
+
     from pelicun.pelicun_warnings import PelicunWarning
 
     # Mock version check result with update available

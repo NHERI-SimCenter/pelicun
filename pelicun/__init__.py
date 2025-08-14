@@ -62,4 +62,5 @@ try:
 except Exception as e:
     # If DLML initialization fails, raise ImportError with simple message
     # Detailed error information is already provided by check_dlml_data
-    raise ImportError(f'Pelicun initialization failed: {e}') from e
+    msg = f'Pelicun initialization failed: {e}'
+    raise ImportError(msg) from e

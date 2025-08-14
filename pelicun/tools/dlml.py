@@ -39,18 +39,22 @@
 
 """Methods for handling the Damage and Loss Model Library."""
 
-import os
-import sys
-import shutil
-import requests
-import re
-import json
+from __future__ import annotations
+
 import hashlib
-import time
+import json
 import logging
+import os
+import re
+import shutil
+import sys
+import time
 from datetime import datetime, timedelta
-from tqdm import tqdm
+from typing import Any, Dict, Optional, Union
+
+import requests
 from packaging import version
+from tqdm import tqdm
 
 # Configure logger once at module level
 logger = logging.getLogger('pelicun.dlml')
@@ -59,9 +63,9 @@ logger = logging.getLogger('pelicun.dlml')
 DATA_REPO_OWNER = 'zsarnoczay'
 
 
-def validate_commit_sha(commit):
+def validate_commit_sha(commit: str) -> bool:
     """
-    Validates that the commit SHA is in the correct format.
+    Validate that the commit SHA is in the correct format.
 
     Parameters
     ----------
@@ -81,9 +85,9 @@ def validate_commit_sha(commit):
     return bool(re.match(pattern, commit, re.IGNORECASE))
 
 
-def get_file_hash(file_path):
+def get_file_hash(file_path: str) -> Optional[str]:  # noqa: UP007
     """
-    Calculates the MD5 hash of a file.
+    Calculate the MD5 hash of a file.
 
     Parameters
     ----------
@@ -105,9 +109,9 @@ def get_file_hash(file_path):
     return file_hash.hexdigest()
 
 
-def load_cache(cache_file):
+def load_cache(cache_file: str) -> Dict[str, Any]:
     """
-    Loads the cache from a file.
+    Load the cache from a file.
 
     Parameters
     ----------
@@ -129,9 +133,9 @@ def load_cache(cache_file):
     return {}
 
 
-def save_cache(cache_file, cache_data):
+def save_cache(cache_file: str, cache_data: Dict[str, Any]) -> None:
     """
-    Saves the cache to a file.
+    Save the cache to a file.
 
     Parameters
     ----------
@@ -145,7 +149,7 @@ def save_cache(cache_file, cache_data):
         json.dump(cache_data, f)
 
 
-def check_dlml_version():
+def check_dlml_version() -> Dict[str, Union[bool, str, None]]:  # noqa: UP007
     """
     Check if there's a newer version of DLML data available.
 
@@ -173,7 +177,7 @@ def check_dlml_version():
     cache_data = load_cache(cache_file)
 
     # Check if we need to perform a version check (daily)
-    now = datetime.now()
+    now = datetime.now()  # noqa: DTZ005
     last_version_check = cache_data.get('last_version_check')
 
     if last_version_check:
@@ -268,9 +272,9 @@ def check_dlml_version():
     return result
 
 
-def _download_file(url, local_path):
+def _download_file(url: str, local_path: str) -> None:
     """
-    Download a file from a GitHub repository using a direct URL
+    Download a file from a GitHub repository using a direct URL.
 
     Parameters
     ----------
@@ -290,12 +294,17 @@ def _download_file(url, local_path):
                 f.write(chunk)
 
     except requests.exceptions.RequestException as e:
-        raise RuntimeError(f'Failed to download file: {url}') from e
+        msg = f'Failed to download file: {url}'
+        raise RuntimeError(msg) from e
 
 
-def download_data_files(version='latest', commit=None, use_cache=True):
+def download_data_files(
+    version: str = 'latest',
+    commit: Optional[str] = None,
+    use_cache: bool = True,  # noqa: UP007
+) -> None:
     """
-    Downloads model files from DLML based on the model_files.txt.
+    Download model files from DLML based on the model_files.txt.
 
     Parameters
     ----------
@@ -331,10 +340,11 @@ def download_data_files(version='latest', commit=None, use_cache=True):
     if commit is not None:
         # Validate commit SHA format
         if commit != 'latest' and not validate_commit_sha(commit):
-            raise ValueError(
+            msg = (
                 f'Invalid commit SHA format: {commit}. '
                 f"Must be 'latest' or a 7-character hexadecimal string."
             )
+            raise ValueError(msg)
 
         if commit == 'latest':
             # Get the latest commit SHA
@@ -351,7 +361,8 @@ def download_data_files(version='latest', commit=None, use_cache=True):
                 else:
                     raise RuntimeError('No commits found in the repository.')
             except requests.exceptions.RequestException as e:
-                raise RuntimeError(f'Failed to fetch latest commit: {e}') from e
+                msg = f'Failed to fetch latest commit: {e}'
+                raise RuntimeError(msg) from e
         else:
             # Use the provided commit SHA
             logger.info(
@@ -374,14 +385,14 @@ def download_data_files(version='latest', commit=None, use_cache=True):
             response.raise_for_status()
             release_data = response.json()
         except requests.exceptions.RequestException as e:
-            raise RuntimeError(
-                f"Failed to fetch release info for '{version}': {e}"
-            ) from e
+            msg = f"Failed to fetch release info for '{version}': {e}"
+            raise RuntimeError(msg) from e
 
         # Get the SHA of the commit the release tag points to
         commit_sha = release_data.get('target_commitish')
         if not commit_sha:
-            raise RuntimeError(f"Could not find commit SHA for release '{version}'.")
+            msg = f"Could not find commit SHA for release '{version}'."
+            raise RuntimeError(msg)
 
     # Check if we already have the latest data
     if (
@@ -409,9 +420,11 @@ def download_data_files(version='latest', commit=None, use_cache=True):
                 if line.strip() and not line.startswith('#')
             ]
     except FileNotFoundError:
-        raise RuntimeError(f'Model file list not found at {model_file_local_path}')
+        msg = f'Model file list not found at {model_file_local_path}'
+        raise RuntimeError(msg)
     except Exception as e:
-        raise RuntimeError(f'Error reading model file list: {e}')
+        msg = f'Error reading model file list: {e}'
+        raise RuntimeError(msg)
 
     file_download_base_url = f'https://raw.githubusercontent.com/{DATA_REPO_OWNER}/DamageAndLossModelLibrary/{commit_sha}'
 
@@ -420,7 +433,7 @@ def download_data_files(version='latest', commit=None, use_cache=True):
         # Keep track of files that should exist
         new_cache = {
             'commit_sha': commit_sha,
-            'last_updated': datetime.now().isoformat(),
+            'last_updated': datetime.now().isoformat(),  # noqa: DTZ005
             'files': {},
         }
 
@@ -497,7 +510,7 @@ def download_data_files(version='latest', commit=None, use_cache=True):
     )
 
 
-def check_dlml_data():
+def check_dlml_data() -> None:
     """
     Ensure DLML data is available for pelicun, downloading if necessary.
 
@@ -511,6 +524,7 @@ def check_dlml_data():
         If the initial data download fails since pelicun cannot function without DLML data.
     """
     import warnings
+
     from pelicun.pelicun_warnings import PelicunWarning
 
     package_install_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -580,7 +594,11 @@ def check_dlml_data():
             logger.debug(f'Version check failed: {e}')
 
 
-def dlml_update(version=None, commit=None, use_cache=True):
+def dlml_update(
+    version: Optional[str] = None,  # noqa: UP007
+    commit: Optional[str] = None,  # noqa: UP007
+    use_cache: bool = True,
+) -> None:
     """
     Update DLML data files.
 
@@ -609,4 +627,5 @@ def dlml_update(version=None, commit=None, use_cache=True):
             version_arg = version if version is not None else 'latest'
             download_data_files(version=version_arg, use_cache=use_cache)
     except (RuntimeError, ValueError) as e:
-        raise RuntimeError(f'Data download failed: {e}') from e
+        msg = f'Data download failed: {e}'
+        raise RuntimeError(msg) from e
