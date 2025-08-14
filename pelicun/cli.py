@@ -40,9 +40,48 @@
 from __future__ import annotations
 
 import argparse
+import logging
+from datetime import datetime
 
 from pelicun.tools.regional_sim import regional_sim
 from pelicun.tools.dlml import dlml_update
+
+
+def setup_dlml_logging(log_file=None):
+    """
+    Configure logging for DLML operations.
+
+    Parameters
+    ----------
+    log_file : str, optional
+        Path to log file. If True, creates timestamped file. If None, no file logging.
+    """
+    logger = logging.getLogger('pelicun.dlml')
+
+    # Only add handlers if none exist (avoid duplicates)
+    if not logger.handlers:
+        # Always add stdout handler for CLI operations
+        stdout_handler = logging.StreamHandler()
+        stdout_formatter = logging.Formatter('%(message)s')
+        stdout_handler.setFormatter(stdout_formatter)
+        logger.addHandler(stdout_handler)
+
+        # Add file handler if requested
+        if log_file:
+            if log_file is True:  # --log without filename
+                timestamp = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+                log_file = f'dlml_update_{timestamp}.log'
+
+            file_handler = logging.FileHandler(log_file)
+            file_formatter = logging.Formatter(
+                '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+            )
+            file_handler.setFormatter(file_formatter)
+            logger.addHandler(file_handler)
+
+            print(f'Logging to file: {log_file}')
+
+        logger.setLevel(logging.INFO)
 
 
 def main() -> None:
@@ -80,7 +119,7 @@ Examples:
     parser = argparse.ArgumentParser(
         description='Main command-line interface for Pelicun.',
         epilog=examples,
-        formatter_class=argparse.RawDescriptionHelpFormatter
+        formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     subparsers = parser.add_subparsers(
         dest='subcommand', required=True, help='Available subcommands'
@@ -133,6 +172,14 @@ Examples:
         action='store_true',
         help='Disable caching to force re-download of all files.',
     )
+    parser_dlml.add_argument(
+        '--log',
+        nargs='?',
+        const=True,
+        metavar='LOGFILE',
+        help='Save detailed log to specified file. If no filename provided, '
+        'creates dlml_update_TIMESTAMP.log in current directory.',
+    )
     # Associate the dlml_update function with this subparser
     parser_dlml.set_defaults(func=dlml_update)
 
@@ -143,6 +190,9 @@ Examples:
     if args.subcommand == 'regional_sim':
         args.func(config_file=args.config_file, num_cores=args.num_cores)
     elif args.subcommand == 'dlml':
+        # Setup logging for DLML operations
+        setup_dlml_logging(log_file=args.log)
+
         # Handle dlml arguments
         use_cache = not args.no_cache
         if args.target.startswith('commit '):

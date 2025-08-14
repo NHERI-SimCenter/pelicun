@@ -40,7 +40,8 @@ dependencies = [
     "tqdm",
     "requests",
     "joblib",
-    "scikit-learn"
+    "scikit-learn",
+    "packaging"
 ]
 
 [project.optional-dependencies]

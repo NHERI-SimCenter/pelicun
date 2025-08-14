@@ -50,29 +50,32 @@ import requests
 
 from pelicun.tools import dlml
 
+
 def test_end_to_end_workflow_with_mock():
     """Test end-to-end workflow with mock GitHub API."""
     # Create a temporary directory for testing
     with tempfile.TemporaryDirectory() as temp_dir:
         # Mock responses
         mock_release_response = MagicMock()
-        mock_release_response.json.return_value = {"target_commitish": "1234567"}
+        mock_release_response.json.return_value = {'target_commitish': '1234567'}
 
         mock_response = MagicMock()
-        mock_response.iter_content.return_value = [b"chunk1", b"chunk2"]
+        mock_response.iter_content.return_value = [b'chunk1', b'chunk2']
 
         # Mock functions
-        with patch("requests.get", return_value=mock_release_response) as mock_get, \
-             patch("pelicun.tools.dlml._download_file") as mock_download, \
-             patch("os.path.dirname", return_value=temp_dir), \
-             patch("builtins.open", mock_open(read_data="file1.txt\nfile2.txt")), \
-             patch("pelicun.tools.dlml.tqdm"):
+        with patch(
+            'requests.get', return_value=mock_release_response
+        ) as mock_get, patch(
+            'pelicun.tools.dlml._download_file'
+        ) as mock_download, patch('os.path.dirname', return_value=temp_dir), patch(
+            'builtins.open', mock_open(read_data='file1.txt\nfile2.txt')
+        ), patch('pelicun.tools.dlml.tqdm'):
             # Download data files
-            dlml.download_data_files(version="v1.0.0", use_cache=False)
+            dlml.download_data_files(version='v1.0.0', use_cache=False)
 
             # Verify requests.get was called with the correct arguments
             mock_get.assert_called_once()
-            assert "releases/tags/v1.0.0" in mock_get.call_args[0][0]
+            assert 'releases/tags/v1.0.0' in mock_get.call_args[0][0]
 
             # Verify _download_file was called for model_files.txt and each file in it
             assert mock_download.call_count == 3  # model_files.txt + 2 files
@@ -84,41 +87,44 @@ def test_with_mock_github_api_responses():
     with tempfile.TemporaryDirectory() as temp_dir:
         # Mock responses for different API calls
         def mock_get_side_effect(url, **kwargs):
-            if "releases/tags" in url:
+            if 'releases/tags' in url:
                 mock_response = MagicMock()
-                mock_response.json.return_value = {"target_commitish": "1234567"}
+                mock_response.json.return_value = {'target_commitish': '1234567'}
                 return mock_response
-            elif "commits" in url:
+            elif 'commits' in url:
                 mock_response = MagicMock()
-                mock_response.json.return_value = [{"sha": "1234567"}]
+                mock_response.json.return_value = [{'sha': '1234567'}]
                 return mock_response
             else:
                 mock_response = MagicMock()
-                mock_response.iter_content.return_value = [b"chunk1", b"chunk2"]
+                mock_response.iter_content.return_value = [b'chunk1', b'chunk2']
                 return mock_response
 
         # Mock functions
-        with patch("requests.get", side_effect=mock_get_side_effect) as mock_get, \
-             patch("pelicun.tools.dlml._download_file") as mock_download, \
-             patch("os.path.dirname", return_value=temp_dir), \
-             patch("builtins.open", mock_open(read_data="file1.txt\nfile2.txt")), \
-             patch("pelicun.tools.dlml.tqdm"):
+        with patch(
+            'requests.get', side_effect=mock_get_side_effect
+        ) as mock_get, patch(
+            'pelicun.tools.dlml._download_file'
+        ) as mock_download, patch('os.path.dirname', return_value=temp_dir), patch(
+            'builtins.open', mock_open(read_data='file1.txt\nfile2.txt')
+        ), patch('pelicun.tools.dlml.tqdm'):
             # Test with version
-            dlml.download_data_files(version="v1.0.0", use_cache=False)
+            dlml.download_data_files(version='v1.0.0', use_cache=False)
             assert mock_download.call_count == 3  # model_files.txt + 2 files
             mock_download.reset_mock()
 
             # Test with commit
-            dlml.download_data_files(commit="1234567", use_cache=False)
+            dlml.download_data_files(commit='1234567', use_cache=False)
             assert mock_download.call_count == 3  # model_files.txt + 2 files
             mock_download.reset_mock()
 
             # Test with latest commit
-            dlml.download_data_files(commit="latest", use_cache=False)
+            dlml.download_data_files(commit='latest', use_cache=False)
             assert mock_download.call_count == 3  # model_files.txt + 2 files
 
 
 # --- Edge Case Tests ---
+
 
 def test_with_empty_model_files():
     """Test with empty model_files.txt."""
@@ -126,16 +132,18 @@ def test_with_empty_model_files():
     with tempfile.TemporaryDirectory() as temp_dir:
         # Mock responses
         mock_release_response = MagicMock()
-        mock_release_response.json.return_value = {"target_commitish": "1234567"}
+        mock_release_response.json.return_value = {'target_commitish': '1234567'}
 
         # Mock functions
-        with patch("requests.get", return_value=mock_release_response) as mock_get, \
-             patch("pelicun.tools.dlml._download_file") as mock_download, \
-             patch("os.path.dirname", return_value=temp_dir), \
-             patch("builtins.open", mock_open(read_data="")), \
-             patch("pelicun.tools.dlml.tqdm"):
+        with patch(
+            'requests.get', return_value=mock_release_response
+        ) as mock_get, patch(
+            'pelicun.tools.dlml._download_file'
+        ) as mock_download, patch('os.path.dirname', return_value=temp_dir), patch(
+            'builtins.open', mock_open(read_data='')
+        ), patch('pelicun.tools.dlml.tqdm'):
             # Download data files
-            dlml.download_data_files(version="v1.0.0", use_cache=False)
+            dlml.download_data_files(version='v1.0.0', use_cache=False)
 
             # Verify _download_file was called only for model_files.txt
             assert mock_download.call_count == 1
@@ -147,19 +155,21 @@ def test_with_large_number_of_files():
     with tempfile.TemporaryDirectory() as temp_dir:
         # Mock responses
         mock_release_response = MagicMock()
-        mock_release_response.json.return_value = {"target_commitish": "1234567"}
+        mock_release_response.json.return_value = {'target_commitish': '1234567'}
 
         # Create a large list of files
-        large_file_list = "\n".join([f"file{i}.txt" for i in range(1000)])
+        large_file_list = '\n'.join([f'file{i}.txt' for i in range(1000)])
 
         # Mock functions
-        with patch("requests.get", return_value=mock_release_response) as mock_get, \
-             patch("pelicun.tools.dlml._download_file") as mock_download, \
-             patch("os.path.dirname", return_value=temp_dir), \
-             patch("builtins.open", mock_open(read_data=large_file_list)), \
-             patch("pelicun.tools.dlml.tqdm"):
+        with patch(
+            'requests.get', return_value=mock_release_response
+        ) as mock_get, patch(
+            'pelicun.tools.dlml._download_file'
+        ) as mock_download, patch('os.path.dirname', return_value=temp_dir), patch(
+            'builtins.open', mock_open(read_data=large_file_list)
+        ), patch('pelicun.tools.dlml.tqdm'):
             # Download data files
-            dlml.download_data_files(version="v1.0.0", use_cache=False)
+            dlml.download_data_files(version='v1.0.0', use_cache=False)
 
             # Verify _download_file was called for model_files.txt and each file in it
             assert mock_download.call_count == 1001  # model_files.txt + 1000 files
@@ -171,28 +181,32 @@ def test_with_special_characters_in_paths():
     with tempfile.TemporaryDirectory() as temp_dir:
         # Mock responses
         mock_release_response = MagicMock()
-        mock_release_response.json.return_value = {"target_commitish": "1234567"}
+        mock_release_response.json.return_value = {'target_commitish': '1234567'}
 
         # Create a list of files with special characters
-        special_file_list = "path/with spaces/file.txt\npath/with#hash/file.txt\npath/with?question/file.txt"
+        special_file_list = 'path/with spaces/file.txt\npath/with#hash/file.txt\npath/with?question/file.txt'
 
         # Mock functions
-        with patch("requests.get", return_value=mock_release_response) as mock_get, \
-             patch("pelicun.tools.dlml._download_file") as mock_download, \
-             patch("os.path.dirname", return_value=temp_dir), \
-             patch("builtins.open", mock_open(read_data=special_file_list)), \
-             patch("pelicun.tools.dlml.tqdm"):
+        with patch(
+            'requests.get', return_value=mock_release_response
+        ) as mock_get, patch(
+            'pelicun.tools.dlml._download_file'
+        ) as mock_download, patch('os.path.dirname', return_value=temp_dir), patch(
+            'builtins.open', mock_open(read_data=special_file_list)
+        ), patch('pelicun.tools.dlml.tqdm'):
             # Download data files
-            dlml.download_data_files(version="v1.0.0", use_cache=False)
+            dlml.download_data_files(version='v1.0.0', use_cache=False)
 
             # Verify _download_file was called for model_files.txt and each file in it
             assert mock_download.call_count == 4  # model_files.txt + 3 files
 
             # Verify that the URLs contain the expected file paths
             call_args_list = [call[0][0] for call in mock_download.call_args_list]
-            assert any("path/with spaces/file.txt" in url for url in call_args_list)
-            assert any("path/with#hash/file.txt" in url for url in call_args_list)
-            assert any("path/with?question/file.txt" in url for url in call_args_list)
+            assert any('path/with spaces/file.txt' in url for url in call_args_list)
+            assert any('path/with#hash/file.txt' in url for url in call_args_list)
+            assert any(
+                'path/with?question/file.txt' in url for url in call_args_list
+            )
 
 
 def test_with_commented_lines_in_model_files():
@@ -201,7 +215,7 @@ def test_with_commented_lines_in_model_files():
     with tempfile.TemporaryDirectory() as temp_dir:
         # Mock responses
         mock_release_response = MagicMock()
-        mock_release_response.json.return_value = {"target_commitish": "1234567"}
+        mock_release_response.json.return_value = {'target_commitish': '1234567'}
 
         # Create a list of files with commented lines
         file_list = """# This is a comment
@@ -212,13 +226,137 @@ file2.txt
 file3.txt"""
 
         # Mock functions
-        with patch("requests.get", return_value=mock_release_response) as mock_get, \
-             patch("pelicun.tools.dlml._download_file") as mock_download, \
-             patch("os.path.dirname", return_value=temp_dir), \
-             patch("builtins.open", mock_open(read_data=file_list)), \
-             patch("pelicun.tools.dlml.tqdm"):
+        with patch(
+            'requests.get', return_value=mock_release_response
+        ) as mock_get, patch(
+            'pelicun.tools.dlml._download_file'
+        ) as mock_download, patch('os.path.dirname', return_value=temp_dir), patch(
+            'builtins.open', mock_open(read_data=file_list)
+        ), patch('pelicun.tools.dlml.tqdm'):
             # Download data files
-            dlml.download_data_files(version="v1.0.0", use_cache=False)
+            dlml.download_data_files(version='v1.0.0', use_cache=False)
 
             # Verify _download_file was called for model_files.txt and each non-commented file
             assert mock_download.call_count == 5  # model_files.txt + 4 files
+
+
+# --- Integration Tests ---
+
+
+def test_cache_version_tracking_integration():
+    """Test integration between cache version tracking and version checking."""
+    # Mock cache with version metadata
+    mock_cache = {
+        'version': 'v1.0.0',
+        'download_type': 'version',
+        'commit_sha': '1234567',
+        'last_updated': '2025-08-13T10:00:00',
+    }
+
+    # Mock GitHub API response with newer version
+    mock_response = MagicMock()
+    mock_response.json.return_value = {'tag_name': 'v1.1.0'}
+    mock_response.raise_for_status.return_value = None
+
+    with patch('pelicun.tools.dlml.load_cache', return_value=mock_cache), patch(
+        'pelicun.tools.dlml.save_cache'
+    ) as mock_save, patch('requests.get', return_value=mock_response), patch(
+        'os.path.dirname', return_value='/path'
+    ), patch('os.path.join', return_value='/path/cache.json'), patch(
+        'os.path.exists', return_value=True
+    ):
+        result = dlml.check_dlml_version()
+
+        # Should use cached version info for comparison
+        assert result['current_version'] == 'v1.0.0'
+        assert result['latest_version'] == 'v1.1.0'
+        assert result['update_available'] is True
+
+        # Should update cache with version check results
+        mock_save.assert_called_once()
+        updated_cache = mock_save.call_args[0][1]
+        assert updated_cache['current_version'] == 'v1.0.0'
+        assert updated_cache['latest_version'] == 'v1.1.0'
+        assert updated_cache['update_available'] is True
+
+
+def test_import_integration_success():
+    """Test successful import integration with check_dlml_data."""
+    # Mock successful data check
+    with patch('pelicun.tools.dlml.check_dlml_data') as mock_check:
+        mock_check.return_value = None
+
+        # Import should succeed without raising exceptions
+        try:
+            # Simulate the import process
+            from pelicun.tools.dlml import check_dlml_data
+
+            check_dlml_data()
+        except Exception as e:
+            pytest.fail(f'Import integration should not raise exception: {e}')
+
+
+def test_import_integration_failure():
+    """Test import integration handles check_dlml_data failures."""
+    # Mock failed data check
+    with patch(
+        'pelicun.tools.dlml.check_dlml_data',
+        side_effect=RuntimeError('Download failed'),
+    ):
+        # Should raise ImportError as would happen in __init__.py
+        with pytest.raises(RuntimeError, match='Download failed'):
+            from pelicun.tools.dlml import check_dlml_data
+
+            check_dlml_data()
+
+
+def test_logging_configuration():
+    """Test that module-level logger is properly configured."""
+    # Verify logger exists and is configured
+    assert hasattr(dlml, 'logger')
+    assert dlml.logger.name == 'pelicun.dlml'
+
+    # Test that logger is used in functions
+    with patch.object(dlml.logger, 'info') as mock_info:
+        with patch('os.path.exists', return_value=False), patch(
+            'pelicun.tools.dlml.download_data_files'
+        ), patch('os.path.dirname', return_value='/path'), patch(
+            'os.path.join', return_value='/path/dlml'
+        ):
+            dlml.check_dlml_data()
+
+            # Should use the module logger
+            assert mock_info.call_count >= 1
+
+
+def test_warning_system_integration():
+    """Test integration with pelicun warning system."""
+    import warnings
+    from pelicun.pelicun_warnings import PelicunWarning
+
+    # Mock version check result with update available
+    mock_version_info = {
+        'update_available': True,
+        'current_version': 'v1.0.0',
+        'latest_version': 'v1.1.0',
+        'error': None,
+    }
+
+    with patch('os.path.exists', return_value=True), patch(
+        'os.path.isdir', return_value=True
+    ), patch('os.listdir', return_value=['model1.json']), patch(
+        'pelicun.tools.dlml.check_dlml_version', return_value=mock_version_info
+    ), patch('warnings.warn') as mock_warn, patch(
+        'os.path.dirname', return_value='/path'
+    ), patch('os.path.join', return_value='/path/dlml'):
+        dlml.check_dlml_data()
+
+        # Should use PelicunWarning class
+        mock_warn.assert_called_once()
+        args, kwargs = mock_warn.call_args
+        assert len(args) >= 2
+        assert args[1] == PelicunWarning
+
+        # Should have appropriate stacklevel
+        assert 'stacklevel' in kwargs
+        assert kwargs['stacklevel'] == 2

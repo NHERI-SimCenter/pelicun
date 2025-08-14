@@ -47,11 +47,17 @@ import re
 import json
 import hashlib
 import time
-from datetime import datetime
+import logging
+from datetime import datetime, timedelta
 from tqdm import tqdm
+from packaging import version
+
+# Configure logger once at module level
+logger = logging.getLogger('pelicun.dlml')
 
 # --- Configuration for your data repository ---
-DATA_REPO_OWNER = "zsarnoczay"
+DATA_REPO_OWNER = 'zsarnoczay'
+
 
 def validate_commit_sha(commit):
     """
@@ -67,12 +73,13 @@ def validate_commit_sha(commit):
     bool
         True if the commit is valid, False otherwise
     """
-    if commit == "latest":
+    if commit == 'latest':
         return True
 
     # GitHub short SHA is typically 7 characters
     pattern = r'^[0-9a-f]{7}$'
     return bool(re.match(pattern, commit, re.IGNORECASE))
+
 
 def get_file_hash(file_path):
     """
@@ -97,6 +104,7 @@ def get_file_hash(file_path):
             file_hash.update(chunk)
     return file_hash.hexdigest()
 
+
 def load_cache(cache_file):
     """
     Loads the cache from a file.
@@ -120,6 +128,7 @@ def load_cache(cache_file):
             return {}
     return {}
 
+
 def save_cache(cache_file, cache_data):
     """
     Saves the cache to a file.
@@ -134,6 +143,130 @@ def save_cache(cache_file, cache_data):
     os.makedirs(os.path.dirname(cache_file), exist_ok=True)
     with open(cache_file, 'w') as f:
         json.dump(cache_data, f)
+
+
+def check_dlml_version():
+    """
+    Check if there's a newer version of DLML data available.
+
+    This function checks daily for new releases and returns version information.
+
+    Returns
+    -------
+    dict
+        Dictionary containing:
+        - 'update_available': bool, True if update is available
+        - 'current_version': str, current local version or None
+        - 'latest_version': str, latest available version or None
+        - 'last_check': str, ISO timestamp of last check
+        - 'error': str, error message if check failed
+    """
+    package_install_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    target_data_abs_dir = os.path.join(
+        package_install_dir, 'resources/DamageAndLossModelLibrary'
+    )
+
+    # Cache file path
+    cache_file = os.path.join(target_data_abs_dir, '.dlml_cache.json')
+
+    # Load existing cache
+    cache_data = load_cache(cache_file)
+
+    # Check if we need to perform a version check (daily)
+    now = datetime.now()
+    last_version_check = cache_data.get('last_version_check')
+
+    if last_version_check:
+        try:
+            last_check_time = datetime.fromisoformat(last_version_check)
+            if now - last_check_time < timedelta(days=1):
+                # Return cached version check result
+                return {
+                    'update_available': cache_data.get('update_available', False),
+                    'current_version': cache_data.get('current_version'),
+                    'latest_version': cache_data.get('latest_version'),
+                    'last_check': last_version_check,
+                    'error': cache_data.get('version_check_error'),
+                }
+        except (ValueError, TypeError):
+            # Invalid timestamp, proceed with check
+            pass
+
+    # Perform version check
+    result = {
+        'update_available': False,
+        'current_version': None,
+        'latest_version': None,
+        'last_check': now.isoformat(),
+        'error': None,
+    }
+
+    try:
+        # Get current local version from cache
+        current_version_str = cache_data.get('version')
+        if current_version_str:
+            # Handle commit-based versions by extracting the last version before that commit
+            if current_version_str.startswith('commit-'):
+                # For commit-based installs, we can't easily compare versions
+                # Use the commit SHA as the current version identifier
+                result['current_version'] = current_version_str
+            else:
+                result['current_version'] = current_version_str
+
+        # Get latest version from GitHub releases
+        GitHub_api_base_url = f'https://api.github.com/repos/{DATA_REPO_OWNER}/DamageAndLossModelLibrary'
+        headers = {'Accept': 'application/vnd.github.v3+json'}
+
+        release_url = f'{GitHub_api_base_url}/releases/latest'
+        response = requests.get(release_url, headers=headers, timeout=10)
+        response.raise_for_status()
+
+        release_data = response.json()
+        latest_version_str = release_data.get('tag_name')
+
+        if latest_version_str:
+            result['latest_version'] = latest_version_str
+
+            # Compare versions if we have both
+            if current_version_str and not current_version_str.startswith('commit-'):
+                try:
+                    current_ver = version.parse(current_version_str.lstrip('v'))
+                    latest_ver = version.parse(latest_version_str.lstrip('v'))
+                    result['update_available'] = latest_ver > current_ver
+                except version.InvalidVersion:
+                    # If version parsing fails, assume update is available
+                    result['update_available'] = (
+                        current_version_str != latest_version_str
+                    )
+            elif current_version_str and current_version_str.startswith('commit-'):
+                # For commit-based versions, always suggest checking for updates
+                result['update_available'] = True
+            elif not current_version_str:
+                # No local version info, suggest update
+                result['update_available'] = True
+
+    except requests.exceptions.RequestException as e:
+        result['error'] = f'Failed to check for updates: {e}'
+    except Exception as e:
+        result['error'] = f'Version check error: {e}'
+
+    # Update cache with version check results
+    cache_data.update(
+        {
+            'last_version_check': result['last_check'],
+            'update_available': result['update_available'],
+            'current_version': result['current_version'],
+            'latest_version': result['latest_version'],
+            'version_check_error': result['error'],
+        }
+    )
+
+    # Save updated cache
+    if os.path.exists(target_data_abs_dir):
+        save_cache(cache_file, cache_data)
+
+    return result
+
 
 def _download_file(url, local_path):
     """
@@ -157,11 +290,10 @@ def _download_file(url, local_path):
                 f.write(chunk)
 
     except requests.exceptions.RequestException as e:
-        raise RuntimeError(
-            f"Failed to download file: {url}"
-        ) from e
+        raise RuntimeError(f'Failed to download file: {url}') from e
 
-def download_data_files(version="latest", commit=None, use_cache=True):
+
+def download_data_files(version='latest', commit=None, use_cache=True):
     """
     Downloads model files from DLML based on the model_files.txt.
 
@@ -179,33 +311,37 @@ def download_data_files(version="latest", commit=None, use_cache=True):
     package_install_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
     target_data_abs_dir = os.path.join(
-        package_install_dir,
-        "resources/DamageAndLossModelLibrary")
+        package_install_dir, 'resources/DamageAndLossModelLibrary'
+    )
     os.makedirs(target_data_abs_dir, exist_ok=True)
 
     # Cache file path
-    cache_file = os.path.join(target_data_abs_dir, ".dlml_cache.json")
+    cache_file = os.path.join(target_data_abs_dir, '.dlml_cache.json')
 
     # Load cache if using caching
     cache_data = load_cache(cache_file) if use_cache else {}
 
     # Determine if we're using a commit or a version
     commit_sha = None
-    GitHub_api_base_url = f"https://api.github.com/repos/{DATA_REPO_OWNER}/DamageAndLossModelLibrary"
-    headers = {"Accept": "application/vnd.github.v3+json"}
+    GitHub_api_base_url = (
+        f'https://api.github.com/repos/{DATA_REPO_OWNER}/DamageAndLossModelLibrary'
+    )
+    headers = {'Accept': 'application/vnd.github.v3+json'}
 
     if commit is not None:
         # Validate commit SHA format
-        if commit != "latest" and not validate_commit_sha(commit):
+        if commit != 'latest' and not validate_commit_sha(commit):
             raise ValueError(
-                f"Invalid commit SHA format: {commit}. "
+                f'Invalid commit SHA format: {commit}. '
                 f"Must be 'latest' or a 7-character hexadecimal string."
             )
 
-        if commit == "latest":
+        if commit == 'latest':
             # Get the latest commit SHA
-            print(f"Downloading DLML models from the latest commit to {target_data_abs_dir}...")
-            commits_url = f"{GitHub_api_base_url}/commits"
+            logger.info(
+                f'Downloading DLML models from the latest commit to {target_data_abs_dir}...'
+            )
+            commits_url = f'{GitHub_api_base_url}/commits'
             try:
                 response = requests.get(commits_url, headers=headers)
                 response.raise_for_status()
@@ -213,22 +349,24 @@ def download_data_files(version="latest", commit=None, use_cache=True):
                 if commits_data and len(commits_data) > 0:
                     commit_sha = commits_data[0]['sha']
                 else:
-                    raise RuntimeError("No commits found in the repository.")
+                    raise RuntimeError('No commits found in the repository.')
             except requests.exceptions.RequestException as e:
-                raise RuntimeError(
-                    f"Failed to fetch latest commit: {e}"
-                ) from e
+                raise RuntimeError(f'Failed to fetch latest commit: {e}') from e
         else:
             # Use the provided commit SHA
-            print(f"Downloading DLML models from commit {commit} to {target_data_abs_dir}...")
+            logger.info(
+                f'Downloading DLML models from commit {commit} to {target_data_abs_dir}...'
+            )
             commit_sha = commit
     else:
         # Use version-based download (original behavior)
-        print(f"Downloading DLML models for version {version} to {target_data_abs_dir}...")
+        logger.info(
+            f'Downloading DLML models for version {version} to {target_data_abs_dir}...'
+        )
         release_info_url = (
-            f"{GitHub_api_base_url}/releases/tags/{version}"
-            if version != "latest"
-            else f"{GitHub_api_base_url}/releases/latest"
+            f'{GitHub_api_base_url}/releases/tags/{version}'
+            if version != 'latest'
+            else f'{GitHub_api_base_url}/releases/latest'
         )
 
         try:
@@ -243,36 +381,39 @@ def download_data_files(version="latest", commit=None, use_cache=True):
         # Get the SHA of the commit the release tag points to
         commit_sha = release_data.get('target_commitish')
         if not commit_sha:
-            raise RuntimeError(
-                f"Could not find commit SHA for release '{version}'.")
+            raise RuntimeError(f"Could not find commit SHA for release '{version}'.")
 
     # Check if we already have the latest data
-    if use_cache and 'commit_sha' in cache_data and cache_data['commit_sha'] == commit_sha:
-        print(f"Already have the latest data for commit {commit_sha[:7]}.")
+    if (
+        use_cache
+        and 'commit_sha' in cache_data
+        and cache_data['commit_sha'] == commit_sha
+    ):
+        logger.info(f'Already have the latest data for commit {commit_sha[:7]}.')
         return
 
     # Get the model file list
-    model_file_list_url = f"https://raw.githubusercontent.com/{DATA_REPO_OWNER}/DamageAndLossModelLibrary/{commit_sha}/model_files.txt"
+    model_file_list_url = f'https://raw.githubusercontent.com/{DATA_REPO_OWNER}/DamageAndLossModelLibrary/{commit_sha}/model_files.txt'
 
-    model_file_local_path = os.path.join(target_data_abs_dir, "model_files.txt")
+    model_file_local_path = os.path.join(target_data_abs_dir, 'model_files.txt')
     _download_file(model_file_list_url, model_file_local_path)
 
-    print("Successfully downloaded model file list.")
+    logger.info('Successfully downloaded model file list.')
 
     # Read the model list and download model files
     try:
         with open(model_file_local_path, 'r') as f:
             files_to_download = [
-                line.strip() for line in f
+                line.strip()
+                for line in f
                 if line.strip() and not line.startswith('#')
             ]
     except FileNotFoundError:
-        raise RuntimeError(
-            f"Model file list not found at {model_file_local_path}")
+        raise RuntimeError(f'Model file list not found at {model_file_local_path}')
     except Exception as e:
-        raise RuntimeError(f"Error reading model file list: {e}")
+        raise RuntimeError(f'Error reading model file list: {e}')
 
-    file_download_base_url = f"https://raw.githubusercontent.com/{DATA_REPO_OWNER}/DamageAndLossModelLibrary/{commit_sha}"
+    file_download_base_url = f'https://raw.githubusercontent.com/{DATA_REPO_OWNER}/DamageAndLossModelLibrary/{commit_sha}'
 
     # Initialize cache for this commit if using caching
     if use_cache:
@@ -280,34 +421,52 @@ def download_data_files(version="latest", commit=None, use_cache=True):
         new_cache = {
             'commit_sha': commit_sha,
             'last_updated': datetime.now().isoformat(),
-            'files': {}
+            'files': {},
         }
+
+        # Add version metadata for tracking
+        if commit is not None:
+            # For commit-based downloads, store commit info
+            new_cache['version'] = f'commit-{commit_sha[:7]}'
+            new_cache['download_type'] = 'commit'
+        else:
+            # For version-based downloads, store the version tag
+            new_cache['version'] = (
+                version
+                if version != 'latest'
+                else release_data.get('tag_name', 'latest')
+            )
+            new_cache['download_type'] = 'version'
 
     # Count total files for progress reporting
     total_files = len(files_to_download)
-    print(f"Found {total_files} files to download.")
+    logger.info(f'Found {total_files} files to download.')
 
     # Download files with progress reporting using tqdm
     skipped_count = 0
 
     # Create a progress bar for all files
-    with tqdm(total=total_files, desc="Downloading files", unit="file") as pbar:
+    with tqdm(total=total_files, desc='Downloading files', unit='file') as pbar:
         for file_path in files_to_download:
-            remote_url = f"{file_download_base_url}/{file_path}"
+            remote_url = f'{file_download_base_url}/{file_path}'
             local_path = os.path.join(target_data_abs_dir, file_path)
 
             # Update progress bar description to show current file
-            pbar.set_description(f"Downloading {os.path.basename(local_path)}")
+            pbar.set_description(f'Downloading {os.path.basename(local_path)}')
 
             # Check if file exists in cache and hasn't changed
             file_in_cache = False
-            if use_cache and 'files' in cache_data and file_path in cache_data['files']:
+            if (
+                use_cache
+                and 'files' in cache_data
+                and file_path in cache_data['files']
+            ):
                 # Get the current hash if the file exists
                 current_hash = get_file_hash(local_path)
                 cached_hash = cache_data['files'][file_path]
 
                 if current_hash and current_hash == cached_hash:
-                    # File exists and hasn't changed, skip download            
+                    # File exists and hasn't changed, skip download
                     file_in_cache = True
                     skipped_count += 1
 
@@ -333,7 +492,93 @@ def download_data_files(version="latest", commit=None, use_cache=True):
     if use_cache:
         save_cache(cache_file, new_cache)
 
-    print(f"DLML model data download complete. Downloaded {total_files - skipped_count} files, skipped {skipped_count} unchanged files.")
+    logger.info(
+        f'DLML model data download complete. Downloaded {total_files - skipped_count} files, skipped {skipped_count} unchanged files.'
+    )
+
+
+def check_dlml_data():
+    """
+    Ensure DLML data is available for pelicun, downloading if necessary.
+
+    This function is called during pelicun import to check for DLML data availability.
+    If data is not found, it downloads the latest version. If data exists, it performs
+    a daily version check and warns if updates are available.
+
+    Raises
+    ------
+    RuntimeError
+        If the initial data download fails since pelicun cannot function without DLML data.
+    """
+    import warnings
+    from pelicun.pelicun_warnings import PelicunWarning
+
+    package_install_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    target_data_abs_dir = os.path.join(
+        package_install_dir, 'resources/DamageAndLossModelLibrary'
+    )
+
+    # Check if DLML data directory exists and has content
+    data_exists = (
+        os.path.exists(target_data_abs_dir)
+        and os.path.isdir(target_data_abs_dir)
+        and len(os.listdir(target_data_abs_dir)) > 0
+    )
+
+    if not data_exists:
+        # No DLML data found, download latest version
+        try:
+            logger.info('DLML model data not found. Downloading latest version...')
+            logger.info('This is a one-time setup that may take a few minutes.')
+            download_data_files(version='latest', use_cache=True)
+            logger.info('DLML data download completed successfully.')
+        except Exception as e:
+            # Provide detailed, error-specific messages
+            error_type = type(e).__name__
+            if 'requests' in str(type(e)).lower() or 'connection' in str(e).lower():
+                detailed_msg = (
+                    f'Network error while downloading DLML data: {e}\n'
+                    f'Please check your internet connection and try again.\n'
+                    f'If the problem persists, you can manually download using: pelicun dlml update'
+                )
+            elif 'permission' in str(e).lower() or 'access' in str(e).lower():
+                detailed_msg = (
+                    f'Permission error while downloading DLML data: {e}\n'
+                    f'Please check file/directory permissions for the pelicun installation.\n'
+                    f'You may need to run with appropriate permissions or manually download using: pelicun dlml update'
+                )
+            else:
+                detailed_msg = (
+                    f'Error downloading DLML data ({error_type}): {e}\n'
+                    f'Pelicun requires DLML data to function properly.\n'
+                    f'You can manually download using: pelicun dlml update'
+                )
+            raise RuntimeError(detailed_msg) from e
+    else:
+        # Data exists, perform version check
+        try:
+            version_info = check_dlml_version()
+
+            if version_info.get('update_available') and not version_info.get(
+                'error'
+            ):
+                current_ver = version_info.get('current_version', 'unknown')
+                latest_ver = version_info.get('latest_version', 'unknown')
+
+                warning_msg = (
+                    f'DLML data update available. '
+                    f'Current version: {current_ver}, '
+                    f'Latest version: {latest_ver}. '
+                    f'Update with: pelicun dlml update'
+                )
+
+                # Use pelicun's warning system
+                warnings.warn(warning_msg, PelicunWarning, stacklevel=2)
+
+        except Exception as e:
+            # Version check failed, but don't prevent import
+            logger.debug(f'Version check failed: {e}')
+
 
 def dlml_update(version=None, commit=None, use_cache=True):
     """
@@ -361,7 +606,7 @@ def dlml_update(version=None, commit=None, use_cache=True):
             download_data_files(commit=commit, use_cache=use_cache)
         else:
             # Handle version-based download
-            version_arg = version if version is not None else "latest"
+            version_arg = version if version is not None else 'latest'
             download_data_files(version=version_arg, use_cache=use_cache)
     except (RuntimeError, ValueError) as e:
-        raise RuntimeError(f"Data download failed: {e}") from e
+        raise RuntimeError(f'Data download failed: {e}') from e
