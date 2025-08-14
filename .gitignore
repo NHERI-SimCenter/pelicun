@@ -7,6 +7,12 @@
 
 # Documentation
 /doc_src/_build
+/doc_src/
+/doc/build/
+/doc/source/api_reference/_autosummary
+
+# DLML
+/resources/DamageAndLossModelLibrary
 
 # PyCharm folders
 /.idea
@@ -39,6 +45,3 @@ flycheck*.py
 /notes/
 /.ropeproject/
 
-/doc_src/
-/doc/build/
-/doc/source/api_reference/_autosummary

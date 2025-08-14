@@ -51,7 +51,7 @@ from unittest.mock import patch, MagicMock, mock_open
 import pytest
 import requests
 
-from pelicun import dlml
+from pelicun.tools import dlml
 
 
 # --- Commit SHA Validation Tests ---
@@ -280,15 +280,15 @@ def test_download_data_files_with_version():
 
     # Mock functions
     with patch("requests.get", return_value=mock_release_response) as mock_get, \
-         patch("pelicun.dlml._download_file") as mock_download, \
-         patch("pelicun.dlml.load_cache", return_value={}), \
-         patch("pelicun.dlml.save_cache"), \
-         patch("pelicun.dlml.get_file_hash", return_value="hash"), \
+         patch("pelicun.tools.dlml._download_file") as mock_download, \
+         patch("pelicun.tools.dlml.load_cache", return_value={}), \
+         patch("pelicun.tools.dlml.save_cache"), \
+         patch("pelicun.tools.dlml.get_file_hash", return_value="hash"), \
          patch("os.path.dirname", return_value="/path"), \
          patch("os.path.join", return_value="/path/to/file"), \
          patch("os.makedirs"), \
          patch("builtins.open", mock_open(read_data="file1.txt\nfile2.txt")), \
-         patch("pelicun.dlml.tqdm"):
+         patch("pelicun.tools.dlml.tqdm"):
         # Download data files
         dlml.download_data_files(version="v1.0.0")
 
@@ -303,16 +303,16 @@ def test_download_data_files_with_version():
 def test_download_data_files_with_commit():
     """Test downloading with a specific commit."""
     # Mock functions
-    with patch("pelicun.dlml.validate_commit_sha", return_value=True), \
-         patch("pelicun.dlml._download_file") as mock_download, \
-         patch("pelicun.dlml.load_cache", return_value={}), \
-         patch("pelicun.dlml.save_cache"), \
-         patch("pelicun.dlml.get_file_hash", return_value="hash"), \
+    with patch("pelicun.tools.dlml.validate_commit_sha", return_value=True), \
+         patch("pelicun.tools.dlml._download_file") as mock_download, \
+         patch("pelicun.tools.dlml.load_cache", return_value={}), \
+         patch("pelicun.tools.dlml.save_cache"), \
+         patch("pelicun.tools.dlml.get_file_hash", return_value="hash"), \
          patch("os.path.dirname", return_value="/path"), \
          patch("os.path.join", return_value="/path/to/file"), \
          patch("os.makedirs"), \
          patch("builtins.open", mock_open(read_data="file1.txt\nfile2.txt")), \
-         patch("pelicun.dlml.tqdm"):
+         patch("pelicun.tools.dlml.tqdm"):
         # Download data files
         dlml.download_data_files(commit="1234567")
 
@@ -328,15 +328,15 @@ def test_download_data_files_with_latest_commit():
 
     # Mock functions
     with patch("requests.get", return_value=mock_commits_response) as mock_get, \
-         patch("pelicun.dlml._download_file") as mock_download, \
-         patch("pelicun.dlml.load_cache", return_value={}), \
-         patch("pelicun.dlml.save_cache"), \
-         patch("pelicun.dlml.get_file_hash", return_value="hash"), \
+         patch("pelicun.tools.dlml._download_file") as mock_download, \
+         patch("pelicun.tools.dlml.load_cache", return_value={}), \
+         patch("pelicun.tools.dlml.save_cache"), \
+         patch("pelicun.tools.dlml.get_file_hash", return_value="hash"), \
          patch("os.path.dirname", return_value="/path"), \
          patch("os.path.join", return_value="/path/to/file"), \
          patch("os.makedirs"), \
          patch("builtins.open", mock_open(read_data="file1.txt\nfile2.txt")), \
-         patch("pelicun.dlml.tqdm"):
+         patch("pelicun.tools.dlml.tqdm"):
         # Download data files
         dlml.download_data_files(commit="latest")
 
@@ -360,16 +360,16 @@ def test_download_data_files_with_cache():
     }
 
     # Mock functions
-    with patch("pelicun.dlml.validate_commit_sha", return_value=True), \
-         patch("pelicun.dlml._download_file") as mock_download, \
-         patch("pelicun.dlml.load_cache", return_value=mock_cache), \
-         patch("pelicun.dlml.save_cache"), \
-         patch("pelicun.dlml.get_file_hash", return_value="hash1"), \
+    with patch("pelicun.tools.dlml.validate_commit_sha", return_value=True), \
+         patch("pelicun.tools.dlml._download_file") as mock_download, \
+         patch("pelicun.tools.dlml.load_cache", return_value=mock_cache), \
+         patch("pelicun.tools.dlml.save_cache"), \
+         patch("pelicun.tools.dlml.get_file_hash", return_value="hash1"), \
          patch("os.path.dirname", return_value="/path"), \
          patch("os.path.join", return_value="/path/to/file"), \
          patch("os.makedirs"), \
          patch("builtins.open", mock_open(read_data="file1.txt\nfile2.txt")), \
-         patch("pelicun.dlml.tqdm"):
+         patch("pelicun.tools.dlml.tqdm"):
         # Download data files with the same commit as in cache
         dlml.download_data_files(commit="1234567")
 
@@ -380,7 +380,7 @@ def test_download_data_files_with_cache():
 def test_download_data_files_invalid_commit():
     """Test handling of invalid versions or commits."""
     # Mock functions
-    with patch("pelicun.dlml.validate_commit_sha", return_value=False):
+    with patch("pelicun.tools.dlml.validate_commit_sha", return_value=False):
         # Download data files with invalid commit and verify exception is raised
         with pytest.raises(ValueError) as excinfo:
             dlml.download_data_files(commit="invalid")
@@ -452,8 +452,8 @@ def test_download_data_files_model_file_not_found():
 
     # Mock functions - simulate FileNotFoundError when opening model_files.txt
     with patch("requests.get", return_value=mock_release_response), \
-         patch("pelicun.dlml._download_file"), \
-         patch("pelicun.dlml.load_cache", return_value={}), \
+         patch("pelicun.tools.dlml._download_file"), \
+         patch("pelicun.tools.dlml.load_cache", return_value={}), \
          patch("os.path.dirname", return_value="/path"), \
          patch("os.path.join", return_value="/path/to/file"), \
          patch("os.makedirs"), \
@@ -474,8 +474,8 @@ def test_download_data_files_model_file_read_error():
 
     # Mock functions - simulate general Exception when opening model_files.txt
     with patch("requests.get", return_value=mock_release_response), \
-         patch("pelicun.dlml._download_file"), \
-         patch("pelicun.dlml.load_cache", return_value={}), \
+         patch("pelicun.tools.dlml._download_file"), \
+         patch("pelicun.tools.dlml.load_cache", return_value={}), \
          patch("os.path.dirname", return_value="/path"), \
          patch("os.path.join", return_value="/path/to/file"), \
          patch("os.makedirs"), \
@@ -493,11 +493,11 @@ def test_download_data_files_model_file_read_error():
 def test_progress_bar_initialization():
     """Test progress bar initialization with different file counts."""
     # Mock tqdm
-    with patch("pelicun.dlml.tqdm") as mock_tqdm, \
-         patch("pelicun.dlml._download_file"), \
-         patch("pelicun.dlml.load_cache", return_value={}), \
-         patch("pelicun.dlml.save_cache"), \
-         patch("pelicun.dlml.get_file_hash", return_value="hash"), \
+    with patch("pelicun.tools.dlml.tqdm") as mock_tqdm, \
+         patch("pelicun.tools.dlml._download_file"), \
+         patch("pelicun.tools.dlml.load_cache", return_value={}), \
+         patch("pelicun.tools.dlml.save_cache"), \
+         patch("pelicun.tools.dlml.get_file_hash", return_value="hash"), \
          patch("os.path.dirname", return_value="/path"), \
          patch("os.path.join", return_value="/path/to/file"), \
          patch("os.makedirs"), \
@@ -526,11 +526,11 @@ def test_progress_bar_updates():
     mock_tqdm = MagicMock()
     mock_tqdm.return_value.__enter__.return_value = mock_progress
 
-    with patch("pelicun.dlml.tqdm", mock_tqdm), \
-         patch("pelicun.dlml._download_file"), \
-         patch("pelicun.dlml.load_cache", return_value={}), \
-         patch("pelicun.dlml.save_cache"), \
-         patch("pelicun.dlml.get_file_hash", return_value="hash"), \
+    with patch("pelicun.tools.dlml.tqdm", mock_tqdm), \
+         patch("pelicun.tools.dlml._download_file"), \
+         patch("pelicun.tools.dlml.load_cache", return_value={}), \
+         patch("pelicun.tools.dlml.save_cache"), \
+         patch("pelicun.tools.dlml.get_file_hash", return_value="hash"), \
          patch("os.path.dirname", return_value="/path"), \
          patch("os.path.join", return_value="/path/to/file"), \
          patch("os.makedirs"), \
@@ -578,11 +578,11 @@ def test_progress_reporting_for_skipped_files():
     def mock_path_join(*args):
         return "/".join(args)
 
-    with patch("pelicun.dlml.tqdm", mock_tqdm), \
-         patch("pelicun.dlml._download_file") as mock_download, \
-         patch("pelicun.dlml.load_cache", return_value=mock_cache), \
-         patch("pelicun.dlml.save_cache"), \
-         patch("pelicun.dlml.get_file_hash", side_effect=mock_get_file_hash_side_effect), \
+    with patch("pelicun.tools.dlml.tqdm", mock_tqdm), \
+         patch("pelicun.tools.dlml._download_file") as mock_download, \
+         patch("pelicun.tools.dlml.load_cache", return_value=mock_cache), \
+         patch("pelicun.tools.dlml.save_cache"), \
+         patch("pelicun.tools.dlml.get_file_hash", side_effect=mock_get_file_hash_side_effect), \
          patch("os.path.dirname", return_value="/path"), \
          patch("os.path.join", side_effect=mock_path_join), \
          patch("os.makedirs"), \
@@ -605,120 +605,86 @@ def test_progress_reporting_for_skipped_files():
 # --- Command-Line Interface Tests ---
 
 # Integration tests that verify the actual CLI interface works
-def test_cli_integration_invalid_command():
-    """Integration test: CLI with invalid command (not 'update')."""
-    # Run the CLI with invalid command
+def test_cli_integration_invalid_action():
+    """Integration test: CLI with invalid action (not 'update')."""
+    # Run the CLI with invalid action
     result = subprocess.run([
-        sys.executable, "-m", "pelicun.dlml", "invalid"
+        "pelicun", "dlml", "invalid"
     ], capture_output=True, text=True)
 
     # Verify exit code and output
-    assert result.returncode == 1
-    assert "Usage: python -m pelicun.dlml update" in result.stdout
+    assert result.returncode == 2  # argparse returns 2 for invalid choice
+    assert "invalid choice: 'invalid'" in result.stderr
 
 
 def test_cli_integration_missing_arguments():
     """Integration test: CLI with insufficient arguments."""
-    # Run the CLI with no arguments
+    # Run the CLI with no arguments for dlml
     result = subprocess.run([
-        sys.executable, "-m", "pelicun.dlml"
+        "pelicun", "dlml"
     ], capture_output=True, text=True)
 
     # Verify exit code and output
-    assert result.returncode == 1
-    assert "Usage: python -m pelicun.dlml update" in result.stdout
+    assert result.returncode == 2  # argparse returns 2 for missing required argument
+    assert "required" in result.stderr
 
 
 # Unit tests for the main() function
 
 
 def test_main_version_download():
-    """Test successful version-based download via main() function."""
-    with patch("pelicun.dlml.download_data_files") as mock_download:
-        # Test main function with version argument
-        result = dlml.main(['pelicun.dlml', 'update', 'v1.0.0'])
+    """Test successful version-based download via dlml_update() function."""
+    with patch("pelicun.tools.dlml.download_data_files") as mock_download:
+        # Test dlml_update function with version argument
+        dlml.dlml_update(version='v1.0.0', use_cache=True)
 
         # Verify successful execution
-        assert result == 0
         mock_download.assert_called_once_with(version='v1.0.0', use_cache=True)
 
 
 def test_main_commit_download():
-    """Test successful commit-based download via main() function."""
-    with patch("pelicun.dlml.download_data_files") as mock_download:
-        # Test main function with commit argument
-        result = dlml.main(['pelicun.dlml', 'update', 'commit', '1234567'])
+    """Test successful commit-based download via dlml_update() function."""
+    with patch("pelicun.tools.dlml.download_data_files") as mock_download:
+        # Test dlml_update function with commit argument
+        dlml.dlml_update(commit='1234567', use_cache=True)
 
         # Verify successful execution
-        assert result == 0
         mock_download.assert_called_once_with(commit='1234567', use_cache=True)
 
 
 def test_main_no_cache_flag():
-    """Test --no-cache flag parsing and removal from arguments via main() function."""
-    with patch("pelicun.dlml.download_data_files") as mock_download:
-        # Test main function with --no-cache flag
-        result = dlml.main(['pelicun.dlml', 'update', '--no-cache', 'v1.0.0'])
+    """Test no-cache functionality via dlml_update() function."""
+    with patch("pelicun.tools.dlml.download_data_files") as mock_download:
+        # Test dlml_update function with use_cache=False
+        dlml.dlml_update(version='v1.0.0', use_cache=False)
 
         # Verify successful execution
-        assert result == 0
         mock_download.assert_called_once_with(version='v1.0.0', use_cache=False)
 
 
 def test_main_download_error_handling():
-    """Test error handling when download_data_files raises exceptions via main() function."""
-    with patch("pelicun.dlml.download_data_files", side_effect=RuntimeError("Test error")), \
-         patch("sys.stderr", new_callable=MagicMock) as mock_stderr:
-        # Test main function with mocked exception
-        result = dlml.main(['pelicun.dlml', 'update', 'v1.0.0'])
-
-        # Verify error handling
-        assert result == 1
-        # Verify error message was printed to stderr
-        mock_stderr.write.assert_called()
-
-
-def test_main_invalid_command():
-    """Test main() function with invalid command (not 'update')."""
-    with patch("sys.stdout", new_callable=MagicMock) as mock_stdout:
-        # Test main function with invalid command
-        result = dlml.main(['pelicun.dlml', 'invalid'])
-
-        # Verify error handling
-        assert result == 1
-        # Verify usage message was printed
-        mock_stdout.write.assert_called()
-
-
-def test_main_missing_arguments():
-    """Test main() function with insufficient arguments."""
-    with patch("sys.stdout", new_callable=MagicMock) as mock_stdout:
-        # Test main function with no arguments
-        result = dlml.main(['pelicun.dlml'])
-
-        # Verify error handling
-        assert result == 1
-        # Verify usage message was printed
-        mock_stdout.write.assert_called()
+    """Test error handling when download_data_files raises exceptions via dlml_update() function."""
+    with patch("pelicun.tools.dlml.download_data_files", side_effect=RuntimeError("Test error")):
+        # Test dlml_update function with mocked exception
+        with pytest.raises(RuntimeError, match="Data download failed: Test error"):
+            dlml.dlml_update(version='v1.0.0', use_cache=True)
 
 
 def test_main_commit_with_no_cache():
-    """Test main() function with commit and --no-cache flag."""
-    with patch("pelicun.dlml.download_data_files") as mock_download:
-        # Test main function with commit and --no-cache flag
-        result = dlml.main(['pelicun.dlml', 'update', 'commit', '--no-cache', '1234567'])
+    """Test dlml_update() function with commit and no cache."""
+    with patch("pelicun.tools.dlml.download_data_files") as mock_download:
+        # Test dlml_update function with commit and use_cache=False
+        dlml.dlml_update(commit='1234567', use_cache=False)
 
         # Verify successful execution
-        assert result == 0
         mock_download.assert_called_once_with(commit='1234567', use_cache=False)
 
 
 def test_main_default_latest_version():
-    """Test main() function with default 'latest' version when no version specified."""
-    with patch("pelicun.dlml.download_data_files") as mock_download:
-        # Test main function with just 'update' (should default to 'latest')
-        result = dlml.main(['pelicun.dlml', 'update'])
+    """Test dlml_update() function with default 'latest' version when no version specified."""
+    with patch("pelicun.tools.dlml.download_data_files") as mock_download:
+        # Test dlml_update function with default latest version
+        dlml.dlml_update()
 
         # Verify successful execution
-        assert result == 0
         mock_download.assert_called_once_with(version='latest', use_cache=True)

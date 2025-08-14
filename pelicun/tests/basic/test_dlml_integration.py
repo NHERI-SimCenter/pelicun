@@ -48,7 +48,7 @@ from unittest.mock import patch, MagicMock, mock_open
 import pytest
 import requests
 
-from pelicun import dlml
+from pelicun.tools import dlml
 
 def test_end_to_end_workflow_with_mock():
     """Test end-to-end workflow with mock GitHub API."""
@@ -63,10 +63,10 @@ def test_end_to_end_workflow_with_mock():
 
         # Mock functions
         with patch("requests.get", return_value=mock_release_response) as mock_get, \
-             patch("pelicun.dlml._download_file") as mock_download, \
+             patch("pelicun.tools.dlml._download_file") as mock_download, \
              patch("os.path.dirname", return_value=temp_dir), \
              patch("builtins.open", mock_open(read_data="file1.txt\nfile2.txt")), \
-             patch("pelicun.dlml.tqdm"):
+             patch("pelicun.tools.dlml.tqdm"):
             # Download data files
             dlml.download_data_files(version="v1.0.0", use_cache=False)
 
@@ -99,10 +99,10 @@ def test_with_mock_github_api_responses():
 
         # Mock functions
         with patch("requests.get", side_effect=mock_get_side_effect) as mock_get, \
-             patch("pelicun.dlml._download_file") as mock_download, \
+             patch("pelicun.tools.dlml._download_file") as mock_download, \
              patch("os.path.dirname", return_value=temp_dir), \
              patch("builtins.open", mock_open(read_data="file1.txt\nfile2.txt")), \
-             patch("pelicun.dlml.tqdm"):
+             patch("pelicun.tools.dlml.tqdm"):
             # Test with version
             dlml.download_data_files(version="v1.0.0", use_cache=False)
             assert mock_download.call_count == 3  # model_files.txt + 2 files
@@ -130,10 +130,10 @@ def test_with_empty_model_files():
 
         # Mock functions
         with patch("requests.get", return_value=mock_release_response) as mock_get, \
-             patch("pelicun.dlml._download_file") as mock_download, \
+             patch("pelicun.tools.dlml._download_file") as mock_download, \
              patch("os.path.dirname", return_value=temp_dir), \
              patch("builtins.open", mock_open(read_data="")), \
-             patch("pelicun.dlml.tqdm"):
+             patch("pelicun.tools.dlml.tqdm"):
             # Download data files
             dlml.download_data_files(version="v1.0.0", use_cache=False)
 
@@ -154,10 +154,10 @@ def test_with_large_number_of_files():
 
         # Mock functions
         with patch("requests.get", return_value=mock_release_response) as mock_get, \
-             patch("pelicun.dlml._download_file") as mock_download, \
+             patch("pelicun.tools.dlml._download_file") as mock_download, \
              patch("os.path.dirname", return_value=temp_dir), \
              patch("builtins.open", mock_open(read_data=large_file_list)), \
-             patch("pelicun.dlml.tqdm"):
+             patch("pelicun.tools.dlml.tqdm"):
             # Download data files
             dlml.download_data_files(version="v1.0.0", use_cache=False)
 
@@ -178,10 +178,10 @@ def test_with_special_characters_in_paths():
 
         # Mock functions
         with patch("requests.get", return_value=mock_release_response) as mock_get, \
-             patch("pelicun.dlml._download_file") as mock_download, \
+             patch("pelicun.tools.dlml._download_file") as mock_download, \
              patch("os.path.dirname", return_value=temp_dir), \
              patch("builtins.open", mock_open(read_data=special_file_list)), \
-             patch("pelicun.dlml.tqdm"):
+             patch("pelicun.tools.dlml.tqdm"):
             # Download data files
             dlml.download_data_files(version="v1.0.0", use_cache=False)
 
@@ -213,10 +213,10 @@ file3.txt"""
 
         # Mock functions
         with patch("requests.get", return_value=mock_release_response) as mock_get, \
-             patch("pelicun.dlml._download_file") as mock_download, \
+             patch("pelicun.tools.dlml._download_file") as mock_download, \
              patch("os.path.dirname", return_value=temp_dir), \
              patch("builtins.open", mock_open(read_data=file_list)), \
-             patch("pelicun.dlml.tqdm"):
+             patch("pelicun.tools.dlml.tqdm"):
             # Download data files
             dlml.download_data_files(version="v1.0.0", use_cache=False)
 

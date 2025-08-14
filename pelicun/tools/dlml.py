@@ -180,7 +180,7 @@ def download_data_files(version="latest", commit=None, use_cache=True):
 
     target_data_abs_dir = os.path.join(
         package_install_dir,
-        "pelicun/resources/DamageAndLossModelLibrary")
+        "resources/DamageAndLossModelLibrary")
     os.makedirs(target_data_abs_dir, exist_ok=True)
 
     # Cache file path
@@ -335,57 +335,33 @@ def download_data_files(version="latest", commit=None, use_cache=True):
 
     print(f"DLML model data download complete. Downloaded {total_files - skipped_count} files, skipped {skipped_count} unchanged files.")
 
-def main(argv=None):
+def dlml_update(version=None, commit=None, use_cache=True):
     """
-    Main CLI function for the DLML module.
+    Update DLML data files.
 
     Parameters
     ----------
-    argv: list, optional
-        Command line arguments. If None, uses sys.argv.
+    version: str, optional
+        Version tag (e.g., 'v1.2.0') or 'latest'. Default is 'latest'.
+    commit: str, optional
+        Commit SHA to download from. If provided, version is ignored.
+    use_cache: bool, optional
+        Whether to use caching to avoid re-downloading unchanged files. Default is True.
 
-    Returns
-    -------
-    int
-        Exit code (0 for success, 1 for failure)
+    Raises
+    ------
+    RuntimeError
+        If the data download fails.
+    ValueError
+        If invalid parameters are provided.
     """
-    if argv is None:
-        argv = sys.argv
-
-    # Example usage for post-installation updates
-    # Allows users to run:
-    # `python -m pelicun.dlml update <version_tag>` - e.g., `python -m pelicun.dlml update v1.2.0` or `latest`
-    # `python -m pelicun.dlml update commit <commit_sha>` - e.g., `python -m pelicun.dlml update commit abc1234` or `latest`
-    # `python -m pelicun.dlml update --no-cache [version|commit <commit_sha>]` - Disable caching
-
-    if len(argv) < 2 or argv[1] != "update":
-        print("Usage: python -m pelicun.dlml update [--no-cache] [version|commit <commit_sha>]")
-        print("  --no-cache: Disable caching to force re-download of all files")
-        print("  version: A release tag (e.g., v1.2.0) or 'latest'")
-        print("  commit: Use 'commit' followed by a 7-character commit SHA or 'latest'")
-        return 1
-
-    # Check for --no-cache flag
-    use_cache = True
-    args = argv[2:]
-    if "--no-cache" in args:
-        use_cache = False
-        args.remove("--no-cache")
-
     try:
-        if len(args) >= 2 and args[0] == "commit":
+        if commit is not None:
             # Handle commit-based download
-            commit_arg = args[1]
-            download_data_files(commit=commit_arg, use_cache=use_cache)
+            download_data_files(commit=commit, use_cache=use_cache)
         else:
             # Handle version-based download
-            version_arg = args[0] if args else "latest"
+            version_arg = version if version is not None else "latest"
             download_data_files(version=version_arg, use_cache=use_cache)
-        return 0
     except (RuntimeError, ValueError) as e:
-        print(f"Data download failed: {e}", file=sys.stderr)
-        return 1
-
-
-if __name__ == "__main__":
-    sys.exit(main())
+        raise RuntimeError(f"Data download failed: {e}") from e
