@@ -1,0 +1,135 @@
+# .github/workflows/ci.yml
+name: Pelicun CI/CD
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+  release:
+    types: [created]
+
+jobs:
+  # ----- STAGE 1: PARALLEL STATIC CHECKS -----
+  lint:
+    name: Ruff Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: chartboost/ruff-action@v1
+
+  format_check:
+    name: Ruff Format Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: chartboost/ruff-action@v1
+        with:
+          args: 'format --check'
+          
+  spell_check:
+    name: Spell Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: codespell-project/actions-codespell@v2
+
+  # ----- STAGE 1.5: SETUP JOB (runs in parallel with checks) -----
+  setup:
+    name: Prepare Data Cache
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Read DLML version
+        id: dlml_version
+        run: echo "tag=$(cat .dlml-version)" >> $GITHUB_OUTPUT
+      - name: Cache DLML data
+        id: cache-dlml
+        uses: actions/cache@v4
+        with:
+          path: pelicun/resources/DamageAndLossModelLibrary
+          key: dlml-data-${{ hashFiles('.dlml-version') }}
+      - name: Install dependencies for download
+        if: steps.cache-dlml.outputs.cache-hit != 'true'
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .
+      - name: Download DLML data on cache miss
+        if: steps.cache-dlml.outputs.cache-hit != 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: pelicun dlml update ${{ steps.dlml_version.outputs.tag }}
+
+  # ----- STAGE 2: JOBS DEPENDENT ON SETUP -----
+  test:
+    name: Run Tests
+    needs: setup
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python-version: ['3.9', '3.10', '3.11','3.12']
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version}}
+      - name: Restore DLML data from cache
+        uses: actions/cache@v4
+        with:
+          path: pelicun/resources/DamageAndLossModelLibrary
+          key: dlml-data-${{ hashFiles('.dlml-version') }}
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e .[development]
+      - name: Run tests
+        run: python -m pytest --cov=pelicun --cov-report xml pelicun/tests
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+  docs_check:
+    name: Check Sphinx Warnings
+    needs: setup
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      - name: Restore DLML data from cache
+        uses: actions/cache@v4
+        with:
+          path: pelicun/resources/DamageAndLossModelLibrary
+          key: dlml-data-${{ hashFiles('.dlml-version') }}
+      - name: Install dependencies
+        run: |
+          sudo apt-get update && sudo apt-get install -y pandoc
+          python -m pip install -e .[development]
+      - name: Check for Sphinx warnings
+        run: sphinx-build -M html ./doc ./doc/_build --fail-on-warning
+
+  # ----- STAGE 3: DEPLOYMENT -----
+  deploy_to_pypi:
+    name: Deploy to PyPI
+    if: github.event_name == 'release' && github.event.action == 'created'
+    needs: [test, lint, format_check]
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: '3.10'
+      - name: Install build dependencies
+        run: python -m pip install --upgrade build twine
+      - name: Build package
+        run: python -m build
+      - name: Publish package to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
