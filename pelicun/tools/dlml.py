@@ -44,12 +44,9 @@ from __future__ import annotations
 import hashlib
 import json
 import logging
-import os
 import re
-import shutil
-import sys
-import time
 from datetime import datetime, timedelta
+from pathlib import Path
 from typing import Any, Dict, Optional, Union
 
 import requests
@@ -61,6 +58,10 @@ logger = logging.getLogger('pelicun.dlml')
 
 # --- Configuration for your data repository ---
 DATA_REPO_OWNER = 'zsarnoczay'
+
+# --- Module-level path constants ---
+PELICUN_ROOT_DIR = Path(__file__).resolve().parent.parent
+DLML_DATA_DIR = PELICUN_ROOT_DIR / 'resources' / 'DamageAndLossModelLibrary'
 
 
 def validate_commit_sha(commit: str) -> bool:
@@ -85,7 +86,7 @@ def validate_commit_sha(commit: str) -> bool:
     return bool(re.match(pattern, commit, re.IGNORECASE))
 
 
-def get_file_hash(file_path: str) -> Optional[str]:  # noqa: UP007
+def get_file_hash(file_path: Union[str, Path]) -> Optional[str]:  # noqa: UP007
     """
     Calculate the MD5 hash of a file.
 
@@ -99,17 +100,18 @@ def get_file_hash(file_path: str) -> Optional[str]:  # noqa: UP007
     string
         MD5 hash of the file, or None if the file doesn't exist
     """
-    if not os.path.exists(file_path):
+    path = Path(file_path)
+    if not path.exists():
         return None
 
-    with open(file_path, 'rb') as f:
+    with path.open('rb') as f:
         file_hash = hashlib.md5()
         while chunk := f.read(8192):
             file_hash.update(chunk)
     return file_hash.hexdigest()
 
 
-def load_cache(cache_file: str) -> Dict[str, Any]:
+def load_cache(cache_file: Union[str, Path]) -> Dict[str, Any]:
     """
     Load the cache from a file.
 
@@ -123,9 +125,10 @@ def load_cache(cache_file: str) -> Dict[str, Any]:
     dict
         The cache data, or an empty dict if the file doesn't exist
     """
-    if os.path.exists(cache_file):
+    path = Path(cache_file)
+    if path.exists():
         try:
-            with open(cache_file, 'r') as f:
+            with path.open('r') as f:
                 return json.load(f)
         except (json.JSONDecodeError, IOError):
             # If the cache file is corrupted, return an empty cache
@@ -133,7 +136,7 @@ def load_cache(cache_file: str) -> Dict[str, Any]:
     return {}
 
 
-def save_cache(cache_file: str, cache_data: Dict[str, Any]) -> None:
+def save_cache(cache_file: Union[str, Path], cache_data: Dict[str, Any]) -> None:
     """
     Save the cache to a file.
 
@@ -144,8 +147,9 @@ def save_cache(cache_file: str, cache_data: Dict[str, Any]) -> None:
     cache_data: dict
         The cache data to save
     """
-    os.makedirs(os.path.dirname(cache_file), exist_ok=True)
-    with open(cache_file, 'w') as f:
+    path = Path(cache_file)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open('w') as f:
         json.dump(cache_data, f)
 
 
@@ -165,16 +169,13 @@ def check_dlml_version() -> Dict[str, Union[bool, str, None]]:  # noqa: UP007
         - 'last_check': str, ISO timestamp of last check
         - 'error': str, error message if check failed
     """
-    package_install_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    target_data_abs_dir = os.path.join(
-        package_install_dir, 'resources/DamageAndLossModelLibrary'
-    )
+    target_data_abs_dir = DLML_DATA_DIR
 
     # Cache file path
-    cache_file = os.path.join(target_data_abs_dir, '.dlml_cache.json')
+    cache_file = target_data_abs_dir / '.dlml_cache.json'
 
     # Load existing cache
-    cache_data = load_cache(cache_file)
+    cache_data = load_cache(str(cache_file))
 
     # Check if we need to perform a version check (daily)
     now = datetime.now()  # noqa: DTZ005
@@ -266,13 +267,13 @@ def check_dlml_version() -> Dict[str, Union[bool, str, None]]:  # noqa: UP007
     )
 
     # Save updated cache
-    if os.path.exists(target_data_abs_dir):
-        save_cache(cache_file, cache_data)
+    if target_data_abs_dir.exists():
+        save_cache(str(cache_file), cache_data)
 
     return result
 
 
-def _download_file(url: str, local_path: str) -> None:
+def _download_file(url: str, local_path: Union[str, Path]) -> None:
     """
     Download a file from a GitHub repository using a direct URL.
 
@@ -283,13 +284,14 @@ def _download_file(url: str, local_path: str) -> None:
     local_path: string
         Local path where the file should be downloaded
     """
-    os.makedirs(os.path.dirname(local_path), exist_ok=True)
+    path = Path(local_path)
+    path.parent.mkdir(parents=True, exist_ok=True)
 
     try:
         response = requests.get(url, stream=True)
         response.raise_for_status()
 
-        with open(local_path, 'wb') as f:
+        with path.open('wb') as f:
             for chunk in response.iter_content(chunk_size=8192):
                 f.write(chunk)
 
@@ -317,18 +319,14 @@ def download_data_files(
     use_cache: bool, optional
         Whether to use caching to avoid re-downloading unchanged files. Default is True.
     """
-    package_install_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
-    target_data_abs_dir = os.path.join(
-        package_install_dir, 'resources/DamageAndLossModelLibrary'
-    )
-    os.makedirs(target_data_abs_dir, exist_ok=True)
+    target_data_abs_dir = DLML_DATA_DIR
+    target_data_abs_dir.mkdir(parents=True, exist_ok=True)
 
     # Cache file path
-    cache_file = os.path.join(target_data_abs_dir, '.dlml_cache.json')
+    cache_file = target_data_abs_dir / '.dlml_cache.json'
 
     # Load cache if using caching
-    cache_data = load_cache(cache_file) if use_cache else {}
+    cache_data = load_cache(str(cache_file)) if use_cache else {}
 
     # Determine if we're using a commit or a version
     commit_sha = None
@@ -406,14 +404,14 @@ def download_data_files(
     # Get the model file list
     model_file_list_url = f'https://raw.githubusercontent.com/{DATA_REPO_OWNER}/DamageAndLossModelLibrary/{commit_sha}/model_files.txt'
 
-    model_file_local_path = os.path.join(target_data_abs_dir, 'model_files.txt')
-    _download_file(model_file_list_url, model_file_local_path)
+    model_file_local_path = target_data_abs_dir / 'model_files.txt'
+    _download_file(model_file_list_url, str(model_file_local_path))
 
     logger.info('Successfully downloaded model file list.')
 
     # Read the model list and download model files
     try:
-        with open(model_file_local_path, 'r') as f:
+        with model_file_local_path.open('r') as f:
             files_to_download = [
                 line.strip()
                 for line in f
@@ -462,10 +460,10 @@ def download_data_files(
     with tqdm(total=total_files, desc='Downloading files', unit='file') as pbar:
         for file_path in files_to_download:
             remote_url = f'{file_download_base_url}/{file_path}'
-            local_path = os.path.join(target_data_abs_dir, file_path)
+            local_path = target_data_abs_dir / file_path
 
             # Update progress bar description to show current file
-            pbar.set_description(f'Downloading {os.path.basename(local_path)}')
+            pbar.set_description(f'Downloading {local_path.name}')
 
             # Check if file exists in cache and hasn't changed
             file_in_cache = False
@@ -475,7 +473,7 @@ def download_data_files(
                 and file_path in cache_data['files']
             ):
                 # Get the current hash if the file exists
-                current_hash = get_file_hash(local_path)
+                current_hash = get_file_hash(str(local_path))
                 cached_hash = cache_data['files'][file_path]
 
                 if current_hash and current_hash == cached_hash:
@@ -492,18 +490,18 @@ def download_data_files(
 
             if not file_in_cache:
                 # Download the file
-                _download_file(remote_url, local_path)
+                _download_file(remote_url, str(local_path))
 
                 # Add to new cache
                 if use_cache:
-                    new_cache['files'][file_path] = get_file_hash(local_path)
+                    new_cache['files'][file_path] = get_file_hash(str(local_path))
 
                 # Update progress bar
                 pbar.update(1)
 
     # Save the new cache
     if use_cache:
-        save_cache(cache_file, new_cache)
+        save_cache(str(cache_file), new_cache)
 
     logger.info(
         f'DLML model data download complete. Downloaded {total_files - skipped_count} files, skipped {skipped_count} unchanged files.'
@@ -527,16 +525,13 @@ def check_dlml_data() -> None:
 
     from pelicun.pelicun_warnings import PelicunWarning
 
-    package_install_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    target_data_abs_dir = os.path.join(
-        package_install_dir, 'resources/DamageAndLossModelLibrary'
-    )
+    target_data_abs_dir = DLML_DATA_DIR
 
     # Check if DLML data directory exists and has content
     data_exists = (
-        os.path.exists(target_data_abs_dir)
-        and os.path.isdir(target_data_abs_dir)
-        and len(os.listdir(target_data_abs_dir)) > 0
+        target_data_abs_dir.exists()
+        and target_data_abs_dir.is_dir()
+        and len(list(target_data_abs_dir.iterdir())) > 0
     )
 
     if not data_exists:

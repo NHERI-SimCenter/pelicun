@@ -117,8 +117,9 @@ def test_setup_dlml_logging_with_file() -> None:
     finally:
         # Clean up
         logger.handlers.clear()
-        if os.path.exists(temp_filename):
-            os.unlink(temp_filename)
+        temp_path = Path(temp_filename)
+        if temp_path.exists():
+            temp_path.unlink()
 
 
 def test_setup_dlml_logging_with_timestamp_file() -> None:
@@ -147,8 +148,9 @@ def test_setup_dlml_logging_with_timestamp_file() -> None:
     # Clean up
     logger.handlers.clear()
     # Clean up the created log file if it exists
-    if os.path.exists(expected_filename):
-        os.unlink(expected_filename)
+    expected_path = Path(expected_filename)
+    if expected_path.exists():
+        expected_path.unlink()
 
 
 def test_setup_dlml_logging_no_duplicate_handlers() -> None:
@@ -189,9 +191,10 @@ def test_setup_dlml_logging_file_creation() -> None:
         logger.info('Test message for file logging')
 
         # Verify file was created and contains the message
-        assert os.path.exists(temp_filename)
+        temp_path = Path(temp_filename)
+        assert temp_path.exists()
 
-        with open(temp_filename, 'r') as f:
+        with temp_path.open('r') as f:
             content = f.read()
             assert 'Test message for file logging' in content
             assert 'pelicun.dlml' in content
@@ -200,8 +203,8 @@ def test_setup_dlml_logging_file_creation() -> None:
     finally:
         # Clean up
         logger.handlers.clear()
-        if os.path.exists(temp_filename):
-            os.unlink(temp_filename)
+        if temp_path.exists():
+            temp_path.unlink()
 
 
 def test_cli_integration_with_logging() -> None:
