@@ -36,24 +36,34 @@
 import pytest
 from unittest.mock import patch
 
-@pytest.fixture(scope="session", autouse=True)
-def mock_dlml_data_check():
-    """
-    This fixture automatically mocks the DLML data check for the entire
-    test session. It targets the check_dlml_data function that is called
-    on package import, preventing any real network calls during testing.
-    """
-    # This is the full import path to the function identified in
-    # pelicun/__init__.py and defined in pelicun/tools/dlml.py
-    target_function_path = 'pelicun.tools.dlml.check_dlml_data'
+# This is an explicit list of tests that handle their own network mocking
+# and should be excluded from the global fixture.
+EXCLUDED_TESTS = {
+    "test_check_dlml_data_with_missing_data",
+    "test_check_dlml_data_with_existing_data_update_available",
+    "test_check_dlml_data_download_failure",
+    "test_check_dlml_data_permission_error",
+    "test_check_dlml_data_version_check_failure",
+    "test_logging_configuration",
+    "test_warning_system_integration",
+}
 
-    # The 'with' statement starts the patch when the fixture is set up
-    # and automatically stops it after the test session finishes.
-    with patch(target_function_path) as mocked_check_func:
-        # We don't need the mock to do anything, just prevent the original
-        # function from running. A simple return value of None is fine.
-        mocked_check_func.return_value = None
-        
-        # 'yield' passes control to the test runner. The patch remains
-        # active for the entire session.
+@pytest.fixture(scope="function", autouse=True)
+def mock_dlml_data_check(request):
+    """
+    Mocks the DLML data check for the entire test session, UNLESS
+    the test is in the specific exclusion list.
+
+    This provides a high-performance, fail-safe "no network" policy
+    while allowing specific integration tests to run their own logic.
+    """
+    # If the current test's name is in our exclusion list, do not
+    # apply the global mock.
+    if request.node.name in EXCLUDED_TESTS:
         yield
+    else:
+        # For all other tests, apply the global mock.
+        target_function_path = 'pelicun.tools.dlml.check_dlml_data'
+        with patch(target_function_path) as mocked_check_func:
+            mocked_check_func.return_value = None
+            yield

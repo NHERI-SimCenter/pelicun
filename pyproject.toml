@@ -65,6 +65,7 @@ development = [
     "pylint-pytest",
     "pytest",
     "pytest-cov",
+    "pytest-socket",
     "pytest-xdist",
     "rendre>0.0.14",
     "ruff==0.7.0",
@@ -171,6 +172,9 @@ skip = [
   "auto_HU_LA.py",
   "custom_pop.py",
   "*/resources/DamageAndLossModelLibrary/*"]
+
+[tool.pytest.ini_options]
+socket_disabled_by_default = true
 
 [tool.mypy]
 ignore_missing_imports = true
