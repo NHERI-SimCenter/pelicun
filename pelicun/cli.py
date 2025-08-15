@@ -47,7 +47,7 @@ from pelicun.tools.dlml import dlml_update
 from pelicun.tools.regional_sim import regional_sim
 
 
-def setup_dlml_logging(log_file: str | bool | None = None) -> None:
+def setup_dlml_logging(log_file: str | bool | None = None) -> None:  # noqa: FBT001
     """
     Configure logging for DLML operations.
 
@@ -79,7 +79,7 @@ def setup_dlml_logging(log_file: str | bool | None = None) -> None:
             file_handler.setFormatter(file_formatter)
             logger.addHandler(file_handler)
 
-            print(f'Logging to file: {log_file}')
+            print(f'Logging to file: {log_file}')  # noqa: T201
 
         logger.setLevel(logging.INFO)
 

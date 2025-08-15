@@ -209,15 +209,15 @@ def test_setup_dlml_logging_file_creation() -> None:
 
 def test_cli_integration_with_logging() -> None:
     """Test CLI integration with logging setup."""
-    import subprocess
-    import sys
+    import subprocess  # noqa: PLC0415, S404
 
     # Test that CLI help includes the --log option
-    result = subprocess.run(
-        ['pelicun', 'dlml', '--help'],
+    result = subprocess.run(  # noqa: S603
+        ['pelicun', 'dlml', '--help'],  # noqa: S607
         capture_output=True,
         text=True,
         cwd='/Users/adamzs/Repos/PBE/pelicun',
+        check=False,
     )
 
     assert result.returncode == 0

@@ -42,6 +42,7 @@ from __future__ import annotations
 
 import tempfile
 from pathlib import Path
+from typing import Any
 from unittest.mock import MagicMock, mock_open, patch
 
 import pytest
@@ -82,19 +83,18 @@ def test_with_mock_github_api_responses() -> None:
         temp_dir_path = Path(temp_dir)
 
         # Mock responses for different API calls
-        def mock_get_side_effect(url, **kwargs):
+        def mock_get_side_effect(url: str, **kwargs: Any) -> MagicMock:  # noqa: ARG001, ANN401
             if 'releases/tags' in url:
                 mock_response = MagicMock()
                 mock_response.json.return_value = {'target_commitish': '1234567'}
                 return mock_response
-            elif 'commits' in url:
+            if 'commits' in url:
                 mock_response = MagicMock()
                 mock_response.json.return_value = [{'sha': '1234567'}]
                 return mock_response
-            else:
-                mock_response = MagicMock()
-                mock_response.iter_content.return_value = [b'chunk1', b'chunk2']
-                return mock_response
+            mock_response = MagicMock()
+            mock_response.iter_content.return_value = [b'chunk1', b'chunk2']
+            return mock_response
 
         # Mock API responses and the data directory path
         with patch('requests.get', side_effect=mock_get_side_effect), patch(
@@ -292,10 +292,10 @@ def test_import_integration_success() -> None:
         # Import should succeed without raising exceptions
         try:
             # Simulate the import process
-            from pelicun.tools.dlml import check_dlml_data
+            from pelicun.tools.dlml import check_dlml_data  # noqa: PLC0415
 
             check_dlml_data()
-        except Exception as e:
+        except (ImportError, RuntimeError, ValueError) as e:
             pytest.fail(f'Import integration should not raise exception: {e}')
 
 
@@ -306,11 +306,12 @@ def test_import_integration_failure() -> None:
     with patch(
         'pelicun.tools.dlml.check_dlml_data',
         side_effect=RuntimeError('Download failed'),
-    ), pytest.raises(RuntimeError, match='Download failed'):
+    ):
         # Should raise ImportError as would happen in __init__.py
-        from pelicun.tools.dlml import check_dlml_data
+        from pelicun.tools.dlml import check_dlml_data  # noqa: PLC0415
 
-        check_dlml_data()
+        with pytest.raises(RuntimeError, match='Download failed'):
+            check_dlml_data()
 
 
 def test_logging_configuration() -> None:
@@ -333,9 +334,8 @@ def test_logging_configuration() -> None:
 
 def test_warning_system_integration() -> None:
     """Test integration with pelicun warning system."""
-    import warnings
 
-    from pelicun.pelicun_warnings import PelicunWarning
+    from pelicun.pelicun_warnings import PelicunWarning  # noqa: PLC0415
 
     # Mock version check result with update available
     mock_version_info = {
