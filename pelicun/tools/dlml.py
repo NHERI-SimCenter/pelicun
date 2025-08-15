@@ -60,7 +60,7 @@ from pelicun.pelicun_warnings import PelicunWarning
 logger = logging.getLogger('pelicun.dlml')
 
 # --- Configuration for your data repository ---
-DATA_REPO_OWNER = 'zsarnoczay'
+DATA_REPO_OWNER = 'NHERI-SimCenter'
 
 # --- Module-level path constants ---
 PELICUN_ROOT_DIR = Path(__file__).resolve().parent.parent
