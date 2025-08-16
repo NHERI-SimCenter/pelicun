@@ -172,7 +172,10 @@ def test_get_file_hash_empty_file() -> None:
         assert len(file_hash) == 64  # SHA256 hash is 64 characters
 
         # Known SHA256 hash for empty file
-        assert file_hash == 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'
+        assert (
+            file_hash
+            == 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'
+        )
     finally:
         # Clean up
         Path(temp_file_path).unlink()
@@ -268,7 +271,9 @@ def test_download_file_success() -> None:
         dlml._download_file('http://example.com/file.txt', 'dir/file.txt')
 
         # Verify requests.get was called with the correct arguments
-        mock_get.assert_called_once_with('http://example.com/file.txt', stream=True, timeout=10)
+        mock_get.assert_called_once_with(
+            'http://example.com/file.txt', stream=True, timeout=10
+        )
 
         # Verify Path.mkdir was called with the correct arguments
         mock_mkdir.assert_called_once_with(parents=True, exist_ok=True)

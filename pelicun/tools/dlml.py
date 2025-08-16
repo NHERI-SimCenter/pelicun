@@ -229,7 +229,7 @@ def check_dlml_version() -> Dict[str, Union[bool, str, None]]:  # noqa: UP007, U
         # Check for the GITHUB_TOKEN environment variable
         token = os.environ.get('GITHUB_TOKEN')
         if token:
-            headers['Authorization'] = f"Bearer {token}"
+            headers['Authorization'] = f'Bearer {token}'
 
         release_url = f'{github_api_base_url}/releases/latest'
         response = requests.get(release_url, headers=headers, timeout=10)
@@ -359,7 +359,7 @@ def download_data_files(  # noqa: C901
     # Check for the GITHUB_TOKEN environment variable
     token = os.environ.get('GITHUB_TOKEN')
     if token:
-        headers['Authorization'] = f"Bearer {token}"
+        headers['Authorization'] = f'Bearer {token}'
 
     if commit is not None:
         # Validate commit SHA format

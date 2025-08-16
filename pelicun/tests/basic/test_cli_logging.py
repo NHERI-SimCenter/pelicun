@@ -116,7 +116,12 @@ def test_setup_dlml_logging_with_file() -> None:
 
     finally:
         # Clean up
+        for handler in logger.handlers:
+            if isinstance(handler, logging.FileHandler):
+                handler.close()
+
         logger.handlers.clear()
+
         temp_path = Path(temp_filename)
         if temp_path.exists():
             temp_path.unlink()
@@ -146,8 +151,12 @@ def test_setup_dlml_logging_with_timestamp_file() -> None:
     mock_print.assert_called_once_with(f'Logging to file: {expected_filename}')
 
     # Clean up
+    for handler in logger.handlers:
+        if isinstance(handler, logging.FileHandler):
+            handler.close()
+
     logger.handlers.clear()
-    # Clean up the created log file if it exists
+
     expected_path = Path(expected_filename)
     if expected_path.exists():
         expected_path.unlink()
@@ -202,7 +211,12 @@ def test_setup_dlml_logging_file_creation() -> None:
 
     finally:
         # Clean up
+        for handler in logger.handlers:
+            if isinstance(handler, logging.FileHandler):
+                handler.close()
+
         logger.handlers.clear()
+
         if temp_path.exists():
             temp_path.unlink()
 
@@ -216,7 +230,7 @@ def test_cli_integration_with_logging() -> None:
         ['pelicun', 'dlml', '--help'],  # noqa: S607
         capture_output=True,
         text=True,
-        cwd='/Users/adamzs/Repos/PBE/pelicun',
+        cwd=Path(__file__).parent.parent.parent,  # Use project root dynamically
         check=False,
     )
 

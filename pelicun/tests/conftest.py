@@ -33,23 +33,30 @@
 # You should have received a copy of the BSD 3-Clause License along with
 # pelicun. If not, see <http://www.opensource.org/licenses/>.
 
-import pytest
+from __future__ import annotations
+
+from typing import Generator
 from unittest.mock import patch
+
+import pytest
 
 # This is an explicit list of tests that handle their own network mocking
 # and should be excluded from the global fixture.
 EXCLUDED_TESTS = {
-    "test_check_dlml_data_with_missing_data",
-    "test_check_dlml_data_with_existing_data_update_available",
-    "test_check_dlml_data_download_failure",
-    "test_check_dlml_data_permission_error",
-    "test_check_dlml_data_version_check_failure",
-    "test_logging_configuration",
-    "test_warning_system_integration",
+    'test_check_dlml_data_with_missing_data',
+    'test_check_dlml_data_with_existing_data_update_available',
+    'test_check_dlml_data_download_failure',
+    'test_check_dlml_data_permission_error',
+    'test_check_dlml_data_version_check_failure',
+    'test_logging_configuration',
+    'test_warning_system_integration',
 }
 
-@pytest.fixture(scope="function", autouse=True)
-def mock_dlml_data_check(request):
+
+@pytest.fixture(autouse=True)
+def mock_dlml_data_check(
+    request: pytest.FixtureRequest,
+) -> Generator[None, None, None]:
     """
     Mocks the DLML data check for the entire test session, UNLESS
     the test is in the specific exclusion list.
