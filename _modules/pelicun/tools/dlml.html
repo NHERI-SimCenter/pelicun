@@ -1,0 +1,868 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pelicun.tools.dlml &mdash; pelicun  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=f9bf6728" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="../../../_static/hide_empty_pre.js?v=a807066b"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #F2F2F2" >
+
+          
+          
+          <a href="../../../index.html">
+            
+              <img src="../../../_static/pelicun-Logo-grey.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">About</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../about/license.html">1. Copyright and license</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../about/cite.html">2. Citing pelicun</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../about/cite.html#logo">3. Logo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../about/acknowledgments.html">4. Acknowledgments</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../about/acknowledgments.html#national-science-foundation">4.1. National Science Foundation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../about/acknowledgments.html#contributors">4.2. Contributors</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../release_notes/index.html">5. Release Notes</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../release_notes/index.html#version-3-0">5.1. Version 3.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../release_notes/index.html#version-2-0">5.2. Version 2.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../release_notes/index.html#version-1-0">5.3. Version 1.0</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_guide/install.html">1. Getting started</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/install.html#staying-up-to-date">1.1. Staying up to date</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_guide/pelicun_framework.html">2. The Pelicun Framework</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/pelicun_framework.html#abbreviations">2.1. Abbreviations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/pelicun_framework.html#introduction-to-pelicun">2.2. Introduction to Pelicun</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/pelicun_framework.html#overview">2.3. Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/pelicun_framework.html#performance-assessment-workflow">2.4. Performance Assessment Workflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/pelicun_framework.html#response-model">2.5. Response Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/pelicun_framework.html#performance-model">2.6. Performance Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/pelicun_framework.html#damage-model">2.7. Damage Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/pelicun_framework.html#loss-model">2.8. Loss Model</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_guide/feature_overview.html">3. Overview of pelicun features</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/feature_overview.html#saving-loading-samples">3.1. Saving/loading samples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/feature_overview.html#logging-support">3.2. Logging support</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/feature_overview.html#uncertainty-quantification">3.3. Uncertainty quantification</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/feature_overview.html#assessment-types">3.4. Assessment types</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/feature_overview.html#demand-simulation">3.5. Demand simulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/feature_overview.html#damage-estimation">3.6. Damage estimation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/feature_overview.html#loss-estimation">3.7. Loss estimation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/feature_overview.html#command-line-support">3.8. Command-line support</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/feature_overview.html#standalone-tools">3.9. Standalone tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/feature_overview.html#feature-overview-and-examples">3.10. Feature overview and examples</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_guide/damage_and_loss_library.html">4. Damage and loss library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_guide/bug_reports_and_feature_requests.html">5. Bug reports and feature requests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_guide/resources_for_new_python_users.html">6. Resources for new python users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples/index.html">7. Examples</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../examples/notebooks/example_1.html">7.1. Example 1: Simple loss function.</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../examples/notebooks/example_2.html">7.2. Example 2: Damage state validation.</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../examples/notebooks/example_3.html">7.3. Example 3: Combining fragility-based damage consequences and loss functions.</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api_reference/index.html">8. API Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../api_reference/_autosummary/pelicun.html">8.1. pelicun</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../developer_guide/getting_started.html">1. Getting started</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../developer_guide/getting_started.html#code-of-conduct">1.1. Code of conduct</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../developer_guide/getting_started.html#how-to-contribute">1.2. How to contribute</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developer_guide/development_environment.html">2. Setting up a development environment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developer_guide/code_quality.html">3. Coding practice</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../developer_guide/code_quality.html#code-quality-assurance">3.1. Code quality assurance</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../developer_guide/code_quality.html#unit-tests">3.2. Unit tests</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../developer_guide/code_quality.html#documentation">3.3. Documentation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developer_guide/internals.html">4. Package architecture</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../developer_guide/internals.html#overview-of-files">4.1. Overview of files</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #F2F2F2" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">pelicun</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">pelicun.tools.dlml</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for pelicun.tools.dlml</h1><div class="highlight"><pre>
+<span></span><span class="c1">#</span>
+<span class="c1"># Copyright (c) 2025 Leland Stanford Junior University</span>
+<span class="c1"># Copyright (c) 2025 The Regents of the University of California</span>
+<span class="c1">#</span>
+<span class="c1"># This file is part of pelicun.</span>
+<span class="c1">#</span>
+<span class="c1"># Redistribution and use in source and binary forms, with or without</span>
+<span class="c1"># modification, are permitted provided that the following conditions are met:</span>
+<span class="c1">#</span>
+<span class="c1"># 1. Redistributions of source code must retain the above copyright notice,</span>
+<span class="c1"># this list of conditions and the following disclaimer.</span>
+<span class="c1">#</span>
+<span class="c1"># 2. Redistributions in binary form must reproduce the above copyright notice,</span>
+<span class="c1"># this list of conditions and the following disclaimer in the documentation</span>
+<span class="c1"># and/or other materials provided with the distribution.</span>
+<span class="c1">#</span>
+<span class="c1"># 3. Neither the name of the copyright holder nor the names of its contributors</span>
+<span class="c1"># may be used to endorse or promote products derived from this software without</span>
+<span class="c1"># specific prior written permission.</span>
+<span class="c1">#</span>
+<span class="c1"># THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS &quot;AS IS&quot;</span>
+<span class="c1"># AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE</span>
+<span class="c1"># IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE</span>
+<span class="c1"># ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE</span>
+<span class="c1"># LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR</span>
+<span class="c1"># CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF</span>
+<span class="c1"># SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS</span>
+<span class="c1"># INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN</span>
+<span class="c1"># CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)</span>
+<span class="c1"># ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE</span>
+<span class="c1"># POSSIBILITY OF SUCH DAMAGE.</span>
+<span class="c1">#</span>
+<span class="c1"># You should have received a copy of the BSD 3-Clause License along with</span>
+<span class="c1"># pelicun. If not, see &lt;http://www.opensource.org/licenses/&gt;.</span>
+<span class="c1">#</span>
+<span class="c1"># Contributors:</span>
+<span class="c1"># Adam Zsarnóczay</span>
+
+
+<span class="sd">&quot;&quot;&quot;Methods for handling the Damage and Loss Model Library.&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">hashlib</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">requests</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">packaging</span><span class="w"> </span><span class="kn">import</span> <span class="n">version</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqdm</span><span class="w"> </span><span class="kn">import</span> <span class="n">tqdm</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pelicun.pelicun_warnings</span><span class="w"> </span><span class="kn">import</span> <span class="n">PelicunWarning</span>
+
+<span class="c1"># Configure logger once at module level</span>
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;pelicun.dlml&#39;</span><span class="p">)</span>
+
+<span class="c1"># --- Configuration for your data repository ---</span>
+<span class="n">DATA_REPO_OWNER</span> <span class="o">=</span> <span class="s1">&#39;NHERI-SimCenter&#39;</span>
+
+<span class="c1"># --- Module-level path constants ---</span>
+<span class="n">PELICUN_ROOT_DIR</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span>
+<span class="n">DLML_DATA_DIR</span> <span class="o">=</span> <span class="n">PELICUN_ROOT_DIR</span> <span class="o">/</span> <span class="s1">&#39;resources&#39;</span> <span class="o">/</span> <span class="s1">&#39;DamageAndLossModelLibrary&#39;</span>
+
+
+<div class="viewcode-block" id="validate_commit_sha">
+<a class="viewcode-back" href="../../../api_reference/_autosummary/pelicun.tools.dlml.html#pelicun.tools.dlml.validate_commit_sha">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">validate_commit_sha</span><span class="p">(</span><span class="n">commit</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Validate that the commit SHA is in the correct format.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    commit: string</span>
+<span class="sd">        The commit SHA to validate</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    bool</span>
+<span class="sd">        True if the commit is valid, False otherwise</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">commit</span> <span class="o">==</span> <span class="s1">&#39;latest&#39;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">True</span>
+
+    <span class="c1"># GitHub short SHA is typically 7 characters</span>
+    <span class="n">pattern</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;^[0-9a-f]</span><span class="si">{7}</span><span class="s1">$&#39;</span>
+    <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="n">commit</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span><span class="p">))</span></div>
+
+
+
+<div class="viewcode-block" id="get_file_hash">
+<a class="viewcode-back" href="../../../api_reference/_autosummary/pelicun.tools.dlml.html#pelicun.tools.dlml.get_file_hash">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_file_hash</span><span class="p">(</span><span class="n">file_path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>  <span class="c1"># noqa: UP007</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculate the SHA256 hash of a file.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    file_path: string</span>
+<span class="sd">        Path to the file</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    string</span>
+<span class="sd">        SHA256 hash of the file, or None if the file doesn&#39;t exist</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="k">with</span> <span class="n">path</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">file_hash</span> <span class="o">=</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">sha256</span><span class="p">()</span>
+        <span class="k">while</span> <span class="n">chunk</span> <span class="o">:=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">8192</span><span class="p">):</span>
+            <span class="n">file_hash</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">chunk</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">file_hash</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span></div>
+
+
+
+<div class="viewcode-block" id="load_cache">
+<a class="viewcode-back" href="../../../api_reference/_autosummary/pelicun.tools.dlml.html#pelicun.tools.dlml.load_cache">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">load_cache</span><span class="p">(</span><span class="n">cache_file</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>  <span class="c1"># noqa: UP007, UP006</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Load the cache from a file.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    cache_file: string</span>
+<span class="sd">        Path to the cache file</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dict</span>
+<span class="sd">        The cache data, or an empty dict if the file doesn&#39;t exist</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">cache_file</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">with</span> <span class="n">path</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">OSError</span><span class="p">,</span> <span class="n">json</span><span class="o">.</span><span class="n">JSONDecodeError</span><span class="p">):</span>
+            <span class="c1"># If the cache file is corrupted, return an empty cache</span>
+            <span class="k">return</span> <span class="p">{}</span>
+    <span class="k">return</span> <span class="p">{}</span></div>
+
+
+
+<div class="viewcode-block" id="save_cache">
+<a class="viewcode-back" href="../../../api_reference/_autosummary/pelicun.tools.dlml.html#pelicun.tools.dlml.save_cache">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">save_cache</span><span class="p">(</span><span class="n">cache_file</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">],</span> <span class="n">cache_data</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># noqa: UP007, UP006</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Save the cache to a file.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    cache_file: string</span>
+<span class="sd">        Path to the cache file</span>
+<span class="sd">    cache_data: dict</span>
+<span class="sd">        The cache data to save</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">cache_file</span><span class="p">)</span>
+    <span class="n">path</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">with</span> <span class="n">path</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">cache_data</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="check_dlml_version">
+<a class="viewcode-back" href="../../../api_reference/_autosummary/pelicun.tools.dlml.html#pelicun.tools.dlml.check_dlml_version">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">check_dlml_version</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]:</span>  <span class="c1"># noqa: UP007, UP006, C901</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Check if there&#39;s a newer version of DLML data available.</span>
+
+<span class="sd">    This function checks daily for new releases and returns version information.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dict</span>
+<span class="sd">        Dictionary containing:</span>
+<span class="sd">        - &#39;update_available&#39;: bool, True if update is available</span>
+<span class="sd">        - &#39;current_version&#39;: str, current local version or None</span>
+<span class="sd">        - &#39;latest_version&#39;: str, latest available version or None</span>
+<span class="sd">        - &#39;last_check&#39;: str, ISO timestamp of last check</span>
+<span class="sd">        - &#39;error&#39;: str, error message if check failed</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">target_data_abs_dir</span> <span class="o">=</span> <span class="n">DLML_DATA_DIR</span>
+
+    <span class="c1"># Cache file path</span>
+    <span class="n">cache_file</span> <span class="o">=</span> <span class="n">target_data_abs_dir</span> <span class="o">/</span> <span class="s1">&#39;.dlml_cache.json&#39;</span>
+
+    <span class="c1"># Load existing cache</span>
+    <span class="n">cache_data</span> <span class="o">=</span> <span class="n">load_cache</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">cache_file</span><span class="p">))</span>
+
+    <span class="c1"># Check if we need to perform a version check (daily)</span>
+    <span class="n">now</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>  <span class="c1"># noqa: DTZ005</span>
+    <span class="n">last_version_check</span> <span class="o">=</span> <span class="n">cache_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;last_version_check&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">last_version_check</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">last_check_time</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">fromisoformat</span><span class="p">(</span><span class="n">last_version_check</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">now</span> <span class="o">-</span> <span class="n">last_check_time</span> <span class="o">&lt;</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+                <span class="c1"># Return cached version check result</span>
+                <span class="k">return</span> <span class="p">{</span>
+                    <span class="s1">&#39;update_available&#39;</span><span class="p">:</span> <span class="n">cache_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;update_available&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+                    <span class="s1">&#39;current_version&#39;</span><span class="p">:</span> <span class="n">cache_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;current_version&#39;</span><span class="p">),</span>
+                    <span class="s1">&#39;latest_version&#39;</span><span class="p">:</span> <span class="n">cache_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;latest_version&#39;</span><span class="p">),</span>
+                    <span class="s1">&#39;last_check&#39;</span><span class="p">:</span> <span class="n">last_version_check</span><span class="p">,</span>
+                    <span class="s1">&#39;error&#39;</span><span class="p">:</span> <span class="n">cache_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;version_check_error&#39;</span><span class="p">),</span>
+                <span class="p">}</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">TypeError</span><span class="p">):</span>
+            <span class="c1"># Invalid timestamp, proceed with check</span>
+            <span class="k">pass</span>
+
+    <span class="c1"># Perform version check</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;update_available&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s1">&#39;current_version&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s1">&#39;latest_version&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s1">&#39;last_check&#39;</span><span class="p">:</span> <span class="n">now</span><span class="o">.</span><span class="n">isoformat</span><span class="p">(),</span>
+        <span class="s1">&#39;error&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="c1"># Get current local version from cache</span>
+        <span class="n">current_version_str</span> <span class="o">=</span> <span class="n">cache_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;version&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">current_version_str</span><span class="p">:</span>
+            <span class="c1"># Handle commit-based versions by extracting the last version before that commit</span>
+            <span class="k">if</span> <span class="n">current_version_str</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;commit-&#39;</span><span class="p">):</span>
+                <span class="c1"># For commit-based installs, we can&#39;t easily compare versions</span>
+                <span class="c1"># Use the commit SHA as the current version identifier</span>
+                <span class="n">result</span><span class="p">[</span><span class="s1">&#39;current_version&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">current_version_str</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">result</span><span class="p">[</span><span class="s1">&#39;current_version&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">current_version_str</span>
+
+        <span class="c1"># Get latest version from GitHub releases</span>
+        <span class="n">github_api_base_url</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;https://api.github.com/repos/</span><span class="si">{</span><span class="n">DATA_REPO_OWNER</span><span class="si">}</span><span class="s1">/DamageAndLossModelLibrary&#39;</span>
+        <span class="n">headers</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;Accept&#39;</span><span class="p">:</span> <span class="s1">&#39;application/vnd.github.v3+json&#39;</span><span class="p">}</span>
+
+        <span class="c1"># Check for the GITHUB_TOKEN environment variable</span>
+        <span class="n">token</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;GITHUB_TOKEN&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">token</span><span class="p">:</span>
+            <span class="n">headers</span><span class="p">[</span><span class="s1">&#39;Authorization&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;Bearer </span><span class="si">{</span><span class="n">token</span><span class="si">}</span><span class="s1">&#39;</span>
+
+        <span class="n">release_url</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">github_api_base_url</span><span class="si">}</span><span class="s1">/releases/latest&#39;</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">release_url</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+        <span class="n">response</span><span class="o">.</span><span class="n">raise_for_status</span><span class="p">()</span>
+
+        <span class="n">release_data</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+        <span class="n">latest_version_str</span> <span class="o">=</span> <span class="n">release_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;tag_name&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">latest_version_str</span><span class="p">:</span>
+            <span class="n">result</span><span class="p">[</span><span class="s1">&#39;latest_version&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">latest_version_str</span>
+
+            <span class="c1"># Compare versions if we have both</span>
+            <span class="k">if</span> <span class="n">current_version_str</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">current_version_str</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;commit-&#39;</span><span class="p">):</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">current_ver</span> <span class="o">=</span> <span class="n">version</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">current_version_str</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s1">&#39;v&#39;</span><span class="p">))</span>
+                    <span class="n">latest_ver</span> <span class="o">=</span> <span class="n">version</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">latest_version_str</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s1">&#39;v&#39;</span><span class="p">))</span>
+                    <span class="n">result</span><span class="p">[</span><span class="s1">&#39;update_available&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">latest_ver</span> <span class="o">&gt;</span> <span class="n">current_ver</span>
+                <span class="k">except</span> <span class="n">version</span><span class="o">.</span><span class="n">InvalidVersion</span><span class="p">:</span>
+                    <span class="c1"># If version parsing fails, assume update is available</span>
+                    <span class="n">result</span><span class="p">[</span><span class="s1">&#39;update_available&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                        <span class="n">current_version_str</span> <span class="o">!=</span> <span class="n">latest_version_str</span>
+                    <span class="p">)</span>
+            <span class="k">elif</span> <span class="n">current_version_str</span> <span class="ow">and</span> <span class="n">current_version_str</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;commit-&#39;</span><span class="p">):</span>
+                <span class="c1"># For commit-based versions, always suggest checking for updates</span>
+                <span class="n">result</span><span class="p">[</span><span class="s1">&#39;update_available&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">elif</span> <span class="ow">not</span> <span class="n">current_version_str</span><span class="p">:</span>
+                <span class="c1"># No local version info, suggest update</span>
+                <span class="n">result</span><span class="p">[</span><span class="s1">&#39;update_available&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+
+    <span class="k">except</span> <span class="n">requests</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">RequestException</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">result</span><span class="p">[</span><span class="s1">&#39;error&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;Failed to check for updates: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s1">&#39;</span>
+    <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">TypeError</span><span class="p">,</span> <span class="ne">KeyError</span><span class="p">,</span> <span class="n">json</span><span class="o">.</span><span class="n">JSONDecodeError</span><span class="p">)</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">result</span><span class="p">[</span><span class="s1">&#39;error&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;Version check error: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s1">&#39;</span>
+
+    <span class="c1"># Update cache with version check results</span>
+    <span class="n">cache_data</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+        <span class="p">{</span>
+            <span class="s1">&#39;last_version_check&#39;</span><span class="p">:</span> <span class="n">result</span><span class="p">[</span><span class="s1">&#39;last_check&#39;</span><span class="p">],</span>
+            <span class="s1">&#39;update_available&#39;</span><span class="p">:</span> <span class="n">result</span><span class="p">[</span><span class="s1">&#39;update_available&#39;</span><span class="p">],</span>
+            <span class="s1">&#39;current_version&#39;</span><span class="p">:</span> <span class="n">result</span><span class="p">[</span><span class="s1">&#39;current_version&#39;</span><span class="p">],</span>
+            <span class="s1">&#39;latest_version&#39;</span><span class="p">:</span> <span class="n">result</span><span class="p">[</span><span class="s1">&#39;latest_version&#39;</span><span class="p">],</span>
+            <span class="s1">&#39;version_check_error&#39;</span><span class="p">:</span> <span class="n">result</span><span class="p">[</span><span class="s1">&#39;error&#39;</span><span class="p">],</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Save updated cache</span>
+    <span class="k">if</span> <span class="n">target_data_abs_dir</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="n">save_cache</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">cache_file</span><span class="p">),</span> <span class="n">cache_data</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">result</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_download_file</span><span class="p">(</span><span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">local_path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># noqa: UP007</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Download a file from a GitHub repository using a direct URL.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    url: string</span>
+<span class="sd">        URL pointing to the file to download</span>
+<span class="sd">    local_path: string</span>
+<span class="sd">        Local path where the file should be downloaded</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    RuntimeError</span>
+<span class="sd">        If the file download fails due to network or other issues</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">local_path</span><span class="p">)</span>
+    <span class="n">path</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+        <span class="n">response</span><span class="o">.</span><span class="n">raise_for_status</span><span class="p">()</span>
+
+        <span class="k">with</span> <span class="n">path</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">chunk</span> <span class="ow">in</span> <span class="n">response</span><span class="o">.</span><span class="n">iter_content</span><span class="p">(</span><span class="n">chunk_size</span><span class="o">=</span><span class="mi">8192</span><span class="p">):</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">chunk</span><span class="p">)</span>
+
+    <span class="k">except</span> <span class="n">requests</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">RequestException</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;Failed to download file: </span><span class="si">{</span><span class="n">url</span><span class="si">}</span><span class="s1">&#39;</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
+
+
+<div class="viewcode-block" id="download_data_files">
+<a class="viewcode-back" href="../../../api_reference/_autosummary/pelicun.tools.dlml.html#pelicun.tools.dlml.download_data_files">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">download_data_files</span><span class="p">(</span>  <span class="c1"># noqa: C901</span>
+    <span class="n">version</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;latest&#39;</span><span class="p">,</span>
+    <span class="n">commit</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># noqa: UP007</span>
+    <span class="n">use_cache</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>  <span class="c1"># noqa: FBT001, FBT002</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Download model files from DLML based on the model_files.txt.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    version: string</span>
+<span class="sd">        The release tag name (e.g., &quot;v1.0.0&quot;, &quot;beta&quot;). Use &quot;latest&quot; to download</span>
+<span class="sd">        from the latest published release. Ignored if commit is provided.</span>
+<span class="sd">    commit: string, optional</span>
+<span class="sd">        The commit SHA (7-digit identifier). Use &quot;latest&quot; to download from the latest commit.</span>
+<span class="sd">        If provided, this takes precedence over the version parameter.</span>
+<span class="sd">    use_cache: bool, optional</span>
+<span class="sd">        Whether to use caching to avoid re-downloading unchanged files. Default is True.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If an invalid commit SHA format is provided</span>
+<span class="sd">    RuntimeError</span>
+<span class="sd">        If data download fails due to network issues, missing commits, or file errors</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">target_data_abs_dir</span> <span class="o">=</span> <span class="n">DLML_DATA_DIR</span>
+    <span class="n">target_data_abs_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1"># Cache file path</span>
+    <span class="n">cache_file</span> <span class="o">=</span> <span class="n">target_data_abs_dir</span> <span class="o">/</span> <span class="s1">&#39;.dlml_cache.json&#39;</span>
+
+    <span class="c1"># Load cache if using caching</span>
+    <span class="n">cache_data</span> <span class="o">=</span> <span class="n">load_cache</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">cache_file</span><span class="p">))</span> <span class="k">if</span> <span class="n">use_cache</span> <span class="k">else</span> <span class="p">{}</span>
+
+    <span class="c1"># Determine if we&#39;re using a commit or a version</span>
+    <span class="n">commit_sha</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">github_api_base_url</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="sa">f</span><span class="s1">&#39;https://api.github.com/repos/</span><span class="si">{</span><span class="n">DATA_REPO_OWNER</span><span class="si">}</span><span class="s1">/DamageAndLossModelLibrary&#39;</span>
+    <span class="p">)</span>
+    <span class="n">headers</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;Accept&#39;</span><span class="p">:</span> <span class="s1">&#39;application/vnd.github.v3+json&#39;</span><span class="p">}</span>
+
+    <span class="c1"># Check for the GITHUB_TOKEN environment variable</span>
+    <span class="n">token</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;GITHUB_TOKEN&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">token</span><span class="p">:</span>
+        <span class="n">headers</span><span class="p">[</span><span class="s1">&#39;Authorization&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;Bearer </span><span class="si">{</span><span class="n">token</span><span class="si">}</span><span class="s1">&#39;</span>
+
+    <span class="k">if</span> <span class="n">commit</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># Validate commit SHA format</span>
+        <span class="k">if</span> <span class="n">commit</span> <span class="o">!=</span> <span class="s1">&#39;latest&#39;</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">validate_commit_sha</span><span class="p">(</span><span class="n">commit</span><span class="p">):</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="sa">f</span><span class="s1">&#39;Invalid commit SHA format: </span><span class="si">{</span><span class="n">commit</span><span class="si">}</span><span class="s1">. &#39;</span>
+                <span class="sa">f</span><span class="s2">&quot;Must be &#39;latest&#39; or a 7-character hexadecimal string.&quot;</span>
+            <span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">commit</span> <span class="o">==</span> <span class="s1">&#39;latest&#39;</span><span class="p">:</span>
+            <span class="c1"># Get the latest commit SHA</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">&#39;Downloading DLML models from the latest commit to </span><span class="si">{</span><span class="n">target_data_abs_dir</span><span class="si">}</span><span class="s1">...&#39;</span>
+            <span class="p">)</span>
+            <span class="n">commits_url</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">github_api_base_url</span><span class="si">}</span><span class="s1">/commits&#39;</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">commits_url</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+                <span class="n">response</span><span class="o">.</span><span class="n">raise_for_status</span><span class="p">()</span>
+                <span class="n">commits_data</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">commits_data</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">commits_data</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">commit_sha</span> <span class="o">=</span> <span class="n">commits_data</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;sha&#39;</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">msg</span> <span class="o">=</span> <span class="s1">&#39;No commits found in the repository.&#39;</span>
+                    <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+            <span class="k">except</span> <span class="n">requests</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">RequestException</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;Failed to fetch latest commit: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s1">&#39;</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Use the provided commit SHA</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">&#39;Downloading DLML models from commit </span><span class="si">{</span><span class="n">commit</span><span class="si">}</span><span class="s1"> to </span><span class="si">{</span><span class="n">target_data_abs_dir</span><span class="si">}</span><span class="s1">...&#39;</span>
+            <span class="p">)</span>
+            <span class="n">commit_sha</span> <span class="o">=</span> <span class="n">commit</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># Use version-based download (original behavior)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">&#39;Downloading DLML models for version </span><span class="si">{</span><span class="n">version</span><span class="si">}</span><span class="s1"> to </span><span class="si">{</span><span class="n">target_data_abs_dir</span><span class="si">}</span><span class="s1">...&#39;</span>
+        <span class="p">)</span>
+        <span class="n">release_info_url</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">github_api_base_url</span><span class="si">}</span><span class="s1">/releases/tags/</span><span class="si">{</span><span class="n">version</span><span class="si">}</span><span class="s1">&#39;</span>
+            <span class="k">if</span> <span class="n">version</span> <span class="o">!=</span> <span class="s1">&#39;latest&#39;</span>
+            <span class="k">else</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">github_api_base_url</span><span class="si">}</span><span class="s1">/releases/latest&#39;</span>
+        <span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">release_info_url</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+            <span class="n">response</span><span class="o">.</span><span class="n">raise_for_status</span><span class="p">()</span>
+            <span class="n">release_data</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+        <span class="k">except</span> <span class="n">requests</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">RequestException</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Failed to fetch release info for &#39;</span><span class="si">{</span><span class="n">version</span><span class="si">}</span><span class="s2">&#39;: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
+
+        <span class="c1"># Get the SHA of the commit the release tag points to</span>
+        <span class="n">commit_sha</span> <span class="o">=</span> <span class="n">release_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;target_commitish&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">commit_sha</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Could not find commit SHA for release &#39;</span><span class="si">{</span><span class="n">version</span><span class="si">}</span><span class="s2">&#39;.&quot;</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+    <span class="c1"># Check if we already have the latest data</span>
+    <span class="k">if</span> <span class="p">(</span>
+        <span class="n">use_cache</span>
+        <span class="ow">and</span> <span class="s1">&#39;commit_sha&#39;</span> <span class="ow">in</span> <span class="n">cache_data</span>
+        <span class="ow">and</span> <span class="n">cache_data</span><span class="p">[</span><span class="s1">&#39;commit_sha&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">commit_sha</span>
+    <span class="p">):</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Already have the latest data for commit </span><span class="si">{</span><span class="n">commit_sha</span><span class="p">[:</span><span class="mi">7</span><span class="p">]</span><span class="si">}</span><span class="s1">.&#39;</span><span class="p">)</span>
+        <span class="k">return</span>
+
+    <span class="c1"># Get the model file list</span>
+    <span class="n">model_file_list_url</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;https://raw.githubusercontent.com/</span><span class="si">{</span><span class="n">DATA_REPO_OWNER</span><span class="si">}</span><span class="s1">/DamageAndLossModelLibrary/</span><span class="si">{</span><span class="n">commit_sha</span><span class="si">}</span><span class="s1">/model_files.txt&#39;</span>
+
+    <span class="n">model_file_local_path</span> <span class="o">=</span> <span class="n">target_data_abs_dir</span> <span class="o">/</span> <span class="s1">&#39;model_files.txt&#39;</span>
+    <span class="n">_download_file</span><span class="p">(</span><span class="n">model_file_list_url</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">model_file_local_path</span><span class="p">))</span>
+
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Successfully downloaded model file list.&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Read the model list and download model files</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">with</span> <span class="n">model_file_local_path</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">files_to_download</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+                <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">f</span>
+                <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;#&#39;</span><span class="p">)</span>
+            <span class="p">]</span>
+    <span class="k">except</span> <span class="ne">FileNotFoundError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;Model file list not found at </span><span class="si">{</span><span class="n">model_file_local_path</span><span class="si">}</span><span class="s1">&#39;</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;Error reading model file list: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s1">&#39;</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
+
+    <span class="n">file_download_base_url</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;https://raw.githubusercontent.com/</span><span class="si">{</span><span class="n">DATA_REPO_OWNER</span><span class="si">}</span><span class="s1">/DamageAndLossModelLibrary/</span><span class="si">{</span><span class="n">commit_sha</span><span class="si">}</span><span class="s1">&#39;</span>
+
+    <span class="c1"># Initialize cache for this commit if using caching</span>
+    <span class="k">if</span> <span class="n">use_cache</span><span class="p">:</span>
+        <span class="c1"># Keep track of files that should exist</span>
+        <span class="n">new_cache</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;commit_sha&#39;</span><span class="p">:</span> <span class="n">commit_sha</span><span class="p">,</span>
+            <span class="s1">&#39;last_updated&#39;</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">isoformat</span><span class="p">(),</span>  <span class="c1"># noqa: DTZ005</span>
+            <span class="s1">&#39;files&#39;</span><span class="p">:</span> <span class="p">{},</span>
+        <span class="p">}</span>
+
+        <span class="c1"># Add version metadata for tracking</span>
+        <span class="k">if</span> <span class="n">commit</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># For commit-based downloads, store commit info</span>
+            <span class="n">new_cache</span><span class="p">[</span><span class="s1">&#39;version&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;commit-</span><span class="si">{</span><span class="n">commit_sha</span><span class="p">[:</span><span class="mi">7</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span>
+            <span class="n">new_cache</span><span class="p">[</span><span class="s1">&#39;download_type&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;commit&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># For version-based downloads, store the version tag</span>
+            <span class="n">new_cache</span><span class="p">[</span><span class="s1">&#39;version&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">version</span>
+                <span class="k">if</span> <span class="n">version</span> <span class="o">!=</span> <span class="s1">&#39;latest&#39;</span>
+                <span class="k">else</span> <span class="n">release_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;tag_name&#39;</span><span class="p">,</span> <span class="s1">&#39;latest&#39;</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">new_cache</span><span class="p">[</span><span class="s1">&#39;download_type&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;version&#39;</span>
+
+    <span class="c1"># Count total files for progress reporting</span>
+    <span class="n">total_files</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">files_to_download</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Found </span><span class="si">{</span><span class="n">total_files</span><span class="si">}</span><span class="s1"> files to download.&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Download files with progress reporting using tqdm</span>
+    <span class="n">skipped_count</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="c1"># Create a progress bar for all files</span>
+    <span class="k">with</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">total</span><span class="o">=</span><span class="n">total_files</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="s1">&#39;Downloading files&#39;</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s1">&#39;file&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">pbar</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">file_path</span> <span class="ow">in</span> <span class="n">files_to_download</span><span class="p">:</span>
+            <span class="n">remote_url</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">file_download_base_url</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s1">&#39;</span>
+            <span class="n">local_path</span> <span class="o">=</span> <span class="n">target_data_abs_dir</span> <span class="o">/</span> <span class="n">file_path</span>
+
+            <span class="c1"># Update progress bar description to show current file</span>
+            <span class="n">pbar</span><span class="o">.</span><span class="n">set_description</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Downloading </span><span class="si">{</span><span class="n">local_path</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+            <span class="c1"># Check if file exists in cache and hasn&#39;t changed</span>
+            <span class="n">file_in_cache</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">if</span> <span class="p">(</span>
+                <span class="n">use_cache</span>
+                <span class="ow">and</span> <span class="s1">&#39;files&#39;</span> <span class="ow">in</span> <span class="n">cache_data</span>
+                <span class="ow">and</span> <span class="n">file_path</span> <span class="ow">in</span> <span class="n">cache_data</span><span class="p">[</span><span class="s1">&#39;files&#39;</span><span class="p">]</span>
+            <span class="p">):</span>
+                <span class="c1"># Get the current hash if the file exists</span>
+                <span class="n">current_hash</span> <span class="o">=</span> <span class="n">get_file_hash</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">local_path</span><span class="p">))</span>
+                <span class="n">cached_hash</span> <span class="o">=</span> <span class="n">cache_data</span><span class="p">[</span><span class="s1">&#39;files&#39;</span><span class="p">][</span><span class="n">file_path</span><span class="p">]</span>
+
+                <span class="k">if</span> <span class="n">current_hash</span> <span class="ow">and</span> <span class="n">current_hash</span> <span class="o">==</span> <span class="n">cached_hash</span><span class="p">:</span>
+                    <span class="c1"># File exists and hasn&#39;t changed, skip download</span>
+                    <span class="n">file_in_cache</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="n">skipped_count</span> <span class="o">+=</span> <span class="mi">1</span>
+
+                    <span class="c1"># Add to new cache</span>
+                    <span class="k">if</span> <span class="n">use_cache</span><span class="p">:</span>
+                        <span class="n">new_cache</span><span class="p">[</span><span class="s1">&#39;files&#39;</span><span class="p">][</span><span class="n">file_path</span><span class="p">]</span> <span class="o">=</span> <span class="n">current_hash</span>
+
+                    <span class="c1"># Update progress bar</span>
+                    <span class="n">pbar</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">file_in_cache</span><span class="p">:</span>
+                <span class="c1"># Download the file</span>
+                <span class="n">_download_file</span><span class="p">(</span><span class="n">remote_url</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">local_path</span><span class="p">))</span>
+
+                <span class="c1"># Add to new cache</span>
+                <span class="k">if</span> <span class="n">use_cache</span><span class="p">:</span>
+                    <span class="n">new_cache</span><span class="p">[</span><span class="s1">&#39;files&#39;</span><span class="p">][</span><span class="n">file_path</span><span class="p">]</span> <span class="o">=</span> <span class="n">get_file_hash</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">local_path</span><span class="p">))</span>
+
+                <span class="c1"># Update progress bar</span>
+                <span class="n">pbar</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="c1"># Save the new cache</span>
+    <span class="k">if</span> <span class="n">use_cache</span><span class="p">:</span>
+        <span class="n">save_cache</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">cache_file</span><span class="p">),</span> <span class="n">new_cache</span><span class="p">)</span>
+
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s1">&#39;DLML model data download complete. Downloaded </span><span class="si">{</span><span class="n">total_files</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">skipped_count</span><span class="si">}</span><span class="s1"> files, skipped </span><span class="si">{</span><span class="n">skipped_count</span><span class="si">}</span><span class="s1"> unchanged files.&#39;</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="check_dlml_data">
+<a class="viewcode-back" href="../../../api_reference/_autosummary/pelicun.tools.dlml.html#pelicun.tools.dlml.check_dlml_data">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">check_dlml_data</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Ensure DLML data is available for pelicun, downloading if necessary.</span>
+
+<span class="sd">    This function is called during pelicun import to check for DLML data availability.</span>
+<span class="sd">    If data is not found, it downloads the latest version. If data exists, it performs</span>
+<span class="sd">    a daily version check and warns if updates are available.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    RuntimeError</span>
+<span class="sd">        If the initial data download fails since pelicun cannot function without DLML data.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">target_data_abs_dir</span> <span class="o">=</span> <span class="n">DLML_DATA_DIR</span>
+
+    <span class="c1"># Check if DLML data directory exists and has content</span>
+    <span class="n">data_exists</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">target_data_abs_dir</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span>
+        <span class="ow">and</span> <span class="n">target_data_abs_dir</span><span class="o">.</span><span class="n">is_dir</span><span class="p">()</span>
+        <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">target_data_abs_dir</span><span class="o">.</span><span class="n">iterdir</span><span class="p">()))</span> <span class="o">&gt;</span> <span class="mi">0</span>
+    <span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">data_exists</span><span class="p">:</span>
+        <span class="c1"># No DLML data found, download latest version</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;DLML model data not found. Downloading latest version...&#39;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;This is a one-time setup that may take a few minutes.&#39;</span><span class="p">)</span>
+            <span class="n">download_data_files</span><span class="p">(</span><span class="n">version</span><span class="o">=</span><span class="s1">&#39;latest&#39;</span><span class="p">,</span> <span class="n">use_cache</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;DLML data download completed successfully.&#39;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="c1"># Provide detailed, error-specific messages</span>
+            <span class="n">error_type</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span>
+            <span class="k">if</span> <span class="s1">&#39;requests&#39;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">e</span><span class="p">))</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">or</span> <span class="s1">&#39;connection&#39;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
+                <span class="n">detailed_msg</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="sa">f</span><span class="s1">&#39;Network error while downloading DLML data: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="se">\n</span><span class="s1">&#39;</span>
+                    <span class="sa">f</span><span class="s1">&#39;Please check your internet connection and try again.</span><span class="se">\n</span><span class="s1">&#39;</span>
+                    <span class="sa">f</span><span class="s1">&#39;If the problem persists, you can manually download using: pelicun dlml update&#39;</span>
+                <span class="p">)</span>
+            <span class="k">elif</span> <span class="s1">&#39;permission&#39;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">or</span> <span class="s1">&#39;access&#39;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
+                <span class="n">detailed_msg</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="sa">f</span><span class="s1">&#39;Permission error while downloading DLML data: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="se">\n</span><span class="s1">&#39;</span>
+                    <span class="sa">f</span><span class="s1">&#39;Please check file/directory permissions for the pelicun installation.</span><span class="se">\n</span><span class="s1">&#39;</span>
+                    <span class="sa">f</span><span class="s1">&#39;You may need to run with appropriate permissions or manually download using: pelicun dlml update&#39;</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">detailed_msg</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="sa">f</span><span class="s1">&#39;Error downloading DLML data (</span><span class="si">{</span><span class="n">error_type</span><span class="si">}</span><span class="s1">): </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="se">\n</span><span class="s1">&#39;</span>
+                    <span class="sa">f</span><span class="s1">&#39;Pelicun requires DLML data to function properly.</span><span class="se">\n</span><span class="s1">&#39;</span>
+                    <span class="sa">f</span><span class="s1">&#39;You can manually download using: pelicun dlml update&#39;</span>
+                <span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="n">detailed_msg</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># Data exists, perform version check</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">version_info</span> <span class="o">=</span> <span class="n">check_dlml_version</span><span class="p">()</span>
+
+            <span class="k">if</span> <span class="n">version_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;update_available&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">version_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                <span class="s1">&#39;error&#39;</span>
+            <span class="p">):</span>
+                <span class="n">current_ver</span> <span class="o">=</span> <span class="n">version_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;current_version&#39;</span><span class="p">,</span> <span class="s1">&#39;unknown&#39;</span><span class="p">)</span>
+                <span class="n">latest_ver</span> <span class="o">=</span> <span class="n">version_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;latest_version&#39;</span><span class="p">,</span> <span class="s1">&#39;unknown&#39;</span><span class="p">)</span>
+
+                <span class="n">warning_msg</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="sa">f</span><span class="s1">&#39;DLML data update available. &#39;</span>
+                    <span class="sa">f</span><span class="s1">&#39;Current version: </span><span class="si">{</span><span class="n">current_ver</span><span class="si">}</span><span class="s1">, &#39;</span>
+                    <span class="sa">f</span><span class="s1">&#39;Latest version: </span><span class="si">{</span><span class="n">latest_ver</span><span class="si">}</span><span class="s1">. &#39;</span>
+                    <span class="sa">f</span><span class="s1">&#39;Update with: pelicun dlml update&#39;</span>
+                <span class="p">)</span>
+
+                <span class="c1"># Use pelicun&#39;s warning system</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">warning_msg</span><span class="p">,</span> <span class="n">PelicunWarning</span><span class="p">,</span> <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+        <span class="k">except</span> <span class="p">(</span>
+            <span class="n">requests</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">RequestException</span><span class="p">,</span>
+            <span class="ne">ValueError</span><span class="p">,</span>
+            <span class="ne">TypeError</span><span class="p">,</span>
+            <span class="ne">KeyError</span><span class="p">,</span>
+            <span class="n">json</span><span class="o">.</span><span class="n">JSONDecodeError</span><span class="p">,</span>
+        <span class="p">)</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="c1"># Version check failed, but don&#39;t prevent import</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Version check failed: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="dlml_update">
+<a class="viewcode-back" href="../../../api_reference/_autosummary/pelicun.tools.dlml.html#pelicun.tools.dlml.dlml_update">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">dlml_update</span><span class="p">(</span>
+    <span class="n">version</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># noqa: UP007</span>
+    <span class="n">commit</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># noqa: UP007</span>
+    <span class="n">use_cache</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>  <span class="c1"># noqa: FBT001, FBT002</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Update DLML data files.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    version: str, optional</span>
+<span class="sd">        Version tag (e.g., &#39;v1.2.0&#39;) or &#39;latest&#39;. Default is &#39;latest&#39;.</span>
+<span class="sd">    commit: str, optional</span>
+<span class="sd">        Commit SHA to download from. If provided, version is ignored.</span>
+<span class="sd">    use_cache: bool, optional</span>
+<span class="sd">        Whether to use caching to avoid re-downloading unchanged files. Default is True.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    RuntimeError</span>
+<span class="sd">        If the data download fails.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">commit</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># Handle commit-based download</span>
+            <span class="n">download_data_files</span><span class="p">(</span><span class="n">commit</span><span class="o">=</span><span class="n">commit</span><span class="p">,</span> <span class="n">use_cache</span><span class="o">=</span><span class="n">use_cache</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Handle version-based download</span>
+            <span class="n">version_arg</span> <span class="o">=</span> <span class="n">version</span> <span class="k">if</span> <span class="n">version</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s1">&#39;latest&#39;</span>
+            <span class="n">download_data_files</span><span class="p">(</span><span class="n">version</span><span class="o">=</span><span class="n">version_arg</span><span class="p">,</span> <span class="n">use_cache</span><span class="o">=</span><span class="n">use_cache</span><span class="p">)</span>
+    <span class="k">except</span> <span class="p">(</span><span class="ne">RuntimeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">)</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;Data download failed: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s1">&#39;</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Leland Stanford Junior University and The Regents of the University of California.</p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+    <!-- Theme Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-158130480-7"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'UA-158130480-7', {
+          'anonymize_ip': false,
+      });
+    </script> 
+
+</body>
+</html>

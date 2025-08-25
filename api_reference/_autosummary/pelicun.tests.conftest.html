@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pelicun.tests &mdash; pelicun  documentation</title>
+  <title>pelicun.tests.conftest &mdash; pelicun  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
@@ -24,8 +24,8 @@
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="pelicun.tests.basic" href="pelicun.tests.basic.html" />
-    <link rel="prev" title="pelicun.pelicun_warnings" href="pelicun.pelicun_warnings.html" /> 
+    <link rel="next" title="pelicun.tests.dl_calculation" href="pelicun.tests.dl_calculation.html" />
+    <link rel="prev" title="pelicun.tests.code_repetition_checker" href="pelicun.tests.code_repetition_checker.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -145,7 +145,8 @@
       <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../index.html"><span class="section-number">8. </span>API Reference</a></li>
           <li class="breadcrumb-item"><a href="pelicun.html"><span class="section-number">8.1. </span>pelicun</a></li>
-      <li class="breadcrumb-item active">pelicun.tests</li>
+          <li class="breadcrumb-item"><a href="pelicun.tests.html">pelicun.tests</a></li>
+      <li class="breadcrumb-item active">pelicun.tests.conftest</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -154,35 +155,25 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="module-pelicun.tests">
-<span id="pelicun-tests"></span><h1>pelicun.tests<a class="headerlink" href="#module-pelicun.tests" title="Link to this heading"></a></h1>
-<p>Pelicun Unit Tests.</p>
-<p class="rubric">Modules</p>
+  <section id="module-pelicun.tests.conftest">
+<span id="pelicun-tests-conftest"></span><h1>pelicun.tests.conftest<a class="headerlink" href="#module-pelicun.tests.conftest" title="Link to this heading"></a></h1>
+<p class="rubric">Functions</p>
 <table class="autosummary longtable docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="pelicun.tests.basic.html#module-pelicun.tests.basic" title="pelicun.tests.basic"><code class="xref py py-obj docutils literal notranslate"><span class="pre">basic</span></code></a></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="pelicun.tests.code_repetition_checker.html#module-pelicun.tests.code_repetition_checker" title="pelicun.tests.code_repetition_checker"><code class="xref py py-obj docutils literal notranslate"><span class="pre">code_repetition_checker</span></code></a></p></td>
-<td><p>A utility script for detecting duplicated blocks of lines across Python test files.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="pelicun.tests.conftest.html#module-pelicun.tests.conftest" title="pelicun.tests.conftest"><code class="xref py py-obj docutils literal notranslate"><span class="pre">conftest</span></code></a></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="pelicun.tests.dl_calculation.html#module-pelicun.tests.dl_calculation" title="pelicun.tests.dl_calculation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dl_calculation</span></code></a></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="pelicun.tests.maintenance.html#module-pelicun.tests.maintenance" title="pelicun.tests.maintenance"><code class="xref py py-obj docutils literal notranslate"><span class="pre">maintenance</span></code></a></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="pelicun.tests.util.html#module-pelicun.tests.util" title="pelicun.tests.util"><code class="xref py py-obj docutils literal notranslate"><span class="pre">util</span></code></a></p></td>
-<td><p>These are utility functions for the unit and integration tests.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="pelicun.tests.validation.html#module-pelicun.tests.validation" title="pelicun.tests.validation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">validation</span></code></a></p></td>
-<td><p></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pelicun.tests.conftest.mock_dlml_data_check" title="pelicun.tests.conftest.mock_dlml_data_check"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mock_dlml_data_check</span></code></a>(request)</p></td>
+<td><p>Mocks the DLML data check for the entire test session, UNLESS the test is in the specific exclusion list.</p></td>
 </tr>
 </tbody>
 </table>
+<dl class="py function">
+<dt class="sig sig-object py" id="pelicun.tests.conftest.mock_dlml_data_check">
+<span class="sig-prename descclassname"><span class="pre">pelicun.tests.conftest.</span></span><span class="sig-name descname"><span class="pre">mock_dlml_data_check</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">FixtureRequest</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Generator" title="(in Python v3.13)"><span class="pre">Generator</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/pelicun/tests/conftest.html#mock_dlml_data_check"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.tests.conftest.mock_dlml_data_check" title="Link to this definition"></a></dt>
+<dd><p>Mocks the DLML data check for the entire test session, UNLESS
+the test is in the specific exclusion list.</p>
+<p>This provides a high-performance, fail-safe “no network” policy
+while allowing specific integration tests to run their own logic.</p>
+</dd></dl>
+
 </section>
 
 

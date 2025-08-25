@@ -1,7 +1,7 @@
-pelicun.cli
-===========
+pelicun.tests.conftest
+======================
 
-.. automodule:: pelicun.cli
+.. automodule:: pelicun.tests.conftest
    :members:
 
    
@@ -14,8 +14,7 @@ pelicun.cli
 
    .. autosummary::
    
-      main
-      setup_dlml_logging
+      mock_dlml_data_check
    
    
 

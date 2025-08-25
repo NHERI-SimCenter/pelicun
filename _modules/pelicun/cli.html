@@ -193,8 +193,51 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">argparse</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">pelicun.tools.dlml</span><span class="w"> </span><span class="kn">import</span> <span class="n">dlml_update</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pelicun.tools.regional_sim</span><span class="w"> </span><span class="kn">import</span> <span class="n">regional_sim</span>
+
+
+<div class="viewcode-block" id="setup_dlml_logging">
+<a class="viewcode-back" href="../../api_reference/_autosummary/pelicun.cli.html#pelicun.cli.setup_dlml_logging">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">setup_dlml_logging</span><span class="p">(</span><span class="n">log_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># noqa: FBT001</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Configure logging for DLML operations.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    log_file : str, optional</span>
+<span class="sd">        Path to log file. If True, creates timestamped file. If None, no file logging.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;pelicun.dlml&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Only add handlers if none exist (avoid duplicates)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">logger</span><span class="o">.</span><span class="n">handlers</span><span class="p">:</span>
+        <span class="c1"># Always add stdout handler for CLI operations</span>
+        <span class="n">stdout_handler</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">StreamHandler</span><span class="p">()</span>
+        <span class="n">stdout_formatter</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">Formatter</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%(message)s</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">stdout_handler</span><span class="o">.</span><span class="n">setFormatter</span><span class="p">(</span><span class="n">stdout_formatter</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">stdout_handler</span><span class="p">)</span>
+
+        <span class="c1"># Add file handler if requested</span>
+        <span class="k">if</span> <span class="n">log_file</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">log_file</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>  <span class="c1"># --log without filename</span>
+                <span class="n">timestamp</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="s1">_%H-%M-%S&#39;</span><span class="p">)</span>  <span class="c1"># noqa: DTZ005</span>
+                <span class="n">log_file</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;dlml_update_</span><span class="si">{</span><span class="n">timestamp</span><span class="si">}</span><span class="s1">.log&#39;</span>
+
+            <span class="n">file_handler</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">FileHandler</span><span class="p">(</span><span class="n">log_file</span><span class="p">)</span>
+            <span class="n">file_formatter</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">Formatter</span><span class="p">(</span>
+                <span class="s1">&#39;</span><span class="si">%(asctime)s</span><span class="s1"> - </span><span class="si">%(name)s</span><span class="s1"> - </span><span class="si">%(levelname)s</span><span class="s1"> - </span><span class="si">%(message)s</span><span class="s1">&#39;</span>
+            <span class="p">)</span>
+            <span class="n">file_handler</span><span class="o">.</span><span class="n">setFormatter</span><span class="p">(</span><span class="n">file_formatter</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">file_handler</span><span class="p">)</span>
+
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Logging to file: </span><span class="si">{</span><span class="n">log_file</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>  <span class="c1"># noqa: T201</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span></div>
+
 
 
 <div class="viewcode-block" id="main">
@@ -206,9 +249,35 @@
 <span class="sd">    This function dispatches subcommands.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Define comprehensive usage examples</span>
+    <span class="n">examples</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">Examples:</span>
+<span class="s2">  Regional Simulation:</span>
+<span class="s2">    pelicun regional_sim                          # Use default config file (inputRWHALE.json)</span>
+<span class="s2">    pelicun regional_sim my_config.json           # Use custom config file</span>
+<span class="s2">    pelicun regional_sim -n 4                     # Use 4 CPU cores with default config</span>
+<span class="s2">    pelicun regional_sim my_config.json -n 8      # Use custom config with 8 CPU cores</span>
+
+<span class="s2">  DLML Data Management:</span>
+<span class="s2">    pelicun dlml update                           # Update to latest DLML version</span>
+<span class="s2">    pelicun dlml update latest                    # Same as above (explicit)</span>
+<span class="s2">    pelicun dlml update v1.2.0                   # Update to specific version</span>
+<span class="s2">    pelicun dlml update &quot;commit abc1234&quot;          # Update to specific commit SHA</span>
+<span class="s2">    pelicun dlml update --no-cache latest         # Force re-download without caching</span>
+<span class="s2">    pelicun dlml update --no-cache v1.2.0         # Update to version without caching</span>
+<span class="s2">    pelicun dlml update --no-cache &quot;commit def567&quot; # Update to commit without caching</span>
+
+<span class="s2">  Getting Help:</span>
+<span class="s2">    pelicun --help                                # Show this help message</span>
+<span class="s2">    pelicun regional_sim --help                   # Show regional_sim specific help</span>
+<span class="s2">    pelicun dlml --help                           # Show dlml specific help</span>
+<span class="s2">&quot;&quot;&quot;</span>
+
     <span class="c1"># Main parser</span>
     <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span>
-        <span class="n">description</span><span class="o">=</span><span class="s1">&#39;Main command-line interface for Pelicun.&#39;</span>
+        <span class="n">description</span><span class="o">=</span><span class="s1">&#39;Main command-line interface for Pelicun.&#39;</span><span class="p">,</span>
+        <span class="n">epilog</span><span class="o">=</span><span class="n">examples</span><span class="p">,</span>
+        <span class="n">formatter_class</span><span class="o">=</span><span class="n">argparse</span><span class="o">.</span><span class="n">RawDescriptionHelpFormatter</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">subparsers</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">add_subparsers</span><span class="p">(</span>
         <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;subcommand&#39;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Available subcommands&#39;</span>
@@ -238,12 +307,57 @@
     <span class="c1"># Associate the regional_sim function with this subparser</span>
     <span class="n">parser_regional</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">func</span><span class="o">=</span><span class="n">regional_sim</span><span class="p">)</span>
 
+    <span class="c1"># Create the parser for the &quot;dlml&quot; subcommand</span>
+    <span class="n">parser_dlml</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span>
+        <span class="s1">&#39;dlml&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Update DLML (Damage and Loss Model Library) data files.&#39;</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Add the arguments specific to dlml</span>
+    <span class="n">parser_dlml</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s1">&#39;action&#39;</span><span class="p">,</span>
+        <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;update&#39;</span><span class="p">],</span>
+        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Action to perform. Currently only &quot;update&quot; is supported.&#39;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser_dlml</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s1">&#39;target&#39;</span><span class="p">,</span>
+        <span class="n">nargs</span><span class="o">=</span><span class="s1">&#39;?&#39;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="s1">&#39;latest&#39;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Version tag (e.g., v1.2.0) or &quot;latest&quot; for the latest release. &#39;</span>
+        <span class="s1">&#39;Use &quot;commit &lt;sha&gt;&quot; to specify a commit SHA.&#39;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser_dlml</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s1">&#39;--no-cache&#39;</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store_true&#39;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Disable caching to force re-download of all files.&#39;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser_dlml</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s1">&#39;--log&#39;</span><span class="p">,</span>
+        <span class="n">nargs</span><span class="o">=</span><span class="s1">&#39;?&#39;</span><span class="p">,</span>
+        <span class="n">const</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">metavar</span><span class="o">=</span><span class="s1">&#39;LOGFILE&#39;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Save detailed log to specified file. If no filename provided, &#39;</span>
+        <span class="s1">&#39;creates dlml_update_TIMESTAMP.log in current directory.&#39;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="c1"># Associate the dlml_update function with this subparser</span>
+    <span class="n">parser_dlml</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">func</span><span class="o">=</span><span class="n">dlml_update</span><span class="p">)</span>
+
     <span class="c1"># Parse the arguments from the command line</span>
     <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
 
     <span class="c1"># Call the function associated with the chosen subcommand</span>
     <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">subcommand</span> <span class="o">==</span> <span class="s1">&#39;regional_sim&#39;</span><span class="p">:</span>
-        <span class="n">args</span><span class="o">.</span><span class="n">func</span><span class="p">(</span><span class="n">config_file</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">config_file</span><span class="p">,</span> <span class="n">num_cores</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">num_cores</span><span class="p">)</span></div>
+        <span class="n">args</span><span class="o">.</span><span class="n">func</span><span class="p">(</span><span class="n">config_file</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">config_file</span><span class="p">,</span> <span class="n">num_cores</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">num_cores</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">subcommand</span> <span class="o">==</span> <span class="s1">&#39;dlml&#39;</span><span class="p">:</span>
+        <span class="c1"># Setup logging for DLML operations</span>
+        <span class="n">setup_dlml_logging</span><span class="p">(</span><span class="n">log_file</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">log</span><span class="p">)</span>
+
+        <span class="c1"># Handle dlml arguments</span>
+        <span class="n">use_cache</span> <span class="o">=</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">no_cache</span>
+        <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;commit &#39;</span><span class="p">):</span>
+            <span class="n">commit_sha</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">args</span><span class="o">.</span><span class="n">func</span><span class="p">(</span><span class="n">commit</span><span class="o">=</span><span class="n">commit_sha</span><span class="p">,</span> <span class="n">use_cache</span><span class="o">=</span><span class="n">use_cache</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">args</span><span class="o">.</span><span class="n">func</span><span class="p">(</span><span class="n">version</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">target</span><span class="p">,</span> <span class="n">use_cache</span><span class="o">=</span><span class="n">use_cache</span><span class="p">)</span></div>
 
 </pre></div>
 

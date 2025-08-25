@@ -1,0 +1,35 @@
+pelicun.tests.basic.test\_cli\_logging
+======================================
+
+.. automodule:: pelicun.tests.basic.test_cli_logging
+   :members:
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      test_cli_integration_with_logging
+      test_setup_dlml_logging_file_creation
+      test_setup_dlml_logging_no_duplicate_handlers
+      test_setup_dlml_logging_stdout_only
+      test_setup_dlml_logging_with_file
+      test_setup_dlml_logging_with_timestamp_file
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

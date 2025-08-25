@@ -155,6 +155,47 @@
              
   <section id="unreleased">
 <span id="changes-unreleased"></span><h1>Unreleased<a class="headerlink" href="#unreleased" title="Link to this heading"></a></h1>
+<section id="added">
+<h2>Added<a class="headerlink" href="#added" title="Link to this heading"></a></h2>
+<p><strong>DLML (Damage and Loss Model Library) Module</strong>: A new comprehensive module for efficient management of the Damage and Loss Model Library has been added to Pelicun:</p>
+<ul class="simple">
+<li><p><strong>Automatic Data Initialization</strong>: DLML data is now automatically initialized on import, providing seamless access to model libraries</p></li>
+<li><p><strong>CLI Integration</strong>: The DLML module is integrated with Pelicun’s command-line interface for easy management</p></li>
+<li><p><strong>Comprehensive Testing</strong>: Added extensive unit tests and integration tests for the DLML functionality</p></li>
+</ul>
+<p><strong>Enhanced Test Infrastructure</strong>: Significant improvements to the testing framework:</p>
+<ul class="simple">
+<li><p><strong>Network Isolation</strong>: Added network isolation capabilities for more reliable testing</p></li>
+<li><p><strong>Improved Test Configuration</strong>: Enhanced test configuration management with better fixtures and utilities</p></li>
+</ul>
+</section>
+<section id="changed">
+<h2>Changed<a class="headerlink" href="#changed" title="Link to this heading"></a></h2>
+<p><strong>CI/CD Pipeline Modernization</strong>: Major update to the continuous integration and deployment system:</p>
+<ul class="simple">
+<li><p><strong>Unified CI Workflow</strong>: Consolidated multiple separate workflow files into a single comprehensive CI pipeline</p></li>
+<li><p><strong>GitHub API Integration</strong>: Implemented robust GitHub API authentication for better repository management</p></li>
+</ul>
+<p><strong>Dependencies</strong>: Added <cite>requests</cite> as a project dependency to support new DLML functionality.</p>
+</section>
+<section id="removed">
+<h2>Removed<a class="headerlink" href="#removed" title="Link to this heading"></a></h2>
+<p><strong>DLML Submodule</strong>: Removed the DLML Git submodule in favor of the new integrated DLML module approach.</p>
+<p><strong>Legacy CI Workflows</strong>: Removed several workflow files that were consolidated into the new unified CI pipeline:</p>
+<ul class="simple">
+<li><p><cite>deploy_to_pypi.yaml</cite></p></li>
+<li><p><cite>docs_check.yaml</cite></p></li>
+<li><p><cite>format_check.yml</cite></p></li>
+<li><p><cite>lint.yml</cite></p></li>
+<li><p><cite>spell_check.yml</cite></p></li>
+<li><p><cite>tests.yml</cite></p></li>
+</ul>
+</section>
+<section id="fixed">
+<h2>Fixed<a class="headerlink" href="#fixed" title="Link to this heading"></a></h2>
+<p><strong>Code Quality and Security</strong>: Applied comprehensive fixes for code quality and security improvements throughout the codebase.</p>
+<p><strong>CI Workflow Issues</strong>: Resolved various issues in the CI workflow configuration for more reliable builds and testing.</p>
+</section>
 </section>
 
 
