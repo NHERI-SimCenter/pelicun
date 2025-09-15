@@ -193,6 +193,7 @@
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
+<span class="kn">import</span><span class="w"> </span><span class="nn">subprocess</span>  <span class="c1"># noqa: S404</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
@@ -497,21 +498,20 @@
 <div class="viewcode-block" id="test_logging_configuration">
 <a class="viewcode-back" href="../../../../api_reference/_autosummary/pelicun.tests.basic.test_dlml_integration.html#pelicun.tests.basic.test_dlml_integration.test_logging_configuration">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">test_logging_configuration</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Test that module-level logger is properly configured.&quot;&quot;&quot;</span>
-    <span class="c1"># Verify logger exists and is configured</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Test that the module-level logger is configured and used.&quot;&quot;&quot;</span>
+    <span class="c1"># Verify logger exists and is configured correctly.</span>
     <span class="k">assert</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">dlml</span><span class="p">,</span> <span class="s1">&#39;logger&#39;</span><span class="p">)</span>
     <span class="k">assert</span> <span class="n">dlml</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s1">&#39;pelicun.dlml&#39;</span>
 
-    <span class="c1"># Test that logger is used in functions</span>
-    <span class="k">with</span> <span class="n">patch</span><span class="o">.</span><span class="n">object</span><span class="p">(</span><span class="n">dlml</span><span class="o">.</span><span class="n">logger</span><span class="p">,</span> <span class="s1">&#39;info&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">mock_info</span><span class="p">,</span> <span class="n">patch</span><span class="p">(</span>
-        <span class="s1">&#39;pathlib.Path.exists&#39;</span><span class="p">,</span> <span class="n">return_value</span><span class="o">=</span><span class="kc">False</span>
-    <span class="p">),</span> <span class="n">patch</span><span class="p">(</span><span class="s1">&#39;pelicun.tools.dlml.download_data_files&#39;</span><span class="p">),</span> <span class="n">patch</span><span class="p">(</span>
-        <span class="s1">&#39;pelicun.tools.dlml.DLML_DATA_DIR&#39;</span><span class="p">,</span> <span class="n">new</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="s1">&#39;/some/mock/dir&#39;</span><span class="p">)</span>
-    <span class="p">):</span>
-        <span class="n">dlml</span><span class="o">.</span><span class="n">check_dlml_data</span><span class="p">()</span>
+    <span class="c1"># Test that a function uses the logger by triggering a loggable event.</span>
+    <span class="c1"># Here, we trigger a warning in _get_changed_files by mocking a network error.</span>
+    <span class="k">with</span> <span class="n">patch</span><span class="p">(</span>
+        <span class="s1">&#39;requests.get&#39;</span><span class="p">,</span> <span class="n">side_effect</span><span class="o">=</span><span class="n">requests</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">RequestException</span>
+    <span class="p">),</span> <span class="n">patch</span><span class="o">.</span><span class="n">object</span><span class="p">(</span><span class="n">dlml</span><span class="o">.</span><span class="n">logger</span><span class="p">,</span> <span class="s1">&#39;warning&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">mock_warning</span><span class="p">:</span>
+        <span class="n">dlml</span><span class="o">.</span><span class="n">_get_changed_files</span><span class="p">(</span><span class="s1">&#39;base&#39;</span><span class="p">,</span> <span class="s1">&#39;head&#39;</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="p">{})</span>
 
-        <span class="c1"># Should use the module logger</span>
-        <span class="k">assert</span> <span class="n">mock_info</span><span class="o">.</span><span class="n">call_count</span> <span class="o">&gt;=</span> <span class="mi">1</span></div>
+        <span class="c1"># Assert that the logger&#39;s warning method was called as expected.</span>
+        <span class="n">mock_warning</span><span class="o">.</span><span class="n">assert_called</span><span class="p">()</span></div>
 
 
 
@@ -548,6 +548,45 @@
         <span class="c1"># Should have appropriate stacklevel</span>
         <span class="k">assert</span> <span class="s1">&#39;stacklevel&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span>
         <span class="k">assert</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;stacklevel&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">2</span></div>
+
+
+
+<span class="c1"># --- Command-Line Interface Integration Tests ---</span>
+
+
+<div class="viewcode-block" id="test_cli_integration_invalid_action">
+<a class="viewcode-back" href="../../../../api_reference/_autosummary/pelicun.tests.basic.test_dlml_integration.html#pelicun.tests.basic.test_dlml_integration.test_cli_integration_invalid_action">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_cli_integration_invalid_action</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Integration test: CLI with invalid action (not &#39;update&#39;).&quot;&quot;&quot;</span>
+    <span class="c1"># Run the CLI with invalid action</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>  <span class="c1"># noqa: S603</span>
+        <span class="p">[</span><span class="s1">&#39;pelicun&#39;</span><span class="p">,</span> <span class="s1">&#39;dlml&#39;</span><span class="p">,</span> <span class="s1">&#39;invalid&#39;</span><span class="p">],</span>  <span class="c1"># noqa: S607</span>
+        <span class="n">capture_output</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">text</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">check</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Verify exit code and output</span>
+    <span class="k">assert</span> <span class="n">result</span><span class="o">.</span><span class="n">returncode</span> <span class="o">==</span> <span class="mi">2</span>  <span class="c1"># argparse returns 2 for invalid choice</span>
+    <span class="k">assert</span> <span class="s2">&quot;invalid choice: &#39;invalid&#39;&quot;</span> <span class="ow">in</span> <span class="n">result</span><span class="o">.</span><span class="n">stderr</span></div>
+
+
+
+<div class="viewcode-block" id="test_cli_integration_missing_arguments">
+<a class="viewcode-back" href="../../../../api_reference/_autosummary/pelicun.tests.basic.test_dlml_integration.html#pelicun.tests.basic.test_dlml_integration.test_cli_integration_missing_arguments">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_cli_integration_missing_arguments</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Integration test: CLI with insufficient arguments.&quot;&quot;&quot;</span>
+    <span class="c1"># Run the CLI with no arguments for dlml</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>  <span class="c1"># noqa: S603</span>
+        <span class="p">[</span><span class="s1">&#39;pelicun&#39;</span><span class="p">,</span> <span class="s1">&#39;dlml&#39;</span><span class="p">],</span>  <span class="c1"># noqa: S607</span>
+        <span class="n">capture_output</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">text</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">check</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Verify exit code and output</span>
+    <span class="k">assert</span> <span class="n">result</span><span class="o">.</span><span class="n">returncode</span> <span class="o">==</span> <span class="mi">2</span>  <span class="c1"># argparse returns 2 for missing required argument</span>
+    <span class="k">assert</span> <span class="s1">&#39;required&#39;</span> <span class="ow">in</span> <span class="n">result</span><span class="o">.</span><span class="n">stderr</span></div>
 
 </pre></div>
 

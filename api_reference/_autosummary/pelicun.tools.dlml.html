@@ -164,28 +164,37 @@
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_download_file</span></code>(url, local_path)</p></td>
 <td><p>Download a file from a GitHub repository using a direct URL.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pelicun.tools.dlml.check_dlml_data" title="pelicun.tools.dlml.check_dlml_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">check_dlml_data</span></code></a>()</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_format_initial_download_error</span></code>(e)</p></td>
+<td><p>Format a detailed error message for a failed initial download.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_get_changed_files</span></code>(base_commit, head_commit, ...)</p></td>
+<td><p>Get a set of filenames that have changed between two commits.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_resolve_version_to_commit_sha</span></code>(headers[, ...])</p></td>
+<td><p>Resolve a version tag or commit SHA to a full commit SHA.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pelicun.tools.dlml.check_dlml_data" title="pelicun.tools.dlml.check_dlml_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">check_dlml_data</span></code></a>()</p></td>
 <td><p>Ensure DLML data is available for pelicun, downloading if necessary.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pelicun.tools.dlml.check_dlml_version" title="pelicun.tools.dlml.check_dlml_version"><code class="xref py py-obj docutils literal notranslate"><span class="pre">check_dlml_version</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pelicun.tools.dlml.check_dlml_version" title="pelicun.tools.dlml.check_dlml_version"><code class="xref py py-obj docutils literal notranslate"><span class="pre">check_dlml_version</span></code></a>()</p></td>
 <td><p>Check if there's a newer version of DLML data available.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pelicun.tools.dlml.dlml_update" title="pelicun.tools.dlml.dlml_update"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dlml_update</span></code></a>([version, commit, use_cache])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pelicun.tools.dlml.dlml_update" title="pelicun.tools.dlml.dlml_update"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dlml_update</span></code></a>([version, commit, use_cache])</p></td>
 <td><p>Update DLML data files.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pelicun.tools.dlml.download_data_files" title="pelicun.tools.dlml.download_data_files"><code class="xref py py-obj docutils literal notranslate"><span class="pre">download_data_files</span></code></a>([version, commit, use_cache])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pelicun.tools.dlml.download_data_files" title="pelicun.tools.dlml.download_data_files"><code class="xref py py-obj docutils literal notranslate"><span class="pre">download_data_files</span></code></a>([version, commit, use_cache])</p></td>
 <td><p>Download model files from DLML based on the model_files.txt.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pelicun.tools.dlml.get_file_hash" title="pelicun.tools.dlml.get_file_hash"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_file_hash</span></code></a>(file_path)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pelicun.tools.dlml.get_file_hash" title="pelicun.tools.dlml.get_file_hash"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_file_hash</span></code></a>(file_path)</p></td>
 <td><p>Calculate the SHA256 hash of a file.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pelicun.tools.dlml.load_cache" title="pelicun.tools.dlml.load_cache"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_cache</span></code></a>(cache_file)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pelicun.tools.dlml.load_cache" title="pelicun.tools.dlml.load_cache"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_cache</span></code></a>(cache_file)</p></td>
 <td><p>Load the cache from a file.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pelicun.tools.dlml.save_cache" title="pelicun.tools.dlml.save_cache"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_cache</span></code></a>(cache_file, cache_data)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pelicun.tools.dlml.save_cache" title="pelicun.tools.dlml.save_cache"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_cache</span></code></a>(cache_file, cache_data)</p></td>
 <td><p>Save the cache to a file.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pelicun.tools.dlml.validate_commit_sha" title="pelicun.tools.dlml.validate_commit_sha"><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate_commit_sha</span></code></a>(commit)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pelicun.tools.dlml.validate_commit_sha" title="pelicun.tools.dlml.validate_commit_sha"><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate_commit_sha</span></code></a>(commit)</p></td>
 <td><p>Validate that the commit SHA is in the correct format.</p></td>
 </tr>
 </tbody>
@@ -270,8 +279,6 @@ If provided, this takes precedence over the version parameter.</p>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
 <dd class="field-even"><dl class="simple">
-<dt>ValueError</dt><dd><p>If an invalid commit SHA format is provided</p>
-</dd>
 <dt>RuntimeError</dt><dd><p>If data download fails due to network issues, missing commits, or file errors</p>
 </dd>
 </dl>

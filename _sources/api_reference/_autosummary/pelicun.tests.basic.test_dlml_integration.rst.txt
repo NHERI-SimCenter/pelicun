@@ -15,6 +15,8 @@ pelicun.tests.basic.test\_dlml\_integration
    .. autosummary::
    
       test_cache_version_tracking_integration
+      test_cli_integration_invalid_action
+      test_cli_integration_missing_arguments
       test_end_to_end_workflow_with_mock
       test_import_integration_failure
       test_import_integration_success

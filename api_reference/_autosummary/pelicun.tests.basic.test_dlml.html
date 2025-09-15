@@ -165,14 +165,20 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#pelicun.tests.basic.test_dlml.mock_download_env" title="pelicun.tests.basic.test_dlml.mock_download_env"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mock_download_env</span></code></a>()</p></td>
 <td><p>Mocks the common environment for a data download test.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pelicun.tests.basic.test_dlml.test_check_dlml_data_download_failure" title="pelicun.tests.basic.test_dlml.test_check_dlml_data_download_failure"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_check_dlml_data_download_failure</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pelicun.tests.basic.test_dlml.test_check_dlml_data_cli_invocation_bypass" title="pelicun.tests.basic.test_dlml.test_check_dlml_data_cli_invocation_bypass"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_check_dlml_data_cli_invocation_bypass</span></code></a>()</p></td>
+<td><p>Test check_dlml_data returns immediately when invoked via CLI for dlml update.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pelicun.tests.basic.test_dlml.test_check_dlml_data_download_failure" title="pelicun.tests.basic.test_dlml.test_check_dlml_data_download_failure"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_check_dlml_data_download_failure</span></code></a>()</p></td>
 <td><p>Test check_dlml_data handles download failures appropriately.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pelicun.tests.basic.test_dlml.test_check_dlml_data_permission_error" title="pelicun.tests.basic.test_dlml.test_check_dlml_data_permission_error"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_check_dlml_data_permission_error</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pelicun.tests.basic.test_dlml.test_check_dlml_data_permission_error" title="pelicun.tests.basic.test_dlml.test_check_dlml_data_permission_error"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_check_dlml_data_permission_error</span></code></a>()</p></td>
 <td><p>Test check_dlml_data handles permission errors appropriately.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pelicun.tests.basic.test_dlml.test_check_dlml_data_version_check_failure" title="pelicun.tests.basic.test_dlml.test_check_dlml_data_version_check_failure"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_check_dlml_data_version_check_failure</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pelicun.tests.basic.test_dlml.test_check_dlml_data_version_check_failure" title="pelicun.tests.basic.test_dlml.test_check_dlml_data_version_check_failure"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_check_dlml_data_version_check_failure</span></code></a>()</p></td>
 <td><p>Test check_dlml_data handles version check failures gracefully.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pelicun.tests.basic.test_dlml.test_check_dlml_data_with_empty_directory" title="pelicun.tests.basic.test_dlml.test_check_dlml_data_with_empty_directory"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_check_dlml_data_with_empty_directory</span></code></a>()</p></td>
+<td><p>Test check_dlml_data with an empty temporary directory.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pelicun.tests.basic.test_dlml.test_check_dlml_data_with_existing_data_no_update" title="pelicun.tests.basic.test_dlml.test_check_dlml_data_with_existing_data_no_update"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_check_dlml_data_with_existing_data_no_update</span></code></a>()</p></td>
 <td><p>Test check_dlml_data with existing data and no update available.</p></td>
@@ -180,38 +186,32 @@
 <tr class="row-even"><td><p><a class="reference internal" href="#pelicun.tests.basic.test_dlml.test_check_dlml_data_with_existing_data_update_available" title="pelicun.tests.basic.test_dlml.test_check_dlml_data_with_existing_data_update_available"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_check_dlml_data_with_existing_data_update_available</span></code></a>()</p></td>
 <td><p>Test check_dlml_data with existing data and update available.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pelicun.tests.basic.test_dlml.test_check_dlml_data_with_missing_data" title="pelicun.tests.basic.test_dlml.test_check_dlml_data_with_missing_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_check_dlml_data_with_missing_data</span></code></a>()</p></td>
-<td><p>Test check_dlml_data downloads data when missing.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pelicun.tests.basic.test_dlml.test_check_dlml_version_corrupted_timestamp" title="pelicun.tests.basic.test_dlml.test_check_dlml_version_corrupted_timestamp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_check_dlml_version_corrupted_timestamp</span></code></a>()</p></td>
+<td><p>Test check_dlml_version handles corrupted timestamp in cache.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pelicun.tests.basic.test_dlml.test_check_dlml_version_semantic_version_comparison" title="pelicun.tests.basic.test_dlml.test_check_dlml_version_semantic_version_comparison"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_check_dlml_version_semantic_version_comparison</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pelicun.tests.basic.test_dlml.test_check_dlml_version_invalid_version_format" title="pelicun.tests.basic.test_dlml.test_check_dlml_version_invalid_version_format"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_check_dlml_version_invalid_version_format</span></code></a>()</p></td>
+<td><p>Test check_dlml_version handles invalid version format in API response.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pelicun.tests.basic.test_dlml.test_check_dlml_version_semantic_version_comparison" title="pelicun.tests.basic.test_dlml.test_check_dlml_version_semantic_version_comparison"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_check_dlml_version_semantic_version_comparison</span></code></a>()</p></td>
 <td><p>Test check_dlml_version correctly compares semantic versions.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pelicun.tests.basic.test_dlml.test_check_dlml_version_with_cached_result" title="pelicun.tests.basic.test_dlml.test_check_dlml_version_with_cached_result"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_check_dlml_version_with_cached_result</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pelicun.tests.basic.test_dlml.test_check_dlml_version_with_cached_result" title="pelicun.tests.basic.test_dlml.test_check_dlml_version_with_cached_result"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_check_dlml_version_with_cached_result</span></code></a>()</p></td>
 <td><p>Test check_dlml_version returns cached result when within 24 hours.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pelicun.tests.basic.test_dlml.test_check_dlml_version_with_commit_based_version" title="pelicun.tests.basic.test_dlml.test_check_dlml_version_with_commit_based_version"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_check_dlml_version_with_commit_based_version</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pelicun.tests.basic.test_dlml.test_check_dlml_version_with_commit_based_version" title="pelicun.tests.basic.test_dlml.test_check_dlml_version_with_commit_based_version"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_check_dlml_version_with_commit_based_version</span></code></a>()</p></td>
 <td><p>Test check_dlml_version handles commit-based versions.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pelicun.tests.basic.test_dlml.test_check_dlml_version_with_expired_cache" title="pelicun.tests.basic.test_dlml.test_check_dlml_version_with_expired_cache"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_check_dlml_version_with_expired_cache</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pelicun.tests.basic.test_dlml.test_check_dlml_version_with_expired_cache" title="pelicun.tests.basic.test_dlml.test_check_dlml_version_with_expired_cache"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_check_dlml_version_with_expired_cache</span></code></a>()</p></td>
 <td><p>Test check_dlml_version performs new check when cache is expired.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pelicun.tests.basic.test_dlml.test_check_dlml_version_with_network_error" title="pelicun.tests.basic.test_dlml.test_check_dlml_version_with_network_error"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_check_dlml_version_with_network_error</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pelicun.tests.basic.test_dlml.test_check_dlml_version_with_network_error" title="pelicun.tests.basic.test_dlml.test_check_dlml_version_with_network_error"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_check_dlml_version_with_network_error</span></code></a>()</p></td>
 <td><p>Test check_dlml_version handles network errors gracefully.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pelicun.tests.basic.test_dlml.test_cli_integration_invalid_action" title="pelicun.tests.basic.test_dlml.test_cli_integration_invalid_action"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_cli_integration_invalid_action</span></code></a>()</p></td>
-<td><p>Integration test: CLI with invalid action (not 'update').</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pelicun.tests.basic.test_dlml.test_download_data_files_corrupted_local_file_smart_update" title="pelicun.tests.basic.test_dlml.test_download_data_files_corrupted_local_file_smart_update"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_download_data_files_corrupted_local_file_smart_update</span></code></a>()</p></td>
+<td><p>Test download_data_files re-downloads corrupted local file during smart update.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pelicun.tests.basic.test_dlml.test_cli_integration_missing_arguments" title="pelicun.tests.basic.test_dlml.test_cli_integration_missing_arguments"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_cli_integration_missing_arguments</span></code></a>()</p></td>
-<td><p>Integration test: CLI with insufficient arguments.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pelicun.tests.basic.test_dlml.test_download_data_files_empty_repository" title="pelicun.tests.basic.test_dlml.test_download_data_files_empty_repository"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_download_data_files_empty_repository</span></code></a>()</p></td>
-<td><p>Test handling when GitHub API returns empty commits list.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pelicun.tests.basic.test_dlml.test_download_data_files_invalid_commit" title="pelicun.tests.basic.test_dlml.test_download_data_files_invalid_commit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_download_data_files_invalid_commit</span></code></a>()</p></td>
-<td><p>Test handling of invalid versions or commits.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pelicun.tests.basic.test_dlml.test_download_data_files_missing_commit_sha_in_release" title="pelicun.tests.basic.test_dlml.test_download_data_files_missing_commit_sha_in_release"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_download_data_files_missing_commit_sha_in_release</span></code></a>()</p></td>
-<td><p>Test handling when release data doesn't contain target_commitish.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pelicun.tests.basic.test_dlml.test_download_data_files_empty_model_files" title="pelicun.tests.basic.test_dlml.test_download_data_files_empty_model_files"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_download_data_files_empty_model_files</span></code></a>()</p></td>
+<td><p>Test download_data_files handles empty model_files.txt gracefully.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#pelicun.tests.basic.test_dlml.test_download_data_files_model_file_not_found" title="pelicun.tests.basic.test_dlml.test_download_data_files_model_file_not_found"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_download_data_files_model_file_not_found</span></code></a>()</p></td>
 <td><p>Test handling when model_files.txt doesn't exist after download.</p></td>
@@ -219,32 +219,26 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#pelicun.tests.basic.test_dlml.test_download_data_files_model_file_read_error" title="pelicun.tests.basic.test_dlml.test_download_data_files_model_file_read_error"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_download_data_files_model_file_read_error</span></code></a>()</p></td>
 <td><p>Test handling of general file reading exceptions.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pelicun.tests.basic.test_dlml.test_download_data_files_network_error" title="pelicun.tests.basic.test_dlml.test_download_data_files_network_error"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_download_data_files_network_error</span></code></a>()</p></td>
-<td><p>Test handling of network errors during API calls.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pelicun.tests.basic.test_dlml.test_download_data_files_with_cache" title="pelicun.tests.basic.test_dlml.test_download_data_files_with_cache"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_download_data_files_with_cache</span></code></a>(...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pelicun.tests.basic.test_dlml.test_download_data_files_with_cache" title="pelicun.tests.basic.test_dlml.test_download_data_files_with_cache"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_download_data_files_with_cache</span></code></a>(...)</p></td>
 <td><p>Test downloading with caching enabled.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pelicun.tests.basic.test_dlml.test_download_data_files_with_commit" title="pelicun.tests.basic.test_dlml.test_download_data_files_with_commit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_download_data_files_with_commit</span></code></a>(...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pelicun.tests.basic.test_dlml.test_download_data_files_with_commit" title="pelicun.tests.basic.test_dlml.test_download_data_files_with_commit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_download_data_files_with_commit</span></code></a>(...)</p></td>
 <td><p>Test downloading with a specific commit.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pelicun.tests.basic.test_dlml.test_download_data_files_with_latest_commit" title="pelicun.tests.basic.test_dlml.test_download_data_files_with_latest_commit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_download_data_files_with_latest_commit</span></code></a>(...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pelicun.tests.basic.test_dlml.test_download_data_files_with_latest_commit" title="pelicun.tests.basic.test_dlml.test_download_data_files_with_latest_commit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_download_data_files_with_latest_commit</span></code></a>(...)</p></td>
 <td><p>Test downloading with the 'latest' commit.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pelicun.tests.basic.test_dlml.test_download_data_files_with_version" title="pelicun.tests.basic.test_dlml.test_download_data_files_with_version"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_download_data_files_with_version</span></code></a>(...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pelicun.tests.basic.test_dlml.test_download_data_files_with_version" title="pelicun.tests.basic.test_dlml.test_download_data_files_with_version"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_download_data_files_with_version</span></code></a>(...)</p></td>
 <td><p>Test downloading with a specific version.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pelicun.tests.basic.test_dlml.test_download_file_request_exception" title="pelicun.tests.basic.test_dlml.test_download_file_request_exception"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_download_file_request_exception</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pelicun.tests.basic.test_dlml.test_download_file_request_exception" title="pelicun.tests.basic.test_dlml.test_download_file_request_exception"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_download_file_request_exception</span></code></a>()</p></td>
 <td><p>Test handling of download failures.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pelicun.tests.basic.test_dlml.test_download_file_success" title="pelicun.tests.basic.test_dlml.test_download_file_success"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_download_file_success</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pelicun.tests.basic.test_dlml.test_download_file_success" title="pelicun.tests.basic.test_dlml.test_download_file_success"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_download_file_success</span></code></a>()</p></td>
 <td><p>Test downloading a file from a valid URL.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pelicun.tests.basic.test_dlml.test_enhanced_cache_with_commit_metadata" title="pelicun.tests.basic.test_dlml.test_enhanced_cache_with_commit_metadata"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_enhanced_cache_with_commit_metadata</span></code></a>(...)</p></td>
-<td><p>Test that download_data_files stores commit metadata in cache.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pelicun.tests.basic.test_dlml.test_enhanced_cache_with_version_metadata" title="pelicun.tests.basic.test_dlml.test_enhanced_cache_with_version_metadata"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_enhanced_cache_with_version_metadata</span></code></a>(...)</p></td>
-<td><p>Test that download_data_files stores version metadata in cache.</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pelicun.tests.basic.test_dlml.test_format_initial_download_error" title="pelicun.tests.basic.test_dlml.test_format_initial_download_error"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_format_initial_download_error</span></code></a>(...)</p></td>
+<td><p>Test _format_initial_download_error with various exception types.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pelicun.tests.basic.test_dlml.test_get_file_hash_different_content" title="pelicun.tests.basic.test_dlml.test_get_file_hash_different_content"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_get_file_hash_different_content</span></code></a>()</p></td>
 <td><p>Test hash calculation for files with different content.</p></td>
@@ -297,21 +291,122 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#pelicun.tests.basic.test_dlml.test_save_cache" title="pelicun.tests.basic.test_dlml.test_save_cache"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_save_cache</span></code></a>()</p></td>
 <td><p>Test saving cache data to a file.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pelicun.tests.basic.test_dlml.test_validate_commit_sha_invalid" title="pelicun.tests.basic.test_dlml.test_validate_commit_sha_invalid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_validate_commit_sha_invalid</span></code></a>()</p></td>
-<td><p>Test validation of invalid commit SHA.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pelicun.tests.basic.test_dlml.test_validate_commit_sha_latest" title="pelicun.tests.basic.test_dlml.test_validate_commit_sha_latest"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_validate_commit_sha_latest</span></code></a>()</p></td>
-<td><p>Test validation of the special 'latest' value.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pelicun.tests.basic.test_dlml.test_validate_commit_sha_valid" title="pelicun.tests.basic.test_dlml.test_validate_commit_sha_valid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_validate_commit_sha_valid</span></code></a>()</p></td>
-<td><p>Test validation of valid 7-character commit SHA.</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pelicun.tests.basic.test_dlml.test_validate_commit_sha" title="pelicun.tests.basic.test_dlml.test_validate_commit_sha"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_validate_commit_sha</span></code></a>(commit_sha, expected)</p></td>
+<td><p>Test validation of commit SHA with various inputs.</p></td>
 </tr>
 </tbody>
 </table>
+<p class="rubric">Classes</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pelicun.tests.basic.test_dlml.TestGetChangedFiles" title="pelicun.tests.basic.test_dlml.TestGetChangedFiles"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TestGetChangedFiles</span></code></a>()</p></td>
+<td><p>A dedicated test class for the _get_changed_files function.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pelicun.tests.basic.test_dlml.TestResolveVersionToCommitSHA" title="pelicun.tests.basic.test_dlml.TestResolveVersionToCommitSHA"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TestResolveVersionToCommitSHA</span></code></a>()</p></td>
+<td><p>Test class for the _resolve_version_to_commit_sha helper function.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py class">
+<dt class="sig sig-object py" id="pelicun.tests.basic.test_dlml.TestGetChangedFiles">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pelicun.tests.basic.test_dlml.</span></span><span class="sig-name descname"><span class="pre">TestGetChangedFiles</span></span><a class="reference internal" href="../../_modules/pelicun/tests/basic/test_dlml.html#TestGetChangedFiles"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.tests.basic.test_dlml.TestGetChangedFiles" title="Link to this definition"></a></dt>
+<dd><p>A dedicated test class for the _get_changed_files function.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pelicun.tests.basic.test_dlml.TestGetChangedFiles.test_get_changed_files_api_failure">
+<span class="sig-name descname"><span class="pre">test_get_changed_files_api_failure</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../_modules/pelicun/tests/basic/test_dlml.html#TestGetChangedFiles.test_get_changed_files_api_failure"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.tests.basic.test_dlml.TestGetChangedFiles.test_get_changed_files_api_failure" title="Link to this definition"></a></dt>
+<dd><p>Test the function’s behavior when the GitHub API call fails.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pelicun.tests.basic.test_dlml.TestGetChangedFiles.test_get_changed_files_downgrade">
+<span class="sig-name descname"><span class="pre">test_get_changed_files_downgrade</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../_modules/pelicun/tests/basic/test_dlml.html#TestGetChangedFiles.test_get_changed_files_downgrade"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.tests.basic.test_dlml.TestGetChangedFiles.test_get_changed_files_downgrade" title="Link to this definition"></a></dt>
+<dd><p>Test the downgrade path where commits are behind, triggering a second API call.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pelicun.tests.basic.test_dlml.TestGetChangedFiles.test_get_changed_files_upgrade">
+<span class="sig-name descname"><span class="pre">test_get_changed_files_upgrade</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../_modules/pelicun/tests/basic/test_dlml.html#TestGetChangedFiles.test_get_changed_files_upgrade"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.tests.basic.test_dlml.TestGetChangedFiles.test_get_changed_files_upgrade" title="Link to this definition"></a></dt>
+<dd><p>Test the standard upgrade path where commits are ahead.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pelicun.tests.basic.test_dlml.TestResolveVersionToCommitSHA">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pelicun.tests.basic.test_dlml.</span></span><span class="sig-name descname"><span class="pre">TestResolveVersionToCommitSHA</span></span><a class="reference internal" href="../../_modules/pelicun/tests/basic/test_dlml.html#TestResolveVersionToCommitSHA"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.tests.basic.test_dlml.TestResolveVersionToCommitSHA" title="Link to this definition"></a></dt>
+<dd><p>Test class for the _resolve_version_to_commit_sha helper function.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pelicun.tests.basic.test_dlml.TestResolveVersionToCommitSHA.test_api_call_failure_raises_runtime_error">
+<span class="sig-name descname"><span class="pre">test_api_call_failure_raises_runtime_error</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../_modules/pelicun/tests/basic/test_dlml.html#TestResolveVersionToCommitSHA.test_api_call_failure_raises_runtime_error"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.tests.basic.test_dlml.TestResolveVersionToCommitSHA.test_api_call_failure_raises_runtime_error" title="Link to this definition"></a></dt>
+<dd><p>Test gracefully handling RuntimeError when API calls fail.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pelicun.tests.basic.test_dlml.TestResolveVersionToCommitSHA.test_empty_commits_list_raises_runtime_error">
+<span class="sig-name descname"><span class="pre">test_empty_commits_list_raises_runtime_error</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../_modules/pelicun/tests/basic/test_dlml.html#TestResolveVersionToCommitSHA.test_empty_commits_list_raises_runtime_error"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.tests.basic.test_dlml.TestResolveVersionToCommitSHA.test_empty_commits_list_raises_runtime_error" title="Link to this definition"></a></dt>
+<dd><p>Test handling empty commits list when fetching latest commit.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pelicun.tests.basic.test_dlml.TestResolveVersionToCommitSHA.test_fallback_to_target_commitish_on_tag_api_failure">
+<span class="sig-name descname"><span class="pre">test_fallback_to_target_commitish_on_tag_api_failure</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../_modules/pelicun/tests/basic/test_dlml.html#TestResolveVersionToCommitSHA.test_fallback_to_target_commitish_on_tag_api_failure"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.tests.basic.test_dlml.TestResolveVersionToCommitSHA.test_fallback_to_target_commitish_on_tag_api_failure" title="Link to this definition"></a></dt>
+<dd><p>Test fallback to target_commitish when tag API fails.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pelicun.tests.basic.test_dlml.TestResolveVersionToCommitSHA.test_invalid_commit_sha_format_raises_value_error">
+<span class="sig-name descname"><span class="pre">test_invalid_commit_sha_format_raises_value_error</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../_modules/pelicun/tests/basic/test_dlml.html#TestResolveVersionToCommitSHA.test_invalid_commit_sha_format_raises_value_error"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.tests.basic.test_dlml.TestResolveVersionToCommitSHA.test_invalid_commit_sha_format_raises_value_error" title="Link to this definition"></a></dt>
+<dd><p>Test gracefully handling ValueError for invalid commit SHA formats.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pelicun.tests.basic.test_dlml.TestResolveVersionToCommitSHA.test_missing_commit_sha_in_release_raises_runtime_error">
+<span class="sig-name descname"><span class="pre">test_missing_commit_sha_in_release_raises_runtime_error</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../_modules/pelicun/tests/basic/test_dlml.html#TestResolveVersionToCommitSHA.test_missing_commit_sha_in_release_raises_runtime_error"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.tests.basic.test_dlml.TestResolveVersionToCommitSHA.test_missing_commit_sha_in_release_raises_runtime_error" title="Link to this definition"></a></dt>
+<dd><p>Test handling missing commit SHA in release data.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pelicun.tests.basic.test_dlml.TestResolveVersionToCommitSHA.test_resolve_annotated_tag">
+<span class="sig-name descname"><span class="pre">test_resolve_annotated_tag</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../_modules/pelicun/tests/basic/test_dlml.html#TestResolveVersionToCommitSHA.test_resolve_annotated_tag"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.tests.basic.test_dlml.TestResolveVersionToCommitSHA.test_resolve_annotated_tag" title="Link to this definition"></a></dt>
+<dd><p>Test handling annotated tags (key new test).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pelicun.tests.basic.test_dlml.TestResolveVersionToCommitSHA.test_resolve_latest_commit">
+<span class="sig-name descname"><span class="pre">test_resolve_latest_commit</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../_modules/pelicun/tests/basic/test_dlml.html#TestResolveVersionToCommitSHA.test_resolve_latest_commit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.tests.basic.test_dlml.TestResolveVersionToCommitSHA.test_resolve_latest_commit" title="Link to this definition"></a></dt>
+<dd><p>Test resolving the ‘latest’ commit.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pelicun.tests.basic.test_dlml.TestResolveVersionToCommitSHA.test_resolve_latest_version_tag">
+<span class="sig-name descname"><span class="pre">test_resolve_latest_version_tag</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../_modules/pelicun/tests/basic/test_dlml.html#TestResolveVersionToCommitSHA.test_resolve_latest_version_tag"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.tests.basic.test_dlml.TestResolveVersionToCommitSHA.test_resolve_latest_version_tag" title="Link to this definition"></a></dt>
+<dd><p>Test resolving the ‘latest’ version tag.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pelicun.tests.basic.test_dlml.TestResolveVersionToCommitSHA.test_resolve_specific_commit_sha">
+<span class="sig-name descname"><span class="pre">test_resolve_specific_commit_sha</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../_modules/pelicun/tests/basic/test_dlml.html#TestResolveVersionToCommitSHA.test_resolve_specific_commit_sha"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.tests.basic.test_dlml.TestResolveVersionToCommitSHA.test_resolve_specific_commit_sha" title="Link to this definition"></a></dt>
+<dd><p>Test resolving a specific commit SHA.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pelicun.tests.basic.test_dlml.TestResolveVersionToCommitSHA.test_resolve_specific_version_tag">
+<span class="sig-name descname"><span class="pre">test_resolve_specific_version_tag</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../_modules/pelicun/tests/basic/test_dlml.html#TestResolveVersionToCommitSHA.test_resolve_specific_version_tag"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.tests.basic.test_dlml.TestResolveVersionToCommitSHA.test_resolve_specific_version_tag" title="Link to this definition"></a></dt>
+<dd><p>Test resolving a specific version tag (e.g., ‘v1.2.0’).</p>
+</dd></dl>
+
+</dd></dl>
+
 <dl class="py function">
 <dt class="sig sig-object py" id="pelicun.tests.basic.test_dlml.mock_download_env">
 <span class="sig-prename descclassname"><span class="pre">pelicun.tests.basic.test_dlml.</span></span><span class="sig-name descname"><span class="pre">mock_download_env</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Generator" title="(in Python v3.13)"><span class="pre">Generator</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.13)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/pelicun/tests/basic/test_dlml.html#mock_download_env"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.tests.basic.test_dlml.mock_download_env" title="Link to this definition"></a></dt>
 <dd><p>Mocks the common environment for a data download test.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pelicun.tests.basic.test_dlml.test_check_dlml_data_cli_invocation_bypass">
+<span class="sig-prename descclassname"><span class="pre">pelicun.tests.basic.test_dlml.</span></span><span class="sig-name descname"><span class="pre">test_check_dlml_data_cli_invocation_bypass</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../_modules/pelicun/tests/basic/test_dlml.html#test_check_dlml_data_cli_invocation_bypass"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.tests.basic.test_dlml.test_check_dlml_data_cli_invocation_bypass" title="Link to this definition"></a></dt>
+<dd><p>Test check_dlml_data returns immediately when invoked via CLI for dlml update.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -333,6 +428,15 @@
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="pelicun.tests.basic.test_dlml.test_check_dlml_data_with_empty_directory">
+<span class="sig-prename descclassname"><span class="pre">pelicun.tests.basic.test_dlml.</span></span><span class="sig-name descname"><span class="pre">test_check_dlml_data_with_empty_directory</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../_modules/pelicun/tests/basic/test_dlml.html#test_check_dlml_data_with_empty_directory"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.tests.basic.test_dlml.test_check_dlml_data_with_empty_directory" title="Link to this definition"></a></dt>
+<dd><p>Test check_dlml_data with an empty temporary directory.</p>
+<p>This mocks DLML_DATA_DIR to use a temporary directory, ensuring the
+function triggers a download when data is missing. It also reloads the
+module to ensure the original, un-mocked function is tested.</p>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="pelicun.tests.basic.test_dlml.test_check_dlml_data_with_existing_data_no_update">
 <span class="sig-prename descclassname"><span class="pre">pelicun.tests.basic.test_dlml.</span></span><span class="sig-name descname"><span class="pre">test_check_dlml_data_with_existing_data_no_update</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../_modules/pelicun/tests/basic/test_dlml.html#test_check_dlml_data_with_existing_data_no_update"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.tests.basic.test_dlml.test_check_dlml_data_with_existing_data_no_update" title="Link to this definition"></a></dt>
 <dd><p>Test check_dlml_data with existing data and no update available.</p>
@@ -345,9 +449,15 @@
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="pelicun.tests.basic.test_dlml.test_check_dlml_data_with_missing_data">
-<span class="sig-prename descclassname"><span class="pre">pelicun.tests.basic.test_dlml.</span></span><span class="sig-name descname"><span class="pre">test_check_dlml_data_with_missing_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../_modules/pelicun/tests/basic/test_dlml.html#test_check_dlml_data_with_missing_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.tests.basic.test_dlml.test_check_dlml_data_with_missing_data" title="Link to this definition"></a></dt>
-<dd><p>Test check_dlml_data downloads data when missing.</p>
+<dt class="sig sig-object py" id="pelicun.tests.basic.test_dlml.test_check_dlml_version_corrupted_timestamp">
+<span class="sig-prename descclassname"><span class="pre">pelicun.tests.basic.test_dlml.</span></span><span class="sig-name descname"><span class="pre">test_check_dlml_version_corrupted_timestamp</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../_modules/pelicun/tests/basic/test_dlml.html#test_check_dlml_version_corrupted_timestamp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.tests.basic.test_dlml.test_check_dlml_version_corrupted_timestamp" title="Link to this definition"></a></dt>
+<dd><p>Test check_dlml_version handles corrupted timestamp in cache.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pelicun.tests.basic.test_dlml.test_check_dlml_version_invalid_version_format">
+<span class="sig-prename descclassname"><span class="pre">pelicun.tests.basic.test_dlml.</span></span><span class="sig-name descname"><span class="pre">test_check_dlml_version_invalid_version_format</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../_modules/pelicun/tests/basic/test_dlml.html#test_check_dlml_version_invalid_version_format"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.tests.basic.test_dlml.test_check_dlml_version_invalid_version_format" title="Link to this definition"></a></dt>
+<dd><p>Test check_dlml_version handles invalid version format in API response.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -381,33 +491,15 @@
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="pelicun.tests.basic.test_dlml.test_cli_integration_invalid_action">
-<span class="sig-prename descclassname"><span class="pre">pelicun.tests.basic.test_dlml.</span></span><span class="sig-name descname"><span class="pre">test_cli_integration_invalid_action</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../_modules/pelicun/tests/basic/test_dlml.html#test_cli_integration_invalid_action"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.tests.basic.test_dlml.test_cli_integration_invalid_action" title="Link to this definition"></a></dt>
-<dd><p>Integration test: CLI with invalid action (not ‘update’).</p>
+<dt class="sig sig-object py" id="pelicun.tests.basic.test_dlml.test_download_data_files_corrupted_local_file_smart_update">
+<span class="sig-prename descclassname"><span class="pre">pelicun.tests.basic.test_dlml.</span></span><span class="sig-name descname"><span class="pre">test_download_data_files_corrupted_local_file_smart_update</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../_modules/pelicun/tests/basic/test_dlml.html#test_download_data_files_corrupted_local_file_smart_update"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.tests.basic.test_dlml.test_download_data_files_corrupted_local_file_smart_update" title="Link to this definition"></a></dt>
+<dd><p>Test download_data_files re-downloads corrupted local file during smart update.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="pelicun.tests.basic.test_dlml.test_cli_integration_missing_arguments">
-<span class="sig-prename descclassname"><span class="pre">pelicun.tests.basic.test_dlml.</span></span><span class="sig-name descname"><span class="pre">test_cli_integration_missing_arguments</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../_modules/pelicun/tests/basic/test_dlml.html#test_cli_integration_missing_arguments"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.tests.basic.test_dlml.test_cli_integration_missing_arguments" title="Link to this definition"></a></dt>
-<dd><p>Integration test: CLI with insufficient arguments.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="pelicun.tests.basic.test_dlml.test_download_data_files_empty_repository">
-<span class="sig-prename descclassname"><span class="pre">pelicun.tests.basic.test_dlml.</span></span><span class="sig-name descname"><span class="pre">test_download_data_files_empty_repository</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../_modules/pelicun/tests/basic/test_dlml.html#test_download_data_files_empty_repository"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.tests.basic.test_dlml.test_download_data_files_empty_repository" title="Link to this definition"></a></dt>
-<dd><p>Test handling when GitHub API returns empty commits list.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="pelicun.tests.basic.test_dlml.test_download_data_files_invalid_commit">
-<span class="sig-prename descclassname"><span class="pre">pelicun.tests.basic.test_dlml.</span></span><span class="sig-name descname"><span class="pre">test_download_data_files_invalid_commit</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../_modules/pelicun/tests/basic/test_dlml.html#test_download_data_files_invalid_commit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.tests.basic.test_dlml.test_download_data_files_invalid_commit" title="Link to this definition"></a></dt>
-<dd><p>Test handling of invalid versions or commits.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="pelicun.tests.basic.test_dlml.test_download_data_files_missing_commit_sha_in_release">
-<span class="sig-prename descclassname"><span class="pre">pelicun.tests.basic.test_dlml.</span></span><span class="sig-name descname"><span class="pre">test_download_data_files_missing_commit_sha_in_release</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../_modules/pelicun/tests/basic/test_dlml.html#test_download_data_files_missing_commit_sha_in_release"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.tests.basic.test_dlml.test_download_data_files_missing_commit_sha_in_release" title="Link to this definition"></a></dt>
-<dd><p>Test handling when release data doesn’t contain target_commitish.</p>
+<dt class="sig sig-object py" id="pelicun.tests.basic.test_dlml.test_download_data_files_empty_model_files">
+<span class="sig-prename descclassname"><span class="pre">pelicun.tests.basic.test_dlml.</span></span><span class="sig-name descname"><span class="pre">test_download_data_files_empty_model_files</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../_modules/pelicun/tests/basic/test_dlml.html#test_download_data_files_empty_model_files"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.tests.basic.test_dlml.test_download_data_files_empty_model_files" title="Link to this definition"></a></dt>
+<dd><p>Test download_data_files handles empty model_files.txt gracefully.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -420,12 +512,6 @@
 <dt class="sig sig-object py" id="pelicun.tests.basic.test_dlml.test_download_data_files_model_file_read_error">
 <span class="sig-prename descclassname"><span class="pre">pelicun.tests.basic.test_dlml.</span></span><span class="sig-name descname"><span class="pre">test_download_data_files_model_file_read_error</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../_modules/pelicun/tests/basic/test_dlml.html#test_download_data_files_model_file_read_error"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.tests.basic.test_dlml.test_download_data_files_model_file_read_error" title="Link to this definition"></a></dt>
 <dd><p>Test handling of general file reading exceptions.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="pelicun.tests.basic.test_dlml.test_download_data_files_network_error">
-<span class="sig-prename descclassname"><span class="pre">pelicun.tests.basic.test_dlml.</span></span><span class="sig-name descname"><span class="pre">test_download_data_files_network_error</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../_modules/pelicun/tests/basic/test_dlml.html#test_download_data_files_network_error"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.tests.basic.test_dlml.test_download_data_files_network_error" title="Link to this definition"></a></dt>
-<dd><p>Test handling of network errors during API calls.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -465,15 +551,9 @@
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="pelicun.tests.basic.test_dlml.test_enhanced_cache_with_commit_metadata">
-<span class="sig-prename descclassname"><span class="pre">pelicun.tests.basic.test_dlml.</span></span><span class="sig-name descname"><span class="pre">test_enhanced_cache_with_commit_metadata</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mock_download_env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.13)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../_modules/pelicun/tests/basic/test_dlml.html#test_enhanced_cache_with_commit_metadata"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.tests.basic.test_dlml.test_enhanced_cache_with_commit_metadata" title="Link to this definition"></a></dt>
-<dd><p>Test that download_data_files stores commit metadata in cache.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="pelicun.tests.basic.test_dlml.test_enhanced_cache_with_version_metadata">
-<span class="sig-prename descclassname"><span class="pre">pelicun.tests.basic.test_dlml.</span></span><span class="sig-name descname"><span class="pre">test_enhanced_cache_with_version_metadata</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mock_download_env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.13)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../_modules/pelicun/tests/basic/test_dlml.html#test_enhanced_cache_with_version_metadata"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.tests.basic.test_dlml.test_enhanced_cache_with_version_metadata" title="Link to this definition"></a></dt>
-<dd><p>Test that download_data_files stores version metadata in cache.</p>
+<dt class="sig sig-object py" id="pelicun.tests.basic.test_dlml.test_format_initial_download_error">
+<span class="sig-prename descclassname"><span class="pre">pelicun.tests.basic.test_dlml.</span></span><span class="sig-name descname"><span class="pre">test_format_initial_download_error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">exception</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#Exception" title="(in Python v3.13)"><span class="pre">Exception</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">expected_messages</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../_modules/pelicun/tests/basic/test_dlml.html#test_format_initial_download_error"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.tests.basic.test_dlml.test_format_initial_download_error" title="Link to this definition"></a></dt>
+<dd><p>Test _format_initial_download_error with various exception types.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -579,21 +659,9 @@
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="pelicun.tests.basic.test_dlml.test_validate_commit_sha_invalid">
-<span class="sig-prename descclassname"><span class="pre">pelicun.tests.basic.test_dlml.</span></span><span class="sig-name descname"><span class="pre">test_validate_commit_sha_invalid</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../_modules/pelicun/tests/basic/test_dlml.html#test_validate_commit_sha_invalid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.tests.basic.test_dlml.test_validate_commit_sha_invalid" title="Link to this definition"></a></dt>
-<dd><p>Test validation of invalid commit SHA.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="pelicun.tests.basic.test_dlml.test_validate_commit_sha_latest">
-<span class="sig-prename descclassname"><span class="pre">pelicun.tests.basic.test_dlml.</span></span><span class="sig-name descname"><span class="pre">test_validate_commit_sha_latest</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../_modules/pelicun/tests/basic/test_dlml.html#test_validate_commit_sha_latest"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.tests.basic.test_dlml.test_validate_commit_sha_latest" title="Link to this definition"></a></dt>
-<dd><p>Test validation of the special ‘latest’ value.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="pelicun.tests.basic.test_dlml.test_validate_commit_sha_valid">
-<span class="sig-prename descclassname"><span class="pre">pelicun.tests.basic.test_dlml.</span></span><span class="sig-name descname"><span class="pre">test_validate_commit_sha_valid</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../_modules/pelicun/tests/basic/test_dlml.html#test_validate_commit_sha_valid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.tests.basic.test_dlml.test_validate_commit_sha_valid" title="Link to this definition"></a></dt>
-<dd><p>Test validation of valid 7-character commit SHA.</p>
+<dt class="sig sig-object py" id="pelicun.tests.basic.test_dlml.test_validate_commit_sha">
+<span class="sig-prename descclassname"><span class="pre">pelicun.tests.basic.test_dlml.</span></span><span class="sig-name descname"><span class="pre">test_validate_commit_sha</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">commit_sha</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">expected</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../_modules/pelicun/tests/basic/test_dlml.html#test_validate_commit_sha"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.tests.basic.test_dlml.test_validate_commit_sha" title="Link to this definition"></a></dt>
+<dd><p>Test validation of commit SHA with various inputs.</p>
 </dd></dl>
 
 </section>

@@ -15,6 +15,9 @@ pelicun.tools.dlml
    .. autosummary::
    
       _download_file
+      _format_initial_download_error
+      _get_changed_files
+      _resolve_version_to_commit_sha
       check_dlml_data
       check_dlml_version
       dlml_update

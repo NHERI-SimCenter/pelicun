@@ -15,33 +15,31 @@ pelicun.tests.basic.test\_dlml
    .. autosummary::
    
       mock_download_env
+      test_check_dlml_data_cli_invocation_bypass
       test_check_dlml_data_download_failure
       test_check_dlml_data_permission_error
       test_check_dlml_data_version_check_failure
+      test_check_dlml_data_with_empty_directory
       test_check_dlml_data_with_existing_data_no_update
       test_check_dlml_data_with_existing_data_update_available
-      test_check_dlml_data_with_missing_data
+      test_check_dlml_version_corrupted_timestamp
+      test_check_dlml_version_invalid_version_format
       test_check_dlml_version_semantic_version_comparison
       test_check_dlml_version_with_cached_result
       test_check_dlml_version_with_commit_based_version
       test_check_dlml_version_with_expired_cache
       test_check_dlml_version_with_network_error
-      test_cli_integration_invalid_action
-      test_cli_integration_missing_arguments
-      test_download_data_files_empty_repository
-      test_download_data_files_invalid_commit
-      test_download_data_files_missing_commit_sha_in_release
+      test_download_data_files_corrupted_local_file_smart_update
+      test_download_data_files_empty_model_files
       test_download_data_files_model_file_not_found
       test_download_data_files_model_file_read_error
-      test_download_data_files_network_error
       test_download_data_files_with_cache
       test_download_data_files_with_commit
       test_download_data_files_with_latest_commit
       test_download_data_files_with_version
       test_download_file_request_exception
       test_download_file_success
-      test_enhanced_cache_with_commit_metadata
-      test_enhanced_cache_with_version_metadata
+      test_format_initial_download_error
       test_get_file_hash_different_content
       test_get_file_hash_empty_file
       test_get_file_hash_existing_file
@@ -59,13 +57,19 @@ pelicun.tests.basic.test\_dlml
       test_progress_bar_updates
       test_progress_reporting_for_skipped_files
       test_save_cache
-      test_validate_commit_sha_invalid
-      test_validate_commit_sha_latest
-      test_validate_commit_sha_valid
+      test_validate_commit_sha
    
    
 
    
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+      :template: custom-class-template.rst
+   
+      TestGetChangedFiles
+      TestResolveVersionToCommitSHA
    
    
 
