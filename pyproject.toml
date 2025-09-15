@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pelicun"
-version = "3.8.0.dev0"
+version = "3.8.0"
 description = "Probabilistic Estimation of Losses, Injuries, and Community resilience Under Natural hazard events"
 readme = "README.md"
 license = {text = "BSD-3-Clause"}
