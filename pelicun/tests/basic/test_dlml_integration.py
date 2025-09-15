@@ -40,6 +40,7 @@
 
 from __future__ import annotations
 
+import subprocess  # noqa: S404
 import tempfile
 from pathlib import Path
 from typing import Any
@@ -315,21 +316,20 @@ def test_import_integration_failure() -> None:
 
 
 def test_logging_configuration() -> None:
-    """Test that module-level logger is properly configured."""
-    # Verify logger exists and is configured
+    """Test that the module-level logger is configured and used."""
+    # Verify logger exists and is configured correctly.
     assert hasattr(dlml, 'logger')
     assert dlml.logger.name == 'pelicun.dlml'
 
-    # Test that logger is used in functions
-    with patch.object(dlml.logger, 'info') as mock_info, patch(
-        'pathlib.Path.exists', return_value=False
-    ), patch('pelicun.tools.dlml.download_data_files'), patch(
-        'pelicun.tools.dlml.DLML_DATA_DIR', new=Path('/some/mock/dir')
-    ):
-        dlml.check_dlml_data()
+    # Test that a function uses the logger by triggering a loggable event.
+    # Here, we trigger a warning in _get_changed_files by mocking a network error.
+    with patch(
+        'requests.get', side_effect=requests.exceptions.RequestException
+    ), patch.object(dlml.logger, 'warning') as mock_warning:
+        dlml._get_changed_files('base', 'head', headers={})
 
-        # Should use the module logger
-        assert mock_info.call_count >= 1
+        # Assert that the logger's warning method was called as expected.
+        mock_warning.assert_called()
 
 
 def test_warning_system_integration() -> None:
@@ -363,3 +363,36 @@ def test_warning_system_integration() -> None:
         # Should have appropriate stacklevel
         assert 'stacklevel' in kwargs
         assert kwargs['stacklevel'] == 2
+
+
+# --- Command-Line Interface Integration Tests ---
+
+
+def test_cli_integration_invalid_action() -> None:
+    """Integration test: CLI with invalid action (not 'update')."""
+    # Run the CLI with invalid action
+    result = subprocess.run(  # noqa: S603
+        ['pelicun', 'dlml', 'invalid'],  # noqa: S607
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    # Verify exit code and output
+    assert result.returncode == 2  # argparse returns 2 for invalid choice
+    assert "invalid choice: 'invalid'" in result.stderr
+
+
+def test_cli_integration_missing_arguments() -> None:
+    """Integration test: CLI with insufficient arguments."""
+    # Run the CLI with no arguments for dlml
+    result = subprocess.run(  # noqa: S603
+        ['pelicun', 'dlml'],  # noqa: S607
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    # Verify exit code and output
+    assert result.returncode == 2  # argparse returns 2 for missing required argument
+    assert 'required' in result.stderr

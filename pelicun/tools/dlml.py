@@ -46,6 +46,7 @@ import json
 import logging
 import os
 import re
+import sys
 import warnings
 from datetime import datetime, timedelta
 from pathlib import Path
@@ -113,6 +114,60 @@ def get_file_hash(file_path: Union[str, Path]) -> Optional[str]:  # noqa: UP007
         while chunk := f.read(8192):
             file_hash.update(chunk)
     return file_hash.hexdigest()
+
+
+def _get_changed_files(
+    base_commit: str, head_commit: str, headers: dict
+) -> set[str] | None:
+    """
+    Get a set of filenames that have changed between two commits.
+
+    This function intelligently handles both upgrades and downgrades by
+    checking the commit status and reversing the comparison if necessary.
+
+    Parameters
+    ----------
+    base_commit: str
+        The starting commit SHA.
+    head_commit: str
+        The ending commit SHA.
+    headers: dict
+        Headers to use for the GitHub API request.
+
+    Returns
+    -------
+    set[str] | None
+        A set of changed filenames, or None if the API call fails.
+    """
+    compare_url = (
+        f'https://api.github.com/repos/{DATA_REPO_OWNER}/'
+        f'DamageAndLossModelLibrary/compare/{base_commit}...{head_commit}'
+    )
+
+    try:
+        response = requests.get(compare_url, headers=headers, timeout=10)
+        response.raise_for_status()
+
+        compare_data = response.json()
+
+        # Check the status. 'behind' means we are downgrading.
+        if compare_data.get('status') == 'behind':
+            # If we're downgrading, the diff is empty in this direction.
+            # We must swap the commits to find the files that need to be reverted.
+            reverse_compare_url = (
+                f'https://api.github.com/repos/{DATA_REPO_OWNER}/'
+                f'DamageAndLossModelLibrary/compare/{head_commit}...{base_commit}'
+            )
+            response = requests.get(reverse_compare_url, headers=headers, timeout=10)
+            response.raise_for_status()
+            compare_data = response.json()
+
+        return {file_info['filename'] for file_info in compare_data.get('files', [])}
+
+    except requests.exceptions.RequestException as e:
+        logger.warning(f'Could not get commit comparison from GitHub API: {e}')
+        logger.warning('Will proceed by re-downloading all necessary files.')
+        return None
 
 
 def load_cache(cache_file: Union[str, Path]) -> Dict[str, Any]:  # noqa: UP007, UP006
@@ -282,6 +337,141 @@ def check_dlml_version() -> Dict[str, Union[bool, str, None]]:  # noqa: UP007, U
     return result
 
 
+def _resolve_version_to_commit_sha(  # noqa: C901
+    headers: dict,
+    version: str | None = None,
+    commit: str | None = None,
+) -> tuple[str, dict]:
+    """
+    Resolve a version tag or commit SHA to a full commit SHA.
+
+    Returns a tuple containing the commit SHA and metadata for caching.
+
+    Parameters
+    ----------
+    headers: dict
+        A dictionary of headers to be used in the request.
+    version: string, optional
+        A version tag (e.g., "v1.0.0", "beta"). Use "latest" to download from
+        the latest published release.
+    commit: string, optional
+        A commit SHA (7-digit identifier). Use "latest" to download from the
+        latest commit.
+
+    Returns
+    -------
+    tuple
+        commit_sha: string
+            The full commit SHA for the resolved version.
+        commit_meta: dict
+            A dictionary containing metadata for caching.
+
+    Raises
+    ------
+    ValueError
+        If an invalid commit SHA format is provided
+    RuntimeError
+        If data download fails due to network issues, missing commits, or file errors
+    """
+    github_api_base_url = (
+        f'https://api.github.com/repos/{DATA_REPO_OWNER}/DamageAndLossModelLibrary'
+    )
+
+    # Logic for handling 'latest' commit or a specific commit SHA
+    if commit is not None:
+        if commit != 'latest' and not validate_commit_sha(commit):
+            msg = (
+                f'Invalid commit SHA format: {commit}. '
+                f"Must be 'latest' or a 7-character hexadecimal string."
+            )
+            raise ValueError(msg)
+
+        if commit == 'latest':
+            logger.info('Downloading DLML models from the latest commit...')
+
+            commits_url = f'{github_api_base_url}/commits'
+            try:
+                response = requests.get(commits_url, headers=headers, timeout=10)
+                response.raise_for_status()
+                commits_data = response.json()
+                if commits_data and len(commits_data) > 0:
+                    commit_sha = commits_data[0]['sha']
+                else:
+                    msg = 'No commits found in the repository.'
+                    raise RuntimeError(msg)
+            except requests.exceptions.RequestException as e:
+                msg = f'Failed to fetch latest commit: {e}'
+                raise RuntimeError(msg) from e
+        else:
+            logger.info(f'Downloading DLML models from commit {commit}...')
+            commit_sha = commit
+
+        cache_meta = {
+            'version': f'commit-{commit_sha[:7]}',
+            'download_type': 'commit',
+        }
+        return commit_sha, cache_meta
+
+    # Logic for handling version tags
+    version_str = version or 'latest'
+    release_info_url = (
+        f'{github_api_base_url}/releases/tags/{version_str}'
+        if version_str != 'latest'
+        else f'{github_api_base_url}/releases/latest'
+    )
+
+    try:
+        response = requests.get(release_info_url, headers=headers, timeout=10)
+        response.raise_for_status()
+        release_data = response.json()
+    except requests.exceptions.RequestException as e:
+        msg = f"Failed to fetch release info for '{version_str}': {e}"
+        raise RuntimeError(msg) from e
+
+    # Get the SHA of the commit the release tag points to
+    # Note: target_commitish can be a branch name (like "main"), so we need to
+    # get the actual commit SHA that the tag points to using the Git refs API
+    tag_name = release_data.get('tag_name', version_str)
+    tag_refs_url = f'{github_api_base_url}/git/refs/tags/{tag_name}'
+
+    try:
+        # Primary method: resolve the tag via Git refs API
+        tag_response = requests.get(tag_refs_url, headers=headers, timeout=10)
+        tag_response.raise_for_status()
+        tag_data = tag_response.json()
+        tag_sha = tag_data.get('object', {}).get('sha')
+        tag_type = tag_data.get('object', {}).get('type')
+
+        if tag_type == 'commit':  # Tag points directly to a commit
+            commit_sha = tag_sha
+        elif tag_type == 'tag':  # Annotated tag
+            tag_object_url = f'{github_api_base_url}/git/tags/{tag_sha}'
+            tag_obj_response = requests.get(
+                tag_object_url, headers=headers, timeout=10
+            )
+            tag_obj_response.raise_for_status()
+            commit_sha = tag_obj_response.json().get('object', {}).get('sha')
+        else:  # Fallback
+            commit_sha = release_data.get('target_commitish')
+    except requests.exceptions.RequestException:
+        # Fallback if API fails
+        commit_sha = release_data.get('target_commitish')
+
+    if not commit_sha:
+        msg = f"Could not find commit SHA for release '{version_str}'."
+        raise RuntimeError(msg)
+
+    cache_meta = {
+        'version': (
+            version
+            if version != 'latest'
+            else release_data.get('tag_name', 'latest')
+        ),
+        'download_type': 'version',
+    }
+    return commit_sha, cache_meta
+
+
 def _download_file(url: str, local_path: Union[str, Path]) -> None:  # noqa: UP007
     """
     Download a file from a GitHub repository using a direct URL.
@@ -335,8 +525,6 @@ def download_data_files(  # noqa: C901
 
     Raises
     ------
-    ValueError
-        If an invalid commit SHA format is provided
     RuntimeError
         If data download fails due to network issues, missing commits, or file errors
     """
@@ -349,84 +537,35 @@ def download_data_files(  # noqa: C901
     # Load cache if using caching
     cache_data = load_cache(str(cache_file)) if use_cache else {}
 
-    # Determine if we're using a commit or a version
-    commit_sha = None
-    github_api_base_url = (
-        f'https://api.github.com/repos/{DATA_REPO_OWNER}/DamageAndLossModelLibrary'
-    )
     headers = {'Accept': 'application/vnd.github.v3+json'}
-
     # Check for the GITHUB_TOKEN environment variable
     token = os.environ.get('GITHUB_TOKEN')
     if token:
         headers['Authorization'] = f'Bearer {token}'
 
-    if commit is not None:
-        # Validate commit SHA format
-        if commit != 'latest' and not validate_commit_sha(commit):
-            msg = (
-                f'Invalid commit SHA format: {commit}. '
-                f"Must be 'latest' or a 7-character hexadecimal string."
-            )
-            raise ValueError(msg)
-
-        if commit == 'latest':
-            # Get the latest commit SHA
-            logger.info(
-                f'Downloading DLML models from the latest commit to {target_data_abs_dir}...'
-            )
-            commits_url = f'{github_api_base_url}/commits'
-            try:
-                response = requests.get(commits_url, headers=headers, timeout=10)
-                response.raise_for_status()
-                commits_data = response.json()
-                if commits_data and len(commits_data) > 0:
-                    commit_sha = commits_data[0]['sha']
-                else:
-                    msg = 'No commits found in the repository.'
-                    raise RuntimeError(msg)
-            except requests.exceptions.RequestException as e:
-                msg = f'Failed to fetch latest commit: {e}'
-                raise RuntimeError(msg) from e
-        else:
-            # Use the provided commit SHA
-            logger.info(
-                f'Downloading DLML models from commit {commit} to {target_data_abs_dir}...'
-            )
-            commit_sha = commit
-    else:
-        # Use version-based download (original behavior)
-        logger.info(
-            f'Downloading DLML models for version {version} to {target_data_abs_dir}...'
+    try:
+        commit_sha, cache_meta = _resolve_version_to_commit_sha(
+            headers, version=version, commit=commit
         )
-        release_info_url = (
-            f'{github_api_base_url}/releases/tags/{version}'
-            if version != 'latest'
-            else f'{github_api_base_url}/releases/latest'
-        )
+    except (requests.exceptions.RequestException, RuntimeError, ValueError) as e:
+        msg = f'Failed to determine download version: {e}'
+        raise RuntimeError(msg) from e
 
-        try:
-            response = requests.get(release_info_url, headers=headers, timeout=10)
-            response.raise_for_status()
-            release_data = response.json()
-        except requests.exceptions.RequestException as e:
-            msg = f"Failed to fetch release info for '{version}': {e}"
-            raise RuntimeError(msg) from e
+    changed_files = None
+    if use_cache:
+        old_commit_sha = cache_data.get('commit_sha')
 
-        # Get the SHA of the commit the release tag points to
-        commit_sha = release_data.get('target_commitish')
-        if not commit_sha:
-            msg = f"Could not find commit SHA for release '{version}'."
-            raise RuntimeError(msg)
+        # Check if we already have the latest data
+        if old_commit_sha == commit_sha:
+            logger.info(f'Already have the latest data for commit {commit_sha[:7]}.')
+            return
 
-    # Check if we already have the latest data
-    if (
-        use_cache
-        and 'commit_sha' in cache_data
-        and cache_data['commit_sha'] == commit_sha
-    ):
-        logger.info(f'Already have the latest data for commit {commit_sha[:7]}.')
-        return
+        # Determine which files have changed if we are updating
+        if old_commit_sha:
+            logger.info(
+                f'Updating from commit {old_commit_sha[:7]} to {commit_sha[:7]}.'
+            )
+            changed_files = _get_changed_files(old_commit_sha, commit_sha, headers)
 
     # Get the model file list
     model_file_list_url = f'https://raw.githubusercontent.com/{DATA_REPO_OWNER}/DamageAndLossModelLibrary/{commit_sha}/model_files.txt'
@@ -451,6 +590,12 @@ def download_data_files(  # noqa: C901
         msg = f'Error reading model file list: {e}'
         raise RuntimeError(msg) from e
 
+    if changed_files is not None:
+        relevant_changed_files = {
+            file for file in files_to_download if file in changed_files
+        }
+        logger.info(f'Found {len(relevant_changed_files)} relevant file changes.')
+
     file_download_base_url = f'https://raw.githubusercontent.com/{DATA_REPO_OWNER}/DamageAndLossModelLibrary/{commit_sha}'
 
     # Initialize cache for this commit if using caching
@@ -463,22 +608,12 @@ def download_data_files(  # noqa: C901
         }
 
         # Add version metadata for tracking
-        if commit is not None:
-            # For commit-based downloads, store commit info
-            new_cache['version'] = f'commit-{commit_sha[:7]}'
-            new_cache['download_type'] = 'commit'
-        else:
-            # For version-based downloads, store the version tag
-            new_cache['version'] = (
-                version
-                if version != 'latest'
-                else release_data.get('tag_name', 'latest')
-            )
-            new_cache['download_type'] = 'version'
+        new_cache['version'] = cache_meta['version']
+        new_cache['download_type'] = cache_meta['download_type']
 
     # Count total files for progress reporting
     total_files = len(files_to_download)
-    logger.info(f'Found {total_files} files to download.')
+    logger.info(f'Checking {total_files} files for updates.')
 
     # Download files with progress reporting using tqdm
     skipped_count = 0
@@ -486,45 +621,40 @@ def download_data_files(  # noqa: C901
     # Create a progress bar for all files
     with tqdm(total=total_files, desc='Downloading files', unit='file') as pbar:
         for file_path in files_to_download:
-            remote_url = f'{file_download_base_url}/{file_path}'
-            local_path = target_data_abs_dir / file_path
-
             # Update progress bar description to show current file
-            pbar.set_description(f'Downloading {local_path.name}')
+            local_path = target_data_abs_dir / file_path
+            pbar.set_description(f'Processing {local_path.name}')
 
-            # Check if file exists in cache and hasn't changed
-            file_in_cache = False
-            if (
-                use_cache
-                and 'files' in cache_data
-                and file_path in cache_data['files']
-            ):
-                # Get the current hash if the file exists
-                current_hash = get_file_hash(str(local_path))
-                cached_hash = cache_data['files'][file_path]
-
-                if current_hash and current_hash == cached_hash:
-                    # File exists and hasn't changed, skip download
-                    file_in_cache = True
-                    skipped_count += 1
-
-                    # Add to new cache
-                    if use_cache:
+            # Check if we can skip this file
+            # A file is considered "in cache" and can be skipped if:
+            # 1. The API call for changed files succeeded.
+            # 2. The file is NOT in the list of changed files.
+            # 3. The file is correctly represented in our old cache.
+            # 4. The local file hash matches the old cache hash (integrity check).
+            is_unchanged_on_remote = (changed_files is not None) and (
+                file_path not in changed_files
+            )
+            if use_cache and is_unchanged_on_remote:
+                cached_hash = cache_data.get('files', {}).get(file_path)
+                if cached_hash:
+                    current_hash = get_file_hash(str(local_path))
+                    if (
+                        current_hash == cached_hash
+                    ):  # File is valid in cache, skip download
+                        skipped_count += 1
                         new_cache['files'][file_path] = current_hash
+                        pbar.update(1)
+                        continue  # Move to the next file
 
-                    # Update progress bar
-                    pbar.update(1)
+            # Download the file if it's not in cache
+            pbar.set_description(f'Downloading {local_path.name}')
+            remote_url = f'{file_download_base_url}/{file_path}'
+            _download_file(remote_url, str(local_path))
 
-            if not file_in_cache:
-                # Download the file
-                _download_file(remote_url, str(local_path))
+            if use_cache:
+                new_cache['files'][file_path] = get_file_hash(str(local_path))
 
-                # Add to new cache
-                if use_cache:
-                    new_cache['files'][file_path] = get_file_hash(str(local_path))
-
-                # Update progress bar
-                pbar.update(1)
+            pbar.update(1)
 
     # Save the new cache
     if use_cache:
@@ -533,6 +663,38 @@ def download_data_files(  # noqa: C901
     logger.info(
         f'DLML model data download complete. Downloaded {total_files - skipped_count} files, skipped {skipped_count} unchanged files.'
     )
+
+
+def _format_initial_download_error(e: Exception) -> str:
+    """
+    Format a detailed error message for a failed initial download.
+
+    Parameters
+    ----------
+    e: Exception
+        The exception that was raised during the initial download.
+
+    Returns
+    -------
+    error_msg: string
+        A formatted error message for the initial download failure.
+
+    """
+    error_type = type(e).__name__
+    error_str = str(e).lower()
+
+    if 'requests' in str(type(e)).lower() or 'connection' in error_str:
+        return (
+            f'Network error while downloading DLML data: {e}\n'
+            'Please check your internet connection and try again.'
+        )
+    if 'permission' in error_str or 'access' in error_str:
+        return (
+            f'Permission error while downloading DLML data: {e}\n'
+            'Please check file/directory permissions for the pelicun installation.'
+        )
+
+    return f'Error downloading DLML data ({error_type}): {e}'
 
 
 def check_dlml_data() -> None:
@@ -548,44 +710,36 @@ def check_dlml_data() -> None:
     RuntimeError
         If the initial data download fails since pelicun cannot function without DLML data.
     """
+    # If pelicun is imported to perform a DLML update, return immediately and
+    # let the CLI command handle all operations.
+    if (
+        ('pelicun' in sys.argv[0] or 'cli.py' in sys.argv[0])
+        and 'dlml' in sys.argv
+        and 'update' in sys.argv
+    ):
+        return
+
     target_data_abs_dir = DLML_DATA_DIR
 
-    # Check if DLML data directory exists and has content
-    data_exists = (
-        target_data_abs_dir.exists()
-        and target_data_abs_dir.is_dir()
-        and len(list(target_data_abs_dir.iterdir())) > 0
-    )
+    # Check if the critical manifest file exists as a proxy for a valid installation
+    manifest_file = target_data_abs_dir / 'model_files.txt'
+    data_exists = manifest_file.exists()
 
     if not data_exists:
         # No DLML data found, download latest version
         try:
-            logger.info('DLML model data not found. Downloading latest version...')
-            logger.info('This is a one-time setup that may take a few minutes.')
-            download_data_files(version='latest', use_cache=True)
-            logger.info('DLML data download completed successfully.')
+            print('DLML model data not found. Downloading latest version...')  # noqa: T201
+            print('This is a one-time setup that may take a few minutes.')  # noqa: T201
+            download_data_files(version='latest', use_cache=False)
+            print('DLML data download completed successfully.')  # noqa: T201
         except Exception as e:
-            # Provide detailed, error-specific messages
-            error_type = type(e).__name__
-            if 'requests' in str(type(e)).lower() or 'connection' in str(e).lower():
-                detailed_msg = (
-                    f'Network error while downloading DLML data: {e}\n'
-                    f'Please check your internet connection and try again.\n'
-                    f'If the problem persists, you can manually download using: pelicun dlml update'
-                )
-            elif 'permission' in str(e).lower() or 'access' in str(e).lower():
-                detailed_msg = (
-                    f'Permission error while downloading DLML data: {e}\n'
-                    f'Please check file/directory permissions for the pelicun installation.\n'
-                    f'You may need to run with appropriate permissions or manually download using: pelicun dlml update'
-                )
-            else:
-                detailed_msg = (
-                    f'Error downloading DLML data ({error_type}): {e}\n'
-                    f'Pelicun requires DLML data to function properly.\n'
-                    f'You can manually download using: pelicun dlml update'
-                )
-            raise RuntimeError(detailed_msg) from e
+            detailed_msg = _format_initial_download_error(e)
+            final_msg = (
+                f'{detailed_msg}\n'
+                'Pelicun requires DLML data to function properly.\n'
+                'You can manually download using: pelicun dlml update'
+            )
+            raise RuntimeError(final_msg) from e
     else:
         # Data exists, perform version check
         try:
@@ -615,7 +769,7 @@ def check_dlml_data() -> None:
             json.JSONDecodeError,
         ) as e:
             # Version check failed, but don't prevent import
-            logger.debug(f'Version check failed: {e}')
+            print(f'Version check failed: {e}')  # noqa: T201
 
 
 def dlml_update(

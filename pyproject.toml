@@ -165,6 +165,7 @@ skip = [
   "./pelicun.egg-info/*",
   "./doc_src/*",
   "./doc/build/*",
+  "./doc/_build/*",
   "*/rulesets/*",
   "custom_pop.py",
   "*/SimCenterDBDL/*",
