@@ -142,6 +142,7 @@ def process_buildings_chunk(
     bldg_df_chunk: pd.DataFrame,
     grid_points: pd.DataFrame,
     grid_data: pd.DataFrame,
+    n_neighbors: int,
     sample_size_demand: int,
     sample_size_damage: int,
     dl_method: str,
@@ -163,6 +164,9 @@ def process_buildings_chunk(
         DataFrame with grid point coordinates (Longitude, Latitude)
     grid_data : pd.DataFrame
         DataFrame with intensity measure data for each grid point
+    n_neighbors : int
+        Number of nearest neighbors to use for mapping intensity measures to
+        building locations
     sample_size_demand : int
         Number of demand realizations available
     sample_size_damage : int
@@ -191,7 +195,9 @@ def process_buildings_chunk(
 
     X_t = bldg_df_chunk[['Longitude', 'Latitude']].to_numpy()  # noqa: N806
 
-    Z_hat = NNR(X_t, X, Z, sample_size=-1, n_neighbors=8, weight='distance2')  # noqa: N806
+    Z_hat = NNR(  # noqa: N806
+        X_t, X, Z, sample_size=-1, n_neighbors=n_neighbors, weight='distance2'
+    )
 
     # Prepare IM information as demands in the Pelicun format
 
@@ -480,6 +486,7 @@ def process_and_save_chunk(
     temp_dir: str,
     grid_points: pd.DataFrame,
     grid_data: pd.DataFrame,
+    n_neighbors: int,
     sample_size_demand: int,
     sample_size_damage: int,
     dl_method: str,
@@ -504,6 +511,9 @@ def process_and_save_chunk(
         DataFrame with grid point coordinates (Longitude, Latitude)
     grid_data : pd.DataFrame
         DataFrame with intensity measure data for each grid point
+    n_neighbors : int
+        Number of nearest neighbors to use for mapping event intensity from
+        grid points to buildings
     sample_size_demand : int
         Number of demand realizations available
     sample_size_damage : int
@@ -518,6 +528,7 @@ def process_and_save_chunk(
             chunk,
             grid_points,
             grid_data,
+            n_neighbors,
             sample_size_demand,
             sample_size_damage,
             dl_method,
@@ -607,6 +618,10 @@ def regional_sim(config_file: str, num_cores: int | None = None) -> None:
 
     grid_data = pd.concat(grid_point_data_array, axis=1, keys=grid_points.index)
 
+    n_neighbors = config['Applications']['RegionalMapping']['Buildings'][
+        'ApplicationData'
+    ]['neighbors']
+
     # 2 Building Inventory
     # Load probabilistic building inventory from a CSV file
     print(f'[{format_elapsed_time(start_time)}] 2 Building Inventory')  # noqa: T201
@@ -652,6 +667,7 @@ def regional_sim(config_file: str, num_cores: int | None = None) -> None:
                     temp_dir,
                     grid_points,
                     grid_data,
+                    n_neighbors,
                     sample_size_demand,
                     sample_size_damage,
                     dl_method,

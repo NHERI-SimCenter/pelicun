@@ -35,9 +35,14 @@
 
 from __future__ import annotations
 
+import json
+import shutil
+import tempfile
+from pathlib import Path
 from typing import Generator
 from unittest.mock import patch
 
+import pandas as pd
 import pytest
 
 # This is an explicit list of tests that handle their own network mocking
@@ -74,3 +79,100 @@ def mock_dlml_data_check(
         with patch(target_function_path) as mocked_check_func:
             mocked_check_func.return_value = None
             yield
+
+
+@pytest.fixture(scope='function')  # noqa: PT003
+def setup_earthquake_test_data() -> Generator[Path, None, None]:
+    """
+    Create a temporary directory with mock data for earthquake tests.
+
+    This fixture:
+    1. Creates a temporary directory
+    2. Populates it with test configuration and data files
+    3. Yields the path to the temporary directory
+    4. Cleans up after the test by removing the directory and all its contents
+
+    Yields:
+        Generator yielding the Path object to the temporary directory
+    """
+    # Create a temporary directory
+    temp_dir = Path(tempfile.mkdtemp())
+
+    try:
+        # Create test_config.json
+        config_data = {
+            'Applications': {
+                'RegionalMapping': {
+                    'Buildings': {'ApplicationData': {'neighbors': 2, 'samples': 10}}
+                },
+                'DL': {
+                    'Buildings': {
+                        'ApplicationData': {
+                            'Realizations': 10,
+                            'DL_Method': 'Hazus Earthquake - Buildings',
+                        }
+                    }
+                },
+                'Assets': {
+                    'Buildings': {
+                        'ApplicationData': {
+                            'assetSourceFile': 'test_bldg_inventory.csv',
+                            'pathToSource': '.',
+                        }
+                    }
+                },
+            },
+            'RegionalEvent': {
+                'eventFile': 'test_event_grid.csv',
+                'eventFilePath': '.',
+            },
+        }
+
+        with (temp_dir / 'test_config.json').open('w') as f:
+            json.dump(config_data, f, indent=2)
+
+        # Create test_bldg_inventory.csv
+        bldg_data = pd.DataFrame(
+            {
+                'id': [0, 1],
+                'Latitude': [37.8716, 37.8700],
+                'Longitude': [-122.2727, -122.2700],
+                'HeightClass': ['Low-Rise', 'Low-Rise'],
+                'DesignLevel': ['Pre-Code', 'Pre-Code'],
+                'PlanArea': [7752, 3600],
+                'NumberOfStories': [2, 3],
+                'YearBuilt': [1906, 1931],
+                'ReplacementCost': [1022488.8, 6843570.3],
+                'StructureType': ['C1', 'W2'],
+                'OccupancyClass': ['COM4', 'RES3'],
+            }
+        )
+        bldg_data.to_csv(temp_dir / 'test_bldg_inventory.csv', index=False)
+
+        # Create test_event_grid.csv
+        grid_data = pd.DataFrame(
+            {
+                'GP_file': ['GP_1.csv', 'GP_2.csv'],
+                'Latitude': [37.8720, 37.8690],
+                'Longitude': [-122.2730, -122.2690],
+            }
+        )
+        grid_data.to_csv(temp_dir / 'test_event_grid.csv', index=False)
+
+        # Create GP_1.csv
+        gp1_data = pd.DataFrame(
+            {'PGA': [0.5, 0.51, 0.49, 0.52, 0.48, 0.5, 0.51, 0.49, 0.52, 0.48]}
+        )
+        gp1_data.to_csv(temp_dir / 'GP_1.csv', index=False)
+
+        # Create GP_2.csv
+        gp2_data = pd.DataFrame(
+            {'PGA': [0.6, 0.61, 0.59, 0.62, 0.58, 0.6, 0.61, 0.59, 0.62, 0.58]}
+        )
+        gp2_data.to_csv(temp_dir / 'GP_2.csv', index=False)
+
+        yield temp_dir
+
+    finally:
+        # Clean up by removing the temporary directory and all its contents
+        shutil.rmtree(temp_dir)
