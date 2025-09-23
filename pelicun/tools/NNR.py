@@ -56,61 +56,72 @@ def NNR(  # noqa: N802, C901
     weight: str = 'distance2',
     seed: int | None = None,
 ) -> np.ndarray:
-    """
-    Perform spatial interpolation using a k-Nearest Neighbors (k-NN) method.
+    """Perform k-NN spatial interpolation and resampling.
 
     This function estimates values at a set of target locations based on known
     values at a set of source locations. It can operate in two modes:
-    1.  Expected Value: Calculates a deterministic weighted average of the
-        neighbors' values.
-    2.  Probabilistic Resampling: Generates realizations by sampling from the
-        neighbors based on a multinomial distribution with likelihoods
-        proportional to their distance from the target point.
+    calculating a deterministic, weighted-average "expected value", or
+    performing a probabilistic resampling to generate new realizations based on
+    the neighbors' values and their distance from the target point.
 
     Parameters
     ----------
     target : np.ndarray
         Coordinates of the target points where values are to be estimated.
         Expected shape: `(n_targets, n_dimensions)`.
+
     source : np.ndarray
         Coordinates of the source points with known values.
         Expected shape: `(n_sources, n_dimensions)`.
+
     known_values : np.ndarray
         The known values at the source locations. The dimensionality determines
         if the source values are deterministic or a probabilistic sample. Use
         the 3D option even if there is only one feature.
+
         - If 2D `(n_sources, n_features)`: A single value for each feature.
         - If 3D `(n_sources, n_features, n_realizations)`: A sample of
           values (multiple realizations) for each feature.
+
     sample_size : int, optional
         Controls the operating mode and the number of output realizations.
-        - If `-1` (default): Calculates the **expected value** by taking a
+        Defaults to -1.
+
+        - If -1: Calculates the **expected value** by taking a
           weighted average of the neighbors' values. When working with a 3D
           array of known values, it provides an expected value for each
           realization of each feature.
-        - If `> 0`: Performs **probabilistic resampling**. Generates `sample_size`
-          realizations at each target point based on the neighbors' values.
+        - If > 0: Performs **probabilistic resampling** to generate
+          `sample_size` new realizations at each target point.
+
     n_neighbors : int, optional
         The number of nearest neighbors (`k`) to consider for each target
-        point. Default is 4.
+        point. Defaults to 4.
+
     weight : {'distance2', 'distance1', 'uniform'}, optional
         The method used to weigh the influence of each neighbor.
-        - `'distance2'` (default): Inverse-square distance weighting (1/d^2).
-          Closer points have a significantly higher influence.
-        - `'distance1'`: Inverse distance weighting (1/d).
-        - `'uniform'`: All neighbors are weighted equally.
-    seed : int, optional
+        Defaults to 'distance2'.
+
+        - 'distance2': Inverse-square distance weighting (1/d^2).
+        - 'distance1': Inverse distance weighting (1/d).
+        - 'uniform': All neighbors are weighted equally.
+
+    seed : int | None, optional
         A seed for the random number generator to ensure reproducibility of
-        the probabilistic resampling (`sample_size > 0`). Default is None.
+        the probabilistic resampling (`sample_size > 0`). Defaults to None.
 
     Returns
     -------
     np.ndarray
         The estimated values at the target locations. The shape of the output
-        depends on the `sample_size` parameter:
-        - If `sample_size > 0`, the shape is `(n_targets, n_features, sample_size)`.
-        - If `sample_size == -1`, the shape is the same as the known_values
-        input shape.
+        depends on the `sample_size` parameter.
+
+        - If `sample_size > 0`, the shape is
+          `(n_targets, n_features, sample_size)`.
+        - If `sample_size == -1` and `known_values` is 3D, the shape is
+          `(n_targets, n_features, n_realizations)`.
+        - If `sample_size == -1` and `known_values` is 2D, the shape is
+          `(n_targets, n_features)`.
 
     """
     EPSILON = 1e-20  # noqa: N806
