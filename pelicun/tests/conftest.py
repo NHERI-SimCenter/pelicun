@@ -81,57 +81,53 @@ def mock_dlml_data_check(
             yield
 
 
+def _setup_common_test_data() -> Path:
+    """
+    Create a temporary directory with common test data for regional simulations.
+
+    This helper function sets up common test data used by multiple test fixtures:
+    1. Creates a temporary directory
+    2. Creates the test_event_grid.csv with 2 grid points
+
+    Returns:
+        Path object to the temporary directory
+    """
+    # Create a temporary directory
+    temp_dir = Path(tempfile.mkdtemp())
+
+    # Create test_event_grid.csv
+    grid_data = pd.DataFrame(
+        {
+            'GP_file': ['GP_1.csv', 'GP_2.csv'],
+            'Latitude': [37.8720, 37.8690],
+            'Longitude': [-122.2730, -122.2690],
+        }
+    )
+    grid_data.to_csv(temp_dir / 'test_event_grid.csv', index=False)
+
+    return temp_dir
+
+
 @pytest.fixture(scope='function')  # noqa: PT003
 def setup_earthquake_test_data() -> Generator[Path, None, None]:
     """
     Create a temporary directory with mock data for earthquake tests.
 
     This fixture:
-    1. Creates a temporary directory
-    2. Populates it with test configuration and data files
-    3. Yields the path to the temporary directory
-    4. Cleans up after the test by removing the directory and all its contents
+    1. Uses the common helper to create the temporary directory and common files
+    2. Adds earthquake-specific building inventory
+    3. Adds earthquake-specific configuration and data files
+    4. Yields the path to the temporary directory
+    5. Cleans up after the test by removing the directory and all its contents
 
     Yields:
         Generator yielding the Path object to the temporary directory
     """
-    # Create a temporary directory
-    temp_dir = Path(tempfile.mkdtemp())
+    # Set up common test data
+    temp_dir = _setup_common_test_data()
 
     try:
-        # Create test_config.json
-        config_data = {
-            'Applications': {
-                'RegionalMapping': {
-                    'Buildings': {'ApplicationData': {'neighbors': 2, 'samples': 10}}
-                },
-                'DL': {
-                    'Buildings': {
-                        'ApplicationData': {
-                            'Realizations': 10,
-                            'DL_Method': 'Hazus Earthquake - Buildings',
-                        }
-                    }
-                },
-                'Assets': {
-                    'Buildings': {
-                        'ApplicationData': {
-                            'assetSourceFile': 'test_bldg_inventory.csv',
-                            'pathToSource': '.',
-                        }
-                    }
-                },
-            },
-            'RegionalEvent': {
-                'eventFile': 'test_event_grid.csv',
-                'eventFilePath': '.',
-            },
-        }
-
-        with (temp_dir / 'test_config.json').open('w') as f:
-            json.dump(config_data, f, indent=2)
-
-        # Create test_bldg_inventory.csv
+        # Create earthquake-specific test_bldg_inventory.csv
         bldg_data = pd.DataFrame(
             {
                 'id': [0, 1, 2, 3, 4],
@@ -161,25 +157,130 @@ def setup_earthquake_test_data() -> Generator[Path, None, None]:
         )
         bldg_data.to_csv(temp_dir / 'test_bldg_inventory.csv', index=False)
 
-        # Create test_event_grid.csv
-        grid_data = pd.DataFrame(
-            {
-                'GP_file': ['GP_1.csv', 'GP_2.csv'],
-                'Latitude': [37.8720, 37.8690],
-                'Longitude': [-122.2730, -122.2690],
-            }
-        )
-        grid_data.to_csv(temp_dir / 'test_event_grid.csv', index=False)
+        # Create test_config.json for earthquake scenario
+        config_data = {
+            'Applications': {
+                'RegionalMapping': {
+                    'Buildings': {'ApplicationData': {'neighbors': 2, 'samples': 10}}
+                },
+                'DL': {
+                    'Buildings': {
+                        'ApplicationData': {
+                            'Realizations': 10,
+                            'DL_Method': 'Hazus Earthquake - Buildings',
+                        }
+                    }
+                },
+                'Assets': {
+                    'Buildings': {
+                        'ApplicationData': {
+                            'assetSourceFile': 'test_bldg_inventory.csv',
+                            'pathToSource': '.',
+                        }
+                    }
+                },
+            },
+            'RegionalEvent': {
+                'eventFile': 'test_event_grid.csv',
+                'eventFilePath': '.',
+                'units': {'PGA': 'g'},
+            },
+        }
 
-        # Create GP_1.csv
+        with (temp_dir / 'test_config.json').open('w') as f:
+            json.dump(config_data, f, indent=2)
+
+        # Create GP_1.csv for earthquake scenario
         gp1_data = pd.DataFrame(
             {'PGA': [0.5, 0.51, 0.49, 0.52, 0.48, 0.5, 0.51, 0.49, 0.52, 0.48]}
         )
         gp1_data.to_csv(temp_dir / 'GP_1.csv', index=False)
 
-        # Create GP_2.csv
+        # Create GP_2.csv for earthquake scenario
         gp2_data = pd.DataFrame(
             {'PGA': [0.6, 0.61, 0.59, 0.62, 0.58, 0.6, 0.61, 0.59, 0.62, 0.58]}
+        )
+        gp2_data.to_csv(temp_dir / 'GP_2.csv', index=False)
+
+        yield temp_dir
+
+    finally:
+        # Clean up by removing the temporary directory and all its contents
+        shutil.rmtree(temp_dir)
+
+
+@pytest.fixture(scope='function')  # noqa: PT003
+def setup_hurricane_test_data() -> Generator[Path, None, None]:
+    """
+    Create a temporary directory with mock data for hurricane tests.
+
+    This fixture:
+    1. Uses the common helper to create the temporary directory and common files
+    2. Adds hurricane-specific building inventory with features like RoofShape and Shutters
+    3. Adds hurricane-specific configuration and data files
+    4. Yields the path to the temporary directory
+    5. Cleans up after the test by removing the directory and all its contents
+
+    Yields:
+        Generator yielding the Path object to the temporary directory
+    """
+    # Set up common test data
+    temp_dir = _setup_common_test_data()
+
+    try:
+        # Create hurricane-specific test_bldg_inventory.csv
+        hurricane_inventory_content = """id,Latitude,Longitude,BuildingType,StructureType,NumberOfStories,Height,PlanArea,RoofShape,RoofQuality,RoofSystem,RoofCover,SecondaryWaterResistance,RoofDeckAttachment,RoofToWallConnection,NumberOfUnits,JoistSpacing,Garage,Shutters,WindowArea,TieDowns,MasonryReinforcing,WindDebrisClass,LandCover,OccupancyClass
+1,37.8716,-122.2727,Wood,Multi-Unit Housing,1,15,744.6,Hip,,Truss,,0,8d,Toe-nail,,,,0,,,,,Light Trees,RES3A
+2,37.8700,-122.2700,Wood,Single Family Housing,1,12.97,250.2,Gable,,Truss,,0,8d,Toe-nail,,,No,1,,,,,Suburban,RES1
+3,37.8684,-122.2683,Wood,Single Family Housing,1,16.28,170.4,Gable,,Truss,,0,8d,Toe-nail,,,No,0,,,,,Suburban,RES1
+4,37.8668,-122.2666,Wood,Single Family Housing,2,34.58,141.9,Gable,,Truss,,0,8d,Toe-nail,,,Weak,0,,,,,Suburban,RES1
+5,37.8652,-122.2649,Wood,Single Family Housing,1,14.22,269.8,Gable,,Truss,,0,8d,Toe-nail,,,Weak,0,,,,,Suburban,RES1"""
+
+        with (temp_dir / 'test_bldg_inventory.csv').open('w') as f:
+            f.write(hurricane_inventory_content)
+
+        # Create test_config.json for hurricane scenario
+        config_data = {
+            'Applications': {
+                'RegionalMapping': {
+                    'Buildings': {'ApplicationData': {'neighbors': 2, 'samples': 10}}
+                },
+                'DL': {
+                    'Buildings': {
+                        'ApplicationData': {
+                            'Realizations': 10,
+                            'DL_Method': 'Hazus Hurricane Wind',
+                        }
+                    }
+                },
+                'Assets': {
+                    'Buildings': {
+                        'ApplicationData': {
+                            'assetSourceFile': 'test_bldg_inventory.csv',
+                            'pathToSource': '.',
+                        }
+                    }
+                },
+            },
+            'RegionalEvent': {
+                'eventFile': 'test_event_grid.csv',
+                'eventFilePath': '.',
+                'units': {'PWS': 'mph'},
+            },
+        }
+
+        with (temp_dir / 'test_config.json').open('w') as f:
+            json.dump(config_data, f, indent=2)
+
+        # Create GP_1.csv for hurricane scenario
+        gp1_data = pd.DataFrame(
+            {'PWS': [100, 102, 98, 104, 96, 100, 102, 98, 104, 96]}
+        )
+        gp1_data.to_csv(temp_dir / 'GP_1.csv', index=False)
+
+        # Create GP_2.csv for hurricane scenario
+        gp2_data = pd.DataFrame(
+            {'PWS': [110, 112, 108, 114, 106, 110, 112, 108, 114, 106]}
         )
         gp2_data.to_csv(temp_dir / 'GP_2.csv', index=False)
 

@@ -133,7 +133,7 @@ def test_regional_sim_filter_success(
     ('filter_str', 'expected_error'),
     [
         # Test invalid syntax (invalid range)
-        ('1, 5-3, 8', "Invalid range in filter"),
+        ('1, 5-3, 8', 'Invalid range in filter'),
         # Test invalid syntax (non-numeric value)
         ('1, 3-5, 8a', "Invalid part '8a' in filter string."),
         # Test with a building ID that does not exist
@@ -167,3 +167,40 @@ def test_regional_sim_filter_failures(
     # Expect a ValueError to be raised that matches the expected text
     with pytest.raises(ValueError, match=re.escape(expected_error)):
         regional_sim.regional_sim(config_file=str(config_path), num_cores=1)
+
+
+def test_regional_sim_hurricane_scenario(
+    setup_hurricane_test_data: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """
+    Integration test for the regional_sim module using hurricane data.
+
+    Tests that the hurricane simulation runs correctly and produces the expected output files
+    with the correct column names using the PWS (Peak Wind Speed) acronym.
+    """
+    # Change current working directory to the temporary directory
+    temp_dir = setup_hurricane_test_data
+    monkeypatch.chdir(temp_dir)
+
+    # Construct the path to the config file
+    config_file_path = temp_dir / 'test_config.json'
+
+    # Run the regional simulation
+    regional_sim.regional_sim(config_file_path, num_cores=1)
+
+    # Verify that the demand.csv file was created and has the expected PWS columns
+    demand_file_path = temp_dir / 'demand.csv'
+    assert (
+        demand_file_path.is_file()
+    ), 'Expected output file demand.csv was not created'
+    demand_df = pd.read_csv(demand_file_path)
+    # Verify PWS columns exist in the demand file
+    assert any(
+        'PWS' in col for col in demand_df.columns
+    ), 'Expected PWS columns in demand.csv'
+
+    # Verify that the repair_costs.csv file was created
+    repair_costs_path = temp_dir / 'repair_costs.csv'
+    assert (
+        repair_costs_path.is_file()
+    ), 'Expected output file repair_costs.csv was not created'
