@@ -96,7 +96,6 @@ exclude = [
   "rulesets",
   "examples",
   "*.ipynb",
-  "NNR.py",
   "pelicun/tests/dl_calculation/e7/auto_HU_NJ.py",
   "pelicun/tests/dl_calculation/e8/auto_HU_LA.py",
   "pelicun/tests/dl_calculation/e9/custom_pop.py",
