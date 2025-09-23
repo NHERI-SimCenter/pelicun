@@ -134,17 +134,29 @@ def setup_earthquake_test_data() -> Generator[Path, None, None]:
         # Create test_bldg_inventory.csv
         bldg_data = pd.DataFrame(
             {
-                'id': [0, 1],
-                'Latitude': [37.8716, 37.8700],
-                'Longitude': [-122.2727, -122.2700],
-                'HeightClass': ['Low-Rise', 'Low-Rise'],
-                'DesignLevel': ['Pre-Code', 'Pre-Code'],
-                'PlanArea': [7752, 3600],
-                'NumberOfStories': [2, 3],
-                'YearBuilt': [1906, 1931],
-                'ReplacementCost': [1022488.8, 6843570.3],
-                'StructureType': ['C1', 'W2'],
-                'OccupancyClass': ['COM4', 'RES3'],
+                'id': [0, 1, 2, 3, 4],
+                'Latitude': [37.8716, 37.8700, 37.8684, 37.8668, 37.8652],
+                'Longitude': [-122.2727, -122.2700, -122.2683, -122.2666, -122.2649],
+                'HeightClass': [
+                    'Low-Rise',
+                    'Low-Rise',
+                    'Mid-Rise',
+                    'Low-Rise',
+                    'Low-Rise',
+                ],
+                'DesignLevel': [
+                    'Pre-Code',
+                    'Pre-Code',
+                    'Pre-Code',
+                    'High-Code',
+                    'Pre-Code',
+                ],
+                'PlanArea': [7752, 3600, 28000, 14709, 3040],
+                'NumberOfStories': [2, 3, 4, 1, 3],
+                'YearBuilt': [1906, 1931, 1906, 1983, 1912],
+                'ReplacementCost': [1022488.8, 6843570.3, 3693200, 1912170, 418000],
+                'StructureType': ['C1', 'W2', 'RM2', 'S1', 'S1'],
+                'OccupancyClass': ['COM4', 'RES3', 'COM4', 'RES3', 'RES3'],
             }
         )
         bldg_data.to_csv(temp_dir / 'test_bldg_inventory.csv', index=False)

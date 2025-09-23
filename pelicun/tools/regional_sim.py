@@ -35,7 +35,7 @@
 # Contributors:
 # Adam Zsarnóczay
 
-"""Temporary solution that provides regional simulation capability to Pelicun."""
+"""Performs regional-scale disaster impact simulations on building inventories."""
 
 from __future__ import annotations
 
@@ -56,6 +56,71 @@ from pelicun.assessment import Assessment
 from pelicun.auto import auto_populate
 from pelicun.file_io import substitute_default_path
 from pelicun.tools.NNR import NNR
+
+
+def parse_id_filter(filter_str: str) -> list[int]:
+    """
+    Parse a filter string into a list of unique, sorted integer IDs.
+
+    The filter string can contain comma-separated integers and ranges
+    (e.g., "1, 3-5, 8").
+
+    Parameters
+    ----------
+    filter_str : str
+        The filter string to parse.
+
+    Returns
+    -------
+    list[int]
+        A sorted list of unique integer IDs.
+
+    Raises
+    ------
+    ValueError
+        If the filter string contains non-numeric parts or invalid ranges.
+    """
+    if not filter_str or not isinstance(filter_str, str):
+        return []
+
+    ids = set()
+    parts = [part.strip() for part in filter_str.split(',')]
+
+    for part in parts:
+        if not part:  # Handle empty parts from extra commas, e.g., "1,,2"
+            continue
+
+        if '-' in part:
+            try:
+                start_str, end_str = part.split('-', 1)
+                start = int(start_str.strip())
+                end = int(end_str.strip())
+            except ValueError as e:
+                msg = (
+                    f"Invalid part '{part}' in filter string. Must be an "
+                    f"integer or a valid 'start-end' range."
+                )
+                raise ValueError(msg) from e
+
+            if start > end:
+                msg = (
+                    f'Invalid range in filter: start value {start} is '
+                    f'greater than end value {end}.'
+                )
+                raise ValueError(msg)
+
+            ids.update(range(start, end + 1))
+        else:
+            try:
+                ids.add(int(part))
+            except ValueError as e:
+                msg = (
+                    f"Invalid part '{part}' in filter string. Must be an "
+                    f"integer or a valid 'start-end' range."
+                )
+                raise ValueError(msg) from e
+
+    return sorted(ids)
 
 
 def unique_list(x: pd.Series) -> str:
@@ -546,7 +611,7 @@ def process_and_save_chunk(
     )
 
 
-def regional_sim(config_file: str, num_cores: int | None = None) -> None:
+def regional_sim(config_file: str, num_cores: int | None = None) -> None:  # noqa: C901
     """
     Perform a regional-scale disaster impact simulation.
 
@@ -571,6 +636,12 @@ def regional_sim(config_file: str, num_cores: int | None = None) -> None:
     num_cores : int, optional
         Number of CPU cores to use for parallel processing. If None,
         uses all available cores minus one
+
+    Raises
+    ------
+    ValueError
+        If the building ID filter specified in the config file does not match
+        any building IDs in the inventory.
 
     Notes
     -----
@@ -632,6 +703,31 @@ def regional_sim(config_file: str, num_cores: int | None = None) -> None:
     bldg_data_path = f"{bldg_data_folder}/{config['Applications']['Assets']['Buildings']['ApplicationData']['assetSourceFile']}"
 
     bldg_df = pd.read_csv(bldg_data_path, index_col=0)
+
+    # Apply building ID filter if specified in the config
+    try:
+        filter_str = config['Applications']['Assets']['Buildings'][
+            'ApplicationData'
+        ]['filter']
+    except KeyError:
+        filter_str = None
+
+    if filter_str:
+        ids_to_keep = parse_id_filter(filter_str)
+
+        if ids_to_keep:
+            # Check if all requested IDs exist in the inventory
+            missing_ids = set(ids_to_keep) - set(bldg_df.index)
+            if missing_ids:
+                msg = (
+                    f'The following building IDs from the filter were not '
+                    f'found in the inventory: {sorted(missing_ids)}'
+                )
+                raise ValueError(msg)
+
+            # Filter the DataFrame
+            bldg_df = bldg_df.loc[ids_to_keep]
+
     original_index = bldg_df.index
     bldg_df = bldg_df.sort_values(by='OccupancyClass')
 
