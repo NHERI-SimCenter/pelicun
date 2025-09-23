@@ -24,7 +24,7 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="v3.8.0" href="v3.8.0.html" />
+    <link rel="next" title="Version 3.8.0 (September 15, 2025)" href="v3.8.0.html" />
     <link rel="prev" title="5. Release Notes" href="index.html" /> 
 </head>
 
@@ -157,15 +157,58 @@
 <span id="changes-unreleased"></span><h1>Unreleased<a class="headerlink" href="#unreleased" title="Link to this heading"></a></h1>
 <section id="added">
 <h2>Added<a class="headerlink" href="#added" title="Link to this heading"></a></h2>
+<p><strong>Multi-Hazard Regional Simulation</strong>: Added a framework to support multiple,
+configurable hazards beyond the original earthquake-only focus.</p>
+<ul class="simple">
+<li><p>Add support for the <strong>Hazus Hurricane Wind</strong> damage and loss methodology.</p></li>
+<li><p>Introduce a new end-to-end integration test for the hurricane wind
+scenario, complete with a dedicated, hazard-specific pytest fixture.</p></li>
+</ul>
+<p><strong>Building Inventory Filter</strong>: Introduce a new feature to run simulations on a
+specific subset of assets.</p>
+<ul class="simple">
+<li><p>Add a <cite>filter</cite> key to the configuration file to select buildings by ID and
+ID ranges (e.g., “1, 5-10”).</p></li>
+<li><p>Add a comprehensive, parametrized test suite to validate all filter
+scenarios, including error handling.</p></li>
+</ul>
+<p><strong>Enhanced Regional Simulation Testing</strong>: Introduce the first comprehensive
+integration test for the <cite>regional_sim</cite> tool to establish a testing baseline.</p>
 </section>
 <section id="changed">
 <h2>Changed<a class="headerlink" href="#changed" title="Link to this heading"></a></h2>
+<p><strong>Regional Simulation Workflow</strong>: Major refactoring of the <cite>regional_sim</cite>
+script for improved flexibility and robustness.</p>
+<ul class="simple">
+<li><p>Generalize the Intensity Measure (IM) handling to be dynamically driven by
+the configuration file, removing all hardcoded “PGA” logic.</p></li>
+<li><p>Rearchitect the loss assessment logic into a conditional framework, with a
+dedicated path for complex Hazus Earthquake models and an efficient,
+1-to-1 mapping path for other methods.</p></li>
+<li><p>Reorganize the output stage to save results sequentially, improving
+robustness against failures in later-stage calculations.</p></li>
+<li><p>Update logic to upsample demand realizations when the requested sample size
+is larger than the available data.</p></li>
+</ul>
+<p><strong>NNR (Nearest Neighbor Resampling) Tool</strong>: Significant enhancements to the
+<cite>NNR</cite> function for improved performance and functionality.</p>
+<ul class="simple">
+<li><p>The “expected value” mode can now operate on each realization of a 3D
+input array independently.</p></li>
+<li><p>Improve performance by vectorizing the 2D expected value calculation.</p></li>
+<li><p>Make the number of nearest neighbors a configurable parameter.</p></li>
+</ul>
 </section>
 <section id="removed">
 <h2>Removed<a class="headerlink" href="#removed" title="Link to this heading"></a></h2>
 </section>
 <section id="fixed">
 <h2>Fixed<a class="headerlink" href="#fixed" title="Link to this heading"></a></h2>
+<p><strong>Code Quality and Documentation</strong>: Continued compliance with ruff and ensured
+all tests pass to guarantee code quality and future maintainability.</p>
+<ul class="simple">
+<li><p>Add full type hinting and a comprehensive docstring to the <cite>NNR</cite> function.</p></li>
+</ul>
 </section>
 </section>
 

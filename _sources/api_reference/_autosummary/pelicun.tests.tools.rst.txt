@@ -1,7 +1,7 @@
-pelicun.tests
-=============
+pelicun.tests.tools
+===================
 
-.. automodule:: pelicun.tests
+.. automodule:: pelicun.tests.tools
    :members:
 
    
@@ -29,12 +29,5 @@ pelicun.tests
    :template: custom-module-template.rst
    :recursive:
 
-   basic
-   code_repetition_checker
-   conftest
-   dl_calculation
-   maintenance
-   tools
-   util
-   validation
+   test_regional_sim
 

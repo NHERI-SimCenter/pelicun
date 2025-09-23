@@ -157,14 +157,87 @@
              
   <section id="module-pelicun.tools.NNR">
 <span id="pelicun-tools-nnr"></span><h1>pelicun.tools.NNR<a class="headerlink" href="#module-pelicun.tools.NNR" title="Link to this heading"></a></h1>
+<p>Performs k-Nearest Neighbors spatial interpolation and resampling.</p>
 <p class="rubric">Functions</p>
 <table class="autosummary longtable docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">NNR</span></code>(target, source, known_values[, ...])</p></td>
-<td><p></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pelicun.tools.NNR.NNR" title="pelicun.tools.NNR.NNR"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NNR</span></code></a>(target, source, known_values[, ...])</p></td>
+<td><p>Perform k-NN spatial interpolation and resampling.</p></td>
 </tr>
 </tbody>
 </table>
+<dl class="py function">
+<dt class="sig sig-object py" id="pelicun.tools.NNR.NNR">
+<span class="sig-prename descclassname"><span class="pre">pelicun.tools.NNR.</span></span><span class="sig-name descname"><span class="pre">NNR</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.3)"><span class="pre">ndarray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">source</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.3)"><span class="pre">ndarray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">known_values</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.3)"><span class="pre">ndarray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">-1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_neighbors</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weight</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'distance2'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.3)"><span class="pre">ndarray</span></a></span></span><a class="reference internal" href="../../_modules/pelicun/tools/NNR.html#NNR"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.tools.NNR.NNR" title="Link to this definition"></a></dt>
+<dd><p>Perform k-NN spatial interpolation and resampling.</p>
+<p>This function estimates values at a set of target locations based on known
+values at a set of source locations. It can operate in two modes:
+calculating a deterministic, weighted-average “expected value”, or
+performing a probabilistic resampling to generate new realizations based on
+the neighbors’ values and their distance from the target point.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>target</strong><span class="classifier">np.ndarray</span></dt><dd><p>Coordinates of the target points where values are to be estimated.
+Expected shape: <cite>(n_targets, n_dimensions)</cite>.</p>
+</dd>
+<dt><strong>source</strong><span class="classifier">np.ndarray</span></dt><dd><p>Coordinates of the source points with known values.
+Expected shape: <cite>(n_sources, n_dimensions)</cite>.</p>
+</dd>
+<dt><strong>known_values</strong><span class="classifier">np.ndarray</span></dt><dd><p>The known values at the source locations. The dimensionality determines
+if the source values are deterministic or a probabilistic sample. Use
+the 3D option even if there is only one feature.</p>
+<ul class="simple">
+<li><p>If 2D <cite>(n_sources, n_features)</cite>: A single value for each feature.</p></li>
+<li><p>If 3D <cite>(n_sources, n_features, n_realizations)</cite>: A sample of
+values (multiple realizations) for each feature.</p></li>
+</ul>
+</dd>
+<dt><strong>sample_size</strong><span class="classifier">int, optional</span></dt><dd><p>Controls the operating mode and the number of output realizations.
+Defaults to -1.</p>
+<ul class="simple">
+<li><p>If -1: Calculates the <strong>expected value</strong> by taking a
+weighted average of the neighbors’ values. When working with a 3D
+array of known values, it provides an expected value for each
+realization of each feature.</p></li>
+<li><p>If &gt; 0: Performs <strong>probabilistic resampling</strong> to generate
+<cite>sample_size</cite> new realizations at each target point.</p></li>
+</ul>
+</dd>
+<dt><strong>n_neighbors</strong><span class="classifier">int, optional</span></dt><dd><p>The number of nearest neighbors (<cite>k</cite>) to consider for each target
+point. Defaults to 4.</p>
+</dd>
+<dt><strong>weight</strong><span class="classifier">{‘distance2’, ‘distance1’, ‘uniform’}, optional</span></dt><dd><p>The method used to weigh the influence of each neighbor.
+Defaults to ‘distance2’.</p>
+<ul class="simple">
+<li><p>‘distance2’: Inverse-square distance weighting (1/d^2).</p></li>
+<li><p>‘distance1’: Inverse distance weighting (1/d).</p></li>
+<li><p>‘uniform’: All neighbors are weighted equally.</p></li>
+</ul>
+</dd>
+<dt><strong>seed</strong><span class="classifier">int | None, optional</span></dt><dd><p>A seed for the random number generator to ensure reproducibility of
+the probabilistic resampling (<cite>sample_size &gt; 0</cite>). Defaults to None.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>np.ndarray</dt><dd><p>The estimated values at the target locations. The shape of the output
+depends on the <cite>sample_size</cite> parameter.</p>
+<ul class="simple">
+<li><p>If <cite>sample_size &gt; 0</cite>, the shape is
+<cite>(n_targets, n_features, sample_size)</cite>.</p></li>
+<li><p>If <cite>sample_size == -1</cite> and <cite>known_values</cite> is 3D, the shape is
+<cite>(n_targets, n_features, n_realizations)</cite>.</p></li>
+<li><p>If <cite>sample_size == -1</cite> and <cite>known_values</cite> is 2D, the shape is
+<cite>(n_targets, n_features)</cite>.</p></li>
+</ul>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
 </section>
 
 

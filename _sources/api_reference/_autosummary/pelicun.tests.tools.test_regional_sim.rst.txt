@@ -1,0 +1,33 @@
+pelicun.tests.tools.test\_regional\_sim
+=======================================
+
+.. automodule:: pelicun.tests.tools.test_regional_sim
+   :members:
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      test_regional_sim_earthquake_run
+      test_regional_sim_filter_failures
+      test_regional_sim_filter_success
+      test_regional_sim_hurricane_scenario
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

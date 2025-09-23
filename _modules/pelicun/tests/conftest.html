@@ -188,9 +188,14 @@
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">shutil</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Generator</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">unittest.mock</span><span class="w"> </span><span class="kn">import</span> <span class="n">patch</span>
 
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pytest</span>
 
 <span class="c1"># This is an explicit list of tests that handle their own network mocking</span>
@@ -229,6 +234,222 @@
         <span class="k">with</span> <span class="n">patch</span><span class="p">(</span><span class="n">target_function_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">mocked_check_func</span><span class="p">:</span>
             <span class="n">mocked_check_func</span><span class="o">.</span><span class="n">return_value</span> <span class="o">=</span> <span class="kc">None</span>
             <span class="k">yield</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_setup_common_test_data</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create a temporary directory with common test data for regional simulations.</span>
+
+<span class="sd">    This helper function sets up common test data used by multiple test fixtures:</span>
+<span class="sd">    1. Creates a temporary directory</span>
+<span class="sd">    2. Creates the test_event_grid.csv with 2 grid points</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Path object to the temporary directory</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Create a temporary directory</span>
+    <span class="n">temp_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">tempfile</span><span class="o">.</span><span class="n">mkdtemp</span><span class="p">())</span>
+
+    <span class="c1"># Create test_event_grid.csv</span>
+    <span class="n">grid_data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+        <span class="p">{</span>
+            <span class="s1">&#39;GP_file&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;GP_1.csv&#39;</span><span class="p">,</span> <span class="s1">&#39;GP_2.csv&#39;</span><span class="p">],</span>
+            <span class="s1">&#39;Latitude&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">37.8720</span><span class="p">,</span> <span class="mf">37.8690</span><span class="p">],</span>
+            <span class="s1">&#39;Longitude&#39;</span><span class="p">:</span> <span class="p">[</span><span class="o">-</span><span class="mf">122.2730</span><span class="p">,</span> <span class="o">-</span><span class="mf">122.2690</span><span class="p">],</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
+    <span class="n">grid_data</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">temp_dir</span> <span class="o">/</span> <span class="s1">&#39;test_event_grid.csv&#39;</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">temp_dir</span>
+
+
+<div class="viewcode-block" id="setup_earthquake_test_data">
+<a class="viewcode-back" href="../../../api_reference/_autosummary/pelicun.tests.conftest.html#pelicun.tests.conftest.setup_earthquake_test_data">[docs]</a>
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span><span class="p">(</span><span class="n">scope</span><span class="o">=</span><span class="s1">&#39;function&#39;</span><span class="p">)</span>  <span class="c1"># noqa: PT003</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">setup_earthquake_test_data</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Generator</span><span class="p">[</span><span class="n">Path</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create a temporary directory with mock data for earthquake tests.</span>
+
+<span class="sd">    This fixture:</span>
+<span class="sd">    1. Uses the common helper to create the temporary directory and common files</span>
+<span class="sd">    2. Adds earthquake-specific building inventory</span>
+<span class="sd">    3. Adds earthquake-specific configuration and data files</span>
+<span class="sd">    4. Yields the path to the temporary directory</span>
+<span class="sd">    5. Cleans up after the test by removing the directory and all its contents</span>
+
+<span class="sd">    Yields:</span>
+<span class="sd">        Generator yielding the Path object to the temporary directory</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Set up common test data</span>
+    <span class="n">temp_dir</span> <span class="o">=</span> <span class="n">_setup_common_test_data</span><span class="p">()</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="c1"># Create earthquake-specific test_bldg_inventory.csv</span>
+        <span class="n">bldg_data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span>
+                <span class="s1">&#39;Latitude&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">37.8716</span><span class="p">,</span> <span class="mf">37.8700</span><span class="p">,</span> <span class="mf">37.8684</span><span class="p">,</span> <span class="mf">37.8668</span><span class="p">,</span> <span class="mf">37.8652</span><span class="p">],</span>
+                <span class="s1">&#39;Longitude&#39;</span><span class="p">:</span> <span class="p">[</span><span class="o">-</span><span class="mf">122.2727</span><span class="p">,</span> <span class="o">-</span><span class="mf">122.2700</span><span class="p">,</span> <span class="o">-</span><span class="mf">122.2683</span><span class="p">,</span> <span class="o">-</span><span class="mf">122.2666</span><span class="p">,</span> <span class="o">-</span><span class="mf">122.2649</span><span class="p">],</span>
+                <span class="s1">&#39;HeightClass&#39;</span><span class="p">:</span> <span class="p">[</span>
+                    <span class="s1">&#39;Low-Rise&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;Low-Rise&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;Mid-Rise&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;Low-Rise&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;Low-Rise&#39;</span><span class="p">,</span>
+                <span class="p">],</span>
+                <span class="s1">&#39;DesignLevel&#39;</span><span class="p">:</span> <span class="p">[</span>
+                    <span class="s1">&#39;Pre-Code&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;Pre-Code&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;Pre-Code&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;High-Code&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;Pre-Code&#39;</span><span class="p">,</span>
+                <span class="p">],</span>
+                <span class="s1">&#39;PlanArea&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">7752</span><span class="p">,</span> <span class="mi">3600</span><span class="p">,</span> <span class="mi">28000</span><span class="p">,</span> <span class="mi">14709</span><span class="p">,</span> <span class="mi">3040</span><span class="p">],</span>
+                <span class="s1">&#39;NumberOfStories&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span>
+                <span class="s1">&#39;YearBuilt&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1906</span><span class="p">,</span> <span class="mi">1931</span><span class="p">,</span> <span class="mi">1906</span><span class="p">,</span> <span class="mi">1983</span><span class="p">,</span> <span class="mi">1912</span><span class="p">],</span>
+                <span class="s1">&#39;ReplacementCost&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">1022488.8</span><span class="p">,</span> <span class="mf">6843570.3</span><span class="p">,</span> <span class="mi">3693200</span><span class="p">,</span> <span class="mi">1912170</span><span class="p">,</span> <span class="mi">418000</span><span class="p">],</span>
+                <span class="s1">&#39;StructureType&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;C1&#39;</span><span class="p">,</span> <span class="s1">&#39;W2&#39;</span><span class="p">,</span> <span class="s1">&#39;RM2&#39;</span><span class="p">,</span> <span class="s1">&#39;S1&#39;</span><span class="p">,</span> <span class="s1">&#39;S1&#39;</span><span class="p">],</span>
+                <span class="s1">&#39;OccupancyClass&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;COM4&#39;</span><span class="p">,</span> <span class="s1">&#39;RES3&#39;</span><span class="p">,</span> <span class="s1">&#39;COM4&#39;</span><span class="p">,</span> <span class="s1">&#39;RES3&#39;</span><span class="p">,</span> <span class="s1">&#39;RES3&#39;</span><span class="p">],</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+        <span class="n">bldg_data</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">temp_dir</span> <span class="o">/</span> <span class="s1">&#39;test_bldg_inventory.csv&#39;</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="c1"># Create test_config.json for earthquake scenario</span>
+        <span class="n">config_data</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;Applications&#39;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s1">&#39;RegionalMapping&#39;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s1">&#39;Buildings&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;ApplicationData&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;neighbors&#39;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s1">&#39;samples&#39;</span><span class="p">:</span> <span class="mi">10</span><span class="p">}}</span>
+                <span class="p">},</span>
+                <span class="s1">&#39;DL&#39;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s1">&#39;Buildings&#39;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s1">&#39;ApplicationData&#39;</span><span class="p">:</span> <span class="p">{</span>
+                            <span class="s1">&#39;Realizations&#39;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+                            <span class="s1">&#39;DL_Method&#39;</span><span class="p">:</span> <span class="s1">&#39;Hazus Earthquake - Buildings&#39;</span><span class="p">,</span>
+                        <span class="p">}</span>
+                    <span class="p">}</span>
+                <span class="p">},</span>
+                <span class="s1">&#39;Assets&#39;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s1">&#39;Buildings&#39;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s1">&#39;ApplicationData&#39;</span><span class="p">:</span> <span class="p">{</span>
+                            <span class="s1">&#39;assetSourceFile&#39;</span><span class="p">:</span> <span class="s1">&#39;test_bldg_inventory.csv&#39;</span><span class="p">,</span>
+                            <span class="s1">&#39;pathToSource&#39;</span><span class="p">:</span> <span class="s1">&#39;.&#39;</span><span class="p">,</span>
+                        <span class="p">}</span>
+                    <span class="p">}</span>
+                <span class="p">},</span>
+            <span class="p">},</span>
+            <span class="s1">&#39;RegionalEvent&#39;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s1">&#39;eventFile&#39;</span><span class="p">:</span> <span class="s1">&#39;test_event_grid.csv&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;eventFilePath&#39;</span><span class="p">:</span> <span class="s1">&#39;.&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;PGA&#39;</span><span class="p">:</span> <span class="s1">&#39;g&#39;</span><span class="p">},</span>
+            <span class="p">},</span>
+        <span class="p">}</span>
+
+        <span class="k">with</span> <span class="p">(</span><span class="n">temp_dir</span> <span class="o">/</span> <span class="s1">&#39;test_config.json&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">config_data</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+        <span class="c1"># Create GP_1.csv for earthquake scenario</span>
+        <span class="n">gp1_data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+            <span class="p">{</span><span class="s1">&#39;PGA&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.51</span><span class="p">,</span> <span class="mf">0.49</span><span class="p">,</span> <span class="mf">0.52</span><span class="p">,</span> <span class="mf">0.48</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.51</span><span class="p">,</span> <span class="mf">0.49</span><span class="p">,</span> <span class="mf">0.52</span><span class="p">,</span> <span class="mf">0.48</span><span class="p">]}</span>
+        <span class="p">)</span>
+        <span class="n">gp1_data</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">temp_dir</span> <span class="o">/</span> <span class="s1">&#39;GP_1.csv&#39;</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="c1"># Create GP_2.csv for earthquake scenario</span>
+        <span class="n">gp2_data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+            <span class="p">{</span><span class="s1">&#39;PGA&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.6</span><span class="p">,</span> <span class="mf">0.61</span><span class="p">,</span> <span class="mf">0.59</span><span class="p">,</span> <span class="mf">0.62</span><span class="p">,</span> <span class="mf">0.58</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">,</span> <span class="mf">0.61</span><span class="p">,</span> <span class="mf">0.59</span><span class="p">,</span> <span class="mf">0.62</span><span class="p">,</span> <span class="mf">0.58</span><span class="p">]}</span>
+        <span class="p">)</span>
+        <span class="n">gp2_data</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">temp_dir</span> <span class="o">/</span> <span class="s1">&#39;GP_2.csv&#39;</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="k">yield</span> <span class="n">temp_dir</span>
+
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="c1"># Clean up by removing the temporary directory and all its contents</span>
+        <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">temp_dir</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="setup_hurricane_test_data">
+<a class="viewcode-back" href="../../../api_reference/_autosummary/pelicun.tests.conftest.html#pelicun.tests.conftest.setup_hurricane_test_data">[docs]</a>
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span><span class="p">(</span><span class="n">scope</span><span class="o">=</span><span class="s1">&#39;function&#39;</span><span class="p">)</span>  <span class="c1"># noqa: PT003</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">setup_hurricane_test_data</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Generator</span><span class="p">[</span><span class="n">Path</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create a temporary directory with mock data for hurricane tests.</span>
+
+<span class="sd">    This fixture:</span>
+<span class="sd">    1. Uses the common helper to create the temporary directory and common files</span>
+<span class="sd">    2. Adds hurricane-specific building inventory with features like RoofShape and Shutters</span>
+<span class="sd">    3. Adds hurricane-specific configuration and data files</span>
+<span class="sd">    4. Yields the path to the temporary directory</span>
+<span class="sd">    5. Cleans up after the test by removing the directory and all its contents</span>
+
+<span class="sd">    Yields:</span>
+<span class="sd">        Generator yielding the Path object to the temporary directory</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Set up common test data</span>
+    <span class="n">temp_dir</span> <span class="o">=</span> <span class="n">_setup_common_test_data</span><span class="p">()</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="c1"># Create hurricane-specific test_bldg_inventory.csv</span>
+        <span class="n">hurricane_inventory_content</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;id,Latitude,Longitude,BuildingType,StructureType,NumberOfStories,Height,PlanArea,RoofShape,RoofQuality,RoofSystem,RoofCover,SecondaryWaterResistance,RoofDeckAttachment,RoofToWallConnection,NumberOfUnits,JoistSpacing,Garage,Shutters,WindowArea,TieDowns,MasonryReinforcing,WindDebrisClass,LandCover,OccupancyClass</span>
+<span class="s2">1,37.8716,-122.2727,Wood,Multi-Unit Housing,1,15,744.6,Hip,,Truss,,0,8d,Toe-nail,,,,0,,,,,Light Trees,RES3A</span>
+<span class="s2">2,37.8700,-122.2700,Wood,Single Family Housing,1,12.97,250.2,Gable,,Truss,,0,8d,Toe-nail,,,No,1,,,,,Suburban,RES1</span>
+<span class="s2">3,37.8684,-122.2683,Wood,Single Family Housing,1,16.28,170.4,Gable,,Truss,,0,8d,Toe-nail,,,No,0,,,,,Suburban,RES1</span>
+<span class="s2">4,37.8668,-122.2666,Wood,Single Family Housing,2,34.58,141.9,Gable,,Truss,,0,8d,Toe-nail,,,Weak,0,,,,,Suburban,RES1</span>
+<span class="s2">5,37.8652,-122.2649,Wood,Single Family Housing,1,14.22,269.8,Gable,,Truss,,0,8d,Toe-nail,,,Weak,0,,,,,Suburban,RES1&quot;&quot;&quot;</span>
+
+        <span class="k">with</span> <span class="p">(</span><span class="n">temp_dir</span> <span class="o">/</span> <span class="s1">&#39;test_bldg_inventory.csv&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">hurricane_inventory_content</span><span class="p">)</span>
+
+        <span class="c1"># Create test_config.json for hurricane scenario</span>
+        <span class="n">config_data</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;Applications&#39;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s1">&#39;RegionalMapping&#39;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s1">&#39;Buildings&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;ApplicationData&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;neighbors&#39;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s1">&#39;samples&#39;</span><span class="p">:</span> <span class="mi">10</span><span class="p">}}</span>
+                <span class="p">},</span>
+                <span class="s1">&#39;DL&#39;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s1">&#39;Buildings&#39;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s1">&#39;ApplicationData&#39;</span><span class="p">:</span> <span class="p">{</span>
+                            <span class="s1">&#39;Realizations&#39;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+                            <span class="s1">&#39;DL_Method&#39;</span><span class="p">:</span> <span class="s1">&#39;Hazus Hurricane Wind&#39;</span><span class="p">,</span>
+                        <span class="p">}</span>
+                    <span class="p">}</span>
+                <span class="p">},</span>
+                <span class="s1">&#39;Assets&#39;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s1">&#39;Buildings&#39;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s1">&#39;ApplicationData&#39;</span><span class="p">:</span> <span class="p">{</span>
+                            <span class="s1">&#39;assetSourceFile&#39;</span><span class="p">:</span> <span class="s1">&#39;test_bldg_inventory.csv&#39;</span><span class="p">,</span>
+                            <span class="s1">&#39;pathToSource&#39;</span><span class="p">:</span> <span class="s1">&#39;.&#39;</span><span class="p">,</span>
+                        <span class="p">}</span>
+                    <span class="p">}</span>
+                <span class="p">},</span>
+            <span class="p">},</span>
+            <span class="s1">&#39;RegionalEvent&#39;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s1">&#39;eventFile&#39;</span><span class="p">:</span> <span class="s1">&#39;test_event_grid.csv&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;eventFilePath&#39;</span><span class="p">:</span> <span class="s1">&#39;.&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;PWS&#39;</span><span class="p">:</span> <span class="s1">&#39;mph&#39;</span><span class="p">},</span>
+            <span class="p">},</span>
+        <span class="p">}</span>
+
+        <span class="k">with</span> <span class="p">(</span><span class="n">temp_dir</span> <span class="o">/</span> <span class="s1">&#39;test_config.json&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">config_data</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+        <span class="c1"># Create GP_1.csv for hurricane scenario</span>
+        <span class="n">gp1_data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+            <span class="p">{</span><span class="s1">&#39;PWS&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">100</span><span class="p">,</span> <span class="mi">102</span><span class="p">,</span> <span class="mi">98</span><span class="p">,</span> <span class="mi">104</span><span class="p">,</span> <span class="mi">96</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">102</span><span class="p">,</span> <span class="mi">98</span><span class="p">,</span> <span class="mi">104</span><span class="p">,</span> <span class="mi">96</span><span class="p">]}</span>
+        <span class="p">)</span>
+        <span class="n">gp1_data</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">temp_dir</span> <span class="o">/</span> <span class="s1">&#39;GP_1.csv&#39;</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="c1"># Create GP_2.csv for hurricane scenario</span>
+        <span class="n">gp2_data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+            <span class="p">{</span><span class="s1">&#39;PWS&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">110</span><span class="p">,</span> <span class="mi">112</span><span class="p">,</span> <span class="mi">108</span><span class="p">,</span> <span class="mi">114</span><span class="p">,</span> <span class="mi">106</span><span class="p">,</span> <span class="mi">110</span><span class="p">,</span> <span class="mi">112</span><span class="p">,</span> <span class="mi">108</span><span class="p">,</span> <span class="mi">114</span><span class="p">,</span> <span class="mi">106</span><span class="p">]}</span>
+        <span class="p">)</span>
+        <span class="n">gp2_data</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">temp_dir</span> <span class="o">/</span> <span class="s1">&#39;GP_2.csv&#39;</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="k">yield</span> <span class="n">temp_dir</span>
+
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="c1"># Clean up by removing the temporary directory and all its contents</span>
+        <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">temp_dir</span><span class="p">)</span></div>
 
 </pre></div>
 

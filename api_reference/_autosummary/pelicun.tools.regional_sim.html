@@ -157,26 +157,35 @@
              
   <section id="module-pelicun.tools.regional_sim">
 <span id="pelicun-tools-regional-sim"></span><h1>pelicun.tools.regional_sim<a class="headerlink" href="#module-pelicun.tools.regional_sim" title="Link to this heading"></a></h1>
-<p>Temporary solution that provides regional simulation capability to Pelicun.</p>
+<p>Performs regional-scale disaster impact simulations on building inventories.</p>
 <p class="rubric">Functions</p>
 <table class="autosummary longtable docutils align-default">
 <tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_calculate_losses_general</span></code>(assessment, ...)</p></td>
+<td><p>Calculate losses using a 1-to-1 mapping approach.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_calculate_losses_hazus_eq</span></code>(assessment, ...)</p></td>
+<td><p>Calculate losses using the Hazus Earthquake methodology.</p></td>
+</tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pelicun.tools.regional_sim.format_elapsed_time" title="pelicun.tools.regional_sim.format_elapsed_time"><code class="xref py py-obj docutils literal notranslate"><span class="pre">format_elapsed_time</span></code></a>(start_time)</p></td>
 <td><p>Format elapsed time from a start timestamp to current time as hh:mm:ss.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pelicun.tools.regional_sim.process_and_save_chunk" title="pelicun.tools.regional_sim.process_and_save_chunk"><code class="xref py py-obj docutils literal notranslate"><span class="pre">process_and_save_chunk</span></code></a>(i, chunk, temp_dir, ...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pelicun.tools.regional_sim.parse_id_filter" title="pelicun.tools.regional_sim.parse_id_filter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">parse_id_filter</span></code></a>(filter_str)</p></td>
+<td><p>Parse a filter string into a list of unique, sorted integer IDs.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pelicun.tools.regional_sim.process_and_save_chunk" title="pelicun.tools.regional_sim.process_and_save_chunk"><code class="xref py py-obj docutils literal notranslate"><span class="pre">process_and_save_chunk</span></code></a>(i, chunk, temp_dir, ...)</p></td>
 <td><p>Process a single chunk of buildings and save results to temporary compressed CSV files.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pelicun.tools.regional_sim.process_buildings_chunk" title="pelicun.tools.regional_sim.process_buildings_chunk"><code class="xref py py-obj docutils literal notranslate"><span class="pre">process_buildings_chunk</span></code></a>(bldg_df_chunk, ...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pelicun.tools.regional_sim.process_buildings_chunk" title="pelicun.tools.regional_sim.process_buildings_chunk"><code class="xref py py-obj docutils literal notranslate"><span class="pre">process_buildings_chunk</span></code></a>(bldg_df_chunk, ...)</p></td>
 <td><p>Process a chunk of buildings through the complete regional simulation pipeline.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pelicun.tools.regional_sim.regional_sim" title="pelicun.tools.regional_sim.regional_sim"><code class="xref py py-obj docutils literal notranslate"><span class="pre">regional_sim</span></code></a>(config_file[, num_cores])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pelicun.tools.regional_sim.regional_sim" title="pelicun.tools.regional_sim.regional_sim"><code class="xref py py-obj docutils literal notranslate"><span class="pre">regional_sim</span></code></a>(config_file[, num_cores])</p></td>
 <td><p>Perform a regional-scale disaster impact simulation.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pelicun.tools.regional_sim.tqdm_joblib" title="pelicun.tools.regional_sim.tqdm_joblib"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tqdm_joblib</span></code></a>(tqdm_object)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pelicun.tools.regional_sim.tqdm_joblib" title="pelicun.tools.regional_sim.tqdm_joblib"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tqdm_joblib</span></code></a>(tqdm_object)</p></td>
 <td><p>Context manager to patch joblib to report progress into a tqdm progress bar.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pelicun.tools.regional_sim.unique_list" title="pelicun.tools.regional_sim.unique_list"><code class="xref py py-obj docutils literal notranslate"><span class="pre">unique_list</span></code></a>(x)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pelicun.tools.regional_sim.unique_list" title="pelicun.tools.regional_sim.unique_list"><code class="xref py py-obj docutils literal notranslate"><span class="pre">unique_list</span></code></a>(x)</p></td>
 <td><p>Return unique values in a pandas Series as a comma-separated string.</p></td>
 </tr>
 </tbody>
@@ -202,8 +211,36 @@
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="pelicun.tools.regional_sim.parse_id_filter">
+<span class="sig-prename descclassname"><span class="pre">pelicun.tools.regional_sim.</span></span><span class="sig-name descname"><span class="pre">parse_id_filter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filter_str</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/pelicun/tools/regional_sim.html#parse_id_filter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.tools.regional_sim.parse_id_filter" title="Link to this definition"></a></dt>
+<dd><p>Parse a filter string into a list of unique, sorted integer IDs.</p>
+<p>The filter string can contain comma-separated integers and ranges
+(e.g., “1, 3-5, 8”).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>filter_str</strong><span class="classifier">str</span></dt><dd><p>The filter string to parse.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>list[int]</dt><dd><p>A sorted list of unique integer IDs.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>If the filter string contains non-numeric parts or invalid ranges.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="pelicun.tools.regional_sim.process_and_save_chunk">
-<span class="sig-prename descclassname"><span class="pre">pelicun.tools.regional_sim.</span></span><span class="sig-name descname"><span class="pre">process_and_save_chunk</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">i</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">chunk</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temp_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid_points</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_size_demand</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_size_damage</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">dl_method</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../_modules/pelicun/tools/regional_sim.html#process_and_save_chunk"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.tools.regional_sim.process_and_save_chunk" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">pelicun.tools.regional_sim.</span></span><span class="sig-name descname"><span class="pre">process_and_save_chunk</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">i</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">chunk</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temp_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid_points</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_neighbors</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_size_demand</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_size_damage</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">dl_method</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">im_types</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../_modules/pelicun/tools/regional_sim.html#process_and_save_chunk"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.tools.regional_sim.process_and_save_chunk" title="Link to this definition"></a></dt>
 <dd><p>Process a single chunk of buildings and save results to temporary compressed CSV files.</p>
 <p>This function serves as a wrapper around process_buildings_chunk that handles
 the file I/O operations for parallel processing. It processes a chunk of buildings
@@ -222,11 +259,16 @@ for later aggregation.</p>
 </dd>
 <dt><strong>grid_data</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>DataFrame with intensity measure data for each grid point</p>
 </dd>
+<dt><strong>n_neighbors</strong><span class="classifier">int</span></dt><dd><p>Number of nearest neighbors to use for mapping event intensity from
+grid points to buildings</p>
+</dd>
 <dt><strong>sample_size_demand</strong><span class="classifier">int</span></dt><dd><p>Number of demand realizations available</p>
 </dd>
 <dt><strong>sample_size_damage</strong><span class="classifier">int</span></dt><dd><p>Number of damage realizations to generate</p>
 </dd>
 <dt><strong>dl_method</strong><span class="classifier">str</span></dt><dd><p>Damage and loss methodology</p>
+</dd>
+<dt><strong>im_types</strong><span class="classifier">dict[str, str]</span></dt><dd><p>Dictionary of intensity measure types and their units from the config file</p>
 </dd>
 </dl>
 </dd>
@@ -235,7 +277,7 @@ for later aggregation.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pelicun.tools.regional_sim.process_buildings_chunk">
-<span class="sig-prename descclassname"><span class="pre">pelicun.tools.regional_sim.</span></span><span class="sig-name descname"><span class="pre">process_buildings_chunk</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bldg_df_chunk</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid_points</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_size_demand</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_size_damage</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">dl_method</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><span class="pre">DataFrame</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">DataFrame</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">DataFrame</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">DataFrame</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/pelicun/tools/regional_sim.html#process_buildings_chunk"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.tools.regional_sim.process_buildings_chunk" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">pelicun.tools.regional_sim.</span></span><span class="sig-name descname"><span class="pre">process_buildings_chunk</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bldg_df_chunk</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid_points</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_neighbors</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_size_demand</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_size_damage</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">dl_method</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">im_types</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><span class="pre">DataFrame</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">DataFrame</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">DataFrame</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">DataFrame</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/pelicun/tools/regional_sim.html#process_buildings_chunk"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.tools.regional_sim.process_buildings_chunk" title="Link to this definition"></a></dt>
 <dd><p>Process a chunk of buildings through the complete regional simulation pipeline.</p>
 <p>This function performs event-to-building mapping, building-to-archetype mapping,
 damage calculation, and loss calculation for a subset of buildings. It uses
@@ -251,11 +293,16 @@ must include Longitude, Latitude, and building characteristics</p>
 </dd>
 <dt><strong>grid_data</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>DataFrame with intensity measure data for each grid point</p>
 </dd>
+<dt><strong>n_neighbors</strong><span class="classifier">int</span></dt><dd><p>Number of nearest neighbors to use for mapping intensity measures to
+building locations</p>
+</dd>
 <dt><strong>sample_size_demand</strong><span class="classifier">int</span></dt><dd><p>Number of demand realizations available</p>
 </dd>
 <dt><strong>sample_size_damage</strong><span class="classifier">int</span></dt><dd><p>Number of damage realizations to generate</p>
 </dd>
 <dt><strong>dl_method</strong><span class="classifier">str</span></dt><dd><p>Damage and loss methodology</p>
+</dd>
+<dt><strong>im_types</strong><span class="classifier">dict[str, str]</span></dt><dd><p>Dictionary of intensity measure types and their units from the config file</p>
 </dd>
 </dl>
 </dd>
@@ -282,7 +329,7 @@ must include Longitude, Latitude, and building characteristics</p>
 <span class="sig-prename descclassname"><span class="pre">pelicun.tools.regional_sim.</span></span><span class="sig-name descname"><span class="pre">regional_sim</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_cores</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../_modules/pelicun/tools/regional_sim.html#regional_sim"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.tools.regional_sim.regional_sim" title="Link to this definition"></a></dt>
 <dd><p>Perform a regional-scale disaster impact simulation.</p>
 <p>This function orchestrates the complete regional simulation workflow including:
-1. Loading earthquake event data from gridded intensity measure files
+1. Loading hazard event data from gridded intensity measure files
 2. Loading building inventory data
 3. Mapping event intensity measures to building locations using nearest neighbor regression
 4. Mapping buildings to damage/loss archetypes using Pelicun auto-population
@@ -300,6 +347,15 @@ file paths, and analysis settings (inputRWHALE.json from SimCenter’s R2D Tool)
 </dd>
 <dt><strong>num_cores</strong><span class="classifier">int, optional</span></dt><dd><p>Number of CPU cores to use for parallel processing. If None,
 uses all available cores minus one</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>ValueError</dt><dd><p>If the building ID filter specified in the config file does not match
+any building IDs in the inventory.
+If required intensity measure types specified in the config are not
+found in the grid data files.</p>
 </dd>
 </dl>
 </dd>

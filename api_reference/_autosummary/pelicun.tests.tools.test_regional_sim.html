@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pelicun.tests.conftest &mdash; pelicun  documentation</title>
+  <title>pelicun.tests.tools.test_regional_sim &mdash; pelicun  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
@@ -24,8 +24,8 @@
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="pelicun.tests.dl_calculation" href="pelicun.tests.dl_calculation.html" />
-    <link rel="prev" title="pelicun.tests.code_repetition_checker" href="pelicun.tests.code_repetition_checker.html" /> 
+    <link rel="next" title="pelicun.tests.util" href="pelicun.tests.util.html" />
+    <link rel="prev" title="pelicun.tests.tools" href="pelicun.tests.tools.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -146,7 +146,8 @@
           <li class="breadcrumb-item"><a href="../index.html"><span class="section-number">8. </span>API Reference</a></li>
           <li class="breadcrumb-item"><a href="pelicun.html"><span class="section-number">8.1. </span>pelicun</a></li>
           <li class="breadcrumb-item"><a href="pelicun.tests.html">pelicun.tests</a></li>
-      <li class="breadcrumb-item active">pelicun.tests.conftest</li>
+          <li class="breadcrumb-item"><a href="pelicun.tests.tools.html">pelicun.tests.tools</a></li>
+      <li class="breadcrumb-item active">pelicun.tests.tools.test_regional_sim</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -155,64 +156,50 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="module-pelicun.tests.conftest">
-<span id="pelicun-tests-conftest"></span><h1>pelicun.tests.conftest<a class="headerlink" href="#module-pelicun.tests.conftest" title="Link to this heading"></a></h1>
+  <section id="module-pelicun.tests.tools.test_regional_sim">
+<span id="pelicun-tests-tools-test-regional-sim"></span><h1>pelicun.tests.tools.test_regional_sim<a class="headerlink" href="#module-pelicun.tests.tools.test_regional_sim" title="Link to this heading"></a></h1>
+<p>These are tests for the regional_sim module of pelicun.</p>
 <p class="rubric">Functions</p>
 <table class="autosummary longtable docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_setup_common_test_data</span></code>()</p></td>
-<td><p>Create a temporary directory with common test data for regional simulations.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pelicun.tests.tools.test_regional_sim.test_regional_sim_earthquake_run" title="pelicun.tests.tools.test_regional_sim.test_regional_sim_earthquake_run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_regional_sim_earthquake_run</span></code></a>(...)</p></td>
+<td><p>Integration test for the regional_sim module using earthquake data.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pelicun.tests.conftest.mock_dlml_data_check" title="pelicun.tests.conftest.mock_dlml_data_check"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mock_dlml_data_check</span></code></a>(request)</p></td>
-<td><p>Mocks the DLML data check for the entire test session, UNLESS the test is in the specific exclusion list.</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pelicun.tests.tools.test_regional_sim.test_regional_sim_filter_failures" title="pelicun.tests.tools.test_regional_sim.test_regional_sim_filter_failures"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_regional_sim_filter_failures</span></code></a>(...)</p></td>
+<td><p>Test that invalid filter strings raise a ValueError.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pelicun.tests.conftest.setup_earthquake_test_data" title="pelicun.tests.conftest.setup_earthquake_test_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_earthquake_test_data</span></code></a>()</p></td>
-<td><p>Create a temporary directory with mock data for earthquake tests.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pelicun.tests.tools.test_regional_sim.test_regional_sim_filter_success" title="pelicun.tests.tools.test_regional_sim.test_regional_sim_filter_success"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_regional_sim_filter_success</span></code></a>(filter_str, ...)</p></td>
+<td><p>Test successful building filtering with various filter formats.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pelicun.tests.conftest.setup_hurricane_test_data" title="pelicun.tests.conftest.setup_hurricane_test_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_hurricane_test_data</span></code></a>()</p></td>
-<td><p>Create a temporary directory with mock data for hurricane tests.</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pelicun.tests.tools.test_regional_sim.test_regional_sim_hurricane_scenario" title="pelicun.tests.tools.test_regional_sim.test_regional_sim_hurricane_scenario"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_regional_sim_hurricane_scenario</span></code></a>(...)</p></td>
+<td><p>Integration test for the regional_sim module using hurricane data.</p></td>
 </tr>
 </tbody>
 </table>
 <dl class="py function">
-<dt class="sig sig-object py" id="pelicun.tests.conftest.mock_dlml_data_check">
-<span class="sig-prename descclassname"><span class="pre">pelicun.tests.conftest.</span></span><span class="sig-name descname"><span class="pre">mock_dlml_data_check</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">FixtureRequest</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Generator" title="(in Python v3.13)"><span class="pre">Generator</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/pelicun/tests/conftest.html#mock_dlml_data_check"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.tests.conftest.mock_dlml_data_check" title="Link to this definition"></a></dt>
-<dd><p>Mocks the DLML data check for the entire test session, UNLESS
-the test is in the specific exclusion list.</p>
-<p>This provides a high-performance, fail-safe “no network” policy
-while allowing specific integration tests to run their own logic.</p>
+<dt class="sig sig-object py" id="pelicun.tests.tools.test_regional_sim.test_regional_sim_earthquake_run">
+<span class="sig-prename descclassname"><span class="pre">pelicun.tests.tools.test_regional_sim.</span></span><span class="sig-name descname"><span class="pre">test_regional_sim_earthquake_run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">setup_earthquake_test_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.13)"><span class="pre">Path</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">monkeypatch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">MonkeyPatch</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../_modules/pelicun/tests/tools/test_regional_sim.html#test_regional_sim_earthquake_run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.tests.tools.test_regional_sim.test_regional_sim_earthquake_run" title="Link to this definition"></a></dt>
+<dd><p>Integration test for the regional_sim module using earthquake data.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="pelicun.tests.conftest.setup_earthquake_test_data">
-<span class="sig-prename descclassname"><span class="pre">pelicun.tests.conftest.</span></span><span class="sig-name descname"><span class="pre">setup_earthquake_test_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Generator" title="(in Python v3.13)"><span class="pre">Generator</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.13)"><span class="pre">Path</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/pelicun/tests/conftest.html#setup_earthquake_test_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.tests.conftest.setup_earthquake_test_data" title="Link to this definition"></a></dt>
-<dd><p>Create a temporary directory with mock data for earthquake tests.</p>
-<p>This fixture:
-1. Uses the common helper to create the temporary directory and common files
-2. Adds earthquake-specific building inventory
-3. Adds earthquake-specific configuration and data files
-4. Yields the path to the temporary directory
-5. Cleans up after the test by removing the directory and all its contents</p>
-<dl class="simple">
-<dt>Yields:</dt><dd><p>Generator yielding the Path object to the temporary directory</p>
-</dd>
-</dl>
+<dt class="sig sig-object py" id="pelicun.tests.tools.test_regional_sim.test_regional_sim_filter_failures">
+<span class="sig-prename descclassname"><span class="pre">pelicun.tests.tools.test_regional_sim.</span></span><span class="sig-name descname"><span class="pre">test_regional_sim_filter_failures</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filter_str</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">expected_error</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">setup_earthquake_test_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.13)"><span class="pre">Path</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">monkeypatch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">MonkeyPatch</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../_modules/pelicun/tests/tools/test_regional_sim.html#test_regional_sim_filter_failures"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.tests.tools.test_regional_sim.test_regional_sim_filter_failures" title="Link to this definition"></a></dt>
+<dd><p>Test that invalid filter strings raise a ValueError.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="pelicun.tests.conftest.setup_hurricane_test_data">
-<span class="sig-prename descclassname"><span class="pre">pelicun.tests.conftest.</span></span><span class="sig-name descname"><span class="pre">setup_hurricane_test_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Generator" title="(in Python v3.13)"><span class="pre">Generator</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.13)"><span class="pre">Path</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/pelicun/tests/conftest.html#setup_hurricane_test_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.tests.conftest.setup_hurricane_test_data" title="Link to this definition"></a></dt>
-<dd><p>Create a temporary directory with mock data for hurricane tests.</p>
-<p>This fixture:
-1. Uses the common helper to create the temporary directory and common files
-2. Adds hurricane-specific building inventory with features like RoofShape and Shutters
-3. Adds hurricane-specific configuration and data files
-4. Yields the path to the temporary directory
-5. Cleans up after the test by removing the directory and all its contents</p>
-<dl class="simple">
-<dt>Yields:</dt><dd><p>Generator yielding the Path object to the temporary directory</p>
-</dd>
-</dl>
+<dt class="sig sig-object py" id="pelicun.tests.tools.test_regional_sim.test_regional_sim_filter_success">
+<span class="sig-prename descclassname"><span class="pre">pelicun.tests.tools.test_regional_sim.</span></span><span class="sig-name descname"><span class="pre">test_regional_sim_filter_success</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filter_str</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">expected_count</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">setup_earthquake_test_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.13)"><span class="pre">Path</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">monkeypatch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">MonkeyPatch</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../_modules/pelicun/tests/tools/test_regional_sim.html#test_regional_sim_filter_success"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.tests.tools.test_regional_sim.test_regional_sim_filter_success" title="Link to this definition"></a></dt>
+<dd><p>Test successful building filtering with various filter formats.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pelicun.tests.tools.test_regional_sim.test_regional_sim_hurricane_scenario">
+<span class="sig-prename descclassname"><span class="pre">pelicun.tests.tools.test_regional_sim.</span></span><span class="sig-name descname"><span class="pre">test_regional_sim_hurricane_scenario</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">setup_hurricane_test_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.13)"><span class="pre">Path</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">monkeypatch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">MonkeyPatch</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../_modules/pelicun/tests/tools/test_regional_sim.html#test_regional_sim_hurricane_scenario"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.tests.tools.test_regional_sim.test_regional_sim_hurricane_scenario" title="Link to this definition"></a></dt>
+<dd><p>Integration test for the regional_sim module using hurricane data.</p>
+<p>Tests that the hurricane simulation runs correctly and produces the expected output files
+with the correct column names using the PWS (Peak Wind Speed) acronym.</p>
 </dd></dl>
 
 </section>

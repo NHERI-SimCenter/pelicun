@@ -14,7 +14,10 @@ pelicun.tools.regional\_sim
 
    .. autosummary::
    
+      _calculate_losses_general
+      _calculate_losses_hazus_eq
       format_elapsed_time
+      parse_id_filter
       process_and_save_chunk
       process_buildings_chunk
       regional_sim
