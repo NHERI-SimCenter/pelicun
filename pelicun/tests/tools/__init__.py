@@ -1,5 +1,6 @@
-# Copyright (c) 2018 Leland Stanford Junior University
-# Copyright (c) 2018 The Regents of the University of California
+#
+# Copyright (c) 2025 Leland Stanford Junior University
+# Copyright (c) 2025 The Regents of the University of California
 #
 # This file is part of pelicun.
 #
@@ -31,3 +32,8 @@
 #
 # You should have received a copy of the BSD 3-Clause License along with
 # pelicun. If not, see <http://www.opensource.org/licenses/>.
+#
+# Contributors:
+# Adam Zsarnóczay
+
+"""This module contains tests for the tools module of pelicun."""
