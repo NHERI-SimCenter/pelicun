@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pelicun"
-version = "3.8.1"
+version = "3.9.0.dev0"
 description = "Probabilistic Estimation of Losses, Injuries, and Community resilience Under Natural hazard events"
 readme = "README.md"
 license = {text = "BSD-3-Clause"}
@@ -97,7 +97,6 @@ exclude = [
   "rulesets",
   "examples",
   "*.ipynb",
-  "NNR.py",
   "pelicun/tests/dl_calculation/e7/auto_HU_NJ.py",
   "pelicun/tests/dl_calculation/e8/auto_HU_LA.py",
   "pelicun/tests/dl_calculation/e9/custom_pop.py",

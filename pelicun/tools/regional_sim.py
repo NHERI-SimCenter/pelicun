@@ -35,7 +35,7 @@
 # Contributors:
 # Adam Zsarnóczay
 
-"""Temporary solution that provides regional simulation capability to Pelicun."""
+"""Performs regional-scale disaster impact simulations on building inventories."""
 
 from __future__ import annotations
 
@@ -56,6 +56,71 @@ from pelicun.assessment import Assessment
 from pelicun.auto import auto_populate
 from pelicun.file_io import substitute_default_path
 from pelicun.tools.NNR import NNR
+
+
+def parse_id_filter(filter_str: str) -> list[int]:
+    """
+    Parse a filter string into a list of unique, sorted integer IDs.
+
+    The filter string can contain comma-separated integers and ranges
+    (e.g., "1, 3-5, 8").
+
+    Parameters
+    ----------
+    filter_str : str
+        The filter string to parse.
+
+    Returns
+    -------
+    list[int]
+        A sorted list of unique integer IDs.
+
+    Raises
+    ------
+    ValueError
+        If the filter string contains non-numeric parts or invalid ranges.
+    """
+    if not filter_str or not isinstance(filter_str, str):
+        return []
+
+    ids = set()
+    parts = [part.strip() for part in filter_str.split(',')]
+
+    for part in parts:
+        if not part:  # Handle empty parts from extra commas, e.g., "1,,2"
+            continue
+
+        if '-' in part:
+            try:
+                start_str, end_str = part.split('-', 1)
+                start = int(start_str.strip())
+                end = int(end_str.strip())
+            except ValueError as e:
+                msg = (
+                    f"Invalid part '{part}' in filter string. Must be an "
+                    f"integer or a valid 'start-end' range."
+                )
+                raise ValueError(msg) from e
+
+            if start > end:
+                msg = (
+                    f'Invalid range in filter: start value {start} is '
+                    f'greater than end value {end}.'
+                )
+                raise ValueError(msg)
+
+            ids.update(range(start, end + 1))
+        else:
+            try:
+                ids.add(int(part))
+            except ValueError as e:
+                msg = (
+                    f"Invalid part '{part}' in filter string. Must be an "
+                    f"integer or a valid 'start-end' range."
+                )
+                raise ValueError(msg) from e
+
+    return sorted(ids)
 
 
 def unique_list(x: pd.Series) -> str:
@@ -138,13 +203,238 @@ def tqdm_joblib(tqdm_object: tqdm) -> contextlib.Generator[None, None, None]:
         tqdm_object.close()
 
 
+def _calculate_losses_hazus_eq(
+    assessment: Assessment, dl_method: str, bldg_df_chunk: pd.DataFrame
+) -> (pd.DataFrame, pd.DataFrame):
+    """
+    Calculate losses using the Hazus Earthquake methodology.
+
+    Hazus EQ uses a complex process with buildings grouped by occupancy
+    type to work around a limitation in loss mapping in Pelicun.
+
+    Parameters
+    ----------
+    assessment : Assessment
+        Pelicun Assessment object with damage already calculated
+    dl_method : str
+        Damage and loss methodology name
+    bldg_df_chunk : pd.DataFrame
+        DataFrame containing building data
+
+    Returns
+    -------
+    tuple
+        repair_costs : pd.DataFrame
+        repair_times : pd.DataFrame
+    """
+    # get the path to the built-in consequence functions
+    consequence_db_path = substitute_default_path(
+        [f'PelicunDefault/{dl_method}/consequence_repair.csv']
+    )[0]
+
+    # Hazus consequence functions depend only on occupancy class
+    # we need to list building IDs for each occupancy type first
+    loss_groups = bldg_df_chunk[['StructureType', 'OccupancyClass']].copy()
+    loss_groups['IDs'] = loss_groups.index
+
+    loss_groups = loss_groups.groupby(['OccupancyClass']).agg({'IDs': unique_list})
+
+    # create a lookup table to find which fragility IDs are at which location
+    dmg_sample = assessment.damage.save_sample()
+    cmp_loc = dmg_sample.groupby(level=['cmp', 'loc'], axis=1).first()
+
+    cmp_lookup = pd.Series(
+        cmp_loc.columns.get_level_values('cmp'),
+        index=cmp_loc.columns.get_level_values('loc').astype(int),
+    ).sort_index()
+
+    # Loss calculation is a bit complicated now. I need to add a new feature to
+    # Pelicun to make it work as smoothly as the damage does. What I do below
+    # is brute force, but it works, and still takes only a few minutes to run.
+    # I'll enhance Pelicun in the coming weeks to do more sophisticated loss
+    # mapping and be able to handle the following calculations faster without
+    # the for loop
+
+    # we'll collect the results in this dict
+    loss_results = {'Cost': [], 'Time': []}
+
+    # start by extracting the full damage sample and preserving it
+    full_dmg_sample = assessment.damage.save_sample()
+
+    for occ_type, raw_building_ids in loss_groups.iloc[:].iterrows():
+        # convert the building id list to a numpy array of ints
+        building_ids = np.array(raw_building_ids.to_numpy()[0].split(',')).astype(
+            int
+        )
+
+        # and make sure those IDs are in the component lookup table
+        building_ids = [
+            building_id
+            for building_id in building_ids
+            if building_id in cmp_lookup.index
+        ]
+
+        # load only the subset of the damage sample that is needed for the calculation
+        idx = pd.IndexSlice
+        dmg_subset = full_dmg_sample.loc[
+            :, idx[:, np.array(building_ids, dtype=str), :, :, :]
+        ]
+        assessment.damage.load_sample(dmg_subset)
+
+        # create a loss map that maps every fragility ID to a consequence for the given occupancy type
+        loss_cmp = f'LF.{occ_type}'
+
+        drivers = []
+        loss_models = []
+
+        dmg_cmps = dmg_subset.columns.get_level_values('cmp').unique()
+
+        for cmp_id in dmg_cmps.unique():
+            drivers.append(f'{cmp_id}')
+            loss_models.append(loss_cmp)
+
+        loss_map = pd.DataFrame(loss_models, columns=['Repair'], index=drivers)
+
+        assessment.loss.decision_variables = ['Cost', 'Time']
+        assessment.loss.add_loss_map(loss_map, loss_map_policy=None)
+        assessment.loss.load_model_parameters(
+            [
+                consequence_db_path,
+            ]
+        )
+
+        assessment.loss.calculate()
+
+        repair_sample, repair_units = assessment.loss.save_sample(save_units=True)
+
+        # aggregate across uid
+        # this is trivial since we don't have multiple identical components at the same location
+        repair_units = repair_units.groupby(
+            level=['dv', 'loss', 'dmg', 'ds', 'loc', 'dir']
+        ).first()
+
+        repair_groupby_uid = repair_sample.groupby(
+            level=['dv', 'loss', 'dmg', 'ds', 'loc', 'dir'], axis=1
+        )
+
+        repair_sample = repair_groupby_uid.sum().mask(
+            repair_groupby_uid.count() == 0, np.nan
+        )
+
+        # now aggregate across loss, dmg, damage state, and direction
+        # all of those are only one value per location, so they do not provide additional information
+        repair_groupby = repair_sample.groupby(level=['dv', 'loc'], axis=1)
+
+        repair_units = repair_units.groupby(level=['dv', 'loc']).first()
+
+        grp_repair = repair_groupby.sum().mask(repair_groupby.count() == 0, np.nan)
+
+        # - - - -
+
+        # append the results to the main dict
+        for DV_type in ['Cost', 'Time']:  # noqa: N806
+            grp_repair_dv = grp_repair[DV_type].copy()
+            grp_repair_dv.columns = grp_repair_dv.columns.astype(int)
+
+            # we did not preserve the units for now; we can add them here if needed
+            loss_results[DV_type].append(grp_repair_dv.loc[:, building_ids])
+
+    repair_costs = pd.concat(loss_results['Cost'], axis=1).sort_index(axis=1).T
+    repair_times = pd.concat(loss_results['Time'], axis=1).sort_index(axis=1).T
+
+    # finish by putting the full damage sample back to the assessment object
+    assessment.damage.load_sample(full_dmg_sample)
+
+    return repair_costs, repair_times
+
+
+def _calculate_losses_general(
+    assessment: Assessment, dl_method: str, decision_variables: list
+) -> (pd.DataFrame, pd.DataFrame):
+    """
+    Calculate losses using a 1-to-1 mapping approach.
+
+    This is a straightforward implementation that creates a direct mapping
+    between damage component IDs and loss models.
+
+    Parameters
+    ----------
+    assessment : Assessment
+        Pelicun Assessment object with damage already calculated
+    dl_method : str
+        Damage and loss methodology name
+    decision_variables : list
+        List of decision variables to calculate losses for
+
+    Returns
+    -------
+    tuple
+        repair_costs : pd.DataFrame
+        repair_times : pd.DataFrame
+    """
+    # Get the path to the built-in consequence functions
+    consequence_db_path = substitute_default_path(
+        [f'PelicunDefault/{dl_method}/consequence_repair.csv']
+    )[0]
+
+    assessment.loss.decision_variables = decision_variables
+    assessment.loss.add_loss_map(None, loss_map_policy='fill')
+    assessment.loss.load_model_parameters([consequence_db_path])
+
+    assessment.loss.calculate()
+
+    repair_sample, repair_units = assessment.loss.save_sample(save_units=True)
+
+    # aggregate across uid
+    # this is trivial since we don't have multiple identical components at
+    # the same location
+    repair_units = repair_units.groupby(
+        level=['dv', 'loss', 'dmg', 'ds', 'loc', 'dir']
+    ).first()
+
+    repair_groupby_uid = repair_sample.groupby(
+        level=['dv', 'loss', 'dmg', 'ds', 'loc', 'dir'], axis=1
+    )
+
+    repair_sample = repair_groupby_uid.sum().mask(
+        repair_groupby_uid.count() == 0, np.nan
+    )
+
+    # now aggregate across loss, dmg, damage state, and direction
+    # all of those are only one value per location, so they do not provide
+    # additional information
+    repair_groupby = repair_sample.groupby(level=['dv', 'loc'], axis=1)
+
+    repair_units = repair_units.groupby(level=['dv', 'loc']).first()
+
+    grp_repair = repair_groupby.sum().mask(repair_groupby.count() == 0, np.nan)
+
+    # - - - -
+
+    # prepare the output
+    repair_costs = grp_repair['Cost']
+    repair_costs.columns = repair_costs.columns.astype(int)
+    repair_costs = repair_costs.T
+
+    if 'Time' in decision_variables:
+        repair_times = grp_repair['Time']
+        repair_times.columns = repair_times.columns.astype(int)
+        repair_times = repair_times.T
+    else:
+        repair_times = None
+
+    return repair_costs, repair_times
+
+
 def process_buildings_chunk(
     bldg_df_chunk: pd.DataFrame,
     grid_points: pd.DataFrame,
     grid_data: pd.DataFrame,
+    n_neighbors: int,
     sample_size_demand: int,
     sample_size_damage: int,
     dl_method: str,
+    im_types: dict[str, str],
 ) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """
     Process a chunk of buildings through the complete regional simulation pipeline.
@@ -163,12 +453,17 @@ def process_buildings_chunk(
         DataFrame with grid point coordinates (Longitude, Latitude)
     grid_data : pd.DataFrame
         DataFrame with intensity measure data for each grid point
+    n_neighbors : int
+        Number of nearest neighbors to use for mapping intensity measures to
+        building locations
     sample_size_demand : int
         Number of demand realizations available
     sample_size_damage : int
         Number of damage realizations to generate
     dl_method : str
         Damage and loss methodology
+    im_types : dict[str, str]
+        Dictionary of intensity measure types and their units from the config file
 
     Returns
     -------
@@ -186,19 +481,59 @@ def process_buildings_chunk(
     # 3 Event-to-Building Mapping
     # Map event IMs to building centroids using the nearest neighbor method
 
-    X = grid_points[['Longitude', 'Latitude']].to_numpy()  # noqa: N806
-    Z = grid_data.T.to_numpy()  # noqa: N806
+    im_list = list(im_types.keys())
 
-    X_t = bldg_df_chunk[['Longitude', 'Latitude']].to_numpy()  # noqa: N806
+    grid_point_locations = grid_points[['Longitude', 'Latitude']].to_numpy()
 
-    Z_hat = NNR(X_t, X, Z, sample_size=-1, n_neighbors=8, weight='distance2')  # noqa: N806
+    grid_data_sorted = grid_data.sort_index(axis=1)
+
+    n_realizations = grid_data_sorted.shape[0]
+    n_sources = grid_data_sorted.columns.unique(level=0).size
+    n_features = grid_data_sorted.columns.unique(level=1).size
+
+    grid_point_intensity_measures = grid_data_sorted.to_numpy().T.reshape(
+        n_sources, n_features, n_realizations
+    )
+
+    bldg_locations = bldg_df_chunk[['Longitude', 'Latitude']].to_numpy()
+
+    bldg_intensity_measures = NNR(
+        target=bldg_locations,
+        source=grid_point_locations,
+        known_values=grid_point_intensity_measures,
+        sample_size=-1,
+        n_neighbors=n_neighbors,
+        weight='distance2',
+    )
 
     # Prepare IM information as demands in the Pelicun format
+    im_columns = []
+    units_row = []
+    for loc in bldg_df_chunk.index:
+        for im_type in im_list:
+            im_columns.append(f'{im_type}-{loc}-1')
+            units_row.append(im_types[im_type])  # Get unit for this IM
 
-    # TODO: allow for more flexible columns  # noqa: TD002
+    # Reshape 3D NNR Output into 2D Pelicun format
+    # Original shape: (n_buildings, n_features, n_realizations)
+    # Target shape: (n_realizations, n_buildings * n_features)
+    demand_values = bldg_intensity_measures.transpose(2, 0, 1).reshape(
+        n_realizations, -1
+    )
+
+    # Get the number of available samples
+    n_available = demand_values.shape[0]
+
+    # Generate a repeating sequence of indices
+    indices = np.arange(sample_size_demand) % n_available
+
+    # Select rows using the generated indices
+    demand_values = demand_values[indices]
+
+    # Create the final DataFrame
     demand_sample = pd.DataFrame(
-        np.vstack([Z_hat.T, np.full((1, Z_hat.shape[0]), 'g')]),
-        columns=[f'PGA-{loc}-1' for loc in bldg_df_chunk.index],
+        np.vstack([demand_values, units_row]),
+        columns=im_columns,
         index=[*list(range(sample_size_demand)), 'Units'],
     )
 
@@ -212,7 +547,7 @@ def process_buildings_chunk(
     CMP_list = []  # noqa: N806
 
     for bldg_id, row_data in bldg_df_chunk.iloc[:].iterrows():
-        _, CMP = auto_populate(  # noqa: N806
+        auto_config, CMP = auto_populate(  # noqa: N806
             {
                 'GeneralInformation': dict(row_data),
                 'assetType': 'Buildings',
@@ -233,6 +568,15 @@ def process_buildings_chunk(
 
         CMP_list.append(CMP)
 
+    # get the list of decision variables requested
+    decision_variables = [
+        dv
+        for dv, value in auto_config['DL']['Losses']['Repair'][
+            'DecisionVariables'
+        ].items()
+        if value
+    ]
+
     cmp_marginals = pd.concat(CMP_list)
 
     cmp_marginals_raw = cmp_marginals.copy()
@@ -250,7 +594,7 @@ def process_buildings_chunk(
     # Calculate damage with a deterministic inventory realization
 
     # initialize assessment object
-    PAL = Assessment(  # noqa: N806
+    assessment = Assessment(
         {
             'LogFile': 'pelicun_log.txt',
             'Verbose': True,
@@ -259,18 +603,18 @@ def process_buildings_chunk(
     )
 
     # load demands
-    PAL.demand.load_sample(demand_sample)
+    assessment.demand.load_sample(demand_sample)
 
-    PAL.demand.calibrate_model({'ALL': {'DistributionFamily': 'empirical'}})
+    assessment.demand.calibrate_model({'ALL': {'DistributionFamily': 'empirical'}})
 
-    PAL.demand.generate_sample(
+    assessment.demand.generate_sample(
         {'SampleSize': sample_size_damage, 'PreserveRawOrder': True}
     )
 
     # load component assignment
-    PAL.asset.load_cmp_model({'marginals': cmp_marginals})
+    assessment.asset.load_cmp_model({'marginals': cmp_marginals})
 
-    PAL.asset.generate_cmp_sample()
+    assessment.asset.generate_cmp_sample()
 
     # get the path to the built-in fragility functions
     component_db_path = substitute_default_path(
@@ -278,9 +622,9 @@ def process_buildings_chunk(
     )[0]
 
     # import the required fragility functions
-    cmp_set = PAL.asset.list_unique_component_ids()
+    cmp_set = assessment.asset.list_unique_component_ids()
 
-    PAL.damage.load_model_parameters(
+    assessment.damage.load_model_parameters(
         [
             component_db_path,
         ],
@@ -288,10 +632,10 @@ def process_buildings_chunk(
     )
 
     # run the damage calculation
-    PAL.damage.calculate()
+    assessment.damage.calculate()
 
     # retrieve damage information
-    damage_sample, damage_units = PAL.damage.save_sample(save_units=True)
+    damage_sample, damage_units = assessment.damage.save_sample(save_units=True)
 
     damage_units = damage_units.to_frame().T
 
@@ -350,126 +694,17 @@ def process_buildings_chunk(
     damage_df = damage_df.sort_index()
 
     # 6 Calculate Losses
-
-    # get the path to the built-in consequence functions
-    consequence_db_path = substitute_default_path(
-        [f'PelicunDefault/{dl_method}/consequence_repair.csv']
-    )[0]
-
-    # Hazus consequence functions depend only on occupancy class
-    # we need to list building IDs for each occupancy type first
-    loss_groups = bldg_df_chunk[['StructureType', 'OccupancyClass']].copy()
-    loss_groups['IDs'] = loss_groups.index
-
-    loss_groups = loss_groups.groupby(['OccupancyClass']).agg({'IDs': unique_list})
-
-    # create a lookup table to find which fragility IDs are at which location
-    dmg_sample = PAL.damage.save_sample()
-    cmp_loc = dmg_sample.groupby(level=['cmp', 'loc'], axis=1).first()
-
-    cmp_lookup = pd.Series(
-        cmp_loc.columns.get_level_values('cmp'),
-        index=cmp_loc.columns.get_level_values('loc').astype(int),
-    ).sort_index()
-
-    # Loss calculation is a bit complicated now. I need to add a new feature to Pelicun to make it work as smoothly as the damage does.
-    # What I do below is brute force, but it works, and still takes only a few minutes to run.
-    # I'll enhance Pelicun in the coming weeks to do more sophisticated loss mapping and be able to handle the following calculations faster without the for loop
-
-    # we'll collect the results in this dict
-    loss_results = {'Cost': [], 'Time': []}
-
-    # start by extracting the full damage sample and preserving it
-    full_dmg_sample = PAL.damage.save_sample()
-
-    for occ_type, raw_building_ids in loss_groups.iloc[:].iterrows():
-        # convert the building id list to a numpy array of ints
-        building_ids = np.array(raw_building_ids.to_numpy()[0].split(',')).astype(
-            int
+    # Conditional loss assessment based on the DL method
+    if dl_method == 'Hazus Earthquake - Buildings':
+        # Use the original earthquake-specific loss calculation
+        repair_costs, repair_times = _calculate_losses_hazus_eq(
+            assessment, dl_method, bldg_df_chunk
         )
-
-        # and make sure those IDs are in the component lookup table
-        building_ids = [
-            building_id
-            for building_id in building_ids
-            if building_id in cmp_lookup.index
-        ]
-
-        # load only the subset of the damage sample that is needed for the calculation
-        idx = pd.IndexSlice
-        dmg_subset = full_dmg_sample.loc[
-            :, idx[:, np.array(building_ids, dtype=str), :, :, :]
-        ]
-        PAL.damage.load_sample(dmg_subset)
-
-        # create a loss map that maps every fragility ID to a consequence for the given occupancy type
-        loss_cmp = f'LF.{occ_type}'
-
-        drivers = []
-        loss_models = []
-
-        dmg_cmps = dmg_subset.columns.get_level_values('cmp').unique()
-
-        for cmp_id in dmg_cmps.unique():
-            drivers.append(f'{cmp_id}')
-            loss_models.append(loss_cmp)
-
-        loss_map = pd.DataFrame(loss_models, columns=['Repair'], index=drivers)
-
-        decision_variables = ['Cost', 'Time']
-
-        PAL.loss.decision_variables = decision_variables
-        PAL.loss.add_loss_map(loss_map, loss_map_policy=None)
-        PAL.loss.load_model_parameters(
-            [
-                consequence_db_path,
-            ]
+    else:
+        # Use the more efficient 1-to-1 mapping for other methods
+        repair_costs, repair_times = _calculate_losses_general(
+            assessment, dl_method, decision_variables
         )
-
-        PAL.loss.calculate()
-
-        # - - - - - -
-
-        repair_sample, repair_units = PAL.loss.save_sample(save_units=True)
-
-        # aggregate across uid
-        # this is trivial since we don't have multiple identical components at the same location
-        repair_units = repair_units.groupby(
-            level=['dv', 'loss', 'dmg', 'ds', 'loc', 'dir']
-        ).first()
-
-        repair_groupby_uid = repair_sample.groupby(
-            level=['dv', 'loss', 'dmg', 'ds', 'loc', 'dir'], axis=1
-        )
-
-        repair_sample = repair_groupby_uid.sum().mask(
-            repair_groupby_uid.count() == 0, np.nan
-        )
-
-        # now aggregate across loss, dmg, damage state, and direction
-        # all of those are only one value per location, so they do not provide additional information
-        repair_groupby = repair_sample.groupby(level=['dv', 'loc'], axis=1)
-
-        repair_units = repair_units.groupby(level=['dv', 'loc']).first()
-
-        grp_repair = repair_groupby.sum().mask(repair_groupby.count() == 0, np.nan)
-
-        # - - - -
-
-        # append the results to the main dict
-        for DV_type in ['Cost', 'Time']:  # noqa: N806
-            grp_repair_dv = grp_repair[DV_type].copy()
-            grp_repair_dv.columns = grp_repair_dv.columns.astype(int)
-
-            # we did not preserve the units for now; we can add them here if needed
-
-            loss_results[DV_type].append(grp_repair_dv.loc[:, building_ids])
-
-    repair_costs = pd.concat(loss_results['Cost'], axis=1).sort_index(axis=1).T
-    repair_times = pd.concat(loss_results['Time'], axis=1).sort_index(axis=1).T
-
-    # finish by putting the full damage sample back to the assessment object
-    PAL.damage.load_sample(full_dmg_sample)
 
     return demand_sample, damage_df, repair_costs, repair_times
 
@@ -480,9 +715,11 @@ def process_and_save_chunk(
     temp_dir: str,
     grid_points: pd.DataFrame,
     grid_data: pd.DataFrame,
+    n_neighbors: int,
     sample_size_demand: int,
     sample_size_damage: int,
     dl_method: str,
+    im_types: dict[str, str],
 ) -> None:
     """
     Process a single chunk of buildings and save results to temporary compressed CSV files.
@@ -504,12 +741,17 @@ def process_and_save_chunk(
         DataFrame with grid point coordinates (Longitude, Latitude)
     grid_data : pd.DataFrame
         DataFrame with intensity measure data for each grid point
+    n_neighbors : int
+        Number of nearest neighbors to use for mapping event intensity from
+        grid points to buildings
     sample_size_demand : int
         Number of demand realizations available
     sample_size_damage : int
         Number of damage realizations to generate
     dl_method : str
         Damage and loss methodology
+    im_types : dict[str, str]
+        Dictionary of intensity measure types and their units from the config file
 
     """
     # Process buildings through steps 3-6
@@ -518,9 +760,11 @@ def process_and_save_chunk(
             chunk,
             grid_points,
             grid_data,
+            n_neighbors,
             sample_size_demand,
             sample_size_damage,
             dl_method,
+            im_types,
         )
     )
 
@@ -530,17 +774,18 @@ def process_and_save_chunk(
     repair_costs_chunk.to_csv(
         f'{temp_dir}/repair_costs_part_{i}.csv', compression='zip'
     )
-    repair_times_chunk.to_csv(
-        f'{temp_dir}/repair_times_part_{i}.csv', compression='zip'
-    )
+    if repair_times_chunk is not None:
+        repair_times_chunk.to_csv(
+            f'{temp_dir}/repair_times_part_{i}.csv', compression='zip'
+        )
 
 
-def regional_sim(config_file: str, num_cores: int | None = None) -> None:
+def regional_sim(config_file: str, num_cores: int | None = None) -> None:  # noqa: C901
     """
     Perform a regional-scale disaster impact simulation.
 
     This function orchestrates the complete regional simulation workflow including:
-    1. Loading earthquake event data from gridded intensity measure files
+    1. Loading hazard event data from gridded intensity measure files
     2. Loading building inventory data
     3. Mapping event intensity measures to building locations using nearest neighbor regression
     4. Mapping buildings to damage/loss archetypes using Pelicun auto-population
@@ -560,6 +805,14 @@ def regional_sim(config_file: str, num_cores: int | None = None) -> None:
     num_cores : int, optional
         Number of CPU cores to use for parallel processing. If None,
         uses all available cores minus one
+
+    Raises
+    ------
+    ValueError
+        If the building ID filter specified in the config file does not match
+        any building IDs in the inventory.
+        If required intensity measure types specified in the config are not
+        found in the grid data files.
 
     Notes
     -----
@@ -585,8 +838,23 @@ def regional_sim(config_file: str, num_cores: int | None = None) -> None:
         'ApplicationData'
     ]['Realizations']
 
-    # 1 Earthquake Event
-    # Load gridded event IM information from a standard SimCenter EventGrid file and the corresponding site files.
+    # Get the intensity measure types and units from the config
+    try:
+        im_types = config['RegionalEvent']['units']
+    except KeyError as err:
+        msg = (
+            "Missing 'RegionalEvent/units' in configuration. "
+            'This dictionary must specify intensity measure types and units.'
+        )
+        raise ValueError(msg) from err
+
+    if not im_types:
+        msg = "No intensity measure types specified in 'RegionalEvent/units'."
+        raise ValueError(msg)
+
+    # 1 Hazard Event Data
+    # Load gridded event IM information from a standard SimCenter EventGrid file
+    # and the corresponding site files.
 
     event_data_folder = config['RegionalEvent']['eventFilePath']
     event_grid_path = f"{event_data_folder}/{config['RegionalEvent']['eventFile']}"
@@ -595,17 +863,38 @@ def regional_sim(config_file: str, num_cores: int | None = None) -> None:
 
     grid_point_data_array = []
 
+    # Sample first grid file to verify IM types exist
+    first_grid_file = f"{event_data_folder}/{grid_points['GP_file'].iloc[0]}"
+    first_grid_data = pd.read_csv(first_grid_file)
+
+    # Validate that all required IM types are present in the grid data
+    missing_ims = [im for im in im_types if im not in first_grid_data.columns]
+    if missing_ims:
+        msg = (
+            f'The following intensity measures specified in the config were not '
+            f'found in the grid data: {missing_ims}. Available measures: {list(first_grid_data.columns)}'
+        )
+        raise ValueError(msg)
+
+    # Load all grid files
     for grid_point_file in tqdm(
         grid_points['GP_file'],
-        desc=f'[{format_elapsed_time(start_time)}] 1 Earthquake Event - Loading grid point data',
+        desc=f'[{format_elapsed_time(start_time)}] 1 Hazard Event - Loading grid point data',
     ):
         grid_point_data = pd.read_csv(
             f'{event_data_folder}/{grid_point_file}', nrows=sample_size_demand
         )
 
+        # Keep only the columns we need (the IM types specified in the config)
+        grid_point_data = grid_point_data[list(im_types.keys())]
+
         grid_point_data_array.append(grid_point_data)
 
     grid_data = pd.concat(grid_point_data_array, axis=1, keys=grid_points.index)
+
+    n_neighbors = config['Applications']['RegionalMapping']['Buildings'][
+        'ApplicationData'
+    ]['neighbors']
 
     # 2 Building Inventory
     # Load probabilistic building inventory from a CSV file
@@ -617,10 +906,33 @@ def regional_sim(config_file: str, num_cores: int | None = None) -> None:
     bldg_data_path = f"{bldg_data_folder}/{config['Applications']['Assets']['Buildings']['ApplicationData']['assetSourceFile']}"
 
     bldg_df = pd.read_csv(bldg_data_path, index_col=0)
+
+    # Apply building ID filter if specified in the config
+    try:
+        filter_str = config['Applications']['Assets']['Buildings'][
+            'ApplicationData'
+        ]['filter']
+    except KeyError:
+        filter_str = None
+
+    if filter_str:
+        ids_to_keep = parse_id_filter(filter_str)
+
+        if ids_to_keep:
+            # Check if all requested IDs exist in the inventory
+            missing_ids = set(ids_to_keep) - set(bldg_df.index)
+            if missing_ids:
+                msg = (
+                    f'The following building IDs from the filter were not '
+                    f'found in the inventory: {sorted(missing_ids)}'
+                )
+                raise ValueError(msg)
+
+            # Filter the DataFrame
+            bldg_df = bldg_df.loc[ids_to_keep]
+
     original_index = bldg_df.index
     bldg_df = bldg_df.sort_values(by='OccupancyClass')
-
-    # bldg_df = bldg_df.iloc[:batch_size*5]
 
     # Get DL method for processing
     dl_method = config['Applications']['DL']['Buildings']['ApplicationData'][
@@ -652,9 +964,11 @@ def regional_sim(config_file: str, num_cores: int | None = None) -> None:
                     temp_dir,
                     grid_points,
                     grid_data,
+                    n_neighbors,
                     sample_size_demand,
                     sample_size_damage,
                     dl_method,
+                    im_types,
                 )
                 for i, chunk in enumerate(bldg_chunks)
             )
@@ -684,24 +998,38 @@ def regional_sim(config_file: str, num_cores: int | None = None) -> None:
                     pd.read_csv(filepath, index_col=0, compression='zip')
                 )
 
-        # Concatenate all parts into final DataFrames
-        demand_sample = pd.concat(demand_list, axis=1)
-        damage_df = pd.concat(damage_list, axis=0)
-        repair_costs = pd.concat(costs_list, axis=0)
-        repair_times = pd.concat(times_list, axis=0)
-
-        # Restore original building order for all result files
-        demand_sample = demand_sample.reindex(
-            columns=[f'PGA-{loc}-1' for loc in original_index]
-        )
-        damage_df = damage_df.reindex(original_index)
-        repair_costs = repair_costs.reindex(original_index)
-        repair_times = repair_times.reindex(original_index)
-
         # 7 Save results
         print(f'[{format_elapsed_time(start_time)}] 7 Save results')  # noqa: T201
 
-        demand_sample.to_csv('demand.csv')
-        damage_df.to_csv('damage.csv')
-        repair_costs.to_csv('repair_costs.csv')
-        repair_times.to_csv('repair_times.csv')
+        # --- Process and Save Demands ---
+        if demand_list:
+            demand_sample = pd.concat(demand_list, axis=1)
+
+            # Create a sorted list of expected column names for reindexing
+            expected_demand_cols = [
+                f'{im_type}-{loc}-1'
+                for loc in original_index
+                for im_type in im_types
+            ]
+
+            # Reorder the columns to match the original building order and save
+            demand_sample = demand_sample.reindex(columns=expected_demand_cols)
+            demand_sample.to_csv('demand.csv')
+
+        # --- Process and Save Damage ---
+        if damage_list:
+            damage_df = pd.concat(damage_list, axis=0)
+            damage_df = damage_df.reindex(original_index)
+            damage_df.to_csv('damage.csv')
+
+        # --- Process and Save Repair Costs ---
+        if costs_list:
+            repair_costs = pd.concat(costs_list, axis=0)
+            repair_costs = repair_costs.reindex(original_index)
+            repair_costs.to_csv('repair_costs.csv')
+
+        # --- Process and Save Repair Times (if available) ---
+        if times_list:
+            repair_times = pd.concat(times_list, axis=0)
+            repair_times = repair_times.reindex(original_index)
+            repair_times.to_csv('repair_times.csv')
