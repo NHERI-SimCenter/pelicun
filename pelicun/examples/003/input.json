@@ -1,0 +1,38 @@
+{
+    "DL": {
+        "Asset": {
+            "ComponentAssignmentFile": "CMP_QNT.csv",
+            "ComponentDatabase": "User Defined",
+            "ComponentDatabasePath": "PelicunDefault/damage_DB_Hazus_EQ_trnsp.csv"
+            
+        },
+        "Damage": {
+            "DamageProcess": "None"
+        },
+        "Demands": {
+            "Calibration": {
+                "ALL": {
+                    "DistributionFamily": "empirical"
+                }
+            },
+            "DemandFilePath": "demands.csv",
+            "SampleSize": "500"
+        },
+        "Losses": {
+            "BldgRepair": {
+                "ConsequenceDatabase": "User Defined",
+                "ConsequenceDatabasePath": "PelicunDefault/loss_repair_DB_Hazus_EQ_trnsp.csv",
+                "MapApproach": "User Defined",
+                "MapFilePath": "lossmap.csv"
+            }
+        }
+    },
+    "GeneralInformation": {
+        "units": {
+            "force": "kips",
+            "length": "in",
+            "temperature": "C",
+            "time": "sec"
+        }
+    }
+}
