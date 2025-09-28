@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pelicun"
-version = "3.8.0"
+version = "3.8.1"
 description = "Probabilistic Estimation of Losses, Injuries, and Community resilience Under Natural hazard events"
 readme = "README.md"
 license = {text = "BSD-3-Clause"}
@@ -65,6 +65,7 @@ development = [
     "pylint-pytest",
     "pytest",
     "pytest-cov",
+    "pytest-httpserver",
     "pytest-socket",
     "pytest-xdist",
     "rendre>0.0.14",

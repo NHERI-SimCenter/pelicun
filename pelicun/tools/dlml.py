@@ -46,6 +46,7 @@ import json
 import logging
 import os
 import re
+import shlex
 import sys
 import warnings
 from datetime import datetime, timedelta
@@ -58,15 +59,60 @@ from tqdm import tqdm
 
 from pelicun.pelicun_warnings import PelicunWarning
 
-# Configure logger once at module level
+# Configure logger once at the module level
 logger = logging.getLogger('pelicun.dlml')
-
-# --- Configuration for your data repository ---
-DATA_REPO_OWNER = 'NHERI-SimCenter'
 
 # --- Module-level path constants ---
 PELICUN_ROOT_DIR = Path(__file__).resolve().parent.parent
-DLML_DATA_DIR = PELICUN_ROOT_DIR / 'resources' / 'DamageAndLossModelLibrary'
+
+
+def get_api_repo_url() -> str:
+    """
+    Construct the base URL for the GitHub API repository endpoint.
+
+    Returns
+    -------
+    str
+        The base URL for the GitHub API repository endpoint.
+    """
+    owner = os.environ.get('DLML_REPO_OWNER', 'NHERI-SimCenter')
+    repo = os.environ.get('DLML_REPO_NAME', 'DamageAndLossModelLibrary')
+    api_base = os.environ.get('PELICUN_GITHUB_API_URL', 'https://api.github.com')
+    return f'{api_base}/repos/{owner}/{repo}'
+
+
+def get_raw_repo_url() -> str:
+    """
+    Construct the base URL for the GitHub raw content endpoint.
+
+    Returns
+    -------
+    str
+        The base URL for the GitHub raw content endpoint.
+    """
+    owner = os.environ.get('DLML_REPO_OWNER', 'NHERI-SimCenter')
+    repo = os.environ.get('DLML_REPO_NAME', 'DamageAndLossModelLibrary')
+    raw_base = os.environ.get(
+        'PELICUN_GITHUB_RAW_URL', 'https://raw.githubusercontent.com'
+    )
+    return f'{raw_base}/{owner}/{repo}'
+
+
+def get_dlml_data_dir() -> Path:
+    """
+    Get the DLML data directory path.
+
+    Checks for the DLML_DATA_DIR environment variable for overrides,
+    otherwise defaults to the standard location within the package.
+
+    Returns
+    -------
+    Path
+        The DLML data directory path.
+    """
+    if data_dir_override := os.environ.get('DLML_DATA_DIR'):
+        return Path(data_dir_override)
+    return PELICUN_ROOT_DIR / 'resources' / 'DamageAndLossModelLibrary'
 
 
 def validate_commit_sha(commit: str) -> bool:
@@ -139,13 +185,10 @@ def _get_changed_files(
     set[str] | None
         A set of changed filenames, or None if the API call fails.
     """
-    compare_url = (
-        f'https://api.github.com/repos/{DATA_REPO_OWNER}/'
-        f'DamageAndLossModelLibrary/compare/{base_commit}...{head_commit}'
-    )
+    compare_url = f'{get_api_repo_url()}/compare/{base_commit}...{head_commit}'
 
     try:
-        response = requests.get(compare_url, headers=headers, timeout=10)
+        response = requests.get(compare_url, headers=headers, timeout=(10, 60))
         response.raise_for_status()
 
         compare_data = response.json()
@@ -155,10 +198,11 @@ def _get_changed_files(
             # If we're downgrading, the diff is empty in this direction.
             # We must swap the commits to find the files that need to be reverted.
             reverse_compare_url = (
-                f'https://api.github.com/repos/{DATA_REPO_OWNER}/'
-                f'DamageAndLossModelLibrary/compare/{head_commit}...{base_commit}'
+                f'{get_api_repo_url()}/compare/{head_commit}...{base_commit}'
             )
-            response = requests.get(reverse_compare_url, headers=headers, timeout=10)
+            response = requests.get(
+                reverse_compare_url, headers=headers, timeout=(10, 60)
+            )
             response.raise_for_status()
             compare_data = response.json()
 
@@ -228,7 +272,7 @@ def check_dlml_version() -> Dict[str, Union[bool, str, None]]:  # noqa: UP007, U
         - 'last_check': str, ISO timestamp of last check
         - 'error': str, error message if check failed
     """
-    target_data_abs_dir = DLML_DATA_DIR
+    target_data_abs_dir = get_dlml_data_dir()
 
     # Cache file path
     cache_file = target_data_abs_dir / '.dlml_cache.json'
@@ -278,7 +322,6 @@ def check_dlml_version() -> Dict[str, Union[bool, str, None]]:  # noqa: UP007, U
                 result['current_version'] = current_version_str
 
         # Get latest version from GitHub releases
-        github_api_base_url = f'https://api.github.com/repos/{DATA_REPO_OWNER}/DamageAndLossModelLibrary'
         headers = {'Accept': 'application/vnd.github.v3+json'}
 
         # Check for the GITHUB_TOKEN environment variable
@@ -286,8 +329,8 @@ def check_dlml_version() -> Dict[str, Union[bool, str, None]]:  # noqa: UP007, U
         if token:
             headers['Authorization'] = f'Bearer {token}'
 
-        release_url = f'{github_api_base_url}/releases/latest'
-        response = requests.get(release_url, headers=headers, timeout=10)
+        release_url = f'{get_api_repo_url()}/releases/latest'
+        response = requests.get(release_url, headers=headers, timeout=(10, 60))
         response.raise_for_status()
 
         release_data = response.json()
@@ -373,10 +416,6 @@ def _resolve_version_to_commit_sha(  # noqa: C901
     RuntimeError
         If data download fails due to network issues, missing commits, or file errors
     """
-    github_api_base_url = (
-        f'https://api.github.com/repos/{DATA_REPO_OWNER}/DamageAndLossModelLibrary'
-    )
-
     # Logic for handling 'latest' commit or a specific commit SHA
     if commit is not None:
         if commit != 'latest' and not validate_commit_sha(commit):
@@ -389,9 +428,11 @@ def _resolve_version_to_commit_sha(  # noqa: C901
         if commit == 'latest':
             logger.info('Downloading DLML models from the latest commit...')
 
-            commits_url = f'{github_api_base_url}/commits'
+            commits_url = f'{get_api_repo_url()}/commits'
             try:
-                response = requests.get(commits_url, headers=headers, timeout=10)
+                response = requests.get(
+                    commits_url, headers=headers, timeout=(10, 60)
+                )
                 response.raise_for_status()
                 commits_data = response.json()
                 if commits_data and len(commits_data) > 0:
@@ -415,13 +456,13 @@ def _resolve_version_to_commit_sha(  # noqa: C901
     # Logic for handling version tags
     version_str = version or 'latest'
     release_info_url = (
-        f'{github_api_base_url}/releases/tags/{version_str}'
+        f'{get_api_repo_url()}/releases/tags/{version_str}'
         if version_str != 'latest'
-        else f'{github_api_base_url}/releases/latest'
+        else f'{get_api_repo_url()}/releases/latest'
     )
 
     try:
-        response = requests.get(release_info_url, headers=headers, timeout=10)
+        response = requests.get(release_info_url, headers=headers, timeout=(10, 60))
         response.raise_for_status()
         release_data = response.json()
     except requests.exceptions.RequestException as e:
@@ -432,11 +473,11 @@ def _resolve_version_to_commit_sha(  # noqa: C901
     # Note: target_commitish can be a branch name (like "main"), so we need to
     # get the actual commit SHA that the tag points to using the Git refs API
     tag_name = release_data.get('tag_name', version_str)
-    tag_refs_url = f'{github_api_base_url}/git/refs/tags/{tag_name}'
+    tag_refs_url = f'{get_api_repo_url()}/git/refs/tags/{tag_name}'
 
     try:
         # Primary method: resolve the tag via Git refs API
-        tag_response = requests.get(tag_refs_url, headers=headers, timeout=10)
+        tag_response = requests.get(tag_refs_url, headers=headers, timeout=(10, 60))
         tag_response.raise_for_status()
         tag_data = tag_response.json()
         tag_sha = tag_data.get('object', {}).get('sha')
@@ -445,9 +486,9 @@ def _resolve_version_to_commit_sha(  # noqa: C901
         if tag_type == 'commit':  # Tag points directly to a commit
             commit_sha = tag_sha
         elif tag_type == 'tag':  # Annotated tag
-            tag_object_url = f'{github_api_base_url}/git/tags/{tag_sha}'
+            tag_object_url = f'{get_api_repo_url()}/git/tags/{tag_sha}'
             tag_obj_response = requests.get(
-                tag_object_url, headers=headers, timeout=10
+                tag_object_url, headers=headers, timeout=(10, 60)
             )
             tag_obj_response.raise_for_status()
             commit_sha = tag_obj_response.json().get('object', {}).get('sha')
@@ -492,7 +533,7 @@ def _download_file(url: str, local_path: Union[str, Path]) -> None:  # noqa: UP0
     path.parent.mkdir(parents=True, exist_ok=True)
 
     try:
-        response = requests.get(url, stream=True, timeout=10)
+        response = requests.get(url, stream=True, timeout=(10, 60))
         response.raise_for_status()
 
         with path.open('wb') as f:
@@ -528,7 +569,7 @@ def download_data_files(  # noqa: C901
     RuntimeError
         If data download fails due to network issues, missing commits, or file errors
     """
-    target_data_abs_dir = DLML_DATA_DIR
+    target_data_abs_dir = get_dlml_data_dir()
     target_data_abs_dir.mkdir(parents=True, exist_ok=True)
 
     # Cache file path
@@ -568,7 +609,7 @@ def download_data_files(  # noqa: C901
             changed_files = _get_changed_files(old_commit_sha, commit_sha, headers)
 
     # Get the model file list
-    model_file_list_url = f'https://raw.githubusercontent.com/{DATA_REPO_OWNER}/DamageAndLossModelLibrary/{commit_sha}/model_files.txt'
+    model_file_list_url = f'{get_raw_repo_url()}/{commit_sha}/model_files.txt'
 
     model_file_local_path = target_data_abs_dir / 'model_files.txt'
     _download_file(model_file_list_url, str(model_file_local_path))
@@ -596,7 +637,7 @@ def download_data_files(  # noqa: C901
         }
         logger.info(f'Found {len(relevant_changed_files)} relevant file changes.')
 
-    file_download_base_url = f'https://raw.githubusercontent.com/{DATA_REPO_OWNER}/DamageAndLossModelLibrary/{commit_sha}'
+    file_download_base_url = f'{get_raw_repo_url()}/{commit_sha}'
 
     # Initialize cache for this commit if using caching
     if use_cache:
@@ -712,32 +753,33 @@ def check_dlml_data() -> None:
     """
     # If pelicun is imported to perform a DLML update, return immediately and
     # let the CLI command handle all operations.
-    if (
-        ('pelicun' in sys.argv[0] or 'cli.py' in sys.argv[0])
-        and 'dlml' in sys.argv
-        and 'update' in sys.argv
-    ):
+    search_space = sys.argv[:11]
+    if ('dlml', 'update') in zip(search_space, search_space[1:]):
         return
 
-    target_data_abs_dir = DLML_DATA_DIR
+    target_data_abs_dir = get_dlml_data_dir()
 
     # Check if the critical manifest file exists as a proxy for a valid installation
     manifest_file = target_data_abs_dir / 'model_files.txt'
     data_exists = manifest_file.exists()
+
+    # Construct a robust update command
+    safe_python_exe = shlex.quote(sys.executable)
+    update_command = f'{safe_python_exe} -m pelicun.cli dlml update'
 
     if not data_exists:
         # No DLML data found, download latest version
         try:
             print('DLML model data not found. Downloading latest version...')  # noqa: T201
             print('This is a one-time setup that may take a few minutes.')  # noqa: T201
-            download_data_files(version='latest', use_cache=False)
+            download_data_files(version='latest', use_cache=True)
             print('DLML data download completed successfully.')  # noqa: T201
         except Exception as e:
             detailed_msg = _format_initial_download_error(e)
             final_msg = (
                 f'{detailed_msg}\n'
                 'Pelicun requires DLML data to function properly.\n'
-                'You can manually download using: pelicun dlml update'
+                f'You can manually download using: {update_command}'
             )
             raise RuntimeError(final_msg) from e
     else:
@@ -755,7 +797,7 @@ def check_dlml_data() -> None:
                     f'DLML data update available. '
                     f'Current version: {current_ver}, '
                     f'Latest version: {latest_ver}. '
-                    f'Update with: pelicun dlml update'
+                    f'Update with: {update_command}'
                 )
 
                 # Use pelicun's warning system

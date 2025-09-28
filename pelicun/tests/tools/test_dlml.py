@@ -271,7 +271,7 @@ def test_download_file_success() -> None:
 
         # Verify requests.get was called with the correct arguments
         mock_get.assert_called_once_with(
-            'http://example.com/file.txt', stream=True, timeout=10
+            'http://example.com/file.txt', stream=True, timeout=(10, 60)
         )
 
         # Verify Path.mkdir was called with the correct arguments
@@ -960,30 +960,41 @@ def test_check_dlml_data_cli_invocation_bypass() -> None:
             mock_download.assert_not_called()
 
 
-def test_check_dlml_data_with_empty_directory() -> None:
+def test_check_dlml_data_with_empty_directory(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
     """
     Test check_dlml_data with an empty temporary directory.
 
-    This mocks DLML_DATA_DIR to use a temporary directory, ensuring the
+    This sets DLML_DATA_DIR environment variable to use a temporary directory, ensuring the
     function triggers a download when data is missing. It also reloads the
     module to ensure the original, un-mocked function is tested.
     """
     # Reload the module to bypass potential mocks from other tests.
     importlib.reload(dlml)
 
-    with tempfile.TemporaryDirectory() as tmpdir:
-        temp_path = Path(tmpdir)
+    monkeypatch.setenv('DLML_DATA_DIR', str(tmp_path))
 
-        with patch('pelicun.tools.dlml.DLML_DATA_DIR', temp_path), patch(
-            'pelicun.tools.dlml.download_data_files'
-        ) as mock_download, patch('builtins.print'):
-            dlml.check_dlml_data()
+    with patch('pelicun.tools.dlml.download_data_files') as mock_download, patch(
+        'builtins.print'
+    ):
+        dlml.check_dlml_data()
 
-            mock_download.assert_called_once_with(version='latest', use_cache=False)
+        mock_download.assert_called_once_with(version='latest', use_cache=True)
 
 
-def test_check_dlml_data_with_existing_data_no_update() -> None:
+def test_check_dlml_data_with_existing_data_no_update(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
     """Test check_dlml_data with existing data and no update available."""
+    # Create manifest file that will be checked for existence
+    manifest_file = tmp_path / 'model_files.txt'
+    manifest_file.parent.mkdir(parents=True, exist_ok=True)
+    manifest_file.touch()
+
+    # Set environment variable to use tmp_path
+    monkeypatch.setenv('DLML_DATA_DIR', str(tmp_path))
+
     # Mock version check result - no update available
     mock_version_info = {
         'update_available': False,
@@ -992,20 +1003,25 @@ def test_check_dlml_data_with_existing_data_no_update() -> None:
         'error': None,
     }
 
-    with patch('pathlib.Path.exists', return_value=True), patch(
-        'pathlib.Path.is_dir', return_value=True
-    ), patch(
-        'pathlib.Path.iterdir',
-        return_value=[MagicMock(spec=Path, name='model1.json')],
-    ), patch(
+    with patch(
         'pelicun.tools.dlml.check_dlml_version', return_value=mock_version_info
     ):
         # Should not raise any warnings or exceptions
         dlml.check_dlml_data()
 
 
-def test_check_dlml_data_with_existing_data_update_available() -> None:
+def test_check_dlml_data_with_existing_data_update_available(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
     """Test check_dlml_data with existing data and update available."""
+    # Create manifest file that will be checked for existence
+    manifest_file = tmp_path / 'model_files.txt'
+    manifest_file.parent.mkdir(parents=True, exist_ok=True)
+    manifest_file.touch()
+
+    # Set environment variable to use tmp_path
+    monkeypatch.setenv('DLML_DATA_DIR', str(tmp_path))
+
     # Mock version check result - update available
     mock_version_info = {
         'update_available': True,
@@ -1014,12 +1030,7 @@ def test_check_dlml_data_with_existing_data_update_available() -> None:
         'error': None,
     }
 
-    with patch('pathlib.Path.exists', return_value=True), patch(
-        'pathlib.Path.is_dir', return_value=True
-    ), patch(
-        'pathlib.Path.iterdir',
-        return_value=[MagicMock(spec=Path, name='model1.json')],
-    ), patch(
+    with patch(
         'pelicun.tools.dlml.check_dlml_version', return_value=mock_version_info
     ), patch('warnings.warn') as mock_warn:
         dlml.check_dlml_data()
@@ -1030,12 +1041,17 @@ def test_check_dlml_data_with_existing_data_update_available() -> None:
         assert 'DLML data update available' in warning_msg
         assert 'v1.0.0' in warning_msg
         assert 'v1.1.0' in warning_msg
-        assert 'pelicun dlml update' in warning_msg
+        assert 'pelicun.cli dlml update' in warning_msg
 
 
-def test_check_dlml_data_download_failure() -> None:
+def test_check_dlml_data_download_failure(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
     """Test check_dlml_data handles download failures appropriately."""
-    with patch('pathlib.Path.exists', return_value=False), patch(
+    # Set environment variable to use tmp_path
+    monkeypatch.setenv('DLML_DATA_DIR', str(tmp_path))
+
+    with patch(
         'pelicun.tools.dlml.download_data_files',
         side_effect=requests.exceptions.ConnectionError('Network error'),
     ):
@@ -1045,12 +1061,17 @@ def test_check_dlml_data_download_failure() -> None:
 
         error_msg = str(exc_info.value)
         assert 'Network error while downloading DLML data' in error_msg
-        assert 'pelicun dlml update' in error_msg
+        assert 'pelicun.cli dlml update' in error_msg
 
 
-def test_check_dlml_data_permission_error() -> None:
+def test_check_dlml_data_permission_error(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
     """Test check_dlml_data handles permission errors appropriately."""
-    with patch('pathlib.Path.exists', return_value=False), patch(
+    # Set environment variable to use tmp_path
+    monkeypatch.setenv('DLML_DATA_DIR', str(tmp_path))
+
+    with patch(
         'pelicun.tools.dlml.download_data_files',
         side_effect=PermissionError('Access denied'),
     ):
@@ -1063,17 +1084,22 @@ def test_check_dlml_data_permission_error() -> None:
         assert 'permissions' in error_msg
 
 
-def test_check_dlml_data_version_check_failure() -> None:
+def test_check_dlml_data_version_check_failure(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
     """Test check_dlml_data handles version check failures gracefully."""
     # Reload the module to bypass potential mocks from other tests.
     importlib.reload(dlml)
 
+    # Create manifest file that will be checked for existence
+    manifest_file = tmp_path / 'model_files.txt'
+    manifest_file.parent.mkdir(parents=True, exist_ok=True)
+    manifest_file.touch()
+
+    # Set environment variable to use tmp_path
+    monkeypatch.setenv('DLML_DATA_DIR', str(tmp_path))
+
     with patch('sys.argv', ['test_script.py']), patch(
-        'pathlib.Path.exists', return_value=True
-    ), patch('pathlib.Path.is_dir', return_value=True), patch(
-        'pathlib.Path.iterdir',
-        return_value=[MagicMock(spec=Path, name='model1.json')],
-    ), patch(
         'pelicun.tools.dlml.check_dlml_version',
         side_effect=ValueError('Version check failed'),
     ), patch('builtins.print') as mock_print:
