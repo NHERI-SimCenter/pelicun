@@ -1,7 +1,7 @@
-pelicun.tests.basic.test\_dlml\_integration
+pelicun.tests.tools.test\_dlml\_integration
 ===========================================
 
-.. automodule:: pelicun.tests.basic.test_dlml_integration
+.. automodule:: pelicun.tests.tools.test_dlml_integration
    :members:
 
    
@@ -17,7 +17,9 @@ pelicun.tests.basic.test\_dlml\_integration
       test_cache_version_tracking_integration
       test_cli_integration_invalid_action
       test_cli_integration_missing_arguments
-      test_end_to_end_workflow_with_mock
+      test_different_download_modes_integration
+      test_download_file_creates_real_file_in_cache
+      test_full_download_flow_e2e
       test_import_integration_failure
       test_import_integration_success
       test_logging_configuration
@@ -25,8 +27,8 @@ pelicun.tests.basic.test\_dlml\_integration
       test_with_commented_lines_in_model_files
       test_with_empty_model_files
       test_with_large_number_of_files
-      test_with_mock_github_api_responses
       test_with_special_characters_in_paths
+      test_workflow_with_real_downloads
    
    
 

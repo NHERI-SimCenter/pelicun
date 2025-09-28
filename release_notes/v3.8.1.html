@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Unreleased &mdash; pelicun  documentation</title>
+  <title>Version 3.8.1 (September 27, 2025) &mdash; pelicun  documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
@@ -24,8 +24,8 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Version 3.8.1 (September 27, 2025)" href="v3.8.1.html" />
-    <link rel="prev" title="5. Release Notes" href="index.html" /> 
+    <link rel="next" title="Version 3.8.0 (September 15, 2025)" href="v3.8.0.html" />
+    <link rel="prev" title="Unreleased" href="unreleased.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -144,7 +144,7 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="index.html"><span class="section-number">5. </span>Release Notes</a></li>
-      <li class="breadcrumb-item active">Unreleased</li>
+      <li class="breadcrumb-item active">Version 3.8.1 (September 27, 2025)</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -153,61 +153,40 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="unreleased">
-<span id="changes-unreleased"></span><h1>Unreleased<a class="headerlink" href="#unreleased" title="Link to this heading"></a></h1>
-<section id="added">
-<h2>Added<a class="headerlink" href="#added" title="Link to this heading"></a></h2>
-<p><strong>Multi-Hazard Regional Simulation</strong>: Added a framework to support multiple,
-configurable hazards beyond the original earthquake-only focus.</p>
-<ul class="simple">
-<li><p>Add support for the <strong>Hazus Hurricane Wind</strong> damage and loss methodology.</p></li>
-<li><p>Introduce a new end-to-end integration test for the hurricane wind
-scenario, complete with a dedicated, hazard-specific pytest fixture.</p></li>
-</ul>
-<p><strong>Building Inventory Filter</strong>: Introduce a new feature to run simulations on a
-specific subset of assets.</p>
-<ul class="simple">
-<li><p>Add a <cite>filter</cite> key to the configuration file to select buildings by ID and
-ID ranges (e.g., “1, 5-10”).</p></li>
-<li><p>Add a comprehensive, parametrized test suite to validate all filter
-scenarios, including error handling.</p></li>
-</ul>
-<p><strong>Enhanced Regional Simulation Testing</strong>: Introduce the first comprehensive
-integration test for the <cite>regional_sim</cite> tool to establish a testing baseline.</p>
-</section>
+  <section id="version-3-8-1-september-27-2025">
+<span id="changes-v3-8-1"></span><h1>Version 3.8.1 (September 27, 2025)<a class="headerlink" href="#version-3-8-1-september-27-2025" title="Link to this heading"></a></h1>
 <section id="changed">
 <h2>Changed<a class="headerlink" href="#changed" title="Link to this heading"></a></h2>
-<p><strong>Regional Simulation Workflow</strong>: Major refactoring of the <cite>regional_sim</cite>
-script for improved flexibility and robustness.</p>
+<p><strong>Enhanced DLML Test Suite</strong>: A complete overhaul of the test suite for the DLML module to improve reliability and test coverage:</p>
 <ul class="simple">
-<li><p>Generalize the Intensity Measure (IM) handling to be dynamically driven by
-the configuration file, removing all hardcoded “PGA” logic.</p></li>
-<li><p>Rearchitect the loss assessment logic into a conditional framework, with a
-dedicated path for complex Hazus Earthquake models and an efficient,
-1-to-1 mapping path for other methods.</p></li>
-<li><p>Reorganize the output stage to save results sequentially, improving
-robustness against failures in later-stage calculations.</p></li>
-<li><p>Update logic to upsample demand realizations when the requested sample size
-is larger than the available data.</p></li>
+<li><p>Replaced brittle, unit-style tests with a new suite of robust integration and end-to-end tests.</p></li>
+<li><p>Added a new end-to-end test using a local HTTP server (<cite>pytest-httpserver</cite>) to simulate the entire download workflow, ensuring high confidence in the process.</p></li>
+<li><p>Overhauled network mocks to be more realistic, allowing for more accurate validation of download behavior.</p></li>
 </ul>
-<p><strong>NNR (Nearest Neighbor Resampling) Tool</strong>: Significant enhancements to the
-<cite>NNR</cite> function for improved performance and functionality.</p>
+<p><strong>Improved DLML Module Configuration</strong>:</p>
 <ul class="simple">
-<li><p>The “expected value” mode can now operate on each realization of a 3D
-input array independently.</p></li>
-<li><p>Improve performance by vectorizing the 2D expected value calculation.</p></li>
-<li><p>Make the number of nearest neighbors a configurable parameter.</p></li>
+<li><p>Refactored the module to resolve all configuration from environment variables at runtime, significantly improving testability and isolation.</p></li>
 </ul>
-</section>
-<section id="removed">
-<h2>Removed<a class="headerlink" href="#removed" title="Link to this heading"></a></h2>
+<p><strong>DLML Data</strong>:</p>
+<ul class="simple">
+<li><p>Updated the default data version for the Damage and Loss Model Library to <cite>v2.1.0</cite>.</p></li>
+</ul>
+<p><strong>Dependencies</strong>:</p>
+<ul class="simple">
+<li><p>Added <cite>pytest-httpserver</cite> as a new development dependency to support the enhanced end-to-end testing.</p></li>
+</ul>
 </section>
 <section id="fixed">
 <h2>Fixed<a class="headerlink" href="#fixed" title="Link to this heading"></a></h2>
-<p><strong>Code Quality and Documentation</strong>: Continued compliance with ruff and ensured
-all tests pass to guarantee code quality and future maintainability.</p>
+<p><strong>DLML Robustness and Reliability</strong>:</p>
 <ul class="simple">
-<li><p>Add full type hinting and a comprehensive docstring to the <cite>NNR</cite> function.</p></li>
+<li><p>Increased network timeouts for file downloads to prevent errors on slower connections.</p></li>
+<li><p>Improved the reliability of the recommended <code class="docutils literal notranslate"><span class="pre">dlml</span> <span class="pre">update</span></code> command shown to users, ensuring it works correctly on all platforms, especially those with spaces in the Python path.</p></li>
+</ul>
+<p><strong>Developer Experience</strong>:</p>
+<ul class="simple">
+<li><p>Performed a comprehensive code quality pass on the entire test suite, standardizing docstrings, adding complete type hints, and improving code style for better maintainability.</p></li>
+<li><p>Made the main CLI script directly executable to simplify development and debugging workflows.</p></li>
 </ul>
 </section>
 </section>

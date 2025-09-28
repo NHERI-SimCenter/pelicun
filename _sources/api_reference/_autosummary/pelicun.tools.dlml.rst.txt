@@ -22,7 +22,10 @@ pelicun.tools.dlml
       check_dlml_version
       dlml_update
       download_data_files
+      get_api_repo_url
+      get_dlml_data_dir
       get_file_hash
+      get_raw_repo_url
       load_cache
       save_cache
       validate_commit_sha

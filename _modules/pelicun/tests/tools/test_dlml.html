@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pelicun.tests.basic.test_dlml &mdash; pelicun  documentation</title>
+  <title>pelicun.tests.tools.test_dlml &mdash; pelicun  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/sphinx-design.min.css?v=95c83b7e" />
@@ -141,7 +141,7 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
-      <li class="breadcrumb-item active">pelicun.tests.basic.test_dlml</li>
+      <li class="breadcrumb-item active">pelicun.tests.tools.test_dlml</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -150,7 +150,7 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <h1>Source code for pelicun.tests.basic.test_dlml</h1><div class="highlight"><pre>
+  <h1>Source code for pelicun.tests.tools.test_dlml</h1><div class="highlight"><pre>
 <span></span><span class="c1">#</span>
 <span class="c1"># Copyright (c) 2025 Leland Stanford Junior University</span>
 <span class="c1"># Copyright (c) 2025 The Regents of the University of California</span>
@@ -209,7 +209,7 @@
 
 
 <div class="viewcode-block" id="mock_download_env">
-<a class="viewcode-back" href="../../../../api_reference/_autosummary/pelicun.tests.basic.test_dlml.html#pelicun.tests.basic.test_dlml.mock_download_env">[docs]</a>
+<a class="viewcode-back" href="../../../../api_reference/_autosummary/pelicun.tests.tools.test_dlml.html#pelicun.tests.tools.test_dlml.mock_download_env">[docs]</a>
 <span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">mock_download_env</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Generator</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Mocks the common environment for a data download test.&quot;&quot;&quot;</span>
@@ -234,7 +234,7 @@
 
 
 <div class="viewcode-block" id="test_validate_commit_sha">
-<a class="viewcode-back" href="../../../../api_reference/_autosummary/pelicun.tests.basic.test_dlml.html#pelicun.tests.basic.test_dlml.test_validate_commit_sha">[docs]</a>
+<a class="viewcode-back" href="../../../../api_reference/_autosummary/pelicun.tests.tools.test_dlml.html#pelicun.tests.tools.test_dlml.test_validate_commit_sha">[docs]</a>
 <span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">parametrize</span><span class="p">(</span>
     <span class="p">(</span><span class="s1">&#39;commit_sha&#39;</span><span class="p">,</span> <span class="s1">&#39;expected&#39;</span><span class="p">),</span>
     <span class="p">[</span>
@@ -259,7 +259,7 @@
 
 
 <div class="viewcode-block" id="test_get_file_hash_existing_file">
-<a class="viewcode-back" href="../../../../api_reference/_autosummary/pelicun.tests.basic.test_dlml.html#pelicun.tests.basic.test_dlml.test_get_file_hash_existing_file">[docs]</a>
+<a class="viewcode-back" href="../../../../api_reference/_autosummary/pelicun.tests.tools.test_dlml.html#pelicun.tests.tools.test_dlml.test_get_file_hash_existing_file">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">test_get_file_hash_existing_file</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Test hash calculation for existing files.&quot;&quot;&quot;</span>
     <span class="c1"># Create a temporary file with known content</span>
@@ -282,7 +282,7 @@
 
 
 <div class="viewcode-block" id="test_get_file_hash_nonexistent_file">
-<a class="viewcode-back" href="../../../../api_reference/_autosummary/pelicun.tests.basic.test_dlml.html#pelicun.tests.basic.test_dlml.test_get_file_hash_nonexistent_file">[docs]</a>
+<a class="viewcode-back" href="../../../../api_reference/_autosummary/pelicun.tests.tools.test_dlml.html#pelicun.tests.tools.test_dlml.test_get_file_hash_nonexistent_file">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">test_get_file_hash_nonexistent_file</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Test hash calculation for non-existent files.&quot;&quot;&quot;</span>
     <span class="c1"># Use a path that definitely doesn&#39;t exist</span>
@@ -297,7 +297,7 @@
 
 
 <div class="viewcode-block" id="test_get_file_hash_different_content">
-<a class="viewcode-back" href="../../../../api_reference/_autosummary/pelicun.tests.basic.test_dlml.html#pelicun.tests.basic.test_dlml.test_get_file_hash_different_content">[docs]</a>
+<a class="viewcode-back" href="../../../../api_reference/_autosummary/pelicun.tests.tools.test_dlml.html#pelicun.tests.tools.test_dlml.test_get_file_hash_different_content">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">test_get_file_hash_different_content</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Test hash calculation for files with different content.&quot;&quot;&quot;</span>
     <span class="c1"># Create two temporary files with different content</span>
@@ -324,7 +324,7 @@
 
 
 <div class="viewcode-block" id="test_get_file_hash_empty_file">
-<a class="viewcode-back" href="../../../../api_reference/_autosummary/pelicun.tests.basic.test_dlml.html#pelicun.tests.basic.test_dlml.test_get_file_hash_empty_file">[docs]</a>
+<a class="viewcode-back" href="../../../../api_reference/_autosummary/pelicun.tests.tools.test_dlml.html#pelicun.tests.tools.test_dlml.test_get_file_hash_empty_file">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">test_get_file_hash_empty_file</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Test hash calculation for empty files.&quot;&quot;&quot;</span>
     <span class="c1"># Create a temporary empty file</span>
@@ -355,7 +355,7 @@
 
 
 <div class="viewcode-block" id="test_load_cache_valid_file">
-<a class="viewcode-back" href="../../../../api_reference/_autosummary/pelicun.tests.basic.test_dlml.html#pelicun.tests.basic.test_dlml.test_load_cache_valid_file">[docs]</a>
+<a class="viewcode-back" href="../../../../api_reference/_autosummary/pelicun.tests.tools.test_dlml.html#pelicun.tests.tools.test_dlml.test_load_cache_valid_file">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">test_load_cache_valid_file</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Test loading from a valid cache file.&quot;&quot;&quot;</span>
     <span class="c1"># Create a mock cache file</span>
@@ -375,7 +375,7 @@
 
 
 <div class="viewcode-block" id="test_load_cache_nonexistent_file">
-<a class="viewcode-back" href="../../../../api_reference/_autosummary/pelicun.tests.basic.test_dlml.html#pelicun.tests.basic.test_dlml.test_load_cache_nonexistent_file">[docs]</a>
+<a class="viewcode-back" href="../../../../api_reference/_autosummary/pelicun.tests.tools.test_dlml.html#pelicun.tests.tools.test_dlml.test_load_cache_nonexistent_file">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">test_load_cache_nonexistent_file</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Test loading from a non-existent cache file.&quot;&quot;&quot;</span>
     <span class="c1"># Mock pathlib.Path.exists to return False</span>
@@ -389,7 +389,7 @@
 
 
 <div class="viewcode-block" id="test_load_cache_corrupted_file">
-<a class="viewcode-back" href="../../../../api_reference/_autosummary/pelicun.tests.basic.test_dlml.html#pelicun.tests.basic.test_dlml.test_load_cache_corrupted_file">[docs]</a>
+<a class="viewcode-back" href="../../../../api_reference/_autosummary/pelicun.tests.tools.test_dlml.html#pelicun.tests.tools.test_dlml.test_load_cache_corrupted_file">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">test_load_cache_corrupted_file</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Test loading from a corrupted cache file.&quot;&quot;&quot;</span>
     <span class="c1"># Create a mock corrupted cache file</span>
@@ -408,7 +408,7 @@
 
 
 <div class="viewcode-block" id="test_save_cache">
-<a class="viewcode-back" href="../../../../api_reference/_autosummary/pelicun.tests.basic.test_dlml.html#pelicun.tests.basic.test_dlml.test_save_cache">[docs]</a>
+<a class="viewcode-back" href="../../../../api_reference/_autosummary/pelicun.tests.tools.test_dlml.html#pelicun.tests.tools.test_dlml.test_save_cache">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">test_save_cache</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Test saving cache data to a file.&quot;&quot;&quot;</span>
     <span class="c1"># Create mock cache data</span>
@@ -440,7 +440,7 @@
 
 
 <div class="viewcode-block" id="test_download_file_success">
-<a class="viewcode-back" href="../../../../api_reference/_autosummary/pelicun.tests.basic.test_dlml.html#pelicun.tests.basic.test_dlml.test_download_file_success">[docs]</a>
+<a class="viewcode-back" href="../../../../api_reference/_autosummary/pelicun.tests.tools.test_dlml.html#pelicun.tests.tools.test_dlml.test_download_file_success">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">test_download_file_success</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Test downloading a file from a valid URL.&quot;&quot;&quot;</span>
     <span class="c1"># Create a mock response</span>
@@ -456,7 +456,7 @@
 
         <span class="c1"># Verify requests.get was called with the correct arguments</span>
         <span class="n">mock_get</span><span class="o">.</span><span class="n">assert_called_once_with</span><span class="p">(</span>
-            <span class="s1">&#39;http://example.com/file.txt&#39;</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">10</span>
+            <span class="s1">&#39;http://example.com/file.txt&#39;</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">60</span><span class="p">)</span>
         <span class="p">)</span>
 
         <span class="c1"># Verify Path.mkdir was called with the correct arguments</span>
@@ -474,7 +474,7 @@
 
 
 <div class="viewcode-block" id="test_download_file_request_exception">
-<a class="viewcode-back" href="../../../../api_reference/_autosummary/pelicun.tests.basic.test_dlml.html#pelicun.tests.basic.test_dlml.test_download_file_request_exception">[docs]</a>
+<a class="viewcode-back" href="../../../../api_reference/_autosummary/pelicun.tests.tools.test_dlml.html#pelicun.tests.tools.test_dlml.test_download_file_request_exception">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">test_download_file_request_exception</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Test handling of download failures.&quot;&quot;&quot;</span>
     <span class="c1"># Mock requests.get to raise an exception</span>
@@ -496,12 +496,12 @@
 
 
 <div class="viewcode-block" id="TestResolveVersionToCommitSHA">
-<a class="viewcode-back" href="../../../../api_reference/_autosummary/pelicun.tests.basic.test_dlml.html#pelicun.tests.basic.test_dlml.TestResolveVersionToCommitSHA">[docs]</a>
+<a class="viewcode-back" href="../../../../api_reference/_autosummary/pelicun.tests.tools.test_dlml.html#pelicun.tests.tools.test_dlml.TestResolveVersionToCommitSHA">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">TestResolveVersionToCommitSHA</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Test class for the _resolve_version_to_commit_sha helper function.&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="TestResolveVersionToCommitSHA.test_resolve_specific_version_tag">
-<a class="viewcode-back" href="../../../../api_reference/_autosummary/pelicun.tests.basic.test_dlml.html#pelicun.tests.basic.test_dlml.TestResolveVersionToCommitSHA.test_resolve_specific_version_tag">[docs]</a>
+<a class="viewcode-back" href="../../../../api_reference/_autosummary/pelicun.tests.tools.test_dlml.html#pelicun.tests.tools.test_dlml.TestResolveVersionToCommitSHA.test_resolve_specific_version_tag">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_resolve_specific_version_tag</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Test resolving a specific version tag (e.g., &#39;v1.2.0&#39;).&quot;&quot;&quot;</span>
         <span class="n">headers</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;Accept&#39;</span><span class="p">:</span> <span class="s1">&#39;application/vnd.github.v3+json&#39;</span><span class="p">}</span>
@@ -535,7 +535,7 @@
 
 
 <div class="viewcode-block" id="TestResolveVersionToCommitSHA.test_resolve_latest_version_tag">
-<a class="viewcode-back" href="../../../../api_reference/_autosummary/pelicun.tests.basic.test_dlml.html#pelicun.tests.basic.test_dlml.TestResolveVersionToCommitSHA.test_resolve_latest_version_tag">[docs]</a>
+<a class="viewcode-back" href="../../../../api_reference/_autosummary/pelicun.tests.tools.test_dlml.html#pelicun.tests.tools.test_dlml.TestResolveVersionToCommitSHA.test_resolve_latest_version_tag">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_resolve_latest_version_tag</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Test resolving the &#39;latest&#39; version tag.&quot;&quot;&quot;</span>
         <span class="n">headers</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;Accept&#39;</span><span class="p">:</span> <span class="s1">&#39;application/vnd.github.v3+json&#39;</span><span class="p">}</span>
@@ -569,7 +569,7 @@
 
 
 <div class="viewcode-block" id="TestResolveVersionToCommitSHA.test_resolve_annotated_tag">
-<a class="viewcode-back" href="../../../../api_reference/_autosummary/pelicun.tests.basic.test_dlml.html#pelicun.tests.basic.test_dlml.TestResolveVersionToCommitSHA.test_resolve_annotated_tag">[docs]</a>
+<a class="viewcode-back" href="../../../../api_reference/_autosummary/pelicun.tests.tools.test_dlml.html#pelicun.tests.tools.test_dlml.TestResolveVersionToCommitSHA.test_resolve_annotated_tag">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_resolve_annotated_tag</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Test handling annotated tags (key new test).&quot;&quot;&quot;</span>
         <span class="n">headers</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;Accept&#39;</span><span class="p">:</span> <span class="s1">&#39;application/vnd.github.v3+json&#39;</span><span class="p">}</span>
@@ -610,7 +610,7 @@
 
 
 <div class="viewcode-block" id="TestResolveVersionToCommitSHA.test_resolve_specific_commit_sha">
-<a class="viewcode-back" href="../../../../api_reference/_autosummary/pelicun.tests.basic.test_dlml.html#pelicun.tests.basic.test_dlml.TestResolveVersionToCommitSHA.test_resolve_specific_commit_sha">[docs]</a>
+<a class="viewcode-back" href="../../../../api_reference/_autosummary/pelicun.tests.tools.test_dlml.html#pelicun.tests.tools.test_dlml.TestResolveVersionToCommitSHA.test_resolve_specific_commit_sha">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_resolve_specific_commit_sha</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Test resolving a specific commit SHA.&quot;&quot;&quot;</span>
         <span class="n">headers</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;Accept&#39;</span><span class="p">:</span> <span class="s1">&#39;application/vnd.github.v3+json&#39;</span><span class="p">}</span>
@@ -626,7 +626,7 @@
 
 
 <div class="viewcode-block" id="TestResolveVersionToCommitSHA.test_resolve_latest_commit">
-<a class="viewcode-back" href="../../../../api_reference/_autosummary/pelicun.tests.basic.test_dlml.html#pelicun.tests.basic.test_dlml.TestResolveVersionToCommitSHA.test_resolve_latest_commit">[docs]</a>
+<a class="viewcode-back" href="../../../../api_reference/_autosummary/pelicun.tests.tools.test_dlml.html#pelicun.tests.tools.test_dlml.TestResolveVersionToCommitSHA.test_resolve_latest_commit">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_resolve_latest_commit</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Test resolving the &#39;latest&#39; commit.&quot;&quot;&quot;</span>
         <span class="n">headers</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;Accept&#39;</span><span class="p">:</span> <span class="s1">&#39;application/vnd.github.v3+json&#39;</span><span class="p">}</span>
@@ -648,7 +648,7 @@
 
 
 <div class="viewcode-block" id="TestResolveVersionToCommitSHA.test_invalid_commit_sha_format_raises_value_error">
-<a class="viewcode-back" href="../../../../api_reference/_autosummary/pelicun.tests.basic.test_dlml.html#pelicun.tests.basic.test_dlml.TestResolveVersionToCommitSHA.test_invalid_commit_sha_format_raises_value_error">[docs]</a>
+<a class="viewcode-back" href="../../../../api_reference/_autosummary/pelicun.tests.tools.test_dlml.html#pelicun.tests.tools.test_dlml.TestResolveVersionToCommitSHA.test_invalid_commit_sha_format_raises_value_error">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_invalid_commit_sha_format_raises_value_error</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Test gracefully handling ValueError for invalid commit SHA formats.&quot;&quot;&quot;</span>
         <span class="n">headers</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;Accept&#39;</span><span class="p">:</span> <span class="s1">&#39;application/vnd.github.v3+json&#39;</span><span class="p">}</span>
@@ -661,7 +661,7 @@
 
 
 <div class="viewcode-block" id="TestResolveVersionToCommitSHA.test_api_call_failure_raises_runtime_error">
-<a class="viewcode-back" href="../../../../api_reference/_autosummary/pelicun.tests.basic.test_dlml.html#pelicun.tests.basic.test_dlml.TestResolveVersionToCommitSHA.test_api_call_failure_raises_runtime_error">[docs]</a>
+<a class="viewcode-back" href="../../../../api_reference/_autosummary/pelicun.tests.tools.test_dlml.html#pelicun.tests.tools.test_dlml.TestResolveVersionToCommitSHA.test_api_call_failure_raises_runtime_error">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_api_call_failure_raises_runtime_error</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Test gracefully handling RuntimeError when API calls fail.&quot;&quot;&quot;</span>
         <span class="n">headers</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;Accept&#39;</span><span class="p">:</span> <span class="s1">&#39;application/vnd.github.v3+json&#39;</span><span class="p">}</span>
@@ -688,7 +688,7 @@
 
 
 <div class="viewcode-block" id="TestResolveVersionToCommitSHA.test_empty_commits_list_raises_runtime_error">
-<a class="viewcode-back" href="../../../../api_reference/_autosummary/pelicun.tests.basic.test_dlml.html#pelicun.tests.basic.test_dlml.TestResolveVersionToCommitSHA.test_empty_commits_list_raises_runtime_error">[docs]</a>
+<a class="viewcode-back" href="../../../../api_reference/_autosummary/pelicun.tests.tools.test_dlml.html#pelicun.tests.tools.test_dlml.TestResolveVersionToCommitSHA.test_empty_commits_list_raises_runtime_error">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_empty_commits_list_raises_runtime_error</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Test handling empty commits list when fetching latest commit.&quot;&quot;&quot;</span>
         <span class="n">headers</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;Accept&#39;</span><span class="p">:</span> <span class="s1">&#39;application/vnd.github.v3+json&#39;</span><span class="p">}</span>
@@ -704,7 +704,7 @@
 
 
 <div class="viewcode-block" id="TestResolveVersionToCommitSHA.test_missing_commit_sha_in_release_raises_runtime_error">
-<a class="viewcode-back" href="../../../../api_reference/_autosummary/pelicun.tests.basic.test_dlml.html#pelicun.tests.basic.test_dlml.TestResolveVersionToCommitSHA.test_missing_commit_sha_in_release_raises_runtime_error">[docs]</a>
+<a class="viewcode-back" href="../../../../api_reference/_autosummary/pelicun.tests.tools.test_dlml.html#pelicun.tests.tools.test_dlml.TestResolveVersionToCommitSHA.test_missing_commit_sha_in_release_raises_runtime_error">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_missing_commit_sha_in_release_raises_runtime_error</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Test handling missing commit SHA in release data.&quot;&quot;&quot;</span>
         <span class="n">headers</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;Accept&#39;</span><span class="p">:</span> <span class="s1">&#39;application/vnd.github.v3+json&#39;</span><span class="p">}</span>
@@ -737,7 +737,7 @@
 
 
 <div class="viewcode-block" id="TestResolveVersionToCommitSHA.test_fallback_to_target_commitish_on_tag_api_failure">
-<a class="viewcode-back" href="../../../../api_reference/_autosummary/pelicun.tests.basic.test_dlml.html#pelicun.tests.basic.test_dlml.TestResolveVersionToCommitSHA.test_fallback_to_target_commitish_on_tag_api_failure">[docs]</a>
+<a class="viewcode-back" href="../../../../api_reference/_autosummary/pelicun.tests.tools.test_dlml.html#pelicun.tests.tools.test_dlml.TestResolveVersionToCommitSHA.test_fallback_to_target_commitish_on_tag_api_failure">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_fallback_to_target_commitish_on_tag_api_failure</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Test fallback to target_commitish when tag API fails.&quot;&quot;&quot;</span>
         <span class="n">headers</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;Accept&#39;</span><span class="p">:</span> <span class="s1">&#39;application/vnd.github.v3+json&#39;</span><span class="p">}</span>
@@ -771,7 +771,7 @@
 
 
 <div class="viewcode-block" id="test_download_data_files_with_version">
-<a class="viewcode-back" href="../../../../api_reference/_autosummary/pelicun.tests.basic.test_dlml.html#pelicun.tests.basic.test_dlml.test_download_data_files_with_version">[docs]</a>
+<a class="viewcode-back" href="../../../../api_reference/_autosummary/pelicun.tests.tools.test_dlml.html#pelicun.tests.tools.test_dlml.test_download_data_files_with_version">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">test_download_data_files_with_version</span><span class="p">(</span><span class="n">mock_download_env</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># noqa: ARG001</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Test downloading with a specific version.&quot;&quot;&quot;</span>
     <span class="k">with</span> <span class="n">patch</span><span class="p">(</span>
@@ -789,7 +789,7 @@
 
 
 <div class="viewcode-block" id="test_download_data_files_with_commit">
-<a class="viewcode-back" href="../../../../api_reference/_autosummary/pelicun.tests.basic.test_dlml.html#pelicun.tests.basic.test_dlml.test_download_data_files_with_commit">[docs]</a>
+<a class="viewcode-back" href="../../../../api_reference/_autosummary/pelicun.tests.tools.test_dlml.html#pelicun.tests.tools.test_dlml.test_download_data_files_with_commit">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">test_download_data_files_with_commit</span><span class="p">(</span><span class="n">mock_download_env</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># noqa: ARG001</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Test downloading with a specific commit.&quot;&quot;&quot;</span>
     <span class="k">with</span> <span class="n">patch</span><span class="p">(</span>
@@ -807,7 +807,7 @@
 
 
 <div class="viewcode-block" id="test_download_data_files_with_latest_commit">
-<a class="viewcode-back" href="../../../../api_reference/_autosummary/pelicun.tests.basic.test_dlml.html#pelicun.tests.basic.test_dlml.test_download_data_files_with_latest_commit">[docs]</a>
+<a class="viewcode-back" href="../../../../api_reference/_autosummary/pelicun.tests.tools.test_dlml.html#pelicun.tests.tools.test_dlml.test_download_data_files_with_latest_commit">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">test_download_data_files_with_latest_commit</span><span class="p">(</span>
     <span class="n">mock_download_env</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>  <span class="c1"># noqa: ARG001</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -827,7 +827,7 @@
 
 
 <div class="viewcode-block" id="test_download_data_files_with_cache">
-<a class="viewcode-back" href="../../../../api_reference/_autosummary/pelicun.tests.basic.test_dlml.html#pelicun.tests.basic.test_dlml.test_download_data_files_with_cache">[docs]</a>
+<a class="viewcode-back" href="../../../../api_reference/_autosummary/pelicun.tests.tools.test_dlml.html#pelicun.tests.tools.test_dlml.test_download_data_files_with_cache">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">test_download_data_files_with_cache</span><span class="p">(</span><span class="n">mock_download_env</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Test downloading with caching enabled.&quot;&quot;&quot;</span>
     <span class="n">mock_cache</span> <span class="o">=</span> <span class="p">{</span>
@@ -859,7 +859,7 @@
 
 
 <div class="viewcode-block" id="test_download_data_files_model_file_not_found">
-<a class="viewcode-back" href="../../../../api_reference/_autosummary/pelicun.tests.basic.test_dlml.html#pelicun.tests.basic.test_dlml.test_download_data_files_model_file_not_found">[docs]</a>
+<a class="viewcode-back" href="../../../../api_reference/_autosummary/pelicun.tests.tools.test_dlml.html#pelicun.tests.tools.test_dlml.test_download_data_files_model_file_not_found">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">test_download_data_files_model_file_not_found</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Test handling when model_files.txt doesn&#39;t exist after download.&quot;&quot;&quot;</span>
     <span class="c1"># Mock functions - simulate FileNotFoundError when opening model_files.txt</span>
@@ -881,7 +881,7 @@
 
 
 <div class="viewcode-block" id="test_download_data_files_model_file_read_error">
-<a class="viewcode-back" href="../../../../api_reference/_autosummary/pelicun.tests.basic.test_dlml.html#pelicun.tests.basic.test_dlml.test_download_data_files_model_file_read_error">[docs]</a>
+<a class="viewcode-back" href="../../../../api_reference/_autosummary/pelicun.tests.tools.test_dlml.html#pelicun.tests.tools.test_dlml.test_download_data_files_model_file_read_error">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">test_download_data_files_model_file_read_error</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Test handling of general file reading exceptions.&quot;&quot;&quot;</span>
     <span class="c1"># Mock functions - simulate general Exception when opening model_files.txt</span>
@@ -906,7 +906,7 @@
 
 
 <div class="viewcode-block" id="test_progress_bar_initialization">
-<a class="viewcode-back" href="../../../../api_reference/_autosummary/pelicun.tests.basic.test_dlml.html#pelicun.tests.basic.test_dlml.test_progress_bar_initialization">[docs]</a>
+<a class="viewcode-back" href="../../../../api_reference/_autosummary/pelicun.tests.tools.test_dlml.html#pelicun.tests.tools.test_dlml.test_progress_bar_initialization">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">test_progress_bar_initialization</span><span class="p">(</span><span class="n">mock_download_env</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Test progress bar initialization with different file counts.&quot;&quot;&quot;</span>
     <span class="k">with</span> <span class="n">patch</span><span class="p">(</span>
@@ -927,7 +927,7 @@
 
 
 <div class="viewcode-block" id="test_progress_bar_updates">
-<a class="viewcode-back" href="../../../../api_reference/_autosummary/pelicun.tests.basic.test_dlml.html#pelicun.tests.basic.test_dlml.test_progress_bar_updates">[docs]</a>
+<a class="viewcode-back" href="../../../../api_reference/_autosummary/pelicun.tests.tools.test_dlml.html#pelicun.tests.tools.test_dlml.test_progress_bar_updates">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">test_progress_bar_updates</span><span class="p">(</span><span class="n">mock_download_env</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Test progress bar updates during downloads.&quot;&quot;&quot;</span>
     <span class="c1"># Mock tqdm as a context manager</span>
@@ -951,7 +951,7 @@
 
 
 <div class="viewcode-block" id="test_progress_reporting_for_skipped_files">
-<a class="viewcode-back" href="../../../../api_reference/_autosummary/pelicun.tests.basic.test_dlml.html#pelicun.tests.basic.test_dlml.test_progress_reporting_for_skipped_files">[docs]</a>
+<a class="viewcode-back" href="../../../../api_reference/_autosummary/pelicun.tests.tools.test_dlml.html#pelicun.tests.tools.test_dlml.test_progress_reporting_for_skipped_files">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">test_progress_reporting_for_skipped_files</span><span class="p">(</span>
     <span class="n">mock_download_env</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -1006,7 +1006,7 @@
 
 
 <div class="viewcode-block" id="test_main_version_download">
-<a class="viewcode-back" href="../../../../api_reference/_autosummary/pelicun.tests.basic.test_dlml.html#pelicun.tests.basic.test_dlml.test_main_version_download">[docs]</a>
+<a class="viewcode-back" href="../../../../api_reference/_autosummary/pelicun.tests.tools.test_dlml.html#pelicun.tests.tools.test_dlml.test_main_version_download">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">test_main_version_download</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Test successful version-based download via dlml_update() function.&quot;&quot;&quot;</span>
     <span class="k">with</span> <span class="n">patch</span><span class="p">(</span><span class="s1">&#39;pelicun.tools.dlml.download_data_files&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">mock_download</span><span class="p">:</span>
@@ -1019,7 +1019,7 @@
 
 
 <div class="viewcode-block" id="test_main_commit_download">
-<a class="viewcode-back" href="../../../../api_reference/_autosummary/pelicun.tests.basic.test_dlml.html#pelicun.tests.basic.test_dlml.test_main_commit_download">[docs]</a>
+<a class="viewcode-back" href="../../../../api_reference/_autosummary/pelicun.tests.tools.test_dlml.html#pelicun.tests.tools.test_dlml.test_main_commit_download">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">test_main_commit_download</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Test successful commit-based download via dlml_update() function.&quot;&quot;&quot;</span>
     <span class="k">with</span> <span class="n">patch</span><span class="p">(</span><span class="s1">&#39;pelicun.tools.dlml.download_data_files&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">mock_download</span><span class="p">:</span>
@@ -1032,7 +1032,7 @@
 
 
 <div class="viewcode-block" id="test_main_no_cache_flag">
-<a class="viewcode-back" href="../../../../api_reference/_autosummary/pelicun.tests.basic.test_dlml.html#pelicun.tests.basic.test_dlml.test_main_no_cache_flag">[docs]</a>
+<a class="viewcode-back" href="../../../../api_reference/_autosummary/pelicun.tests.tools.test_dlml.html#pelicun.tests.tools.test_dlml.test_main_no_cache_flag">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">test_main_no_cache_flag</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Test no-cache functionality via dlml_update() function.&quot;&quot;&quot;</span>
     <span class="k">with</span> <span class="n">patch</span><span class="p">(</span><span class="s1">&#39;pelicun.tools.dlml.download_data_files&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">mock_download</span><span class="p">:</span>
@@ -1045,7 +1045,7 @@
 
 
 <div class="viewcode-block" id="test_main_download_error_handling">
-<a class="viewcode-back" href="../../../../api_reference/_autosummary/pelicun.tests.basic.test_dlml.html#pelicun.tests.basic.test_dlml.test_main_download_error_handling">[docs]</a>
+<a class="viewcode-back" href="../../../../api_reference/_autosummary/pelicun.tests.tools.test_dlml.html#pelicun.tests.tools.test_dlml.test_main_download_error_handling">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">test_main_download_error_handling</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Test error handling when download_data_files raises exceptions via dlml_update() function.&quot;&quot;&quot;</span>
     <span class="k">with</span> <span class="n">patch</span><span class="p">(</span>
@@ -1058,7 +1058,7 @@
 
 
 <div class="viewcode-block" id="test_main_commit_with_no_cache">
-<a class="viewcode-back" href="../../../../api_reference/_autosummary/pelicun.tests.basic.test_dlml.html#pelicun.tests.basic.test_dlml.test_main_commit_with_no_cache">[docs]</a>
+<a class="viewcode-back" href="../../../../api_reference/_autosummary/pelicun.tests.tools.test_dlml.html#pelicun.tests.tools.test_dlml.test_main_commit_with_no_cache">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">test_main_commit_with_no_cache</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Test dlml_update() function with commit and no cache.&quot;&quot;&quot;</span>
     <span class="k">with</span> <span class="n">patch</span><span class="p">(</span><span class="s1">&#39;pelicun.tools.dlml.download_data_files&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">mock_download</span><span class="p">:</span>
@@ -1071,7 +1071,7 @@
 
 
 <div class="viewcode-block" id="test_main_default_latest_version">
-<a class="viewcode-back" href="../../../../api_reference/_autosummary/pelicun.tests.basic.test_dlml.html#pelicun.tests.basic.test_dlml.test_main_default_latest_version">[docs]</a>
+<a class="viewcode-back" href="../../../../api_reference/_autosummary/pelicun.tests.tools.test_dlml.html#pelicun.tests.tools.test_dlml.test_main_default_latest_version">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">test_main_default_latest_version</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Test dlml_update() function with default &#39;latest&#39; version when no version specified.&quot;&quot;&quot;</span>
     <span class="k">with</span> <span class="n">patch</span><span class="p">(</span><span class="s1">&#39;pelicun.tools.dlml.download_data_files&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">mock_download</span><span class="p">:</span>
@@ -1087,7 +1087,7 @@
 
 
 <div class="viewcode-block" id="test_check_dlml_version_with_cached_result">
-<a class="viewcode-back" href="../../../../api_reference/_autosummary/pelicun.tests.basic.test_dlml.html#pelicun.tests.basic.test_dlml.test_check_dlml_version_with_cached_result">[docs]</a>
+<a class="viewcode-back" href="../../../../api_reference/_autosummary/pelicun.tests.tools.test_dlml.html#pelicun.tests.tools.test_dlml.test_check_dlml_version_with_cached_result">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">test_check_dlml_version_with_cached_result</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Test check_dlml_version returns cached result when within 24 hours.&quot;&quot;&quot;</span>
 
@@ -1116,7 +1116,7 @@
 
 
 <div class="viewcode-block" id="test_check_dlml_version_with_expired_cache">
-<a class="viewcode-back" href="../../../../api_reference/_autosummary/pelicun.tests.basic.test_dlml.html#pelicun.tests.basic.test_dlml.test_check_dlml_version_with_expired_cache">[docs]</a>
+<a class="viewcode-back" href="../../../../api_reference/_autosummary/pelicun.tests.tools.test_dlml.html#pelicun.tests.tools.test_dlml.test_check_dlml_version_with_expired_cache">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">test_check_dlml_version_with_expired_cache</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Test check_dlml_version performs new check when cache is expired.&quot;&quot;&quot;</span>
 
@@ -1148,7 +1148,7 @@
 
 
 <div class="viewcode-block" id="test_check_dlml_version_with_network_error">
-<a class="viewcode-back" href="../../../../api_reference/_autosummary/pelicun.tests.basic.test_dlml.html#pelicun.tests.basic.test_dlml.test_check_dlml_version_with_network_error">[docs]</a>
+<a class="viewcode-back" href="../../../../api_reference/_autosummary/pelicun.tests.tools.test_dlml.html#pelicun.tests.tools.test_dlml.test_check_dlml_version_with_network_error">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">test_check_dlml_version_with_network_error</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Test check_dlml_version handles network errors gracefully.&quot;&quot;&quot;</span>
     <span class="n">mock_cache</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;version&#39;</span><span class="p">:</span> <span class="s1">&#39;v1.0.0&#39;</span><span class="p">}</span>
@@ -1170,7 +1170,7 @@
 
 
 <div class="viewcode-block" id="test_check_dlml_version_semantic_version_comparison">
-<a class="viewcode-back" href="../../../../api_reference/_autosummary/pelicun.tests.basic.test_dlml.html#pelicun.tests.basic.test_dlml.test_check_dlml_version_semantic_version_comparison">[docs]</a>
+<a class="viewcode-back" href="../../../../api_reference/_autosummary/pelicun.tests.tools.test_dlml.html#pelicun.tests.tools.test_dlml.test_check_dlml_version_semantic_version_comparison">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">test_check_dlml_version_semantic_version_comparison</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Test check_dlml_version correctly compares semantic versions.&quot;&quot;&quot;</span>
     <span class="n">mock_cache</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;version&#39;</span><span class="p">:</span> <span class="s1">&#39;v1.2.0&#39;</span><span class="p">}</span>
@@ -1195,7 +1195,7 @@
 
 
 <div class="viewcode-block" id="test_check_dlml_version_with_commit_based_version">
-<a class="viewcode-back" href="../../../../api_reference/_autosummary/pelicun.tests.basic.test_dlml.html#pelicun.tests.basic.test_dlml.test_check_dlml_version_with_commit_based_version">[docs]</a>
+<a class="viewcode-back" href="../../../../api_reference/_autosummary/pelicun.tests.tools.test_dlml.html#pelicun.tests.tools.test_dlml.test_check_dlml_version_with_commit_based_version">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">test_check_dlml_version_with_commit_based_version</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Test check_dlml_version handles commit-based versions.&quot;&quot;&quot;</span>
     <span class="n">mock_cache</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;version&#39;</span><span class="p">:</span> <span class="s1">&#39;commit-abc1234&#39;</span><span class="p">}</span>
@@ -1220,7 +1220,7 @@
 
 
 <div class="viewcode-block" id="test_check_dlml_data_cli_invocation_bypass">
-<a class="viewcode-back" href="../../../../api_reference/_autosummary/pelicun.tests.basic.test_dlml.html#pelicun.tests.basic.test_dlml.test_check_dlml_data_cli_invocation_bypass">[docs]</a>
+<a class="viewcode-back" href="../../../../api_reference/_autosummary/pelicun.tests.tools.test_dlml.html#pelicun.tests.tools.test_dlml.test_check_dlml_data_cli_invocation_bypass">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">test_check_dlml_data_cli_invocation_bypass</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Test check_dlml_data returns immediately when invoked via CLI for dlml update.&quot;&quot;&quot;</span>
     <span class="c1"># Test various CLI command patterns that should trigger bypass</span>
@@ -1246,34 +1246,45 @@
 
 
 <div class="viewcode-block" id="test_check_dlml_data_with_empty_directory">
-<a class="viewcode-back" href="../../../../api_reference/_autosummary/pelicun.tests.basic.test_dlml.html#pelicun.tests.basic.test_dlml.test_check_dlml_data_with_empty_directory">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">test_check_dlml_data_with_empty_directory</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<a class="viewcode-back" href="../../../../api_reference/_autosummary/pelicun.tests.tools.test_dlml.html#pelicun.tests.tools.test_dlml.test_check_dlml_data_with_empty_directory">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_check_dlml_data_with_empty_directory</span><span class="p">(</span>
+    <span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">monkeypatch</span><span class="p">:</span> <span class="n">pytest</span><span class="o">.</span><span class="n">MonkeyPatch</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Test check_dlml_data with an empty temporary directory.</span>
 
-<span class="sd">    This mocks DLML_DATA_DIR to use a temporary directory, ensuring the</span>
+<span class="sd">    This sets DLML_DATA_DIR environment variable to use a temporary directory, ensuring the</span>
 <span class="sd">    function triggers a download when data is missing. It also reloads the</span>
 <span class="sd">    module to ensure the original, un-mocked function is tested.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># Reload the module to bypass potential mocks from other tests.</span>
     <span class="n">importlib</span><span class="o">.</span><span class="n">reload</span><span class="p">(</span><span class="n">dlml</span><span class="p">)</span>
 
-    <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">tmpdir</span><span class="p">:</span>
-        <span class="n">temp_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">tmpdir</span><span class="p">)</span>
+    <span class="n">monkeypatch</span><span class="o">.</span><span class="n">setenv</span><span class="p">(</span><span class="s1">&#39;DLML_DATA_DIR&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">))</span>
 
-        <span class="k">with</span> <span class="n">patch</span><span class="p">(</span><span class="s1">&#39;pelicun.tools.dlml.DLML_DATA_DIR&#39;</span><span class="p">,</span> <span class="n">temp_path</span><span class="p">),</span> <span class="n">patch</span><span class="p">(</span>
-            <span class="s1">&#39;pelicun.tools.dlml.download_data_files&#39;</span>
-        <span class="p">)</span> <span class="k">as</span> <span class="n">mock_download</span><span class="p">,</span> <span class="n">patch</span><span class="p">(</span><span class="s1">&#39;builtins.print&#39;</span><span class="p">):</span>
-            <span class="n">dlml</span><span class="o">.</span><span class="n">check_dlml_data</span><span class="p">()</span>
+    <span class="k">with</span> <span class="n">patch</span><span class="p">(</span><span class="s1">&#39;pelicun.tools.dlml.download_data_files&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">mock_download</span><span class="p">,</span> <span class="n">patch</span><span class="p">(</span>
+        <span class="s1">&#39;builtins.print&#39;</span>
+    <span class="p">):</span>
+        <span class="n">dlml</span><span class="o">.</span><span class="n">check_dlml_data</span><span class="p">()</span>
 
-            <span class="n">mock_download</span><span class="o">.</span><span class="n">assert_called_once_with</span><span class="p">(</span><span class="n">version</span><span class="o">=</span><span class="s1">&#39;latest&#39;</span><span class="p">,</span> <span class="n">use_cache</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
+        <span class="n">mock_download</span><span class="o">.</span><span class="n">assert_called_once_with</span><span class="p">(</span><span class="n">version</span><span class="o">=</span><span class="s1">&#39;latest&#39;</span><span class="p">,</span> <span class="n">use_cache</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
 
 
 
 <div class="viewcode-block" id="test_check_dlml_data_with_existing_data_no_update">
-<a class="viewcode-back" href="../../../../api_reference/_autosummary/pelicun.tests.basic.test_dlml.html#pelicun.tests.basic.test_dlml.test_check_dlml_data_with_existing_data_no_update">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">test_check_dlml_data_with_existing_data_no_update</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<a class="viewcode-back" href="../../../../api_reference/_autosummary/pelicun.tests.tools.test_dlml.html#pelicun.tests.tools.test_dlml.test_check_dlml_data_with_existing_data_no_update">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_check_dlml_data_with_existing_data_no_update</span><span class="p">(</span>
+    <span class="n">monkeypatch</span><span class="p">:</span> <span class="n">pytest</span><span class="o">.</span><span class="n">MonkeyPatch</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Test check_dlml_data with existing data and no update available.&quot;&quot;&quot;</span>
+    <span class="c1"># Create manifest file that will be checked for existence</span>
+    <span class="n">manifest_file</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s1">&#39;model_files.txt&#39;</span>
+    <span class="n">manifest_file</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">manifest_file</span><span class="o">.</span><span class="n">touch</span><span class="p">()</span>
+
+    <span class="c1"># Set environment variable to use tmp_path</span>
+    <span class="n">monkeypatch</span><span class="o">.</span><span class="n">setenv</span><span class="p">(</span><span class="s1">&#39;DLML_DATA_DIR&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">))</span>
+
     <span class="c1"># Mock version check result - no update available</span>
     <span class="n">mock_version_info</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s1">&#39;update_available&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
@@ -1282,12 +1293,7 @@
         <span class="s1">&#39;error&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">}</span>
 
-    <span class="k">with</span> <span class="n">patch</span><span class="p">(</span><span class="s1">&#39;pathlib.Path.exists&#39;</span><span class="p">,</span> <span class="n">return_value</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span> <span class="n">patch</span><span class="p">(</span>
-        <span class="s1">&#39;pathlib.Path.is_dir&#39;</span><span class="p">,</span> <span class="n">return_value</span><span class="o">=</span><span class="kc">True</span>
-    <span class="p">),</span> <span class="n">patch</span><span class="p">(</span>
-        <span class="s1">&#39;pathlib.Path.iterdir&#39;</span><span class="p">,</span>
-        <span class="n">return_value</span><span class="o">=</span><span class="p">[</span><span class="n">MagicMock</span><span class="p">(</span><span class="n">spec</span><span class="o">=</span><span class="n">Path</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;model1.json&#39;</span><span class="p">)],</span>
-    <span class="p">),</span> <span class="n">patch</span><span class="p">(</span>
+    <span class="k">with</span> <span class="n">patch</span><span class="p">(</span>
         <span class="s1">&#39;pelicun.tools.dlml.check_dlml_version&#39;</span><span class="p">,</span> <span class="n">return_value</span><span class="o">=</span><span class="n">mock_version_info</span>
     <span class="p">):</span>
         <span class="c1"># Should not raise any warnings or exceptions</span>
@@ -1296,9 +1302,19 @@
 
 
 <div class="viewcode-block" id="test_check_dlml_data_with_existing_data_update_available">
-<a class="viewcode-back" href="../../../../api_reference/_autosummary/pelicun.tests.basic.test_dlml.html#pelicun.tests.basic.test_dlml.test_check_dlml_data_with_existing_data_update_available">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">test_check_dlml_data_with_existing_data_update_available</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<a class="viewcode-back" href="../../../../api_reference/_autosummary/pelicun.tests.tools.test_dlml.html#pelicun.tests.tools.test_dlml.test_check_dlml_data_with_existing_data_update_available">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_check_dlml_data_with_existing_data_update_available</span><span class="p">(</span>
+    <span class="n">monkeypatch</span><span class="p">:</span> <span class="n">pytest</span><span class="o">.</span><span class="n">MonkeyPatch</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Test check_dlml_data with existing data and update available.&quot;&quot;&quot;</span>
+    <span class="c1"># Create manifest file that will be checked for existence</span>
+    <span class="n">manifest_file</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s1">&#39;model_files.txt&#39;</span>
+    <span class="n">manifest_file</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">manifest_file</span><span class="o">.</span><span class="n">touch</span><span class="p">()</span>
+
+    <span class="c1"># Set environment variable to use tmp_path</span>
+    <span class="n">monkeypatch</span><span class="o">.</span><span class="n">setenv</span><span class="p">(</span><span class="s1">&#39;DLML_DATA_DIR&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">))</span>
+
     <span class="c1"># Mock version check result - update available</span>
     <span class="n">mock_version_info</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s1">&#39;update_available&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
@@ -1307,12 +1323,7 @@
         <span class="s1">&#39;error&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">}</span>
 
-    <span class="k">with</span> <span class="n">patch</span><span class="p">(</span><span class="s1">&#39;pathlib.Path.exists&#39;</span><span class="p">,</span> <span class="n">return_value</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span> <span class="n">patch</span><span class="p">(</span>
-        <span class="s1">&#39;pathlib.Path.is_dir&#39;</span><span class="p">,</span> <span class="n">return_value</span><span class="o">=</span><span class="kc">True</span>
-    <span class="p">),</span> <span class="n">patch</span><span class="p">(</span>
-        <span class="s1">&#39;pathlib.Path.iterdir&#39;</span><span class="p">,</span>
-        <span class="n">return_value</span><span class="o">=</span><span class="p">[</span><span class="n">MagicMock</span><span class="p">(</span><span class="n">spec</span><span class="o">=</span><span class="n">Path</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;model1.json&#39;</span><span class="p">)],</span>
-    <span class="p">),</span> <span class="n">patch</span><span class="p">(</span>
+    <span class="k">with</span> <span class="n">patch</span><span class="p">(</span>
         <span class="s1">&#39;pelicun.tools.dlml.check_dlml_version&#39;</span><span class="p">,</span> <span class="n">return_value</span><span class="o">=</span><span class="n">mock_version_info</span>
     <span class="p">),</span> <span class="n">patch</span><span class="p">(</span><span class="s1">&#39;warnings.warn&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">mock_warn</span><span class="p">:</span>
         <span class="n">dlml</span><span class="o">.</span><span class="n">check_dlml_data</span><span class="p">()</span>
@@ -1323,15 +1334,20 @@
         <span class="k">assert</span> <span class="s1">&#39;DLML data update available&#39;</span> <span class="ow">in</span> <span class="n">warning_msg</span>
         <span class="k">assert</span> <span class="s1">&#39;v1.0.0&#39;</span> <span class="ow">in</span> <span class="n">warning_msg</span>
         <span class="k">assert</span> <span class="s1">&#39;v1.1.0&#39;</span> <span class="ow">in</span> <span class="n">warning_msg</span>
-        <span class="k">assert</span> <span class="s1">&#39;pelicun dlml update&#39;</span> <span class="ow">in</span> <span class="n">warning_msg</span></div>
+        <span class="k">assert</span> <span class="s1">&#39;pelicun.cli dlml update&#39;</span> <span class="ow">in</span> <span class="n">warning_msg</span></div>
 
 
 
 <div class="viewcode-block" id="test_check_dlml_data_download_failure">
-<a class="viewcode-back" href="../../../../api_reference/_autosummary/pelicun.tests.basic.test_dlml.html#pelicun.tests.basic.test_dlml.test_check_dlml_data_download_failure">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">test_check_dlml_data_download_failure</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<a class="viewcode-back" href="../../../../api_reference/_autosummary/pelicun.tests.tools.test_dlml.html#pelicun.tests.tools.test_dlml.test_check_dlml_data_download_failure">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_check_dlml_data_download_failure</span><span class="p">(</span>
+    <span class="n">monkeypatch</span><span class="p">:</span> <span class="n">pytest</span><span class="o">.</span><span class="n">MonkeyPatch</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Test check_dlml_data handles download failures appropriately.&quot;&quot;&quot;</span>
-    <span class="k">with</span> <span class="n">patch</span><span class="p">(</span><span class="s1">&#39;pathlib.Path.exists&#39;</span><span class="p">,</span> <span class="n">return_value</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span> <span class="n">patch</span><span class="p">(</span>
+    <span class="c1"># Set environment variable to use tmp_path</span>
+    <span class="n">monkeypatch</span><span class="o">.</span><span class="n">setenv</span><span class="p">(</span><span class="s1">&#39;DLML_DATA_DIR&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">))</span>
+
+    <span class="k">with</span> <span class="n">patch</span><span class="p">(</span>
         <span class="s1">&#39;pelicun.tools.dlml.download_data_files&#39;</span><span class="p">,</span>
         <span class="n">side_effect</span><span class="o">=</span><span class="n">requests</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">ConnectionError</span><span class="p">(</span><span class="s1">&#39;Network error&#39;</span><span class="p">),</span>
     <span class="p">):</span>
@@ -1341,15 +1357,20 @@
 
         <span class="n">error_msg</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">exc_info</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
         <span class="k">assert</span> <span class="s1">&#39;Network error while downloading DLML data&#39;</span> <span class="ow">in</span> <span class="n">error_msg</span>
-        <span class="k">assert</span> <span class="s1">&#39;pelicun dlml update&#39;</span> <span class="ow">in</span> <span class="n">error_msg</span></div>
+        <span class="k">assert</span> <span class="s1">&#39;pelicun.cli dlml update&#39;</span> <span class="ow">in</span> <span class="n">error_msg</span></div>
 
 
 
 <div class="viewcode-block" id="test_check_dlml_data_permission_error">
-<a class="viewcode-back" href="../../../../api_reference/_autosummary/pelicun.tests.basic.test_dlml.html#pelicun.tests.basic.test_dlml.test_check_dlml_data_permission_error">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">test_check_dlml_data_permission_error</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<a class="viewcode-back" href="../../../../api_reference/_autosummary/pelicun.tests.tools.test_dlml.html#pelicun.tests.tools.test_dlml.test_check_dlml_data_permission_error">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_check_dlml_data_permission_error</span><span class="p">(</span>
+    <span class="n">monkeypatch</span><span class="p">:</span> <span class="n">pytest</span><span class="o">.</span><span class="n">MonkeyPatch</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Test check_dlml_data handles permission errors appropriately.&quot;&quot;&quot;</span>
-    <span class="k">with</span> <span class="n">patch</span><span class="p">(</span><span class="s1">&#39;pathlib.Path.exists&#39;</span><span class="p">,</span> <span class="n">return_value</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span> <span class="n">patch</span><span class="p">(</span>
+    <span class="c1"># Set environment variable to use tmp_path</span>
+    <span class="n">monkeypatch</span><span class="o">.</span><span class="n">setenv</span><span class="p">(</span><span class="s1">&#39;DLML_DATA_DIR&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">))</span>
+
+    <span class="k">with</span> <span class="n">patch</span><span class="p">(</span>
         <span class="s1">&#39;pelicun.tools.dlml.download_data_files&#39;</span><span class="p">,</span>
         <span class="n">side_effect</span><span class="o">=</span><span class="ne">PermissionError</span><span class="p">(</span><span class="s1">&#39;Access denied&#39;</span><span class="p">),</span>
     <span class="p">):</span>
@@ -1364,18 +1385,23 @@
 
 
 <div class="viewcode-block" id="test_check_dlml_data_version_check_failure">
-<a class="viewcode-back" href="../../../../api_reference/_autosummary/pelicun.tests.basic.test_dlml.html#pelicun.tests.basic.test_dlml.test_check_dlml_data_version_check_failure">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">test_check_dlml_data_version_check_failure</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<a class="viewcode-back" href="../../../../api_reference/_autosummary/pelicun.tests.tools.test_dlml.html#pelicun.tests.tools.test_dlml.test_check_dlml_data_version_check_failure">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_check_dlml_data_version_check_failure</span><span class="p">(</span>
+    <span class="n">monkeypatch</span><span class="p">:</span> <span class="n">pytest</span><span class="o">.</span><span class="n">MonkeyPatch</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Test check_dlml_data handles version check failures gracefully.&quot;&quot;&quot;</span>
     <span class="c1"># Reload the module to bypass potential mocks from other tests.</span>
     <span class="n">importlib</span><span class="o">.</span><span class="n">reload</span><span class="p">(</span><span class="n">dlml</span><span class="p">)</span>
 
+    <span class="c1"># Create manifest file that will be checked for existence</span>
+    <span class="n">manifest_file</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s1">&#39;model_files.txt&#39;</span>
+    <span class="n">manifest_file</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">manifest_file</span><span class="o">.</span><span class="n">touch</span><span class="p">()</span>
+
+    <span class="c1"># Set environment variable to use tmp_path</span>
+    <span class="n">monkeypatch</span><span class="o">.</span><span class="n">setenv</span><span class="p">(</span><span class="s1">&#39;DLML_DATA_DIR&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">))</span>
+
     <span class="k">with</span> <span class="n">patch</span><span class="p">(</span><span class="s1">&#39;sys.argv&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;test_script.py&#39;</span><span class="p">]),</span> <span class="n">patch</span><span class="p">(</span>
-        <span class="s1">&#39;pathlib.Path.exists&#39;</span><span class="p">,</span> <span class="n">return_value</span><span class="o">=</span><span class="kc">True</span>
-    <span class="p">),</span> <span class="n">patch</span><span class="p">(</span><span class="s1">&#39;pathlib.Path.is_dir&#39;</span><span class="p">,</span> <span class="n">return_value</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span> <span class="n">patch</span><span class="p">(</span>
-        <span class="s1">&#39;pathlib.Path.iterdir&#39;</span><span class="p">,</span>
-        <span class="n">return_value</span><span class="o">=</span><span class="p">[</span><span class="n">MagicMock</span><span class="p">(</span><span class="n">spec</span><span class="o">=</span><span class="n">Path</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;model1.json&#39;</span><span class="p">)],</span>
-    <span class="p">),</span> <span class="n">patch</span><span class="p">(</span>
         <span class="s1">&#39;pelicun.tools.dlml.check_dlml_version&#39;</span><span class="p">,</span>
         <span class="n">side_effect</span><span class="o">=</span><span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Version check failed&#39;</span><span class="p">),</span>
     <span class="p">),</span> <span class="n">patch</span><span class="p">(</span><span class="s1">&#39;builtins.print&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">mock_print</span><span class="p">:</span>
@@ -1393,7 +1419,7 @@
 
 
 <div class="viewcode-block" id="test_format_initial_download_error">
-<a class="viewcode-back" href="../../../../api_reference/_autosummary/pelicun.tests.basic.test_dlml.html#pelicun.tests.basic.test_dlml.test_format_initial_download_error">[docs]</a>
+<a class="viewcode-back" href="../../../../api_reference/_autosummary/pelicun.tests.tools.test_dlml.html#pelicun.tests.tools.test_dlml.test_format_initial_download_error">[docs]</a>
 <span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">parametrize</span><span class="p">(</span>
     <span class="p">(</span><span class="s1">&#39;exception&#39;</span><span class="p">,</span> <span class="s1">&#39;expected_messages&#39;</span><span class="p">),</span>
     <span class="p">[</span>
@@ -1431,7 +1457,7 @@
 
 
 <div class="viewcode-block" id="test_check_dlml_version_invalid_version_format">
-<a class="viewcode-back" href="../../../../api_reference/_autosummary/pelicun.tests.basic.test_dlml.html#pelicun.tests.basic.test_dlml.test_check_dlml_version_invalid_version_format">[docs]</a>
+<a class="viewcode-back" href="../../../../api_reference/_autosummary/pelicun.tests.tools.test_dlml.html#pelicun.tests.tools.test_dlml.test_check_dlml_version_invalid_version_format">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">test_check_dlml_version_invalid_version_format</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Test check_dlml_version handles invalid version format in API response.&quot;&quot;&quot;</span>
     <span class="n">mock_cache</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;version&#39;</span><span class="p">:</span> <span class="s1">&#39;v1.0.0&#39;</span><span class="p">}</span>
@@ -1459,7 +1485,7 @@
 
 
 <div class="viewcode-block" id="test_check_dlml_version_corrupted_timestamp">
-<a class="viewcode-back" href="../../../../api_reference/_autosummary/pelicun.tests.basic.test_dlml.html#pelicun.tests.basic.test_dlml.test_check_dlml_version_corrupted_timestamp">[docs]</a>
+<a class="viewcode-back" href="../../../../api_reference/_autosummary/pelicun.tests.tools.test_dlml.html#pelicun.tests.tools.test_dlml.test_check_dlml_version_corrupted_timestamp">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">test_check_dlml_version_corrupted_timestamp</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Test check_dlml_version handles corrupted timestamp in cache.&quot;&quot;&quot;</span>
     <span class="c1"># Mock cache with corrupted timestamp</span>
@@ -1489,7 +1515,7 @@
 
 
 <div class="viewcode-block" id="test_download_data_files_empty_model_files">
-<a class="viewcode-back" href="../../../../api_reference/_autosummary/pelicun.tests.basic.test_dlml.html#pelicun.tests.basic.test_dlml.test_download_data_files_empty_model_files">[docs]</a>
+<a class="viewcode-back" href="../../../../api_reference/_autosummary/pelicun.tests.tools.test_dlml.html#pelicun.tests.tools.test_dlml.test_download_data_files_empty_model_files">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">test_download_data_files_empty_model_files</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Test download_data_files handles empty model_files.txt gracefully.&quot;&quot;&quot;</span>
     <span class="c1"># Mock empty model_files.txt content (only comments and whitespace)</span>
@@ -1533,7 +1559,7 @@
 
 
 <div class="viewcode-block" id="test_download_data_files_corrupted_local_file_smart_update">
-<a class="viewcode-back" href="../../../../api_reference/_autosummary/pelicun.tests.basic.test_dlml.html#pelicun.tests.basic.test_dlml.test_download_data_files_corrupted_local_file_smart_update">[docs]</a>
+<a class="viewcode-back" href="../../../../api_reference/_autosummary/pelicun.tests.tools.test_dlml.html#pelicun.tests.tools.test_dlml.test_download_data_files_corrupted_local_file_smart_update">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">test_download_data_files_corrupted_local_file_smart_update</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Test download_data_files re-downloads corrupted local file during smart update.&quot;&quot;&quot;</span>
     <span class="c1"># Mock model_files.txt content with one file</span>
@@ -1591,12 +1617,12 @@
 
 
 <div class="viewcode-block" id="TestGetChangedFiles">
-<a class="viewcode-back" href="../../../../api_reference/_autosummary/pelicun.tests.basic.test_dlml.html#pelicun.tests.basic.test_dlml.TestGetChangedFiles">[docs]</a>
+<a class="viewcode-back" href="../../../../api_reference/_autosummary/pelicun.tests.tools.test_dlml.html#pelicun.tests.tools.test_dlml.TestGetChangedFiles">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">TestGetChangedFiles</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;A dedicated test class for the _get_changed_files function.&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="TestGetChangedFiles.test_get_changed_files_upgrade">
-<a class="viewcode-back" href="../../../../api_reference/_autosummary/pelicun.tests.basic.test_dlml.html#pelicun.tests.basic.test_dlml.TestGetChangedFiles.test_get_changed_files_upgrade">[docs]</a>
+<a class="viewcode-back" href="../../../../api_reference/_autosummary/pelicun.tests.tools.test_dlml.html#pelicun.tests.tools.test_dlml.TestGetChangedFiles.test_get_changed_files_upgrade">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_get_changed_files_upgrade</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Test the standard upgrade path where commits are ahead.&quot;&quot;&quot;</span>
         <span class="n">mock_response</span> <span class="o">=</span> <span class="n">MagicMock</span><span class="p">()</span>
@@ -1620,7 +1646,7 @@
 
 
 <div class="viewcode-block" id="TestGetChangedFiles.test_get_changed_files_downgrade">
-<a class="viewcode-back" href="../../../../api_reference/_autosummary/pelicun.tests.basic.test_dlml.html#pelicun.tests.basic.test_dlml.TestGetChangedFiles.test_get_changed_files_downgrade">[docs]</a>
+<a class="viewcode-back" href="../../../../api_reference/_autosummary/pelicun.tests.tools.test_dlml.html#pelicun.tests.tools.test_dlml.TestGetChangedFiles.test_get_changed_files_downgrade">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_get_changed_files_downgrade</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Test the downgrade path where commits are behind, triggering a second API call.&quot;&quot;&quot;</span>
         <span class="c1"># Mock response for the initial, &#39;behind&#39; call</span>
@@ -1658,7 +1684,7 @@
 
 
 <div class="viewcode-block" id="TestGetChangedFiles.test_get_changed_files_api_failure">
-<a class="viewcode-back" href="../../../../api_reference/_autosummary/pelicun.tests.basic.test_dlml.html#pelicun.tests.basic.test_dlml.TestGetChangedFiles.test_get_changed_files_api_failure">[docs]</a>
+<a class="viewcode-back" href="../../../../api_reference/_autosummary/pelicun.tests.tools.test_dlml.html#pelicun.tests.tools.test_dlml.TestGetChangedFiles.test_get_changed_files_api_failure">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_get_changed_files_api_failure</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Test the function&#39;s behavior when the GitHub API call fails.&quot;&quot;&quot;</span>
         <span class="k">with</span> <span class="n">patch</span><span class="p">(</span>

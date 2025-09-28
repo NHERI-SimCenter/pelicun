@@ -1,7 +1,7 @@
-pelicun.tests.basic.test\_dlml
+pelicun.tests.tools.test\_dlml
 ==============================
 
-.. automodule:: pelicun.tests.basic.test_dlml
+.. automodule:: pelicun.tests.tools.test_dlml
    :members:
 
    

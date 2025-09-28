@@ -159,7 +159,7 @@
   <section id="Example-3:-Combining-fragility-based-damage-consequences-and-loss-functions.">
 <h1><span class="section-number">7.3. </span>Example 3: Combining fragility-based damage consequences and loss functions.<a class="headerlink" href="#Example-3:-Combining-fragility-based-damage-consequences-and-loss-functions." title="Link to this heading"></a></h1>
 <p>Tests a complete loss estimation workflow combining damage state and loss function driven components. The code is based on PRJ-3411v5 hosted on DesignSafe.</p>
-<div class="nbinput docutils container">
+<div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
@@ -174,23 +174,6 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">pelicun.pelicun_warnings</span><span class="w"> </span><span class="kn">import</span> <span class="n">PelicunWarning</span>
 </pre></div>
 </div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-/home/runner/work/pelicun/pelicun/pelicun/__init__.py:61: PelicunWarning: DLML data update available. Current version: None, Latest version: v2.1.0. Update with: pelicun dlml update
-  check_dlml_data()
-</pre></div></div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-DLML data update available. Current version: None, Latest version: v2.1.0. Update with: pelicun dlml update
-</pre></div></div>
 </div>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
@@ -226,13 +209,13 @@ pelicun 3.9.0.dev0 |
 
 System Information:
          local time zone: UTC
-         start time: 2025-09-23T22:52:38
+         start time: 2025-09-28T07:18:44
          python: 3.10.18 (main, Jun  4 2025, 04:04:42) [GCC 13.3.0]
          numpy: 1.26.4
          pandas: 2.3.2
 
          --------------------------------------------------------------------------------
-22:52:38 Assessment Started
+07:18:44 Assessment Started
 </pre></div></div>
 </div>
 <div class="nbinput nblast docutils container">
@@ -348,11 +331,11 @@ System Information:
 <div class="output_area docutils container">
 <div class="highlight"><pre>
          --------------------------------------------------------------------------------
-22:52:38 Loading demand model...
+07:18:44 Loading demand model...
          Unit conversion successful.
          Demand model successfully loaded.
          --------------------------------------------------------------------------------
-22:52:38 Generating sample from demand variables...
+07:18:44 Generating sample from demand variables...
 
          18 random variables created.
 
@@ -364,7 +347,7 @@ System Information:
          Converting units...
          Unit conversion successful.
          --------------------------------------------------------------------------------
-22:52:38 Loading demand data...
+07:18:44 Loading demand data...
          Converting units...
          Unit conversion successful.
          Demand data successfully parsed.
@@ -398,7 +381,7 @@ System Information:
 <div class="output_area docutils container">
 <div class="highlight"><pre>
          --------------------------------------------------------------------------------
-22:52:38 Loading component model...
+07:18:44 Loading component model...
          Unit conversion successful.
          Model parameters successfully parsed. 8 performance groups identified
          Converting model parameters to internal units...
@@ -416,7 +399,7 @@ System Information:
          testing.component   1   1   0        1.0       1    ea
          testing.component.2 1   1   0        2.0       4    ea
          --------------------------------------------------------------------------------
-22:52:39 Generating sample from component quantity variables...
+07:18:44 Generating sample from component quantity variables...
 
          8 random variables created.
 
@@ -473,27 +456,27 @@ System Information:
          Converting damage model parameter units.
          Checking damage model parameter availability for all components in the asset model.
 
-         The damage model does not provide damage information for the following component(s) in the asset model: [&#39;missing.component&#39;, &#39;testing.component&#39;, &#39;testing.component.2&#39;].
+         The damage model does not provide damage information for the following component(s) in the asset model: [&#39;testing.component.2&#39;, &#39;missing.component&#39;, &#39;testing.component&#39;].
 
          --------------------------------------------------------------------------------
-22:52:39 Calculating damages...
+07:18:44 Calculating damages...
          Number of Performance Groups in Asset Model: 8
          Number of Component Blocks: 5
          1 batches of Performance Groups prepared for damage assessment
-22:52:39 Calculating damage states for PG batch 1 with 5 blocks
+07:18:44 Calculating damage states for PG batch 1 with 5 blocks
          Damage state calculation successful.
-22:52:39 Applying damage processes.
+07:18:44 Applying damage processes.
          Damage processes successfully applied.
          Damage calculation completed.
          --------------------------------------------------------------------------------
-22:52:39 Saving damage sample...
-         Saving data to `/tmp/tmpn7qpgj0c/out.csv`...
+07:18:44 Saving damage sample...
+         Saving data to `/tmp/tmpy6a71z1p/out.csv`...
          Converting units...
          Unit conversion successful.
          Data successfully saved to file.
          Damage sample successfully saved.
          --------------------------------------------------------------------------------
-22:52:39 Loading damage sample...
+07:18:44 Loading damage sample...
          Converting units...
          Unit conversion successful.
          Damage sample successfully loaded.
@@ -579,24 +562,24 @@ dtype: float64
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-22:52:39 Loading loss map...
+07:18:44 Loading loss map...
          Loss map is provided.
-22:52:39 Loss map loaded successfully.
+07:18:44 Loss map loaded successfully.
          --------------------------------------------------------------------------------
-22:52:39 Loading loss parameters...
+07:18:44 Loading loss parameters...
          Loss model parameters loaded successfully.
          Removing unused loss model parameters.
          Converting loss model parameter units.
          Checking loss model parameter availability for all components in the asset model.
          --------------------------------------------------------------------------------
-22:52:39 Calculating losses...
+07:18:45 Calculating losses...
 
          Aggregating damage quantities...
          Successfully aggregated damage quantities.
 
          Calculating the median repair consequences...
          Successfully determined median repair consequences.
-22:52:39
+07:18:45
          Considering deviations from the median values to obtain random DV sample...
          Preparing random variables for repair consequences...
 
@@ -607,7 +590,7 @@ dtype: float64
 
          Calculating the median repair consequences...
          Successfully determined median repair consequences.
-22:52:39
+07:18:45
          Considering deviations from the median values to obtain random DV sample...
          Preparing random variables for repair cost and time...
 
@@ -615,16 +598,16 @@ dtype: float64
 
          Successfully generated 10000 realizations of deviation from the median consequences.
          Successfully obtained DV sample.
-22:52:39 Loss calculation successful.
+07:18:45 Loss calculation successful.
          --------------------------------------------------------------------------------
-22:52:39 Saving loss sample...
-         Saving data to `/tmp/tmpn7qpgj0c/sample.csv`...
+07:18:45 Saving loss sample...
+         Saving data to `/tmp/tmpy6a71z1p/sample.csv`...
          Converting units...
          Unit conversion successful.
          Data successfully saved to file.
          Loss sample successfully saved.
          --------------------------------------------------------------------------------
-22:52:39 Loading loss sample...
+07:18:45 Loading loss sample...
          Converting units...
          Unit conversion successful.
          Loss sample successfully loaded.
