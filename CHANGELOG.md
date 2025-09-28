@@ -5,7 +5,39 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [3.8.1] - 2025-09-27
+
+### Changed
+
+**Enhanced DLML Test Suite**: A complete overhaul of the test suite for the DLML module to improve reliability and test coverage:
+
+- Replaced brittle, unit-style tests with a new suite of robust integration and end-to-end tests.
+- Added a new end-to-end test using a local HTTP server (`pytest-httpserver`) to simulate the entire download workflow, ensuring high confidence in the process.
+- Overhauled network mocks to be more realistic, allowing for more accurate validation of download behavior.
+
+**Improved DLML Module Configuration**:
+
+- Refactored the module to resolve all configuration from environment variables at runtime, significantly improving testability and isolation.
+
+**DLML Data**:
+
+- Updated the default data version for the Damage and Loss Model Library to `v2.1.0`.
+
+**Dependencies**:
+
+- Added `pytest-httpserver` as a new development dependency to support the enhanced end-to-end testing.
+
+### Fixed
+
+**DLML Robustness and Reliability**:
+
+- Increased network timeouts for file downloads to prevent errors on slower connections.
+- Improved the reliability of the recommended `dlml update` command shown to users, ensuring it works correctly on all platforms, especially those with spaces in the Python path.
+
+**Developer Experience**:
+
+- Performed a comprehensive code quality pass on the entire test suite, standardizing docstrings, adding complete type hints, and improving code style for better maintainability.
+- Made the main CLI script directly executable to simplify development and debugging workflows.
 
 ---
 

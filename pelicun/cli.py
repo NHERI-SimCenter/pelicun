@@ -200,3 +200,7 @@ Examples:
             args.func(commit=commit_sha, use_cache=use_cache)
         else:
             args.func(version=args.target, use_cache=use_cache)
+
+
+if __name__ == '__main__':
+    main()

@@ -65,6 +65,7 @@ development = [
     "pylint-pytest",
     "pytest",
     "pytest-cov",
+    "pytest-httpserver",
     "pytest-socket",
     "pytest-xdist",
     "rendre>0.0.14",
