@@ -1,0 +1,141 @@
+
+pelicun 3.2b4 | 
+
+System Information:
+         local time zone: PDT
+         start time: 2023-10-07T21:09:29
+         python: 3.9.13 (v3.9.13:6de2ca5339, May 17 2022, 11:23:25) 
+         [Clang 6.0 (clang-600.0.57)]
+         numpy: 1.25.2
+         pandas: 2.0.3
+         
+         --------------------------------------------------------------------------------
+21:09:29 Assessement Started
+         --------------------------------------------------------------------------------
+21:09:29 Loading demand data...
+         Removing event_ID from header...
+         Removing whitespace from header...
+         Demand data successfully parsed.
+         Removing event_ID from header...
+         Removing whitespace from header...
+         Demand units successfully parsed.
+         --------------------------------------------------------------------------------
+21:09:29 Calibrating demand model...
+         
+         Calibration settings successfully parsed:
+                            Family  CensorLower  CensorUpper  TruncateLower  TruncateUpper  SigIncrease  Theta_0  Theta_1
+         type   loc dir                                                                                                  
+         PGD    1   1    empirical          NaN          NaN            NaN            NaN          NaN      NaN      NaN
+                    3    empirical          NaN          NaN            NaN            NaN          NaN      NaN      NaN
+         SA_1.0 1   1    empirical          NaN          NaN            NaN            NaN          NaN      NaN      NaN
+         PGA    1   1    empirical          NaN          NaN            NaN            NaN          NaN      NaN      NaN
+         
+         Demand data used for calibration:
+         Empty DataFrame
+         Columns: []
+         Index: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99]
+         
+         [100 rows x 0 columns]
+         
+         Fitting the prescribed joint demand distribution...
+         
+         Calibration successful, processing results...
+         
+         Calibrated demand model marginal distributions:
+                            Family  Theta_0  Theta_1  TruncateLower  TruncateUpper
+         type   loc dir                                                           
+         PGD    1   1    empirical      NaN      NaN            NaN            NaN
+                    3    empirical      NaN      NaN            NaN            NaN
+         SA_1.0 1   1    empirical      NaN      NaN            NaN            NaN
+         PGA    1   1    empirical      NaN      NaN            NaN            NaN
+         
+         Calibrated demand model correlation matrix:
+         Empty DataFrame
+         Columns: []
+         Index: []
+         --------------------------------------------------------------------------------
+21:09:29 Generating sample from demand variables...
+         
+         4 random variables created.
+         
+         Correlations between 0 random variables successfully defined.
+         
+         Successfully generated 100 realizations.
+         --------------------------------------------------------------------------------
+         --------------------------------------------------------------------------------
+21:09:29 Loading demand data...
+         Removing whitespace from header...
+         Demand data successfully parsed.
+         Removing whitespace from header...
+         Demand units successfully parsed.
+         --------------------------------------------------------------------------------
+         --------------------------------------------------------------------------------
+21:09:29 Loading component model...
+         
+         Parsing model file to characterize each component block
+         Model parameters successfully parsed. 2 performance groups identified
+         Converting model parameters to internal units...
+         Model parameters successfully loaded.
+         
+         Component model marginal distributions:
+                          Units  Theta_0  Blocks
+         cmp      loc dir                       
+         HRD.GF.2 1   1      ea      1.0     1.0
+         collapse 0   1      ea      1.0     1.0
+         --------------------------------------------------------------------------------
+21:09:29 Generating sample from component quantity variables...
+         
+         2 random variables created.
+         
+         Successfully generated 100 realizations.
+         --------------------------------------------------------------------------------
+         --------------------------------------------------------------------------------
+21:09:29 Loading damage model...
+         Damage model parameters successfully parsed.
+         --------------------------------------------------------------------------------
+21:09:29 Calculating damages...
+         Number of Performance Groups in Asset Model: 2
+         Number of Component Blocks: 2
+         1 batches of Performance Groups prepared for damage assessment
+21:09:29 Calculating damage for PG batch 1 with 2 blocks
+21:09:29 Generating capacity variables ...
+         2x4 random variables created.
+21:09:29 Sampling capacities...
+21:09:29 Raw samples are available
+21:09:29 Successfully generated 100 realizations.
+21:09:29 Collecting required demand information...
+21:09:29 Assembling demand data for calculation...
+21:09:29 Evaluating damage states...
+21:09:29 Calculating damage quantities...
+         Raw damage calculation successful.
+21:09:29 Damage calculation successfully completed.
+         --------------------------------------------------------------------------------
+21:09:29 Saving damage sample...
+         --------------------------------------------------------------------------------
+21:09:29 Saving damage sample...
+         --------------------------------------------------------------------------------
+21:09:29 Loading loss map for BldgRepair...
+         Loss map successfully parsed.
+         --------------------------------------------------------------------------------
+21:09:29 Loading loss parameters for BldgRepair...
+         Loss parameters successfully parsed.
+         --------------------------------------------------------------------------------
+21:09:29 Calculating losses...
+         
+         Aggregating damage quantities...
+         Successfully aggregated damage quantities.
+         
+         Calculating the median repair consequences...
+         Successfully determined median repair consequences.
+21:09:29 
+         Considering deviations from the median values to obtain random DV sample...
+         Preparing random variables for repair cost and time...
+         
+         0 random variables created.
+         
+         Successfully generated 100 realizations of deviation from the median consequences.
+         Successfully obtained DV sample.
+21:09:29 Loss calculation successful.
+         --------------------------------------------------------------------------------
+21:09:29 Aggregating repair consequences...
+21:09:29 Repair consequences successfully aggregated.

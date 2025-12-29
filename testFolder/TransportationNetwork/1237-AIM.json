@@ -1,0 +1,111 @@
+{
+  "RandomVariables": [],
+  "GeneralInformation": {
+    "AIM_id": "1237",
+    "location": {
+      "latitude": 37.77211700009313,
+      "longitude": -122.23618599971365
+    },
+    "geometry": "POINT (-122.23618599971365 37.77211700009313)",
+    "StructureNumber": "33C0027",
+    "BridgeClass": 316,
+    "YearBuilt": 1934,
+    "NumOfSpans": 3,
+    "MaxSpanLength": 87.0,
+    "StateCode": "06",
+    "Skew": 0,
+    "DeckWidth": 14.6,
+    "type": "Bridge",
+    "assetSubtype": "HwyBridge",
+    "units": {
+      "force": "kips",
+      "length": "inch",
+      "time": "sec"
+    }
+  },
+  "DefaultValues": {
+    "driverFile": "driver",
+    "edpFiles": [
+      "EDP.json"
+    ],
+    "filenameDL": "BIM.json",
+    "filenameEDP": "EDP.json",
+    "filenameEVENT": "EVENT.json",
+    "filenameSAM": "SAM.json",
+    "filenameSIM": "SIM.json",
+    "rvFiles": [
+      "SAM.json",
+      "EVENT.json",
+      "SIM.json"
+    ],
+    "workflowInput": "scInput.json",
+    "workflowOutput": "EDP.json"
+  },
+  "commonFileDir": "/Users/jinyanzhao/Documents/R2D/LocalWorkDir/tmp.SimCenter/input_data",
+  "remoteAppDir": "/Users/jinyanzhao/Desktop/SimCenterBuild/SimCenterBackendApplications",
+  "localAppDir": "/Users/jinyanzhao/Desktop/SimCenterBuild/SimCenterBackendApplications",
+  "units": {
+    "force": "kips",
+    "length": "inch",
+    "time": "sec"
+  },
+  "outputs": {
+    "AIM": false,
+    "DM": true,
+    "DV": true,
+    "EDP": true,
+    "IM": false
+  },
+  "RegionalEvent": {
+    "eventFile": "EventGrid.csv",
+    "eventFilePath": "/Users/jinyanzhao/Desktop/EQSimulationTool/EfficientSampling/SFBay_Bridges/codes/ground_motions/haywardMw7/Output/IMs",
+    "units": {
+      "SA_1": "g"
+    }
+  },
+  "assetType": "TransportationNetwork",
+  "Applications": {
+    "Events": [
+      {
+        "Application": "SimCenterEvent",
+        "ApplicationData": {},
+        "EventClassification": "Earthquake"
+      }
+    ],
+    "Modeling": {
+      "Application": "None",
+      "ApplicationData": {}
+    },
+    "EDP": {
+      "Application": "None",
+      "ApplicationData": {}
+    },
+    "Simulation": {
+      "Application": "IMasEDP",
+      "ApplicationData": {}
+    },
+    "UQ": {
+      "Application": "None",
+      "ApplicationData": {}
+    },
+    "DL": {
+      "Application": "Pelicun3",
+      "ApplicationData": {
+        "DL_Method": "HAZUS MH EQ IM",
+        "Realizations": 100,
+        "auto_script": "PelicunDefault/Hazus_Earthquake_IM.py",
+        "coupled_EDP": true,
+        "detailed_results": false,
+        "ground_failure": false,
+        "log_file": true,
+        "regional": "true"
+      }
+    }
+  },
+  "Modeling": {},
+  "Simulation": {
+    "type": "IMasEDP"
+  },
+  "UQ": {},
+  "DL": {}
+}

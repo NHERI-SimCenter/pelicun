@@ -1,0 +1,98 @@
+
+pelicun 3.4.0 | 
+
+System Information:
+         local time zone: PST
+         start time: 2025-01-24T11:46:40
+         python: 3.9.13 (v3.9.13:6de2ca5339, May 17 2022, 11:23:25) 
+         [Clang 6.0 (clang-600.0.57)]
+         numpy: 1.26.0
+         pandas: 2.2.0
+         
+         --------------------------------------------------------------------------------
+11:46:41 Assessment Started
+         --------------------------------------------------------------------------------
+11:47:11 Loading demand data...
+         Converting units...
+         Unit conversion successful.
+         Removing event_ID from header...
+         Removing whitespace from header...
+         Demand data successfully parsed.
+         Removing event_ID from header...
+         Removing whitespace from header...
+         Demand units successfully parsed.
+         --------------------------------------------------------------------------------
+11:47:11 Calibrating demand model...
+         --------------------------------------------------------------------------------
+         Preparing data ...
+         Converting units...
+         Unit conversion successful.
+         
+         Calibration settings successfully parsed:
+                          Family  CensorLower  CensorUpper  TruncateLower  TruncateUpper  SigIncrease  Theta_0  Theta_1
+         type loc dir                                                                                                  
+         PIH  1   1    empirical          NaN          NaN            NaN            NaN          NaN      NaN      NaN
+         PWS  1   1    empirical          NaN          NaN            NaN            NaN          NaN      NaN      NaN
+         
+         Demand data used for calibration:
+         Empty DataFrame
+         Columns: []
+         Index: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+         
+         Fitting the prescribed joint demand distribution...
+         
+         Calibration successful, processing results...
+         
+         Calibrated demand model marginal distributions:
+                          Family  Theta_0  Theta_1  TruncateLower  TruncateUpper
+         type loc dir                                                           
+         PIH  1   1    empirical      NaN      NaN            NaN            NaN
+         PWS  1   1    empirical      NaN      NaN            NaN            NaN
+         
+         Calibrated demand model correlation matrix:
+         Empty DataFrame
+         Columns: []
+         Index: []
+         --------------------------------------------------------------------------------
+11:47:11 Generating sample from demand variables...
+         
+         2 random variables created.
+         
+         Correlations between 0 random variables successfully defined.
+         
+         Successfully generated 500 realizations.
+         --------------------------------------------------------------------------------
+         Preparing data ...
+         Converting units...
+         Unit conversion successful.
+         --------------------------------------------------------------------------------
+11:47:11 Loading demand data...
+         Converting units...
+         Unit conversion successful.
+         Removing whitespace from header...
+         Demand data successfully parsed.
+         Removing whitespace from header...
+         Demand units successfully parsed.
+         --------------------------------------------------------------------------------
+         Preparing data ...
+         Converting units...
+         Unit conversion successful.
+         --------------------------------------------------------------------------------
+11:47:26 Loading component model...
+         Unit conversion successful.
+         Model parameters successfully parsed. 3 performance groups identified
+         Converting model parameters to internal units...
+         Model parameters successfully loaded.
+         
+         Component model marginal distributions:
+                                                   Theta_0  Blocks Units
+         cmp                          loc dir uid                       
+         W.SF.2.gab.1.8d.tnail.no.0.3 1   1   0        1.0       1    ea
+         collapse                     0   1   0        1.0       1    ea
+         fl_RES1_s2_bn_cvz            1   1   0        1.0       1    ea
+         --------------------------------------------------------------------------------
+11:47:26 Generating sample from component quantity variables...
+         
+         3 random variables created.
+         
+         Successfully generated 500 realizations.

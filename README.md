@@ -22,6 +22,8 @@
 
 `pelicun` is a Python package that provides tools for assessment of damage and losses due to natural hazard events. It uses a stochastic damage and loss model that is an extension of the high-resolution PEER performance assessment methodology described in FEMA P58 (FEMA, 2012). While FEMA P58 aims to assess the seismic performance of a building, with `pelicun` we provide a more versatile, hazard-agnostic tool to assess the performance of several types of assets in the built environment.
 
+`pelicun` includes an integrated **Damage and Loss Model Library (DLML)** module that provides seamless access to comprehensive model libraries with automatic data initialization and CLI integration for efficient model management.
+
 Detailed documentation of the available methods and their use is available at http://nheri-simcenter.github.io/pelicun
 
 ## What can I use it for?
@@ -67,7 +69,7 @@ It includes information for users, instructions for developers and usage example
 
 ## Changelog
 
-The release notes are available in the [online documentation](https://nheri-simcenter.github.io/pelicun/release_notes/index.html)
+Detailed release notes for all versions are available in [CHANGELOG.md](CHANGELOG.md) and in the [online documentation](https://nheri-simcenter.github.io/pelicun/release_notes/index.html).
 
 ## License
 

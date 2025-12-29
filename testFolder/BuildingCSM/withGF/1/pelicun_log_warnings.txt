@@ -1,0 +1,19 @@
+
+Unhandled exception occurred:
+Traceback (most recent call last):
+  File "/Users/jinyanzhao/Desktop/SimCenterBuild/SimCenterBackendApplications/applications/performDL/pelicun3/pelicun3_wrapper.py", line 42, in <module>
+    main()
+  File "/Library/Frameworks/Python.framework/Versions/3.9/lib/python3.9/site-packages/pelicun/tools/DL_calculation.py", line 1540, in main
+    run_pelicun(
+  File "/Library/Frameworks/Python.framework/Versions/3.9/lib/python3.9/site-packages/pelicun/tools/DL_calculation.py", line 367, in run_pelicun
+    assessment.calculate_damage(
+  File "/Library/Frameworks/Python.framework/Versions/3.9/lib/python3.9/site-packages/pelicun/assessment.py", line 1237, in calculate_damage
+    self.damage.calculate(
+  File "/Library/Frameworks/Python.framework/Versions/3.9/lib/python3.9/site-packages/pelicun/model/damage_model.py", line 308, in calculate
+    self.ds_model.obtain_ds_sample(
+  File "/Library/Frameworks/Python.framework/Versions/3.9/lib/python3.9/site-packages/pelicun/model/damage_model.py", line 837, in obtain_ds_sample
+    _verify_edps_available(available_edps, set(required_edps.keys()))
+  File "/Library/Frameworks/Python.framework/Versions/3.9/lib/python3.9/site-packages/pelicun/model/demand_model.py", line 1558, in _verify_edps_available
+    raise ValueError(msg)
+ValueError: Unable to locate `PGD` at location 1 in demand sample.
+
