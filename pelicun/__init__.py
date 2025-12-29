@@ -37,9 +37,14 @@
 
 """Pelicun library."""
 
+from importlib import metadata
+
 name = 'pelicun'
 
-__version__ = '3.4.0'
+try:
+    __version__ = metadata.version('pelicun')
+except metadata.PackageNotFoundError:
+    __version__ = '0.0.0-local'
 
 __copyright__ = (
     'Copyright (c) 2018 Leland Stanford '
@@ -48,3 +53,14 @@ __copyright__ = (
 )
 
 __license__ = 'BSD 3-Clause License'
+
+# Initialize DLML data on import
+try:
+    from pelicun.tools.dlml import check_dlml_data
+
+    check_dlml_data()
+except Exception as e:
+    # If DLML initialization fails, raise ImportError with simple message
+    # Detailed error information is already provided by check_dlml_data
+    msg = f'Pelicun initialization failed: {e}'
+    raise ImportError(msg) from e

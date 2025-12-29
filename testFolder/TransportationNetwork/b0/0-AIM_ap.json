@@ -1,0 +1,585 @@
+{
+  "RandomVariables": [],
+  "GeneralInformation": {
+    "AIM_id": "0",
+    "location": {
+      "latitude": 37.76415,
+      "longitude": -122.261253
+    },
+    "geometry": "POINT (-122.261253 37.76415)",
+    "StructureNumber": "33C0229",
+    "BridgeClass": 201,
+    "YearBuilt": 1958,
+    "NumOfSpans": 3,
+    "MaxSpanLength": 358.26771653543307,
+    "StateCode": "06",
+    "Skew": 0,
+    "DeckWidth": 905.511811023622,
+    "FacilityCarried": "GRAND ST",
+    "Location": 0,
+    "type": "Bridge",
+    "assetSubtype": "HwyBridge",
+    "RoadID": "3131,3142",
+    "SoilType": "B",
+    "units": {
+      "force": "kips",
+      "length": "inch",
+      "time": "sec"
+    },
+    "BridgeHazusClass": "HWB10"
+  },
+  "DefaultValues": {
+    "driverFile": "driver",
+    "edpFiles": [
+      "EDP.json"
+    ],
+    "filenameDL": "BIM.json",
+    "filenameEDP": "EDP.json",
+    "filenameEVENT": "EVENT.json",
+    "filenameSAM": "SAM.json",
+    "filenameSIM": "SIM.json",
+    "rvFiles": [
+      "SAM.json",
+      "EVENT.json",
+      "SIM.json"
+    ],
+    "workflowInput": "scInput.json",
+    "workflowOutput": "EDP.json"
+  },
+  "commonFileDir": "/Users/jinyanzhao/Documents/R2D/LocalWorkDir/tmp.SimCenter/input_data",
+  "remoteAppDir": "/Users/jinyanzhao/Desktop/SimCenterBuild/SimCenterBackendApplications",
+  "localAppDir": "/Users/jinyanzhao/Desktop/SimCenterBuild/SimCenterBackendApplications",
+  "units": {
+    "force": "kips",
+    "length": "inch",
+    "time": "sec"
+  },
+  "outputs": {
+    "AIM": false,
+    "DM": true,
+    "DV": true,
+    "EDP": true,
+    "IM": false
+  },
+  "RegionalEvent": {
+    "eventFile": "EventGrid.csv",
+    "eventFilePath": "/Users/jinyanzhao/Desktop/SimCenterBuild/R2DExamples/E14BasicHAZUSTransportation/input_data/IMs",
+    "units": {
+      "PGA": "inchps2",
+      "PGD_h": "inch",
+      "PGD_v": "inch",
+      "SA_0.3": "inchps2",
+      "SA_1.0": "inchps2"
+    }
+  },
+  "assetType": "TransportationNetwork",
+  "Applications": {
+    "Events": [
+      {
+        "Application": "SimCenterEvent",
+        "ApplicationData": {},
+        "EventClassification": "Earthquake"
+      }
+    ],
+    "Modeling": {
+      "Application": "None",
+      "ApplicationData": {}
+    },
+    "Simulation": {
+      "Application": "IMasEDP",
+      "ApplicationData": {}
+    },
+    "UQ": {
+      "Application": "None",
+      "ApplicationData": {}
+    },
+    "DL": {
+      "Application": "Pelicun3",
+      "ApplicationData": {
+        "DL_Method": "HAZUS MH EQ IM",
+        "Realizations": 100,
+        "auto_script": "PelicunDefault/Hazus_Earthquake_IM.py",
+        "coupled_EDP": true,
+        "detailed_results": false,
+        "ground_failure": true,
+        "log_file": true,
+        "regional": "true"
+      }
+    }
+  },
+  "Modeling": {},
+  "Simulation": {
+    "type": "IMasEDP"
+  },
+  "UQ": {},
+  "DL": {
+    "Asset": {
+      "ComponentAssignmentFile": "/Users/jinyanzhao/Documents/R2D/LocalWorkDir/tmp.SimCenter/Results/TransportationNetwork/Bridge/0/CMP_QNT.csv",
+      "ComponentDatabase": "Hazus Earthquake - Transportation",
+      "BridgeHazusClass": "HWB10",
+      "PlanArea": "1"
+    },
+    "Damage": {
+      "DamageProcess": "Hazus Earthquake"
+    },
+    "Demands": {
+      "DemandFilePath": "response.csv",
+      "SampleSize": "100",
+      "CoupledDemands": true
+    },
+    "Losses": {
+      "Repair": {
+        "ConsequenceDatabase": "Hazus Earthquake - Transportation",
+        "MapApproach": "Automatic"
+      }
+    },
+    "Options": {
+      "NonDirectionalMultipliers": {
+        "ALL": 1.0
+      }
+    },
+    "Outputs": {
+      "Demand": {
+        "Sample": true,
+        "Statistics": false
+      },
+      "Asset": {
+        "Sample": true,
+        "Statistics": false
+      },
+      "Damage": {
+        "Sample": false,
+        "Statistics": false,
+        "GroupedSample": true,
+        "GroupedStatistics": true
+      },
+      "Loss": {
+        "Repair": {
+          "Sample": true,
+          "Statistics": true,
+          "GroupedSample": true,
+          "GroupedStatistics": false,
+          "AggregateSample": true,
+          "AggregateStatistics": true
+        }
+      },
+      "Format": {
+        "CSV": false,
+        "JSON": true
+      },
+      "Settings": {
+        "CondenseDS": true,
+        "SimpleIndexInJSON": true,
+        "AggregateColocatedComponentResults": true
+      }
+    }
+  },
+  "Events": [
+    {
+      "EventFolderPath": "/Users/jinyanzhao/Documents/R2D/LocalWorkDir/tmp.SimCenter/input_data",
+      "Events": [
+        [
+          "S_126_2047.csvx0x00000",
+          1.0
+        ],
+        [
+          "S_126_2047.csvx1x00001",
+          1.0
+        ],
+        [
+          "S_126_2047.csvx2x00002",
+          1.0
+        ],
+        [
+          "S_122_2043.csvx3x00003",
+          1.0
+        ],
+        [
+          "S_122_2043.csvx4x00004",
+          1.0
+        ],
+        [
+          "S_175_27.csvx5x00005",
+          1.0
+        ],
+        [
+          "S_126_2047.csvx6x00006",
+          1.0
+        ],
+        [
+          "S_126_2047.csvx7x00007",
+          1.0
+        ],
+        [
+          "S_126_2047.csvx8x00008",
+          1.0
+        ],
+        [
+          "S_126_2047.csvx9x00009",
+          1.0
+        ],
+        [
+          "S_126_2047.csvx10x00010",
+          1.0
+        ],
+        [
+          "S_127_2048.csvx11x00011",
+          1.0
+        ],
+        [
+          "S_127_2048.csvx12x00012",
+          1.0
+        ],
+        [
+          "S_126_2047.csvx13x00013",
+          1.0
+        ],
+        [
+          "S_126_2047.csvx14x00014",
+          1.0
+        ],
+        [
+          "S_127_2048.csvx15x00015",
+          1.0
+        ],
+        [
+          "S_122_2043.csvx16x00016",
+          1.0
+        ],
+        [
+          "S_127_2048.csvx17x00017",
+          1.0
+        ],
+        [
+          "S_127_2048.csvx18x00018",
+          1.0
+        ],
+        [
+          "S_127_2048.csvx19x00019",
+          1.0
+        ],
+        [
+          "S_127_2048.csvx20x00020",
+          1.0
+        ],
+        [
+          "S_175_27.csvx21x00021",
+          1.0
+        ],
+        [
+          "S_127_2048.csvx22x00022",
+          1.0
+        ],
+        [
+          "S_127_2048.csvx23x00023",
+          1.0
+        ],
+        [
+          "S_127_2048.csvx24x00024",
+          1.0
+        ],
+        [
+          "S_127_2048.csvx25x00025",
+          1.0
+        ],
+        [
+          "S_126_2047.csvx26x00026",
+          1.0
+        ],
+        [
+          "S_126_2047.csvx27x00027",
+          1.0
+        ],
+        [
+          "S_127_2048.csvx28x00028",
+          1.0
+        ],
+        [
+          "S_175_27.csvx29x00029",
+          1.0
+        ],
+        [
+          "S_122_2043.csvx30x00030",
+          1.0
+        ],
+        [
+          "S_126_2047.csvx31x00031",
+          1.0
+        ],
+        [
+          "S_127_2048.csvx32x00032",
+          1.0
+        ],
+        [
+          "S_127_2048.csvx33x00033",
+          1.0
+        ],
+        [
+          "S_126_2047.csvx34x00034",
+          1.0
+        ],
+        [
+          "S_122_2043.csvx35x00035",
+          1.0
+        ],
+        [
+          "S_126_2047.csvx36x00036",
+          1.0
+        ],
+        [
+          "S_126_2047.csvx37x00037",
+          1.0
+        ],
+        [
+          "S_127_2048.csvx38x00038",
+          1.0
+        ],
+        [
+          "S_127_2048.csvx39x00039",
+          1.0
+        ],
+        [
+          "S_127_2048.csvx40x00040",
+          1.0
+        ],
+        [
+          "S_127_2048.csvx41x00041",
+          1.0
+        ],
+        [
+          "S_175_27.csvx42x00042",
+          1.0
+        ],
+        [
+          "S_127_2048.csvx43x00043",
+          1.0
+        ],
+        [
+          "S_126_2047.csvx44x00044",
+          1.0
+        ],
+        [
+          "S_127_2048.csvx45x00045",
+          1.0
+        ],
+        [
+          "S_127_2048.csvx46x00046",
+          1.0
+        ],
+        [
+          "S_126_2047.csvx47x00047",
+          1.0
+        ],
+        [
+          "S_126_2047.csvx48x00048",
+          1.0
+        ],
+        [
+          "S_127_2048.csvx49x00049",
+          1.0
+        ],
+        [
+          "S_127_2048.csvx50x00050",
+          1.0
+        ],
+        [
+          "S_127_2048.csvx51x00051",
+          1.0
+        ],
+        [
+          "S_127_2048.csvx52x00052",
+          1.0
+        ],
+        [
+          "S_122_2043.csvx53x00053",
+          1.0
+        ],
+        [
+          "S_126_2047.csvx54x00054",
+          1.0
+        ],
+        [
+          "S_127_2048.csvx55x00055",
+          1.0
+        ],
+        [
+          "S_126_2047.csvx56x00056",
+          1.0
+        ],
+        [
+          "S_127_2048.csvx57x00057",
+          1.0
+        ],
+        [
+          "S_127_2048.csvx58x00058",
+          1.0
+        ],
+        [
+          "S_127_2048.csvx59x00059",
+          1.0
+        ],
+        [
+          "S_126_2047.csvx60x00060",
+          1.0
+        ],
+        [
+          "S_127_2048.csvx61x00061",
+          1.0
+        ],
+        [
+          "S_127_2048.csvx62x00062",
+          1.0
+        ],
+        [
+          "S_126_2047.csvx63x00063",
+          1.0
+        ],
+        [
+          "S_127_2048.csvx64x00064",
+          1.0
+        ],
+        [
+          "S_127_2048.csvx65x00065",
+          1.0
+        ],
+        [
+          "S_126_2047.csvx66x00066",
+          1.0
+        ],
+        [
+          "S_127_2048.csvx67x00067",
+          1.0
+        ],
+        [
+          "S_126_2047.csvx68x00068",
+          1.0
+        ],
+        [
+          "S_127_2048.csvx69x00069",
+          1.0
+        ],
+        [
+          "S_127_2048.csvx70x00070",
+          1.0
+        ],
+        [
+          "S_122_2043.csvx71x00071",
+          1.0
+        ],
+        [
+          "S_127_2048.csvx72x00072",
+          1.0
+        ],
+        [
+          "S_175_27.csvx73x00073",
+          1.0
+        ],
+        [
+          "S_127_2048.csvx74x00074",
+          1.0
+        ],
+        [
+          "S_127_2048.csvx75x00075",
+          1.0
+        ],
+        [
+          "S_127_2048.csvx76x00076",
+          1.0
+        ],
+        [
+          "S_127_2048.csvx77x00077",
+          1.0
+        ],
+        [
+          "S_122_2043.csvx78x00078",
+          1.0
+        ],
+        [
+          "S_122_2043.csvx79x00079",
+          1.0
+        ],
+        [
+          "S_175_27.csvx80x00080",
+          1.0
+        ],
+        [
+          "S_127_2048.csvx81x00081",
+          1.0
+        ],
+        [
+          "S_127_2048.csvx82x00082",
+          1.0
+        ],
+        [
+          "S_175_27.csvx83x00083",
+          1.0
+        ],
+        [
+          "S_127_2048.csvx84x00084",
+          1.0
+        ],
+        [
+          "S_122_2043.csvx85x00085",
+          1.0
+        ],
+        [
+          "S_126_2047.csvx86x00086",
+          1.0
+        ],
+        [
+          "S_127_2048.csvx87x00087",
+          1.0
+        ],
+        [
+          "S_127_2048.csvx88x00088",
+          1.0
+        ],
+        [
+          "S_127_2048.csvx89x00089",
+          1.0
+        ],
+        [
+          "S_127_2048.csvx90x00090",
+          1.0
+        ],
+        [
+          "S_127_2048.csvx91x00091",
+          1.0
+        ],
+        [
+          "S_127_2048.csvx92x00092",
+          1.0
+        ],
+        [
+          "S_126_2047.csvx93x00093",
+          1.0
+        ],
+        [
+          "S_127_2048.csvx94x00094",
+          1.0
+        ],
+        [
+          "S_126_2047.csvx95x00095",
+          1.0
+        ],
+        [
+          "S_127_2048.csvx96x00096",
+          1.0
+        ],
+        [
+          "S_127_2048.csvx97x00097",
+          1.0
+        ],
+        [
+          "S_126_2047.csvx98x00098",
+          1.0
+        ],
+        [
+          "S_126_2047.csvx99x00099",
+          1.0
+        ]
+      ],
+      "type": "intensityMeasure"
+    }
+  ]
+}

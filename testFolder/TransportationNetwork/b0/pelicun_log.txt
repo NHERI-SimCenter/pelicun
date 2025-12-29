@@ -1,0 +1,195 @@
+
+pelicun 3.3.2 | 
+
+System Information:
+         local time zone: PDT
+         start time: 2024-10-31T16:38:31
+         python: 3.9.13 (v3.9.13:6de2ca5339, May 17 2022, 11:23:25) 
+         [Clang 6.0 (clang-600.0.57)]
+         numpy: 1.25.2
+         pandas: 1.5.2
+         
+         --------------------------------------------------------------------------------
+16:38:31 Assessment Started
+         --------------------------------------------------------------------------------
+16:38:31 Loading demand data...
+         Converting units...
+         Unit conversion successful.
+         Data successfully loaded from file.
+         Removing event_ID from header...
+         Removing whitespace from header...
+         Demand data successfully parsed.
+         Removing event_ID from header...
+         Removing whitespace from header...
+         Demand units successfully parsed.
+         --------------------------------------------------------------------------------
+16:38:31 Calibrating demand model...
+         
+         Calibration settings successfully parsed:
+                            Family  CensorLower  CensorUpper  TruncateLower  TruncateUpper  SigIncrease  Theta_0  Theta_1
+         type   loc dir                                                                                                  
+         PGD    1   1    empirical          NaN          NaN            NaN            NaN          NaN      NaN      NaN
+                    3    empirical          NaN          NaN            NaN            NaN          NaN      NaN      NaN
+         SA_0.3 1   1    empirical          NaN          NaN            NaN            NaN          NaN      NaN      NaN
+         SA_1.0 1   1    empirical          NaN          NaN            NaN            NaN          NaN      NaN      NaN
+         PGA    1   1    empirical          NaN          NaN            NaN            NaN          NaN      NaN      NaN
+         
+         Demand data used for calibration:
+         Empty DataFrame
+         Columns: []
+         Index: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99]
+         
+         [100 rows x 0 columns]
+         
+         Fitting the prescribed joint demand distribution...
+         
+         Calibration successful, processing results...
+         
+         Calibrated demand model marginal distributions:
+                            Family  Theta_0  Theta_1  TruncateLower  TruncateUpper
+         type   loc dir                                                           
+         PGD    1   1    empirical      NaN      NaN            NaN            NaN
+                    3    empirical      NaN      NaN            NaN            NaN
+         SA_0.3 1   1    empirical      NaN      NaN            NaN            NaN
+         SA_1.0 1   1    empirical      NaN      NaN            NaN            NaN
+         PGA    1   1    empirical      NaN      NaN            NaN            NaN
+         
+         Calibrated demand model correlation matrix:
+         Empty DataFrame
+         Columns: []
+         Index: []
+         --------------------------------------------------------------------------------
+16:38:31 Generating sample from demand variables...
+         
+         5 random variables created.
+         
+         Correlations between 0 random variables successfully defined.
+         
+         Successfully generated 100 realizations.
+         --------------------------------------------------------------------------------
+         Preparing data ...
+         Converting units...
+         Unit conversion successful.
+         --------------------------------------------------------------------------------
+16:38:31 Loading demand data...
+         Converting units...
+         Unit conversion successful.
+         Data successfully loaded from file.
+         Removing whitespace from header...
+         Demand data successfully parsed.
+         Removing whitespace from header...
+         Demand units successfully parsed.
+         --------------------------------------------------------------------------------
+         Preparing data ...
+         Converting units...
+         Unit conversion successful.
+         --------------------------------------------------------------------------------
+16:38:31 Loading component model...
+         Unit conversion successful.
+         Data successfully loaded from file.
+         Model parameters successfully parsed. 3 performance groups identified
+         Converting model parameters to internal units...
+         Model parameters successfully loaded.
+         
+         Component model marginal distributions:
+                                Theta_0  Blocks Units
+         cmp       loc dir uid                       
+         HWB.GF    1   1   0        1.0       1    ea
+         HWB.GS.10 1   1   0        1.0       1    ea
+         collapse  0   1   0        1.0       1    ea
+         --------------------------------------------------------------------------------
+16:38:31 Generating sample from component quantity variables...
+         
+         3 random variables created.
+         
+         Successfully generated 100 realizations.
+         --------------------------------------------------------------------------------
+         Preparing data ...
+         Converting units...
+         Unit conversion successful.
+         Data successfully loaded from file.
+         --------------------------------------------------------------------------------
+16:38:31 Loading damage model...
+         Data successfully loaded from file.
+         Data successfully loaded from file.
+         Damage model parameters successfully parsed.
+         --------------------------------------------------------------------------------
+         Preparing data ...
+         Converting units...
+         Unit conversion successful.
+         --------------------------------------------------------------------------------
+16:38:31 Calculating damages...
+         Number of Performance Groups in Asset Model: 3
+         Number of Component Blocks: 3
+         1 batches of Performance Groups prepared for damage assessment
+16:38:31 Calculating damage for PG batch 1 with 3 blocks
+16:38:31 Generating capacity variables ...
+         2x7 random variables created.
+16:38:31 Sampling capacities...
+16:38:31 Raw samples are available
+16:38:31 Successfully generated 100 realizations.
+16:38:31 Collecting required demand information...
+16:38:31 Assembling demand data for calculation...
+16:38:31 Evaluating damage states...
+         Raw damage calculation successful.
+16:38:31 Applying damage processes...
+16:38:31 Applying task ('1_STR', {'DS5': 'collapse_DS1'})...
+         WARNING: Source component STR in the prescribed damage process not found among components in the damage sample. The corresponding part of the damage process is skipped.
+16:38:31 Applying task ('2_LF', {'DS5': 'collapse_DS1'})...
+         WARNING: Source component LF in the prescribed damage process not found among components in the damage sample. The corresponding part of the damage process is skipped.
+16:38:31 Applying task ('3_excessive.coll.DEM', {'DS1': 'collapse_DS1'})...
+         WARNING: Source component excessive.coll.DEM in the prescribed damage process not found among components in the damage sample. The corresponding part of the damage process is skipped.
+16:38:31 Applying task ('4_collapse', {'DS1': 'ALL_NA'})...
+         Damage process task successfully applied.
+16:38:31 Applying task ('5_excessiveRID', {'DS1': 'irreparable_DS1'})...
+         WARNING: Source component excessiveRID in the prescribed damage process not found among components in the damage sample. The corresponding part of the damage process is skipped.
+         Damage processes successfully applied.
+16:38:31 Calculating damage quantities...
+16:38:31 Damage calculation successfully completed.
+         --------------------------------------------------------------------------------
+16:38:31 Saving damage sample...
+         Preparing data ...
+         Converting units...
+         Unit conversion successful.
+         Data successfully loaded from file.
+         --------------------------------------------------------------------------------
+16:38:31 Saving damage sample...
+         Preparing data ...
+         Converting units...
+         Unit conversion successful.
+         --------------------------------------------------------------------------------
+16:38:31 Loading loss map for Repair...
+         Data successfully loaded from file.
+         Loss map successfully parsed.
+         --------------------------------------------------------------------------------
+16:38:31 Loading loss parameters for Repair...
+         Data successfully loaded from file.
+         Data successfully loaded from file.
+         Loss parameters successfully parsed.
+         --------------------------------------------------------------------------------
+16:38:31 Calculating losses...
+         
+         Aggregating damage quantities...
+         Successfully aggregated damage quantities.
+         
+         Calculating the median repair consequences...
+         Successfully determined median repair consequences.
+16:38:31 
+         Considering deviations from the median values to obtain random DV sample...
+         Preparing random variables for repair cost and time...
+         
+         0 random variables created.
+         
+         Successfully generated 100 realizations of deviation from the median consequences.
+         Successfully obtained DV sample.
+16:38:31 Loss calculation successful.
+         --------------------------------------------------------------------------------
+16:38:31 Aggregating repair consequences...
+         Preparing data ...
+         Converting units...
+         Unit conversion successful.
+16:38:31 Repair consequences successfully aggregated.
+         --------------------------------------------------------------------------------
+         Preparing data ...
+         Converting units...
+         Unit conversion successful.

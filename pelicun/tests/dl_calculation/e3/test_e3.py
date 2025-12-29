@@ -84,7 +84,7 @@ def test_dl_calculation_3(obtain_temp_dir: tuple[str, str]) -> None:
         output_path=None,
         coupled_edp=False,
         realizations=100,
-        auto_script_path='PelicunDefault/Hazus_Earthquake_Story.py',
+        auto_script_path='',
         detailed_results=False,
         output_format=None,
         custom_model_dir=None,

@@ -1,0 +1,277 @@
+{
+  "RandomVariables": [],
+  "GeneralInformation": {
+    "AIM_id": "4780",
+    "location": {
+      "latitude": 39.38333239,
+      "longitude": -74.40523101
+    },
+    "Latitude": 39.38333239,
+    "Longitude": -74.40523101,
+    "BldgID": "NJBF000073813",
+    "Address": "634 ALBERTA DRIVE",
+    "City": "Atlantic City",
+    "State": "NJ",
+    "OccupancyClass": "RES1",
+    "BuildingType": "Wood",
+    "UseCode": NaN,
+    "BldgClass": 33.0,
+    "DesignLevel": "NE",
+    "YearBuiltNJDEP": 1987,
+    "YearBuiltMODIV": 1987,
+    "NumberofStories0": 3102,
+    "NumberOfStories": 2,
+    "NoUnits": 1,
+    "PlanArea0": 4741.431883,
+    "PlanArea": 4741.431883,
+    "FoundationType": 3507,
+    "SplitLevel": false,
+    "ElevationR0": 29.12,
+    "ElevationR1": 43.83,
+    "FirstFloorHt0": 1,
+    "FirstFloorHt1": 2.27,
+    "FloodZone": "AE",
+    "DSWI": 114.86911,
+    "DSWII": 124.427528,
+    "DSWIII": 134.270416,
+    "DSWIV": 140.358428,
+    "WindZone": "I",
+    "AvgJanTemp": "above",
+    "RoofShape": "gab",
+    "RoofSlope": 0.0,
+    "RoofCover": 5701.0,
+    "RoofSystem": "trs",
+    "MeanRoofHt": 36.47298375,
+    "WindowArea": 0.0,
+    "Garage": "no",
+    "HazusClassW": NaN,
+    "HazusClassIN": NaN,
+    "HazusClassWA": NaN,
+    "AnalysisDefault": 1,
+    "AnalysisAdopted": 1,
+    "Modifications": NaN,
+    "z0": 0.03,
+    "structureType": "nav",
+    "replacementCost": 1,
+    "Footprint": "{\"type\":\"Feature\",\"geometry\":{\"type\":\"Polygon\",\"coordinates\":[[[-74.404981,39.383443],[-74.405052,39.383507],[-74.405464,39.383234],[-74.405394,39.383170],[-74.404981,39.383443]]]},\"properties\":{}}",
+    "units": {
+      "force": "kips",
+      "length": "ft",
+      "time": "sec"
+    },
+    "YearBuilt": 1987,
+    "V_ult": 124.427528,
+    "SheathingThickness": 1.0,
+    "LULC": -1,
+    "Terrain": -1,
+    "WoodZone": "I",
+    "NumberOfUnits": 1,
+    "FirstFloorElevation": 2.27,
+    "V_asd": 8.640400268506083,
+    "HazardProneRegion": true,
+    "WindBorneDebris": true,
+    "TerrainRoughness": 3,
+    "FloodRisk": true,
+    "SecondaryWaterResistance": true,
+    "RoofDeckAttachmentW": "8d",
+    "RoofToWallConnection": "tnail",
+    "Shutters": false,
+    "FloodType": "cvz",
+    "BasementType": "bn",
+    "PostFIRM": false
+  },
+  "DefaultValues": {
+    "driverFile": "driver",
+    "edpFiles": [
+      "EDP.json"
+    ],
+    "filenameDL": "BIM.json",
+    "filenameEDP": "EDP.json",
+    "filenameEVENT": "EVENT.json",
+    "filenameSAM": "SAM.json",
+    "filenameSIM": "SIM.json",
+    "rvFiles": [
+      "SAM.json",
+      "EVENT.json",
+      "SIM.json"
+    ],
+    "workflowInput": "scInput.json",
+    "workflowOutput": "EDP.json"
+  },
+  "commonFileDir": "/Users/jinyanzhao/Documents/R2D/LocalWorkDir/tmp.SimCenter/input_data",
+  "remoteAppDir": "/Users/jinyanzhao/Desktop/SimCenterBuild/SimCenterBackendApplications",
+  "localAppDir": "/Users/jinyanzhao/Desktop/SimCenterBuild/SimCenterBackendApplications",
+  "units": {
+    "force": "kips",
+    "length": "ft",
+    "time": "sec"
+  },
+  "outputs": {
+    "AIM": false,
+    "DM": true,
+    "DV": true,
+    "EDP": true,
+    "IM": false
+  },
+  "RegionalEvent": {
+    "eventFile": "EventGrid.csv",
+    "eventFilePath": "/Users/jinyanzhao/Desktop/SimCenterBuild/R2DExamples/E7HurricaneWindWater/input_data/IMs",
+    "units": {
+      "PIH": "ft",
+      "PWS": "mph"
+    }
+  },
+  "assetType": "Buildings",
+  "Applications": {
+    "Events": [
+      {
+        "Application": "SimCenterEvent",
+        "ApplicationData": {},
+        "EventClassification": "Earthquake"
+      }
+    ],
+    "Modeling": {
+      "Application": "None",
+      "ApplicationData": {}
+    },
+    "Simulation": {
+      "Application": "IMasEDP",
+      "ApplicationData": {}
+    },
+    "UQ": {
+      "Application": "None",
+      "ApplicationData": {}
+    },
+    "DL": {
+      "Application": "Pelicun3",
+      "ApplicationData": {
+        "DL_Method": "HAZUS MH HU",
+        "Realizations": 500,
+        "auto_script": "auto_HU_NJ.py",
+        "coupled_EDP": true,
+        "detailed_results": false,
+        "ground_failure": false,
+        "log_file": true,
+        "path_to_auto_script": "/Users/jinyanzhao/Desktop/SimCenterBuild/R2DExamples/E7HurricaneWindWater/input_data/auto_pop",
+        "regional": "true"
+      }
+    }
+  },
+  "Modeling": {},
+  "Simulation": {
+    "type": "IMasEDP"
+  },
+  "UQ": {},
+  "DL": {
+    "Asset": {
+      "ComponentAssignmentFile": "/Users/jinyanzhao/Documents/R2D/LocalWorkDir/tmp.SimCenter/Results/Buildings/4780/CMP_QNT.csv",
+      "ComponentDatabase": "Hazus Hurricane",
+      "NumberOfStories": "2",
+      "OccupancyType": "RES1",
+      "PlanArea": "4741.431883"
+    },
+    "Damage": {
+      "DamageProcess": "Hazus Hurricane"
+    },
+    "Demands": {
+      "DemandFilePath": "/Users/jinyanzhao/Documents/R2D/LocalWorkDir/tmp.SimCenter/Results/Buildings/4780/templatedir/response.csv",
+      "SampleSize": "500",
+      "CoupledDemands": true
+    },
+    "Losses": {
+      "BldgRepair": {
+        "ConsequenceDatabase": "Hazus Hurricane",
+        "MapApproach": "Automatic",
+        "DecisionVariables": {
+          "Cost": true,
+          "Carbon": false,
+          "Energy": false,
+          "Time": false
+        }
+      }
+    },
+    "Outputs": {
+      "Demand": {
+        "Sample": true,
+        "Statistics": false
+      },
+      "Asset": {
+        "Sample": true,
+        "Statistics": false
+      },
+      "Damage": {
+        "Sample": false,
+        "Statistics": false,
+        "GroupedSample": true,
+        "GroupedStatistics": true
+      },
+      "Loss": {
+        "Repair": {
+          "Sample": true,
+          "Statistics": true,
+          "GroupedSample": true,
+          "GroupedStatistics": false,
+          "AggregateSample": true,
+          "AggregateStatistics": true
+        }
+      },
+      "Format": {
+        "CSV": false,
+        "JSON": true
+      },
+      "Settings": {
+        "CondenseDS": true,
+        "SimpleIndexInJSON": true,
+        "AggregateColocatedComponentResults": true
+      }
+    }
+  },
+  "Events": [
+    {
+      "EventFolderPath": "/Users/jinyanzhao/Documents/R2D/LocalWorkDir/tmp.SimCenter/input_data",
+      "Events": [
+        [
+          "12042.csvx0x00000",
+          1.0
+        ],
+        [
+          "12042.csvx0x00001",
+          1.0
+        ],
+        [
+          "12045.csvx0x00002",
+          1.0
+        ],
+        [
+          "12042.csvx0x00003",
+          1.0
+        ],
+        [
+          "12043.csvx0x00004",
+          1.0
+        ],
+        [
+          "12043.csvx0x00005",
+          1.0
+        ],
+        [
+          "12042.csvx0x00006",
+          1.0
+        ],
+        [
+          "12045.csvx0x00007",
+          1.0
+        ],
+        [
+          "12043.csvx0x00008",
+          1.0
+        ],
+        [
+          "12043.csvx0x00009",
+          1.0
+        ]
+      ],
+      "type": "intensityMeasure"
+    }
+  ]
+}

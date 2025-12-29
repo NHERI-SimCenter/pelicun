@@ -213,9 +213,7 @@
               },
               "required": [
                 "DemandType",
-                "CapacityDistribution",
-                "CapacityMedian",
-                "Theta_1"
+                "CapacityMedian"
               ]
             },
             "DamageProcess": {
@@ -322,9 +320,7 @@
                   },
                   "required": [
                     "Unit",
-                    "Median",
-                    "Distribution",
-                    "Theta_1"
+                    "Median"
                   ]
                 },
                 "ReplacementCarbon": {
@@ -359,9 +355,7 @@
                   },
                   "required": [
                     "Unit",
-                    "Median",
-                    "Distribution",
-                    "Theta_1"
+                    "Median"
                   ]
                 },
                 "ReplacementTime": {
@@ -396,9 +390,7 @@
                   },
                   "required": [
                     "Unit",
-                    "Median",
-                    "Distribution",
-                    "Theta_1"
+                    "Median"
                   ]
                 },
                 "ReplacementCost": {
@@ -433,9 +425,7 @@
                   },
                   "required": [
                     "Unit",
-                    "Median",
-                    "Distribution",
-                    "Theta_1"
+                    "Median"
                   ]
                 }
               }

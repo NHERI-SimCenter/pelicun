@@ -1,0 +1,53 @@
+.. _changes_v3_6_0:
+
+==============================
+Version 3.6.0 (May 16, 2025)
+==============================
+
+Added
+-----
+
+**Enhanced DLML Resource Management**: Introduced a new flexible resource management system that separates method references from specific data files. This change makes it easier to extend the component library and maintain consistency across different component types. The update includes:
+
+- **Method-based Resource Access**: Users can now reference damage and loss methods (e.g., ``FEMA P-58``) separately from specific data files (e.g., ``fragility.csv``), providing greater flexibility in utilizing various files from the Damage and Loss Model Library
+- **Expanded Resource Categories**: Added more specific resource categories including separate paths for Hazus Hurricane variants (coupled, original).
+- **Sequential Auto-population Support**: Extended the auto module to support running multiple configuration (auto-population) scripts in sequence for complex assessment workflows, such as hurricane wind and storm surge.
+
+**Enhanced Hurricane Assessment Support**: Added comprehensive support for different Hazus Hurricane assessment variants:
+
+- **Hazus Hurricane Wind - Buildings - Coupled**: Support for wind assessments with coupled damage and loss models using fitted lognormal fragility functions.
+- **Hazus Hurricane Wind - Buildings - Original**: Support for original Hazus hurricane methodology using decoupled, multilinear CDF damage and multilinear loss models
+- **Hazus Hurricane Storm Surge - Buildings**: Support for storm surge damage assessments that leverage Hazus flood loss models (i.e., depth-to-damage functions)
+
+Changed
+-------
+
+**Separated Assessment Processes**: Introduced separate damage processes for Hazus EQ Lifeline and Regular Building assessments, improving modularity and allowing for more targeted infrastructure-specific evaluations.
+
+**DLML Resource Path Structure**: Restructured the damage and loss model library resource path system:
+
+- Replaced generic labels (e.g., ``HAZUS MH EQ IM``) with descriptive method names (e.g., ``Hazus Earthquake - Buildings``)
+- Updated infrastructure network naming from generic ``Water`` and ``Power`` to specific ``Potable Water`` and ``Electric Power``
+- Streamlined resource file structure to reduce redundancy and improve maintainability
+
+**Backwards Compatibility**: Implemented comprehensive backwards compatibility support:
+
+- Legacy filename references (e.g., ``damage_DB_FEMA_P58_2nd.csv``) are automatically converted to the new method+filename format
+- Users receive informative warnings when using deprecated filename formats
+- Compatibility checks consolidated in the ``substitute_default_path`` method in ``file_io`` for clarity
+
+Removed
+-------
+
+**Legacy Auto-population Files**: Removed three large legacy auto-population files that are no longer needed:
+
+- ``Hazus_Earthquake_CSM.py``
+- ``Hazus_Earthquake_IM.py``
+- ``Hazus_Earthquake_Story.py``
+
+Fixed
+-----
+
+**DL Configuration Bug**: Fixed a bug in DL_calculation where ``dl_method`` and corresponding folder paths were being queried unnecessarily, even when DL configuration was already present in the config file.
+
+**DLML Submodule Updates**: Updated the DLML submodule references to ensure access to the latest damage and loss model data and maintain synchronization with the updated resource path structure.

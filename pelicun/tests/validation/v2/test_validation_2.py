@@ -179,7 +179,7 @@ def test_combined_workflow() -> None:
     asmnt.damage.load_model_parameters(
         [
             damage_db,  # type: ignore
-            'PelicunDefault/damage_DB_FEMA_P58_2nd.csv',
+            'PelicunDefault/FEMA P-58/fragility.csv',
         ],
         cmp_set,
     )
@@ -220,7 +220,7 @@ def test_combined_workflow() -> None:
             [
                 consequences,  # type: ignore
                 loss_functions,  # type: ignore
-                'PelicunDefault/loss_repair_DB_FEMA_P58_2nd.csv',
+                'PelicunDefault/FEMA P-58/consequence_repair.csv',
             ]
         )
 

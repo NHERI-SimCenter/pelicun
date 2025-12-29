@@ -147,7 +147,7 @@ def test_save_to_csv() -> None:
 )
 def test_substitute_default_path() -> None:
     input_paths: list[str | pd.DataFrame] = [
-        'PelicunDefault/damage_DB_FEMA_P58_2nd.csv',
+        'PelicunDefault/FEMA P-58/fragility.csv',
         '/data/file2.txt',
     ]
     result_paths = file_io.substitute_default_path(input_paths)
