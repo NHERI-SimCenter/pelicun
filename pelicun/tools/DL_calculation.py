@@ -919,6 +919,23 @@ def _parse_config_file(  # noqa: C901, PLR0912
         msg = 'No method is specified in residual drift inference configuration.'
         raise PelicunInvalidConfigError(msg)
 
+    if get(config, 'DL/Demands/InferResidualDrift/method', default=None) == (
+        'trilinear_weibull'
+    ):
+        if is_unspecified(config, 'DL/Demands/InferResidualDrift/model_parameters'):
+            msg = (
+                '`DL/Demands/InferResidualDrift/model_parameters` must be '
+                'specified when using `trilinear_weibull`.'
+            )
+            raise PelicunInvalidConfigError(msg)
+
+        if is_unspecified(config, 'DL/Demands/InferResidualDrift/training_data'):
+            msg = (
+                '`DL/Demands/InferResidualDrift/training_data` must be '
+                'specified when using `trilinear_weibull` from the command line.'
+            )
+            raise PelicunInvalidConfigError(msg)
+
     # Ensure `DL/Damage/CollapseFragility` contains all required keys.
     if is_specified(config, 'DL/Damage/CollapseFragility'):
         if is_unspecified(

@@ -42,10 +42,13 @@
 
 from __future__ import annotations
 
+import warnings
 import re
 from collections import defaultdict
 from pathlib import Path
 from typing import TYPE_CHECKING, overload
+
+from scipy.stats import norm
 
 import numexpr as ne
 import numpy as np
@@ -53,6 +56,10 @@ import pandas as pd
 
 from pelicun import base, file_io, uq
 from pelicun.model.pelicun_model import PelicunModel
+from pelicun.tools.residual_drift_trilinear_weibull import (
+    ResidualDriftTrilinearWeibullModel,
+)
+from pelicun.pelicun_warnings import PelicunWarning
 
 if TYPE_CHECKING:
     from pelicun.assessment import AssessmentBase
@@ -99,6 +106,8 @@ class DemandModel(PelicunModel):
         'correlation',
         'empirical_data',
         'marginal_params',
+        'residual_drift_model',
+        'residual_drift_model_config',
         'sample',
         'user_units',
     ]
@@ -123,6 +132,9 @@ class DemandModel(PelicunModel):
 
         self._RVs: uq.RandomVariableRegistry | None = None
         self.sample: pd.DataFrame | None = None
+
+        self.residual_drift_model: ResidualDriftTrilinearWeibullModel | None = None
+        self.residual_drift_model_config: dict | None = None
 
     @overload
     def save_sample(
@@ -321,6 +333,239 @@ class DemandModel(PelicunModel):
 
         self.log.msg('Demand units successfully parsed.', prepend_timestamp=False)
 
+    def clear_residual_drift_model(self) -> None:
+        """Remove any stored residual drift model."""
+        self.residual_drift_model = None
+        self.residual_drift_model_config = None
+
+    def set_residual_drift_model(
+        self,
+        rid_model: ResidualDriftTrilinearWeibullModel,
+        *,
+        config: dict | None = None,
+    ) -> None:
+        """Store a fitted residual drift model for reuse."""
+        self.residual_drift_model = rid_model
+        self.residual_drift_model_config = None if config is None else config.copy()
+
+    def _load_residual_drift_training_data(
+        self,
+        training_data: str | Path | pd.DataFrame,
+    ) -> pd.DataFrame:
+        """Load structural analysis data used to fit the RID model."""
+        if isinstance(training_data, pd.DataFrame):
+            required_cols = {'PID', 'RID'}
+            if not required_cols.issubset(training_data.columns):
+                msg = 'training_data must contain PID and RID columns'
+                raise ValueError(msg)
+            return training_data.copy()
+
+        training_path = Path(training_data)
+
+        if training_path.suffix.lower() == '.parquet':
+            data = pd.read_parquet(training_path)
+        else:
+            data = file_io.load_data(
+                training_path,
+                self._asmnt.unit_conversion_factors,
+                reindex=False,
+                log=self._asmnt.log,
+            )
+
+        assert isinstance(data, pd.DataFrame)
+        return data
+
+    def fit_residual_drift_model(
+        self,
+        training_data: str | Path | pd.DataFrame,
+        config: dict,
+        *,
+        force: bool = False,
+    ) -> ResidualDriftTrilinearWeibullModel:
+        """
+        Fit and store a trilinear Weibull residual drift model.
+        """
+        if (
+            self.residual_drift_model is not None
+            and not force
+            and self.residual_drift_model_config == config
+        ):
+            return self.residual_drift_model
+
+        data = self._load_residual_drift_training_data(training_data)
+
+        rid_model = ResidualDriftTrilinearWeibullModel(config)
+        rid_model.fit(data)
+
+        self.residual_drift_model = rid_model
+        self.residual_drift_model_config = config.copy()
+
+        return rid_model
+
+    def estimate_RID_trilinear_weibull(  # noqa: N802
+        self,
+        pid: pd.DataFrame,
+        *,
+        model: ResidualDriftTrilinearWeibullModel | None = None,
+        training_data: str | Path | pd.DataFrame | None = None,
+        model_config: dict | None = None,
+        force_fit: bool = False,
+    ) -> pd.DataFrame:
+        """
+        Estimate RID using the trilinear Weibull model.
+        """
+        if model is not None:
+            rid_model = model
+            self.set_residual_drift_model(model, config=model_config)
+
+        elif self.residual_drift_model is not None and not force_fit:
+            rid_model = self.residual_drift_model
+
+        else:
+            if training_data is None:
+                msg = (
+                    'No fitted residual drift model is available and no '
+                    'training data were provided.'
+                )
+                raise ValueError(msg)
+
+            if model_config is None:
+                msg = 'A trilinear Weibull model configuration is required.'
+                raise ValueError(msg)
+
+            rid_model = self.fit_residual_drift_model(
+                training_data,
+                model_config,
+                force=force_fit,
+            )
+
+        if rid_model.approach != 'max_max':
+            return rid_model.sample(pid, rng=self._asmnt.options.rng)
+
+        rid_by_dir = []
+        dir_level = pid.columns.names.index('dir')
+
+        for direction in pd.Index(pid.columns.get_level_values('dir')).unique():
+            mask = [str(col[dir_level]) == str(direction) for col in pid.columns]
+            pid_dir = pid.loc[:, mask]
+
+            rid_dir = rid_model.sample(pid_dir, rng=self._asmnt.options.rng)
+            rid_by_dir.append(rid_dir)
+
+        rid = pd.concat(rid_by_dir, axis=1)
+        rid = rid.sort_index(axis=1)
+        return rid
+
+    def infer_residual_drift(self, configuration: dict) -> None:
+        """
+        Infer residual drift and append it to the demand sample.
+        """
+        method = configuration['method']
+
+        if method in {'FEMA P58', 'FEMA P-58'}:
+            params = configuration.get('params', {})
+            self.estimate_RID_and_adjust_sample(params=params, method=method)
+            return
+
+        if method != 'trilinear_weibull':
+            msg = f'Invalid residual drift inference method: `{method}`.'
+            raise ValueError(msg)
+
+        if self.sample is None:
+            msg = 'Demand model does not have a sample yet.'
+            raise ValueError(msg)
+
+        sample_tuple = self.save_sample(save_units=True)
+        assert isinstance(sample_tuple, tuple)
+        demand_sample, demand_units = sample_tuple
+        assert isinstance(demand_sample, pd.DataFrame)
+        assert isinstance(demand_units, pd.Series)
+
+        pid = demand_sample['PID']
+
+        rid = self.estimate_RID_trilinear_weibull(
+            pid,
+            model=configuration.get('model'),
+            training_data=configuration.get('training_data'),
+            model_config=configuration.get('model_parameters'),
+            force_fit=configuration.get('force_fit', False),
+        )
+
+        rid_units = pd.Series('unitless', index=rid.columns)
+        demand_sample_ext = pd.concat([demand_sample, rid], axis=1)
+        units_ext = pd.concat([demand_units, rid_units])
+        demand_sample_ext.loc['Units', :] = units_ext
+        self.load_sample(demand_sample_ext)
+
+    def estimate_RID_fema_p58(  # noqa: N802
+        self,
+        demands: pd.DataFrame | pd.Series,
+        *,
+        yield_drift: float,
+    ) -> pd.DataFrame:
+        """
+        Estimate residual inter-story drift (RID) using FEMA P-58.
+
+        Parameters
+        ----------
+        demands: DataFrame or Series
+            Peak inter-story drift (PID) realizations for the
+            location-direction pairs of interest.
+        yield_drift: float
+            Yield drift used by the FEMA P-58 residual drift inference
+            rules.
+
+        Returns
+        -------
+        DataFrame
+            Residual inter-story drift realizations indexed like the
+            input and labeled as RID.
+
+        Notes
+        -----
+        The FEMA P-58 estimation approach divides the drift into three
+        domains, with different transformation rules for each.
+        Additional stochastic variation is introduced to nonzero RID
+        values to model the inherent uncertainty. The method ensures
+        that the RID values do not exceed the corresponding PID values.
+
+        """
+        # method is described in FEMA P-58 Volume 1 Section 5.4 &
+        # Appendix C
+
+        pid = demands
+
+        # three subdomains of demands are identified
+        small = yield_drift > pid
+        medium = 4 * yield_drift > pid
+        large = 4 * yield_drift <= pid
+
+        # convert PID to RID in each subdomain
+        rid = pid.copy()
+        rid[large] = pid[large] - 3 * yield_drift
+        rid[medium] = 0.3 * (pid[medium] - yield_drift)
+        rid[small] = 0.0
+
+        # add extra uncertainty to nonzero values
+        rng = self._asmnt.options.rng
+        eps = rng.normal(scale=0.2, size=rid.shape)
+        rid[rid > 0] = np.exp(np.log(rid[rid > 0]) + eps)  # type: ignore
+
+        # finally, make sure the RID values are never larger than the PIDs
+        rid = pd.DataFrame(
+            np.minimum(pid.values, rid.values),  # type: ignore
+            columns=pd.DataFrame(  # noqa: PD013
+                1,
+                index=['RID'],
+                columns=pid.columns,
+            )
+            .stack(level=[0, 1])
+            .index,
+            index=pid.index,
+        )
+
+        return rid
+
     def estimate_RID(  # noqa: N802
         self,
         demands: pd.DataFrame | pd.Series,
@@ -330,126 +575,55 @@ class DemandModel(PelicunModel):
         """
         Estimate residual inter-story drift (RID).
 
-        Estimates residual inter-story drift (RID) realizations based
-        on peak inter-story drift (PID) and other demand parameters
-        using specified methods.
-
-        This method calculates RID based on the peak inter-story drift
-        provided in the demands DataFrame and parameters such as yield
-        drift specified in the params dictionary. The calculation
-        adheres to the FEMA P-58 methodology, which includes
-        conditions for different ranges of drift.
+        This method is kept for backwards compatibility. New code should
+        call the method-specific RID estimation routines directly.
 
         Parameters
         ----------
-        demands: DataFrame
-            A DataFrame containing samples of demands, specifically
-            peak inter-story drift (PID) values for various
-            location-direction pairs required for the estimation
-            method.
+        demands: DataFrame or Series
+            Peak inter-story drift (PID) realizations for the
+            location-direction pairs of interest.
         params: dict
-            A dictionary containing parameters required for the
-            estimation method, such as 'yield_drift', which is the
-            drift at which yielding is expected to occur.
+            Dictionary containing the parameters required by the selected
+            inference method.
         method: str, optional
-            The method used to estimate the RID values. Currently,
-            only 'FEMA P58' is implemented. Defaults to 'FEMA P58'.
+            RID inference method. Supported values are `FEMA P58`,
+            `FEMA P-58`, and `trilinear_weibull`.
 
         Returns
         -------
         DataFrame
-            A DataFrame containing the estimated residual inter-story
-            drift (RID) realizations, indexed and structured similarly
-            to the input demands DataFrame.
+            Residual inter-story drift realizations indexed like the
+            input and labeled as RID.
 
         Raises
         ------
         ValueError
-            Raises a ValueError if an unrecognized method is provided
-            or required parameters are missing in the `params`
-            dictionary.
-
-        Notes
-        -----
-        The FEMA P-58 estimation approach divides the drift into three
-        domains, with different transformation rules for
-        each. Additional stochastic variation is introduced to nonzero
-        RID values to model the inherent uncertainty. The method
-        ensures that the RID values do not exceed the corresponding
-        PID values.
+            If an invalid method is specified.
 
         """
+        warnings.warn(
+            '`DemandModel.estimate_RID` is deprecated and will be removed in '
+            'a future release. Use `estimate_RID_fema_p58` or '
+            '`estimate_RID_trilinear_weibull` instead.',
+            PelicunWarning,
+            stacklevel=2,
+        )
+
         if method in {'FEMA P58', 'FEMA P-58'}:
-            # method is described in FEMA P-58 Volume 1 Section 5.4 &
-            # Appendix C
-
-            # the provided demands shall be PID values at various
-            # loc-dir pairs
-            pid = demands
-
-            # there's only one parameter needed: the yield drift
-            yield_drift = params['yield_drift']
-
-            # three subdomains of demands are identified
-            small = yield_drift > pid
-            medium = 4 * yield_drift > pid
-            large = 4 * yield_drift <= pid
-
-            # convert PID to RID in each subdomain
-            rid = pid.copy()
-            rid[large] = pid[large] - 3 * yield_drift
-            rid[medium] = 0.3 * (pid[medium] - yield_drift)
-            rid[small] = 0.0
-
-            # add extra uncertainty to nonzero values
-            rng = self._asmnt.options.rng
-            eps = rng.normal(scale=0.2, size=rid.shape)
-            rid[rid > 0] = np.exp(np.log(rid[rid > 0]) + eps)  # type: ignore
-
-            # finally, make sure the RID values are never larger than
-            # the PIDs
-            rid = pd.DataFrame(
-                np.minimum(pid.values, rid.values),  # type: ignore
-                columns=pd.DataFrame(  # noqa: PD013
-                    1,
-                    index=['RID'],
-                    columns=pid.columns,
-                )
-                .stack(level=[0, 1])
-                .index,
-                index=pid.index,
+            return self.estimate_RID_fema_p58(
+                demands,
+                yield_drift=float(params['yield_drift']),
             )
 
-        else:
-            msg = f'Invalid method: `{method}`.'
-            raise ValueError(msg)
-
-        return rid
+        msg = f'Invalid method: `{method}`.'
+        raise ValueError(msg)
 
     def estimate_RID_and_adjust_sample(  # noqa: N802
         self, params: dict, method: str = 'FEMA P58'
     ) -> None:
         """
-        Estimate residual inter-story drift (RID) and modifies sample.
-
-        Uses `self.estimate_RID` and adjusts the demand sample.
-        See the docstring of the `estimate_RID` method for details.
-
-        Parameters
-        ----------
-        params: dict
-            A dictionary containing parameters required for the
-            estimation method, such as 'yield_drift', which is the
-            drift at which yielding is expected to occur.
-        method: str, optional
-            The method used to estimate the RID values. Currently,
-            only 'FEMA P58' is implemented. Defaults to 'FEMA P58'.
-
-        Raises
-        ------
-        ValueError
-            If the method is called before a sample is generated.
-
+        Estimate residual inter-story drift (RID) and modify the sample.
         """
         if self.sample is None:
             msg = 'Demand model does not have a sample yet.'
@@ -460,8 +634,10 @@ class DemandModel(PelicunModel):
         demand_sample, demand_units = sample_tuple
         assert isinstance(demand_sample, pd.DataFrame)
         assert isinstance(demand_units, pd.Series)
+
         pid = demand_sample['PID']
         rid = self.estimate_RID(pid, params, method)
+
         rid_units = pd.Series('unitless', index=rid.columns)
         demand_sample_ext = pd.concat([demand_sample, rid], axis=1)
         units_ext = pd.concat([demand_units, rid_units])
