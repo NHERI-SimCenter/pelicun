@@ -799,8 +799,8 @@ class DamageModel_DS(DamageModel_Base):
             performance_group = component_blocks.loc[pgb_i]
 
             self.log.msg(
-                f"Calculating damage states for PG batch {pgb_i} with "
-                f"{int(performance_group['Blocks'].sum())} blocks"
+                f'Calculating damage states for PG batch {pgb_i} with '
+                f'{int(performance_group["Blocks"].sum())} blocks'
             )
 
             # Generate an array with component capacities for each block and

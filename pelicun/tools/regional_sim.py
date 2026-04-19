@@ -857,14 +857,14 @@ def regional_sim(config_file: str, num_cores: int | None = None) -> None:  # noq
     # and the corresponding site files.
 
     event_data_folder = config['RegionalEvent']['eventFilePath']
-    event_grid_path = f"{event_data_folder}/{config['RegionalEvent']['eventFile']}"
+    event_grid_path = f'{event_data_folder}/{config["RegionalEvent"]["eventFile"]}'
 
     grid_points = pd.read_csv(event_grid_path)
 
     grid_point_data_array = []
 
     # Sample first grid file to verify IM types exist
-    first_grid_file = f"{event_data_folder}/{grid_points['GP_file'].iloc[0]}"
+    first_grid_file = f'{event_data_folder}/{grid_points["GP_file"].iloc[0]}'
     first_grid_data = pd.read_csv(first_grid_file)
 
     # Validate that all required IM types are present in the grid data
@@ -903,7 +903,7 @@ def regional_sim(config_file: str, num_cores: int | None = None) -> None:  # noq
     bldg_data_folder = config['Applications']['Assets']['Buildings'][
         'ApplicationData'
     ]['pathToSource']
-    bldg_data_path = f"{bldg_data_folder}/{config['Applications']['Assets']['Buildings']['ApplicationData']['assetSourceFile']}"
+    bldg_data_path = f'{bldg_data_folder}/{config["Applications"]["Assets"]["Buildings"]["ApplicationData"]["assetSourceFile"]}'
 
     bldg_df = pd.read_csv(bldg_data_path, index_col=0)
 

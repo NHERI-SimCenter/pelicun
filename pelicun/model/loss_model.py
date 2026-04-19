@@ -65,7 +65,6 @@ from pelicun.model.demand_model import _verify_edps_available
 from pelicun import base
 from pelicun import uq
 from pelicun import file_io
-from pelicun.warnings import PelicunInputDomainError
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -1046,7 +1045,7 @@ class LossModel(PelicunModel):
         # triggered, we need to assign a consequence for all DVs.
         for key in self.decision_variables:
             if key not in replacement_consequence_rv_reg.RV:
-                msg = f'Missing replacement consequence RV ' f'for `{key}`.'
+                msg = f'Missing replacement consequence RV for `{key}`.'
                 raise ValueError(msg)
 
     def _apply_loss_combinations(
@@ -2421,9 +2420,7 @@ class RepairModel_DS(RepairModel_Base):
                     if (not pd.isna(family)) and (
                         family not in {'normal', 'lognormal', 'deterministic'}
                     ):
-                        msg = (
-                            f'Loss Distribution of type {family} ' f'not supported.'
-                        )
+                        msg = f'Loss Distribution of type {family} not supported.'
                         raise ValueError(msg)
 
                     # If theta_0 is a scalar
@@ -2771,7 +2768,7 @@ class RepairModel_LF(RepairModel_Base):
             try:
                 median_loss = base.stringterpolation(loss_function_str)(edp_values)
             except ValueError as exc:
-                raise PelicunInputDomainError(
+                raise ValueError(
                     f'Loss function interpolation for consequence '
                     f'`{consequence}-{decision_variable}` has failed. '
                     f'Ensure a sufficient interpolation domain  '

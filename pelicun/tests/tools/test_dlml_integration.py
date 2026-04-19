@@ -474,7 +474,7 @@ file3.txt"""
     txt_files = len(list(tmp_path.glob('*.txt')))
     assert (
         txt_files == 4
-    ), f"Expected 4 .txt files, got {txt_files}: {list(tmp_path.glob('*.txt'))}"
+    ), f'Expected 4 .txt files, got {txt_files}: {list(tmp_path.glob("*.txt"))}'
 
 
 # --- Integration Tests ---

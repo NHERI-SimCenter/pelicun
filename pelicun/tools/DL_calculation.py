@@ -92,10 +92,7 @@ def log_msg(msg: str, color_codes: tuple[str, str] | None = None) -> None:
     if color_codes:
         cpref, csuff = color_codes
         print(  # noqa: T201
-            f'{strftime("%Y-%m-%dT%H:%M:%SZ", gmtime())} '
-            f'{cpref}'
-            f'{msg}'
-            f'{csuff}'
+            f'{strftime("%Y-%m-%dT%H:%M:%SZ", gmtime())} {cpref}{msg}{csuff}'
         )
     else:
         print(f'{strftime("%Y-%m-%dT%H:%M:%SZ", gmtime())} {msg}')  # noqa: T201
@@ -710,8 +707,8 @@ def _parse_config_file(  # noqa: C901, PLR0912
                     config_ap,
                     'DL/Asset/ComponentDatabase',
                     (
-                        f"{get(config_ap, 'DL/Asset/ComponentDatabase')},"
-                        f"{get(config_ap_i, 'DL/Asset/ComponentDatabase')}"
+                        f'{get(config_ap, "DL/Asset/ComponentDatabase")},'
+                        f'{get(config_ap_i, "DL/Asset/ComponentDatabase")}'
                     ),
                 )
 
@@ -719,8 +716,8 @@ def _parse_config_file(  # noqa: C901, PLR0912
                     config_ap,
                     'DL/Losses/Repair/ConsequenceDatabase',
                     (
-                        f"{get(config_ap, 'DL/Losses/Repair/ConsequenceDatabase')},"
-                        f"{get(config_ap_i, 'DL/Losses/Repair/ConsequenceDatabase')}"
+                        f'{get(config_ap, "DL/Losses/Repair/ConsequenceDatabase")},'
+                        f'{get(config_ap_i, "DL/Losses/Repair/ConsequenceDatabase")}'
                     ),
                 )
 

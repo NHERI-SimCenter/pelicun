@@ -87,10 +87,7 @@ def reset_all_test_data(*, restore: bool = True, purge: bool = False) -> None:  
     """
     cwd = Path.cwd()
     if cwd != 'pelicun':
-        msg = (
-            'Wrong directory. '
-            'See the docstring of `reset_all_test_data`. Aborting'
-        )
+        msg = 'Wrong directory. See the docstring of `reset_all_test_data`. Aborting'
         raise OSError(msg)
 
     # where the test result data are stored

@@ -40,8 +40,8 @@ class LatestCitationDirective(Directive):  # noqa: D101
         citation_text = f'{author_str} ({year}) {title}. DOI:{doi}'
 
         # BibTeX citation
-        bibtex_text = f"""@software{{{author_str.replace(" ", "_").replace(",", "").replace("_and_", "_").lower()}_{year}_{doi.split('.')[-1]},
-  author       = {{{" and ".join(authors)}}},
+        bibtex_text = f"""@software{{{author_str.replace(' ', '_').replace(',', '').replace('_and_', '_').lower()}_{year}_{doi.split('.')[-1]},
+  author       = {{{' and '.join(authors)}}},
   title        = {{{title}}},
   year         = {year},
   publisher    = {{{publisher}}},
