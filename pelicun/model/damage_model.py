@@ -35,7 +35,7 @@
 #
 # Contributors:
 # Adam Zsarnóczay
-# John Vouvakis Manousakis
+# Ioannis Vouvakis Manousakis
 
 
 """DamageModel object and methods."""

@@ -35,7 +35,7 @@
 #
 # Contributors:
 # Adam Zsarnóczay
-# John Vouvakis Manousakis
+# Ioannis Vouvakis Manousakis
 
 
 """Classes and methods that control the performance assessment."""

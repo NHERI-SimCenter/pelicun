@@ -35,7 +35,7 @@
 #
 # Contributors:
 # Adam Zsarnóczay
-# John Vouvakis Manousakis
+# Ioannis Vouvakis Manousakis
 
 
 """Constants, basic classes, and methods for pelicun."""

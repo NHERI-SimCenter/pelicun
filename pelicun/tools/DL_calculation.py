@@ -35,7 +35,7 @@
 #
 # Contributors:
 # Adam Zsarnóczay
-# John Vouvakis Manousakis
+# Ioannis Vouvakis Manousakis
 
 """Main functionality to run a pelicun calculation from the command line."""
 

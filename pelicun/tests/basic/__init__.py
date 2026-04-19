@@ -34,7 +34,7 @@
 #
 # Contributors:
 # Adam Zsarnóczay
-# John Vouvakis Manousakis
+# Ioannis Vouvakis Manousakis
 
 """
 This module defines pelicun warning classes and relevant methods

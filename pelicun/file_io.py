@@ -37,7 +37,7 @@
 # Adam Zsarnóczay
 # Pouria Kourehpaz
 # Kuanshi Zhong
-# John Vouvakis Manousakis
+# Ioannis Vouvakis Manousakis
 
 """Classes and methods that handle file input and output."""
 
