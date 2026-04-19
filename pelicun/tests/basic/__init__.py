@@ -31,3 +31,48 @@
 #
 # You should have received a copy of the BSD 3-Clause License along with
 # pelicun. If not, see <http://www.opensource.org/licenses/>.
+#
+# Contributors:
+# Adam Zsarnóczay
+# Ioannis Vouvakis Manousakis
+
+"""
+This module defines pelicun warning classes and relevant methods
+
+"""
+
+from __future__ import annotations
+
+
+class PelicunWarning(Warning):
+    """Custom warning for specific use in the Pelicun project."""
+
+
+class PelicunInvalidConfigError(Exception):
+    """
+    Exception raised for errors in the configuration of Pelicun.
+
+    Attributes
+    ----------
+    message : str
+        Explanation of the error.
+    """
+
+    def __init__(self, message='Invalid options in configuration file.'):
+        self.message = message
+        super().__init__(self.message)
+
+
+class PelicunInputDomainError(Exception):
+    """
+    Exception raised for errors related to the domain of inputs.
+
+    Attributes
+    ----------
+    message : str
+        Explanation of the error.
+    """
+
+    def __init__(self, message='Invalid input domain.'):
+        self.message = message
+        super().__init__(self.message)

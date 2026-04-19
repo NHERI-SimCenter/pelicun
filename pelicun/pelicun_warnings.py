@@ -77,7 +77,7 @@ class InconsistentUnitsError(Exception):
         self.message: str
 
         if file:
-            self.message = f'{self.message}\n' f'File: {file}'
+            self.message = f'{self.message}\nFile: {file}'
         else:
             self.message = message
         super().__init__(self.message)

@@ -35,7 +35,7 @@
 #
 # Contributors:
 # Adam Zsarnóczay
-# John Vouvakis Manousakis
+# Ioannis Vouvakis Manousakis
 
 """These are unit and integration tests on the file_io module of pelicun."""
 
@@ -72,7 +72,7 @@ def test_save_to_csv() -> None:
         with Path(filepath).open(encoding='utf-8') as f:
             contents = f.read()
             assert contents == (
-                ',A,B\n0,meters,meters\n0,1.0,4.0' '\n1,2.0,5.0\n2,3.0,6.0\n'
+                ',A,B\n0,meters,meters\n0,1.0,4.0\n1,2.0,5.0\n2,3.0,6.0\n'
             )
 
     # Test saving with orientation 1
@@ -91,7 +91,7 @@ def test_save_to_csv() -> None:
         with Path(filepath).open(encoding='utf-8') as f:
             contents = f.read()
             assert contents == (
-                ',0,A,B\n0,,0.001,0.004\n1,,0.002,' '0.005\n2,,0.003,0.006\n'
+                ',0,A,B\n0,,0.001,0.004\n1,,0.002,0.005\n2,,0.003,0.006\n'
             )
 
     #
@@ -103,10 +103,13 @@ def test_save_to_csv() -> None:
 
     # units given, without unit conversion factors
     filepath = Path(tmpdir) / 'foo.csv'
-    with pytest.raises(
-        ValueError,
-        match='When `units` is not None, `unit_conversion_factors` must be provided.',
-    ), tempfile.TemporaryDirectory() as tmpdir:
+    with (
+        pytest.raises(
+            ValueError,
+            match='When `units` is not None, `unit_conversion_factors` must be provided.',
+        ),
+        tempfile.TemporaryDirectory() as tmpdir,
+    ):
         file_io.save_to_csv(
             data, filepath, units, unit_conversion_factors=None, orientation=0
         )
@@ -115,10 +118,13 @@ def test_save_to_csv() -> None:
 
     # not csv extension
     filepath = Path(tmpdir) / 'foo.xyz'
-    with pytest.raises(
-        ValueError,
-        match=('Please use the `.csv` file extension. Received file name is '),
-    ), tempfile.TemporaryDirectory() as tmpdir:
+    with (
+        pytest.raises(
+            ValueError,
+            match=('Please use the `.csv` file extension. Received file name is '),
+        ),
+        tempfile.TemporaryDirectory() as tmpdir,
+    ):
         file_io.save_to_csv(
             data, filepath, units, unit_conversion_factors, orientation=0
         )

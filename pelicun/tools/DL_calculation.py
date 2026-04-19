@@ -35,7 +35,7 @@
 #
 # Contributors:
 # Adam Zsarnóczay
-# John Vouvakis Manousakis
+# Ioannis Vouvakis Manousakis
 
 """Main functionality to run a pelicun calculation from the command line."""
 
@@ -92,10 +92,7 @@ def log_msg(msg: str, color_codes: tuple[str, str] | None = None) -> None:
     if color_codes:
         cpref, csuff = color_codes
         print(  # noqa: T201
-            f'{strftime("%Y-%m-%dT%H:%M:%SZ", gmtime())} '
-            f'{cpref}'
-            f'{msg}'
-            f'{csuff}'
+            f'{strftime("%Y-%m-%dT%H:%M:%SZ", gmtime())} {cpref}{msg}{csuff}'
         )
     else:
         print(f'{strftime("%Y-%m-%dT%H:%M:%SZ", gmtime())} {msg}')  # noqa: T201
@@ -710,8 +707,8 @@ def _parse_config_file(  # noqa: C901, PLR0912
                     config_ap,
                     'DL/Asset/ComponentDatabase',
                     (
-                        f"{get(config_ap, 'DL/Asset/ComponentDatabase')},"
-                        f"{get(config_ap_i, 'DL/Asset/ComponentDatabase')}"
+                        f'{get(config_ap, "DL/Asset/ComponentDatabase")},'
+                        f'{get(config_ap_i, "DL/Asset/ComponentDatabase")}'
                     ),
                 )
 
@@ -719,8 +716,8 @@ def _parse_config_file(  # noqa: C901, PLR0912
                     config_ap,
                     'DL/Losses/Repair/ConsequenceDatabase',
                     (
-                        f"{get(config_ap, 'DL/Losses/Repair/ConsequenceDatabase')},"
-                        f"{get(config_ap_i, 'DL/Losses/Repair/ConsequenceDatabase')}"
+                        f'{get(config_ap, "DL/Losses/Repair/ConsequenceDatabase")},'
+                        f'{get(config_ap_i, "DL/Losses/Repair/ConsequenceDatabase")}'
                     ),
                 )
 
@@ -921,6 +918,23 @@ def _parse_config_file(  # noqa: C901, PLR0912
     ):
         msg = 'No method is specified in residual drift inference configuration.'
         raise PelicunInvalidConfigError(msg)
+
+    if get(config, 'DL/Demands/InferResidualDrift/method', default=None) == (
+        'trilinear_weibull'
+    ):
+        if is_unspecified(config, 'DL/Demands/InferResidualDrift/model_parameters'):
+            msg = (
+                '`DL/Demands/InferResidualDrift/model_parameters` must be '
+                'specified when using `trilinear_weibull`.'
+            )
+            raise PelicunInvalidConfigError(msg)
+
+        if is_unspecified(config, 'DL/Demands/InferResidualDrift/training_data'):
+            msg = (
+                '`DL/Demands/InferResidualDrift/training_data` must be '
+                'specified when using `trilinear_weibull` from the command line.'
+            )
+            raise PelicunInvalidConfigError(msg)
 
     # Ensure `DL/Damage/CollapseFragility` contains all required keys.
     if is_specified(config, 'DL/Damage/CollapseFragility'):

@@ -35,7 +35,7 @@
 #
 # Contributors:
 # Adam Zsarnóczay
-# John Vouvakis Manousakis
+# Ioannis Vouvakis Manousakis
 
 
 """Classes and methods that control the performance assessment."""
@@ -729,41 +729,7 @@ class DLCalculationAssessment(AssessmentBase):
 
         # get residual drift estimates, if needed
         if residual_drift_inference:
-            # `method` is guaranteed to exist because it is confirmed when
-            # parsing the configuration file.
-            rid_inference_method = residual_drift_inference.pop('method')
-
-            if rid_inference_method == 'FEMA P-58':
-                rid_list: list[pd.DataFrame] = []
-                pid = demand_sample['PID'].copy()
-                pid = pid.drop('Units')
-                pid = pid.astype(float)
-
-                for direction, delta_yield in residual_drift_inference.items():
-                    pids = pid.loc[:, idx[:, direction]]  # type: ignore
-                    assert isinstance(pids, pd.DataFrame)
-                    rid = self.demand.estimate_RID(
-                        pids,
-                        {'yield_drift': float(delta_yield)},
-                    )
-
-                    rid_list.append(rid)
-
-                rid = pd.concat(rid_list, axis=1)
-                rid_units = pd.Series(
-                    ['unitless'] * rid.shape[1],
-                    index=rid.columns,
-                    name='Units',
-                )
-                rid_sample = pd.concat([rid, rid_units.to_frame().T])
-                demand_sample = pd.concat([demand_sample, rid_sample], axis=1)
-
-            else:
-                msg = (
-                    f'Unknown residual drift inference method: '
-                    f'`{rid_inference_method}`.'
-                )
-                raise ValueError(msg)
+            self.demand.infer_residual_drift(residual_drift_inference)
 
         # add a constant one demand
         demand_sample['ONE', '0', '1'] = np.ones(demand_sample.shape[0])

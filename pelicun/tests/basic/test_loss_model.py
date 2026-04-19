@@ -35,7 +35,7 @@
 #
 # Contributors:
 # Adam Zsarnóczay
-# John Vouvakis Manousakis
+# Ioannis Vouvakis Manousakis
 
 """These are unit and integration tests on the loss model of pelicun."""
 
@@ -48,7 +48,17 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 import pandas as pd
-import pytest
+from pelicun import model
+from pelicun import uq
+from pelicun.tests.basic.test_pelicun_model import TestPelicunModel
+from pelicun.model.loss_model import LossModel
+from pelicun.model.loss_model import RepairModel_Base
+from pelicun.model.loss_model import RepairModel_DS
+from pelicun.model.loss_model import RepairModel_LF
+from pelicun.model.loss_model import _is_for_ds_model
+from pelicun.model.loss_model import _is_for_lf_model
+from pelicun.warnings import PelicunWarning
+from pelicun.warnings import PelicunInputDomainError
 
 from pelicun import file_io, model, uq
 from pelicun.base import ensure_value
@@ -1008,16 +1018,7 @@ class TestRepairModel_LF(TestRepairModel_Base):
         )
         # test small interpolation domain warning
         demand_dict = {'PFA-1-1': np.array((1.00, 2.00, 1e3))}
-        with pytest.raises(
-            ValueError,
-            match=re.escape(
-                'Loss function interpolation for consequence '
-                '`cmp.A-dv.A` has failed. Ensure a sufficient '
-                'interpolation domain  for the X values '
-                '(those after the `|` symbol)  and verify '
-                'the X-value and Y-value lengths match.'
-            ),
-        ):
+        with pytest.raises(PelicunInputDomainError) as record:
             lf_model._calc_median_consequence(
                 performance_group, loss_map, required_edps, demand_dict, cmp_sample
             )

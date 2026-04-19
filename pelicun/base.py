@@ -35,7 +35,7 @@
 #
 # Contributors:
 # Adam Zsarnóczay
-# John Vouvakis Manousakis
+# Ioannis Vouvakis Manousakis
 
 
 """Constants, basic classes, and methods for pelicun."""
@@ -275,9 +275,9 @@ class LoggerRegistry:
     ) -> None:
         """Log exceptions to all registered loggers."""
         message = (
-            f"Unhandled exception occurred:"
-            f"\n"
-            f"{''.join(traceback.format_exception(exc_type, exc_value, exc_traceback))}"
+            f'Unhandled exception occurred:'
+            f'\n'
+            f'{"".join(traceback.format_exception(exc_type, exc_value, exc_traceback))}'
         )
         for logger in cls._loggers:
             logger.msg(message)

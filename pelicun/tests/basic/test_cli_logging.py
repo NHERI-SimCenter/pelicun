@@ -133,9 +133,10 @@ def test_setup_dlml_logging_with_timestamp_file() -> None:
     logger = logging.getLogger('pelicun.dlml')
     logger.handlers.clear()
 
-    with patch('builtins.print') as mock_print, patch(
-        'pelicun.cli.datetime'
-    ) as mock_datetime:
+    with (
+        patch('builtins.print') as mock_print,
+        patch('pelicun.cli.datetime') as mock_datetime,
+    ):
         # Mock datetime to return predictable timestamp
         mock_datetime.now.return_value.strftime.return_value = '2025-08-13_22-30-00'
 

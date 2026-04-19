@@ -58,13 +58,13 @@ from pelicun.tools import dlml
 @pytest.fixture
 def mock_download_env() -> Generator[dict[str, Any], None, None]:
     """Mocks the common environment for a data download test."""
-    with patch('pelicun.tools.dlml.load_cache', return_value={}) as mock_load, patch(
-        'pelicun.tools.dlml.save_cache'
-    ) as mock_save, patch(
-        'pelicun.tools.dlml.get_file_hash', return_value='hash'
-    ) as mock_hash, patch('pathlib.Path.mkdir') as mock_mkdir, patch(
-        'pelicun.tools.dlml.tqdm'
-    ) as mock_tqdm:
+    with (
+        patch('pelicun.tools.dlml.load_cache', return_value={}) as mock_load,
+        patch('pelicun.tools.dlml.save_cache') as mock_save,
+        patch('pelicun.tools.dlml.get_file_hash', return_value='hash') as mock_hash,
+        patch('pathlib.Path.mkdir') as mock_mkdir,
+        patch('pelicun.tools.dlml.tqdm') as mock_tqdm,
+    ):
         yield {  # noqa: DOC402
             'load': mock_load,
             'save': mock_save,
@@ -190,8 +190,9 @@ def test_load_cache_valid_file() -> None:
     mock_file = mock_open(read_data=json.dumps(cache_data))
 
     # Mock pathlib.Path.exists to return True and Path.open to use our mock
-    with patch('pathlib.Path.exists', return_value=True), patch(
-        'pathlib.Path.open', mock_file
+    with (
+        patch('pathlib.Path.exists', return_value=True),
+        patch('pathlib.Path.open', mock_file),
     ):
         # Load cache
         loaded_cache = dlml.load_cache('cache_file.json')
@@ -217,8 +218,9 @@ def test_load_cache_corrupted_file() -> None:
     mock_file = mock_open(read_data='invalid json')
 
     # Mock pathlib.Path.exists to return True
-    with patch('pathlib.Path.exists', return_value=True), patch(
-        'pathlib.Path.open', mock_file
+    with (
+        patch('pathlib.Path.exists', return_value=True),
+        patch('pathlib.Path.open', mock_file),
     ):
         # Load cache
         loaded_cache = dlml.load_cache('corrupted_cache_file.json')
@@ -235,8 +237,9 @@ def test_save_cache() -> None:
     # Mock open and pathlib.Path.mkdir
     mock_file = mock_open()
 
-    with patch('pathlib.Path.mkdir') as mock_mkdir, patch(
-        'pathlib.Path.open', mock_file
+    with (
+        patch('pathlib.Path.mkdir') as mock_mkdir,
+        patch('pathlib.Path.open', mock_file),
     ):
         # Save cache
         dlml.save_cache('cache_dir/cache_file.json', cache_data)
@@ -263,9 +266,11 @@ def test_download_file_success() -> None:
     mock_response.iter_content.return_value = [b'chunk1', b'chunk2']
 
     # Mock requests.get to return the mock response
-    with patch('requests.get', return_value=mock_response) as mock_get, patch(
-        'pathlib.Path.mkdir'
-    ) as mock_mkdir, patch('pathlib.Path.open', mock_open()) as mock_file:
+    with (
+        patch('requests.get', return_value=mock_response) as mock_get,
+        patch('pathlib.Path.mkdir') as mock_mkdir,
+        patch('pathlib.Path.open', mock_open()) as mock_file,
+    ):
         # Download file
         dlml._download_file('http://example.com/file.txt', 'dir/file.txt')
 
@@ -290,9 +295,12 @@ def test_download_file_success() -> None:
 def test_download_file_request_exception() -> None:
     """Test handling of download failures."""
     # Mock requests.get to raise an exception
-    with patch(
-        'requests.get', side_effect=requests.exceptions.RequestException('Error')
-    ), patch('pathlib.Path.mkdir'):
+    with (
+        patch(
+            'requests.get', side_effect=requests.exceptions.RequestException('Error')
+        ),
+        patch('pathlib.Path.mkdir'),
+    ):
         # Download file and verify exception is raised
         with pytest.raises(RuntimeError) as excinfo:
             dlml._download_file('http://example.com/file.txt', 'dir/file.txt')
@@ -550,14 +558,16 @@ class TestResolveVersionToCommitSHA:
 
 def test_download_data_files_with_version(mock_download_env: dict[str, Any]) -> None:  # noqa: ARG001
     """Test downloading with a specific version."""
-    with patch(
-        'pelicun.tools.dlml._resolve_version_to_commit_sha',
-        return_value=(
-            'abc1234567890',
-            {'version': 'v1.0.0', 'download_type': 'version'},
+    with (
+        patch(
+            'pelicun.tools.dlml._resolve_version_to_commit_sha',
+            return_value=(
+                'abc1234567890',
+                {'version': 'v1.0.0', 'download_type': 'version'},
+            ),
         ),
-    ), patch('pelicun.tools.dlml._download_file') as mock_download, patch(
-        'pathlib.Path.open', mock_open(read_data='file1.txt\nfile2.txt')
+        patch('pelicun.tools.dlml._download_file') as mock_download,
+        patch('pathlib.Path.open', mock_open(read_data='file1.txt\nfile2.txt')),
     ):
         dlml.download_data_files(version='v1.0.0')
         assert mock_download.call_count == 3
@@ -565,14 +575,16 @@ def test_download_data_files_with_version(mock_download_env: dict[str, Any]) -> 
 
 def test_download_data_files_with_commit(mock_download_env: dict[str, Any]) -> None:  # noqa: ARG001
     """Test downloading with a specific commit."""
-    with patch(
-        'pelicun.tools.dlml._resolve_version_to_commit_sha',
-        return_value=(
-            '1234567',
-            {'version': 'commit-1234567', 'download_type': 'commit'},
+    with (
+        patch(
+            'pelicun.tools.dlml._resolve_version_to_commit_sha',
+            return_value=(
+                '1234567',
+                {'version': 'commit-1234567', 'download_type': 'commit'},
+            ),
         ),
-    ), patch('pelicun.tools.dlml._download_file') as mock_download, patch(
-        'pathlib.Path.open', mock_open(read_data='file1.txt\nfile2.txt')
+        patch('pelicun.tools.dlml._download_file') as mock_download,
+        patch('pathlib.Path.open', mock_open(read_data='file1.txt\nfile2.txt')),
     ):
         dlml.download_data_files(commit='1234567')
         assert mock_download.call_count == 3
@@ -582,14 +594,16 @@ def test_download_data_files_with_latest_commit(
     mock_download_env: dict[str, Any],  # noqa: ARG001
 ) -> None:
     """Test downloading with the 'latest' commit."""
-    with patch(
-        'pelicun.tools.dlml._resolve_version_to_commit_sha',
-        return_value=(
-            'latest123456789',
-            {'version': 'commit-latest1', 'download_type': 'commit'},
+    with (
+        patch(
+            'pelicun.tools.dlml._resolve_version_to_commit_sha',
+            return_value=(
+                'latest123456789',
+                {'version': 'commit-latest1', 'download_type': 'commit'},
+            ),
         ),
-    ), patch('pelicun.tools.dlml._download_file') as mock_download, patch(
-        'pathlib.Path.open', mock_open(read_data='file1.txt\nfile2.txt')
+        patch('pelicun.tools.dlml._download_file') as mock_download,
+        patch('pathlib.Path.open', mock_open(read_data='file1.txt\nfile2.txt')),
     ):
         dlml.download_data_files(commit='latest')
         assert mock_download.call_count == 3
@@ -607,14 +621,16 @@ def test_download_data_files_with_cache(mock_download_env: dict[str, Any]) -> No
     # Override the fixture's get_file_hash to return matching hash
     mock_download_env['hash'].return_value = 'hash1'
 
-    with patch(
-        'pelicun.tools.dlml._resolve_version_to_commit_sha',
-        return_value=(
-            '1234567',
-            {'version': 'commit-1234567', 'download_type': 'commit'},
+    with (
+        patch(
+            'pelicun.tools.dlml._resolve_version_to_commit_sha',
+            return_value=(
+                '1234567',
+                {'version': 'commit-1234567', 'download_type': 'commit'},
+            ),
         ),
-    ), patch('pelicun.tools.dlml._download_file') as mock_download, patch(
-        'pathlib.Path.open', mock_open(read_data='file1.txt\nfile2.txt')
+        patch('pelicun.tools.dlml._download_file') as mock_download,
+        patch('pathlib.Path.open', mock_open(read_data='file1.txt\nfile2.txt')),
     ):
         dlml.download_data_files(commit='1234567')
 
@@ -627,13 +643,18 @@ def test_download_data_files_with_cache(mock_download_env: dict[str, Any]) -> No
 def test_download_data_files_model_file_not_found() -> None:
     """Test handling when model_files.txt doesn't exist after download."""
     # Mock functions - simulate FileNotFoundError when opening model_files.txt
-    with patch(
-        'pelicun.tools.dlml._resolve_version_to_commit_sha',
-        return_value=('1234567', {'version': 'v1.0.0', 'download_type': 'version'}),
-    ), patch('pelicun.tools.dlml._download_file'), patch(
-        'pelicun.tools.dlml.load_cache', return_value={}
-    ), patch('pathlib.Path.mkdir'), patch(
-        'pathlib.Path.open', side_effect=FileNotFoundError('File not found')
+    with (
+        patch(
+            'pelicun.tools.dlml._resolve_version_to_commit_sha',
+            return_value=(
+                '1234567',
+                {'version': 'v1.0.0', 'download_type': 'version'},
+            ),
+        ),
+        patch('pelicun.tools.dlml._download_file'),
+        patch('pelicun.tools.dlml.load_cache', return_value={}),
+        patch('pathlib.Path.mkdir'),
+        patch('pathlib.Path.open', side_effect=FileNotFoundError('File not found')),
     ):
         # Download data files and verify exception is raised
         with pytest.raises(RuntimeError) as excinfo:
@@ -646,13 +667,18 @@ def test_download_data_files_model_file_not_found() -> None:
 def test_download_data_files_model_file_read_error() -> None:
     """Test handling of general file reading exceptions."""
     # Mock functions - simulate general Exception when opening model_files.txt
-    with patch(
-        'pelicun.tools.dlml._resolve_version_to_commit_sha',
-        return_value=('1234567', {'version': 'v1.0.0', 'download_type': 'version'}),
-    ), patch('pelicun.tools.dlml._download_file'), patch(
-        'pelicun.tools.dlml.load_cache', return_value={}
-    ), patch('pathlib.Path.mkdir'), patch(
-        'pathlib.Path.open', side_effect=Exception('General read error')
+    with (
+        patch(
+            'pelicun.tools.dlml._resolve_version_to_commit_sha',
+            return_value=(
+                '1234567',
+                {'version': 'v1.0.0', 'download_type': 'version'},
+            ),
+        ),
+        patch('pelicun.tools.dlml._download_file'),
+        patch('pelicun.tools.dlml.load_cache', return_value={}),
+        patch('pathlib.Path.mkdir'),
+        patch('pathlib.Path.open', side_effect=Exception('General read error')),
     ):
         # Download data files and verify exception is raised
         with pytest.raises(RuntimeError) as excinfo:
@@ -667,11 +693,16 @@ def test_download_data_files_model_file_read_error() -> None:
 
 def test_progress_bar_initialization(mock_download_env: dict[str, Any]) -> None:
     """Test progress bar initialization with different file counts."""
-    with patch(
-        'pelicun.tools.dlml._resolve_version_to_commit_sha',
-        return_value=('1234567', {'version': 'v1.0.0', 'download_type': 'version'}),
-    ), patch('pelicun.tools.dlml._download_file'), patch(
-        'pathlib.Path.open', mock_open(read_data='file1.txt\nfile2.txt')
+    with (
+        patch(
+            'pelicun.tools.dlml._resolve_version_to_commit_sha',
+            return_value=(
+                '1234567',
+                {'version': 'v1.0.0', 'download_type': 'version'},
+            ),
+        ),
+        patch('pelicun.tools.dlml._download_file'),
+        patch('pathlib.Path.open', mock_open(read_data='file1.txt\nfile2.txt')),
     ):
         dlml.download_data_files(version='v1.0.0', use_cache=False)
 
@@ -689,11 +720,16 @@ def test_progress_bar_updates(mock_download_env: dict[str, Any]) -> None:
     mock_progress = MagicMock()
     mock_download_env['tqdm'].return_value.__enter__.return_value = mock_progress
 
-    with patch(
-        'pelicun.tools.dlml._resolve_version_to_commit_sha',
-        return_value=('1234567', {'version': 'v1.0.0', 'download_type': 'version'}),
-    ), patch('pelicun.tools.dlml._download_file'), patch(
-        'pathlib.Path.open', mock_open(read_data='file1.txt\nfile2.txt')
+    with (
+        patch(
+            'pelicun.tools.dlml._resolve_version_to_commit_sha',
+            return_value=(
+                '1234567',
+                {'version': 'v1.0.0', 'download_type': 'version'},
+            ),
+        ),
+        patch('pelicun.tools.dlml._download_file'),
+        patch('pathlib.Path.open', mock_open(read_data='file1.txt\nfile2.txt')),
     ):
         dlml.download_data_files(version='v1.0.0', use_cache=False)
 
@@ -788,10 +824,13 @@ def test_main_no_cache_flag() -> None:
 
 def test_main_download_error_handling() -> None:
     """Test error handling when download_data_files raises exceptions via dlml_update() function."""
-    with patch(
-        'pelicun.tools.dlml.download_data_files',
-        side_effect=RuntimeError('Test error'),
-    ), pytest.raises(RuntimeError, match='Data download failed: Test error'):
+    with (
+        patch(
+            'pelicun.tools.dlml.download_data_files',
+            side_effect=RuntimeError('Test error'),
+        ),
+        pytest.raises(RuntimeError, match='Data download failed: Test error'),
+    ):
         # Test dlml_update function with mocked exception
         dlml.dlml_update(version='v1.0.0', use_cache=True)
 
@@ -832,9 +871,11 @@ def test_check_dlml_version_with_cached_result() -> None:
         'version_check_error': None,
     }
 
-    with patch('pelicun.tools.dlml.load_cache', return_value=mock_cache), patch(
-        'pelicun.tools.dlml.save_cache'
-    ), patch('pathlib.Path.exists', return_value=True):
+    with (
+        patch('pelicun.tools.dlml.load_cache', return_value=mock_cache),
+        patch('pelicun.tools.dlml.save_cache'),
+        patch('pathlib.Path.exists', return_value=True),
+    ):
         result = dlml.check_dlml_version()
 
         # Should return cached result without making API call
@@ -857,10 +898,11 @@ def test_check_dlml_version_with_expired_cache() -> None:
     mock_response.json.return_value = {'tag_name': 'v1.1.0'}
     mock_response.raise_for_status.return_value = None
 
-    with patch('pelicun.tools.dlml.load_cache', return_value=mock_cache), patch(
-        'pelicun.tools.dlml.save_cache'
-    ) as mock_save, patch('requests.get', return_value=mock_response), patch(
-        'pathlib.Path.exists', return_value=True
+    with (
+        patch('pelicun.tools.dlml.load_cache', return_value=mock_cache),
+        patch('pelicun.tools.dlml.save_cache') as mock_save,
+        patch('requests.get', return_value=mock_response),
+        patch('pathlib.Path.exists', return_value=True),
     ):
         result = dlml.check_dlml_version()
 
@@ -878,12 +920,15 @@ def test_check_dlml_version_with_network_error() -> None:
     """Test check_dlml_version handles network errors gracefully."""
     mock_cache = {'version': 'v1.0.0'}
 
-    with patch('pelicun.tools.dlml.load_cache', return_value=mock_cache), patch(
-        'pelicun.tools.dlml.save_cache'
-    ), patch(
-        'requests.get',
-        side_effect=requests.exceptions.RequestException('Network error'),
-    ), patch('pathlib.Path.exists', return_value=True):
+    with (
+        patch('pelicun.tools.dlml.load_cache', return_value=mock_cache),
+        patch('pelicun.tools.dlml.save_cache'),
+        patch(
+            'requests.get',
+            side_effect=requests.exceptions.RequestException('Network error'),
+        ),
+        patch('pathlib.Path.exists', return_value=True),
+    ):
         result = dlml.check_dlml_version()
 
         # Should handle error gracefully
@@ -902,10 +947,11 @@ def test_check_dlml_version_semantic_version_comparison() -> None:
     mock_response.json.return_value = {'tag_name': 'v1.3.0'}
     mock_response.raise_for_status.return_value = None
 
-    with patch('pelicun.tools.dlml.load_cache', return_value=mock_cache), patch(
-        'pelicun.tools.dlml.save_cache'
-    ), patch('requests.get', return_value=mock_response), patch(
-        'pathlib.Path.exists', return_value=True
+    with (
+        patch('pelicun.tools.dlml.load_cache', return_value=mock_cache),
+        patch('pelicun.tools.dlml.save_cache'),
+        patch('requests.get', return_value=mock_response),
+        patch('pathlib.Path.exists', return_value=True),
     ):
         result = dlml.check_dlml_version()
 
@@ -924,10 +970,11 @@ def test_check_dlml_version_with_commit_based_version() -> None:
     mock_response.json.return_value = {'tag_name': 'v1.1.0'}
     mock_response.raise_for_status.return_value = None
 
-    with patch('pelicun.tools.dlml.load_cache', return_value=mock_cache), patch(
-        'pelicun.tools.dlml.save_cache'
-    ), patch('requests.get', return_value=mock_response), patch(
-        'pathlib.Path.exists', return_value=True
+    with (
+        patch('pelicun.tools.dlml.load_cache', return_value=mock_cache),
+        patch('pelicun.tools.dlml.save_cache'),
+        patch('requests.get', return_value=mock_response),
+        patch('pathlib.Path.exists', return_value=True),
     ):
         result = dlml.check_dlml_version()
 
@@ -948,11 +995,11 @@ def test_check_dlml_data_cli_invocation_bypass() -> None:
     ]
 
     for argv_pattern in cli_patterns:
-        with patch('sys.argv', argv_pattern), patch(
-            'pathlib.Path.exists'
-        ) as mock_exists, patch(
-            'pelicun.tools.dlml.download_data_files'
-        ) as mock_download:
+        with (
+            patch('sys.argv', argv_pattern),
+            patch('pathlib.Path.exists') as mock_exists,
+            patch('pelicun.tools.dlml.download_data_files') as mock_download,
+        ):
             dlml.check_dlml_data()
 
             # Should return immediately without checking paths or downloading
@@ -975,8 +1022,9 @@ def test_check_dlml_data_with_empty_directory(
 
     monkeypatch.setenv('DLML_DATA_DIR', str(tmp_path))
 
-    with patch('pelicun.tools.dlml.download_data_files') as mock_download, patch(
-        'builtins.print'
+    with (
+        patch('pelicun.tools.dlml.download_data_files') as mock_download,
+        patch('builtins.print'),
     ):
         dlml.check_dlml_data()
 
@@ -1030,9 +1078,12 @@ def test_check_dlml_data_with_existing_data_update_available(
         'error': None,
     }
 
-    with patch(
-        'pelicun.tools.dlml.check_dlml_version', return_value=mock_version_info
-    ), patch('warnings.warn') as mock_warn:
+    with (
+        patch(
+            'pelicun.tools.dlml.check_dlml_version', return_value=mock_version_info
+        ),
+        patch('warnings.warn') as mock_warn,
+    ):
         dlml.check_dlml_data()
 
         # Should issue warning about update availability
@@ -1099,10 +1150,14 @@ def test_check_dlml_data_version_check_failure(
     # Set environment variable to use tmp_path
     monkeypatch.setenv('DLML_DATA_DIR', str(tmp_path))
 
-    with patch('sys.argv', ['test_script.py']), patch(
-        'pelicun.tools.dlml.check_dlml_version',
-        side_effect=ValueError('Version check failed'),
-    ), patch('builtins.print') as mock_print:
+    with (
+        patch('sys.argv', ['test_script.py']),
+        patch(
+            'pelicun.tools.dlml.check_dlml_version',
+            side_effect=ValueError('Version check failed'),
+        ),
+        patch('builtins.print') as mock_print,
+    ):
         # Should not raise exception, just print the error.
         dlml.check_dlml_data()
 
@@ -1159,10 +1214,11 @@ def test_check_dlml_version_invalid_version_format() -> None:
     mock_response.json.return_value = {'tag_name': 'v2.0-beta'}
     mock_response.raise_for_status.return_value = None
 
-    with patch('pelicun.tools.dlml.load_cache', return_value=mock_cache), patch(
-        'pelicun.tools.dlml.save_cache'
-    ), patch('requests.get', return_value=mock_response), patch(
-        'pathlib.Path.exists', return_value=True
+    with (
+        patch('pelicun.tools.dlml.load_cache', return_value=mock_cache),
+        patch('pelicun.tools.dlml.save_cache'),
+        patch('requests.get', return_value=mock_response),
+        patch('pathlib.Path.exists', return_value=True),
     ):
         result = dlml.check_dlml_version()
 
@@ -1188,10 +1244,11 @@ def test_check_dlml_version_corrupted_timestamp() -> None:
     mock_response.json.return_value = {'tag_name': 'v1.1.0'}
     mock_response.raise_for_status.return_value = None
 
-    with patch('pelicun.tools.dlml.load_cache', return_value=mock_cache), patch(
-        'pelicun.tools.dlml.save_cache'
-    ), patch('requests.get', return_value=mock_response), patch(
-        'pathlib.Path.exists', return_value=True
+    with (
+        patch('pelicun.tools.dlml.load_cache', return_value=mock_cache),
+        patch('pelicun.tools.dlml.save_cache'),
+        patch('requests.get', return_value=mock_response),
+        patch('pathlib.Path.exists', return_value=True),
     ):
         result = dlml.check_dlml_version()
 
@@ -1212,17 +1269,15 @@ def test_download_data_files_empty_model_files() -> None:
 # Final comment
 """
 
-    with patch(
-        'pelicun.tools.dlml._resolve_version_to_commit_sha'
-    ) as mock_resolve, patch(
-        'pelicun.tools.dlml._download_file'
-    ) as mock_download_file, patch(
-        'pelicun.tools.dlml.load_cache', return_value={}
-    ), patch('pelicun.tools.dlml.save_cache'), patch(
-        'pelicun.tools.dlml.get_file_hash', return_value='hash123'
-    ), patch(
-        'pathlib.Path.open', mock_open(read_data=empty_model_files_content)
-    ), patch('pathlib.Path.mkdir'):
+    with (
+        patch('pelicun.tools.dlml._resolve_version_to_commit_sha') as mock_resolve,
+        patch('pelicun.tools.dlml._download_file') as mock_download_file,
+        patch('pelicun.tools.dlml.load_cache', return_value={}),
+        patch('pelicun.tools.dlml.save_cache'),
+        patch('pelicun.tools.dlml.get_file_hash', return_value='hash123'),
+        patch('pathlib.Path.open', mock_open(read_data=empty_model_files_content)),
+        patch('pathlib.Path.mkdir'),
+    ):
         # Mock version resolution
         mock_resolve.return_value = (
             'abc1234',
@@ -1256,19 +1311,16 @@ def test_download_data_files_corrupted_local_file_smart_update() -> None:
         },
     }
 
-    with patch(
-        'pelicun.tools.dlml._resolve_version_to_commit_sha'
-    ) as mock_resolve, patch(
-        'pelicun.tools.dlml._download_file'
-    ) as mock_download_file, patch(
-        'pelicun.tools.dlml._get_changed_files'
-    ) as mock_get_changed, patch(
-        'pelicun.tools.dlml.load_cache', return_value=old_cache
-    ), patch('pelicun.tools.dlml.save_cache'), patch(
-        'pelicun.tools.dlml.get_file_hash'
-    ) as mock_get_hash, patch(
-        'pathlib.Path.open', mock_open(read_data=model_files_content)
-    ), patch('pathlib.Path.mkdir'):
+    with (
+        patch('pelicun.tools.dlml._resolve_version_to_commit_sha') as mock_resolve,
+        patch('pelicun.tools.dlml._download_file') as mock_download_file,
+        patch('pelicun.tools.dlml._get_changed_files') as mock_get_changed,
+        patch('pelicun.tools.dlml.load_cache', return_value=old_cache),
+        patch('pelicun.tools.dlml.save_cache'),
+        patch('pelicun.tools.dlml.get_file_hash') as mock_get_hash,
+        patch('pathlib.Path.open', mock_open(read_data=model_files_content)),
+        patch('pathlib.Path.mkdir'),
+    ):
         # Mock version resolution (updating from v2.0 to v2.1)
         mock_resolve.return_value = (
             'new5678',
@@ -1359,10 +1411,13 @@ class TestGetChangedFiles:
 
     def test_get_changed_files_api_failure(self) -> None:
         """Test the function's behavior when the GitHub API call fails."""
-        with patch(
-            'requests.get',
-            side_effect=requests.exceptions.RequestException('Network Error'),
-        ), patch.object(dlml.logger, 'warning') as mock_warning:
+        with (
+            patch(
+                'requests.get',
+                side_effect=requests.exceptions.RequestException('Network Error'),
+            ),
+            patch.object(dlml.logger, 'warning') as mock_warning,
+        ):
             changed_files = dlml._get_changed_files(
                 'base_commit', 'head_commit', headers={}
             )

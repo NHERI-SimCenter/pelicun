@@ -35,7 +35,7 @@
 #
 # Contributors:
 # Adam Zsarnóczay
-# John Vouvakis Manousakis
+# Ioannis Vouvakis Manousakis
 
 
 """PelicunModel object and associated methods."""
@@ -346,7 +346,7 @@ class PelicunModel:
                 assert stories is not None
                 return np.array([stories + 1]).astype(str)
 
-            msg = f'Cannot parse location string: ' f'{loc_str}'
+            msg = f'Cannot parse location string: {loc_str}'
             raise ValueError(msg) from exc
 
     def _get_directions(self, dir_str: str | None) -> np.ndarray:
@@ -424,7 +424,7 @@ class PelicunModel:
                 return np.arange(int(d_low), int(d_high) + 1).astype(str)
 
             # else:
-            msg = f'Cannot parse direction string: ' f'{dir_str}'
+            msg = f'Cannot parse direction string: {dir_str}'
             raise ValueError(msg) from exc
 
     def query_error_setup(self, path: str) -> str | bool:
