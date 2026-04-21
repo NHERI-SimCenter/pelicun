@@ -42,7 +42,6 @@ from typing import Generator
 
 import pytest
 
-from pelicun.pelicun_warnings import PelicunWarning
 from pelicun.tools.DL_calculation import run_pelicun
 
 

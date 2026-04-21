@@ -44,6 +44,7 @@ from __future__ import annotations
 import pytest
 
 from pelicun import assessment
+from pelicun.pelicun_warnings import PelicunWarning
 
 
 def create_assessment_obj(config: dict | None = None) -> assessment.Assessment:
@@ -76,28 +77,32 @@ def test_Assessment_init() -> None:
 def test_assessment_get_default_metadata() -> None:
     asmt = create_assessment_obj()
 
-    method_names = (
-        # test for backwards compatibility
+    # The legacy names below trigger a PelicunWarning about deprecated
+    # `PelicunDefault/` placeholder identifiers.
+    deprecated_method_names = (
         'damage_DB_FEMA_P58_2nd',
         'damage_DB_Hazus_EQ_bldg',
         'damage_DB_Hazus_EQ_trnsp',
         'loss_repair_DB_FEMA_P58_2nd',
         'loss_repair_DB_Hazus_EQ_bldg',
         'loss_repair_DB_Hazus_EQ_trnsp',
-        # current valid values
+    )
+    current_method_names = (
         'Hazus Earthquake - Buildings',
         'Hazus Earthquake - Stories',
         'Hazus Earthquake - Transportation',
         'Hazus Hurricane Wind - Buildings',
     )
 
-    for method_name in method_names:
-        for model_type in ['fragility', 'consequence_repair']:
-            if method_name.startswith(('damage', 'loss')):
-                model_type = None  # noqa: PLW2901
-
+    with pytest.warns(PelicunWarning):
+        for method_name in deprecated_method_names:
             # here we just test that we can load the data file, without
             # checking the contents.
+            asmt.get_default_data(method_name, None)
+            asmt.get_default_metadata(method_name, None)
+
+    for method_name in current_method_names:
+        for model_type in ['fragility', 'consequence_repair']:
             asmt.get_default_data(method_name, model_type)
             asmt.get_default_metadata(method_name, model_type)
 

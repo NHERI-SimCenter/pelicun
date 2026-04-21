@@ -1454,9 +1454,10 @@ class DamageModel_DS(DamageModel_Base):
                     theta_0 = frg_params_ls.get('Theta_0', np.nan)
                     family = frg_params_ls.get('Family', 'deterministic')
 
-                    # if `family` is defined but is `None`, we
-                    # consider it to be `deterministic`
-                    if not family:
+                    # Normalize missing / empty family specifications
+                    # to `deterministic`, matching the behavior of
+                    # `uq.rv_class_map`.
+                    if not family or pd.isna(family):
                         family = 'deterministic'
                     ds_weights = frg_params_ls.get('DamageStateWeights', None)
 

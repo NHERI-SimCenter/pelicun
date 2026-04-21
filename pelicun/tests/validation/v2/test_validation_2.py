@@ -182,14 +182,15 @@ def test_combined_workflow() -> None:
 
     cmp_set = set(asmnt.asset.list_unique_component_ids())
 
-    # Load the models into pelicun
-    asmnt.damage.load_model_parameters(
-        [
-            damage_db,  # type: ignore
-            'PelicunDefault/FEMA P-58/fragility.csv',
-        ],
-        cmp_set,
-    )
+    # Load the models into pelicun.
+    with pytest.warns(PelicunWarning):
+        asmnt.damage.load_model_parameters(
+            [
+                damage_db,  # type: ignore
+                'PelicunDefault/FEMA P-58/fragility.csv',
+            ],
+            cmp_set,
+        )
 
     # Prescribe the damage process
     dmg_process = {
@@ -198,7 +199,6 @@ def test_combined_workflow() -> None:
     }
 
     # Calculate damages
-
     asmnt.damage.calculate(dmg_process=dmg_process)
 
     # Test load sample, save sample
