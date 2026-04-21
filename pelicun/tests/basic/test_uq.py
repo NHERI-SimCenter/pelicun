@@ -1310,18 +1310,24 @@ def test_UniformRandomVariable_inverse_transform() -> None:
     # uniform with unspecified bounds
     #
 
-    rv = uq.UniformRandomVariable('test_rv', theta=np.array((np.nan, 1.0)))
-    samples = np.array((0.10, 0.20, 0.30))
-    rv.uni_sample = samples
-    rv.inverse_transform_sampling()
-    inverse_transform = ensure_value(rv.sample)
-    assert np.all(np.isnan(inverse_transform))
+    # scipy propagates NaN bounds through `np.nan * scale` etc., which
+    # raises RuntimeWarnings about invalid values. That is exactly the
+    # behavior we want to verify here (the resulting sample should be
+    # NaN/inf), so silence the numpy floating-point warnings for these
+    # two sub-cases rather than letting them pollute the test output.
+    with np.errstate(invalid='ignore'):
+        rv = uq.UniformRandomVariable('test_rv', theta=np.array((np.nan, 1.0)))
+        samples = np.array((0.10, 0.20, 0.30))
+        rv.uni_sample = samples
+        rv.inverse_transform_sampling()
+        inverse_transform = ensure_value(rv.sample)
+        assert np.all(np.isnan(inverse_transform))
 
-    rv = uq.UniformRandomVariable('test_rv', theta=np.array((0.00, np.nan)))
-    rv.uni_sample = samples
-    rv.inverse_transform_sampling()
-    inverse_transform = ensure_value(rv.sample)
-    assert np.all(np.isinf(inverse_transform))
+        rv = uq.UniformRandomVariable('test_rv', theta=np.array((0.00, np.nan)))
+        rv.uni_sample = samples
+        rv.inverse_transform_sampling()
+        inverse_transform = ensure_value(rv.sample)
+        assert np.all(np.isinf(inverse_transform))
 
     rv = uq.UniformRandomVariable(
         'test_rv',

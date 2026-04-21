@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pelicun"
-version = "3.9.0.dev0"
+version = "3.9.0"
 description = "Probabilistic Estimation of Losses, Injuries, and Community resilience Under Natural hazard events"
 readme = "README.md"
 license = {text = "BSD-3-Clause"}
@@ -31,17 +31,17 @@ classifiers = [
     "Topic :: Scientific/Engineering",
 ]
 dependencies = [
-    "numpy>=1.22.0, <2.0",
-    "scipy>=1.7.0, <=1.15.3",
-    "pandas>=1.4.0, <3.0",
+    "numpy>=1.23, <3.0",
+    "scipy>=1.8.0, <1.16",
+    "pandas>=2.2.3, <3.0",
     "colorama>=0.4.0, <0.5.0",
     "numexpr>=2.8, <3.0",
     "jsonschema>=4.22.0, <5.0",
-    "tqdm",
-    "requests",
-    "joblib",
-    "scikit-learn",
-    "packaging"
+    "tqdm>=4.60.0, <5.0",
+    "requests>=2.28.0, <3.0",
+    "joblib>=1.2.0, <2.0",
+    "scikit-learn>=1.0.0, <2.0",
+    "packaging>=23.0, <27.0"
 ]
 
 [project.optional-dependencies]
@@ -97,6 +97,7 @@ exclude = [
   "rulesets",
   "examples",
   "*.ipynb",
+  ".venv*",
   "pelicun/tests/dl_calculation/e7/auto_HU_NJ.py",
   "pelicun/tests/dl_calculation/e8/auto_HU_LA.py",
   "pelicun/tests/dl_calculation/e9/custom_pop.py",

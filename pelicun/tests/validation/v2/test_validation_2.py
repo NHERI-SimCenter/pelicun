@@ -134,12 +134,19 @@ def test_combined_workflow() -> None:
 
         demand_sample_ext['SA_1.13', 0, 1] = 1.50
 
-        # Add units to the data
-        demand_sample_ext.T.insert(0, 'Units', '')
-
-        # PFA and SA are in "g" in this example, while PID and RID are "rad"
-        demand_sample_ext.loc['Units', ['PFA', 'SA_1.13']] = 'g'
-        demand_sample_ext.loc['Units', ['PID', 'RID']] = 'rad'
+        # Build the Units row explicitly with object dtype so string
+        # unit labels can be written without pandas triggering a
+        # float64 -> object upcast warning.
+        # PFA and SA are in "g" in this example, while PID and RID are "rad".
+        units_row = pd.DataFrame(
+            '',
+            index=['Units'],
+            columns=demand_sample_ext.columns,
+            dtype=object,
+        )
+        units_row.loc['Units', ['PFA', 'SA_1.13']] = 'g'
+        units_row.loc['Units', ['PID', 'RID']] = 'rad'
+        demand_sample_ext = pd.concat([demand_sample_ext, units_row])
 
         asmnt.demand.load_sample(demand_sample_ext)
 
@@ -175,14 +182,15 @@ def test_combined_workflow() -> None:
 
     cmp_set = set(asmnt.asset.list_unique_component_ids())
 
-    # Load the models into pelicun
-    asmnt.damage.load_model_parameters(
-        [
-            damage_db,  # type: ignore
-            'PelicunDefault/FEMA P-58/fragility.csv',
-        ],
-        cmp_set,
-    )
+    # Load the models into pelicun.
+    with pytest.warns(PelicunWarning):
+        asmnt.damage.load_model_parameters(
+            [
+                damage_db,  # type: ignore
+                'PelicunDefault/FEMA P-58/fragility.csv',
+            ],
+            cmp_set,
+        )
 
     # Prescribe the damage process
     dmg_process = {
@@ -191,7 +199,6 @@ def test_combined_workflow() -> None:
     }
 
     # Calculate damages
-
     asmnt.damage.calculate(dmg_process=dmg_process)
 
     # Test load sample, save sample

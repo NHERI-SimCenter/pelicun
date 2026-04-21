@@ -765,8 +765,12 @@ class DLCalculationAssessment(AssessmentBase):
                 )
                 raise ValueError(msg)
 
-        # add a constant one demand
-        demand_sample['ONE', '0', '1'] = np.ones(demand_sample.shape[0])
+        # add a constant one demand. Use an object-dtype array so the
+        # unit-label string on the next line can coexist with the
+        # numeric values in the same column.
+        demand_sample['ONE', '0', '1'] = np.ones(
+            demand_sample.shape[0], dtype=object
+        )
         demand_sample.loc['Units', ('ONE', '0', '1')] = 'unitless'
 
         self.demand.load_sample(base.convert_to_SimpleIndex(demand_sample, axis=1))
@@ -1619,6 +1623,10 @@ def _add_units(raw_demands: pd.DataFrame, length_unit: str) -> pd.DataFrame:
 
     # remove additional info from demand names
     demand_cols = [d.split('_')[0] for d in demand_cols]
+
+    # The Units row (row 0) will hold string unit labels while the rest
+    # of the frame holds float demand values.
+    demands = demands.astype(object)
 
     # acceleration
     acc_edps = ['PFA', 'PGA', 'SA']

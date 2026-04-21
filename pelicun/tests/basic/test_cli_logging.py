@@ -224,10 +224,11 @@ def test_setup_dlml_logging_file_creation() -> None:
 def test_cli_integration_with_logging() -> None:
     """Test CLI integration with logging setup."""
     import subprocess  # noqa: PLC0415, S404
+    import sys  # noqa: PLC0415
 
-    # Test that CLI help includes the --log option
+    # Test that CLI help includes the --log option.
     result = subprocess.run(  # noqa: S603
-        ['pelicun', 'dlml', '--help'],  # noqa: S607
+        [sys.executable, '-m', 'pelicun', 'dlml', '--help'],
         capture_output=True,
         text=True,
         cwd=Path(__file__).parent.parent.parent,  # Use project root dynamically

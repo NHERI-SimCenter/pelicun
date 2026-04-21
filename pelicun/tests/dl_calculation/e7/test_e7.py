@@ -45,7 +45,6 @@ from typing import Generator
 import pytest
 
 # import pandas as pd
-from pelicun.pelicun_warnings import PelicunWarning
 from pelicun.tools.DL_calculation import run_pelicun
 
 
@@ -84,6 +83,14 @@ def test_dl_calculation_7(obtain_temp_dir: tuple[str, str]) -> None:
     os.chdir(temp_dir)
 
     # run
+    #
+    # Note: this run currently emits a PelicunWarning about the flood
+    # component not being in any damage model. That is a real issue —
+    # the Hazus Hurricane Storm Surge DB is loss-function-driven and
+    # has no fragility.csv, so the component is covered downstream by
+    # the loss model but not by any damage DB. The warning is left
+    # unsilenced on purpose as a reminder to extend pelicun's coverage
+    # check to consider loss-function-driven components.
     run_pelicun(
         demand_file='response.csv',
         config_path='1-AIM.json',

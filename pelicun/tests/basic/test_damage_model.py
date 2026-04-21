@@ -99,12 +99,13 @@ class TestDamageModel(TestPelicunModel):
         # (Omit component.C)
         with warnings.catch_warnings(record=True) as w:
             damage_model.load_model_parameters([path], cmp_set, warn_missing=True)
-        assert len(w) == 1
+        pelicun_warnings = [x for x in w if issubclass(x.category, PelicunWarning)]
+        assert len(pelicun_warnings) == 1
         assert (
             'The damage model does not provide damage information '
             'for the following component(s) in the asset model: '
             "['component.incomplete']."
-        ) in str(w[0].message)
+        ) in str(pelicun_warnings[0].message)
         damage_parameters = damage_model.ds_model.damage_params
         assert damage_parameters is not None
         assert 'component.A' in damage_parameters.index
@@ -127,12 +128,13 @@ class TestDamageModel(TestPelicunModel):
         cmp_set = {'not.exist'}
         with warnings.catch_warnings(record=True) as w:
             damage_model.load_model_parameters([path], cmp_set, warn_missing=True)
-        assert len(w) == 1
+        pelicun_warnings = [x for x in w if issubclass(x.category, PelicunWarning)]
+        assert len(pelicun_warnings) == 1
         assert (
             'The damage model does not provide damage '
             'information for the following component(s) '
             "in the asset model: ['not.exist']."
-        ) in str(w[0].message)
+        ) in str(pelicun_warnings[0].message)
         assert ensure_value(damage_model.ds_model.damage_params).empty
 
     def test_calculate(self) -> None:

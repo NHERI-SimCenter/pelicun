@@ -1,0 +1,135 @@
+.. _changes_v3.9.0:
+
+===============================
+Version 3.9.0 (April 20, 2026)
+===============================
+
+The headline change in 3.9.0 is **multi-hazard regional simulation**:
+the ``regional_sim`` tool now handles Hazus Hurricane Wind alongside
+earthquake, and has been restructured around a configuration-driven
+Intensity Measure model and a conditional loss-assessment framework
+that generalizes cleanly to additional hazards. Alongside this, a
+**building inventory filter** lets users run on any subset of an
+asset list, and the **NNR** resampler has been extended to operate on
+3D per-realization arrays with a configurable neighbor count.
+
+On the runtime side, pelicun is now fully **numpy 2 compatible**, and
+its dependency ranges have been revisited against what the code
+actually uses — raising the pandas, numpy, and scipy floors, widening
+the upper bounds, and clearing the ~720 pandas / numpy deprecation
+warnings previously emitted by the test suite.
+
+Added
+-----
+
+**Multi-Hazard Regional Simulation**: The ``regional_sim`` tool now
+supports configurable hazards beyond earthquake.
+
+- Add support for the **Hazus Hurricane Wind** damage and loss
+  methodology.
+- Introduce a new end-to-end integration test for the hurricane wind
+  scenario, with a dedicated, hazard-specific pytest fixture.
+
+**Building Inventory Filter**: Run simulations on a specific subset of
+assets.
+
+- Add a ``filter`` key to the ``regional_sim`` configuration that
+  selects buildings by ID and ID ranges (e.g., ``"1, 5-10"``).
+- Add a parametrized test suite covering success and error-handling
+  scenarios for the filter.
+
+**Enhanced Regional Simulation Testing**: Add the first comprehensive
+integration tests for the ``regional_sim`` tool, establishing a
+testing baseline for future changes.
+
+**NNR (Nearest Neighbor Resampling) Enhancements**:
+
+- The "expected value" mode now operates on each realization of a 3D
+  input array independently.
+- The 2D expected value path is now vectorized for improved
+  performance.
+- The number of nearest neighbors is now a configurable parameter.
+
+**numpy 2 Support**: Pelicun now runs against numpy 2 (verified on
+numpy 2.0 through 2.4).
+
+**Module Entry Point**: ``python -m pelicun`` now dispatches to the
+CLI, complementing the existing ``pelicun`` console script.
+
+Changed
+-------
+
+**Regional Simulation Workflow**: Major refactoring of the
+``regional_sim`` script for improved flexibility and robustness.
+
+- Generalize the Intensity Measure (IM) handling to be dynamically
+  driven by the configuration file, removing all hardcoded "PGA"
+  logic.
+- Rearchitect the loss assessment logic into a conditional framework,
+  with a dedicated path for complex Hazus Earthquake models and an
+  efficient 1-to-1 mapping path for other methods.
+- Reorganize the output stage to save results sequentially, improving
+  robustness against failures in later-stage calculations.
+- Upsample demand realizations when the requested sample size is
+  larger than the available data.
+
+**Runtime Dependency Ranges**: Broadened upper bounds and raised lower
+bounds to reflect what the code actually supports.
+
+- ``numpy``: ``<2.0`` -> ``>=1.23, <3.0``
+- ``scipy``: ``<=1.15.3`` -> ``>=1.8.0, <1.16`` (scipy 1.16 removed
+  the private ``stats._mvn`` module imported by ``uq.py``).
+- ``pandas``: ``>=1.4.0`` -> ``>=2.2.3, <3.0`` (the code uses
+  ``future.no_silent_downcasting`` and ``GroupBy.first(skipna=False)``,
+  which are only available from pandas 2.2.1+).
+- ``tqdm``, ``requests``, ``joblib``, ``scikit-learn``, ``packaging``:
+  switched from unpinned to explicit compatibility ranges.
+
+**Configuration (breaking)**: ``regional_sim`` now requires a
+``neighbors`` key under
+``Applications/RegionalMapping/Buildings/ApplicationData`` in the run
+configuration.
+
+Removed
+-------
+
+(none)
+
+Fixed
+-----
+
+**Pandas / numpy Deprecation Warnings**: A full-suite test run previously
+emitted ~720 deprecation warnings. The following underlying call sites
+were corrected so that the suite now runs warning-free apart from
+pelicun's own intentional ``PelicunWarning`` emissions:
+
+- ``base.convert_dtypes``: replace deprecated
+  ``pd.to_numeric(..., errors='ignore')`` with an explicit try/except
+  fallback.
+- ``DemandModel.estimate_RID``: replace a ``DataFrame.stack`` trick
+  used only for MultiIndex construction with a direct
+  ``pd.MultiIndex.from_tuples`` call.
+- Unit-label assignments in ``assessment.calculate_demand``,
+  ``assessment._add_units``, and ``DemandModel.add_column``: build the
+  mixed-dtype "Units" row with an explicit object dtype so string
+  labels no longer trigger a float64 -> object upcast warning.
+- ~27 ``DataFrame.groupby(..., axis=1)`` call sites in the damage /
+  loss / regional-sim / DL_calculation paths: rewritten as
+  ``df.T.groupby(...)...T``.
+
+**Damage Model — Fragility Scaling with Unspecified Distribution**:
+``ScalingSpecification`` entries targeting components whose
+distribution family is missing (stored as NaN, e.g., Hazus
+``collapse-0-1``) are now scaled as deterministic capacities instead
+of being silently ignored with a warning. This aligns
+``damage_model.ds_model._create_dmg_rvs`` with the existing behavior
+of ``uq.rv_class_map``.
+
+**Code Quality and Documentation**: Continued compliance with ruff,
+full type hints and docstring added to the ``NNR`` function.
+
+**CLI Subprocess Tests**: The three ``pelicun`` CLI integration tests
+now invoke the CLI via ``[sys.executable, '-m', 'pelicun', ...]`` so
+they use the same interpreter / virtualenv as the test runner,
+instead of whichever ``pelicun`` script happens to come first on
+``PATH``.
