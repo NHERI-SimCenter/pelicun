@@ -521,9 +521,7 @@ class DemandModel(PelicunModel):
             raise ValueError(msg)
         demand_sample[label, location, direction] = value
         demand_units[label, location, direction] = unit
-        demand_sample = pd.concat(
-            [demand_sample, demand_units.to_frame('Units').T]
-        )
+        demand_sample = pd.concat([demand_sample, demand_units.to_frame('Units').T])
         self.load_sample(demand_sample)
 
     def calibrate_model(self, config: dict) -> None:  # noqa: C901

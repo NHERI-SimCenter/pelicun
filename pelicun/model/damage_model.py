@@ -1698,9 +1698,7 @@ class DamageModel_DS(DamageModel_Base):
         # result in NaN instead of zero.
         # https://stackoverflow.com/questions/33448003/sum-across-all-nans-in-pandas-returns-zero
         return (
-            damage_quantities.T.groupby(
-                level=['cmp', 'loc', 'dir', 'uid', 'ds']
-            )
+            damage_quantities.T.groupby(level=['cmp', 'loc', 'dir', 'uid', 'ds'])
             .sum(min_count=1)
             .T
         )
@@ -1955,9 +1953,7 @@ class DamageModel_DS(DamageModel_Base):
 
         # Get the header for the results that we can use to identify
         # cmp-loc-dir-uid sets
-        dmg_header = (
-            dmg_sample.T.groupby(level=[0, 1, 2, 3]).first().T.iloc[:2, :]
-        )
+        dmg_header = dmg_sample.T.groupby(level=[0, 1, 2, 3]).first().T.iloc[:2, :]
         damaged_components = set(dmg_header.columns.get_level_values('cmp'))
 
         # get the number of possible limit states

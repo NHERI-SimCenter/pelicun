@@ -920,9 +920,7 @@ class LossModel(PelicunModel):
         column_levels = ['dv', 'loss', 'dmg', 'loc', 'dir', 'uid']
         combined_sample = self.sample
         sample = (
-            combined_sample.T.groupby(level=column_levels).sum().T.sort_index(
-                axis=1
-            )
+            combined_sample.T.groupby(level=column_levels).sum().T.sort_index(axis=1)
         )
 
         #

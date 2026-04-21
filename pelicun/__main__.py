@@ -1,6 +1,6 @@
 #
-# Copyright (c) 2025 Leland Stanford Junior University
-# Copyright (c) 2025 The Regents of the University of California
+# Copyright (c) 2026 Leland Stanford Junior University
+# Copyright (c) 2026 The Regents of the University of California
 #
 # This file is part of pelicun.
 #
@@ -36,4 +36,9 @@
 # Contributors:
 # Adam Zsarnóczay
 
-"""This module contains tests for the tools module of pelicun."""
+"""Entry point that lets `python -m pelicun` invoke the CLI."""
+
+from pelicun.cli import main
+
+if __name__ == '__main__':
+    main()

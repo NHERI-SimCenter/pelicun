@@ -1239,9 +1239,7 @@ def _asset_save(
         cmp_units = cmp_units.T.groupby(level=['cmp', 'loc', 'dir']).first().T
         cmp_groupby_uid = cmp_sample.T.groupby(level=['cmp', 'loc', 'dir'])
         cmp_sample = (
-            cmp_groupby_uid.sum()
-            .mask(cmp_groupby_uid.count() == 0, np.nan)
-            .T
+            cmp_groupby_uid.sum().mask(cmp_groupby_uid.count() == 0, np.nan).T
         )
 
     out_reqs = _parse_requested_output_file_names(output_config)
@@ -1309,9 +1307,7 @@ def _damage_save(
             level=['cmp', 'loc', 'dir', 'ds']
         )
         damage_sample = (
-            damage_groupby_uid.sum()
-            .mask(damage_groupby_uid.count() == 0, np.nan)
-            .T
+            damage_groupby_uid.sum().mask(damage_groupby_uid.count() == 0, np.nan).T
         )
 
     out_reqs = _parse_requested_output_file_names(output_config)
@@ -1343,13 +1339,9 @@ def _damage_save(
 
     if out_reqs.intersection({'GroupedSample', 'GroupedStatistics'}):
         damage_groupby = damage_sample.T.groupby(level=['cmp', 'loc', 'ds'])
-        damage_units = (
-            damage_units.T.groupby(level=['cmp', 'loc', 'ds']).first().T
-        )
+        damage_units = damage_units.T.groupby(level=['cmp', 'loc', 'ds']).first().T
 
-        grp_damage = (
-            damage_groupby.sum().mask(damage_groupby.count() == 0, np.nan).T
-        )
+        grp_damage = damage_groupby.sum().mask(damage_groupby.count() == 0, np.nan).T
 
         # if requested, condense DS output
         if condense_ds:
@@ -1370,9 +1362,7 @@ def _damage_save(
             # choose the max value
             # i.e., the governing DS for each comp-loc pair
             grp_damage = (
-                damage_groupby_2.max()
-                .mask(damage_groupby_2.count() == 0, np.nan)
-                .T
+                damage_groupby_2.max().mask(damage_groupby_2.count() == 0, np.nan).T
             )
 
             # aggregate units to the same format
@@ -1385,9 +1375,7 @@ def _damage_save(
 
             # preserve NaNs
             grp_damage = (
-                damage_groupby_2.sum()
-                .mask(damage_groupby_2.count() == 0, np.nan)
-                .T
+                damage_groupby_2.sum().mask(damage_groupby_2.count() == 0, np.nan).T
             )
 
             # and aggregate units to the same format
@@ -1462,9 +1450,7 @@ def _loss_save(  # noqa: C901
         repair_groupby_uid = repair_sample.T.groupby(level=uid_levels)
 
         repair_sample = (
-            repair_groupby_uid.sum()
-            .mask(repair_groupby_uid.count() == 0, np.nan)
-            .T
+            repair_groupby_uid.sum().mask(repair_groupby_uid.count() == 0, np.nan).T
         )
 
     out_reqs = _parse_requested_output_file_names(output_config)
@@ -1497,12 +1483,8 @@ def _loss_save(  # noqa: C901
 
     if out_reqs.intersection({'GroupedSample', 'GroupedStatistics'}):
         repair_groupby = repair_sample.T.groupby(level=['dv', 'loss', 'dmg'])
-        repair_units = (
-            repair_units.T.groupby(level=['dv', 'loss', 'dmg']).first().T
-        )
-        grp_repair = (
-            repair_groupby.sum().mask(repair_groupby.count() == 0, np.nan).T
-        )
+        repair_units = repair_units.T.groupby(level=['dv', 'loss', 'dmg']).first().T
+        grp_repair = repair_groupby.sum().mask(repair_groupby.count() == 0, np.nan).T
 
         if 'GroupedSample' in out_reqs:
             grp_repair_s = pd.concat([grp_repair, repair_units])

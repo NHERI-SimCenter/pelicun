@@ -1316,18 +1316,14 @@ def test_UniformRandomVariable_inverse_transform() -> None:
     # NaN/inf), so silence the numpy floating-point warnings for these
     # two sub-cases rather than letting them pollute the test output.
     with np.errstate(invalid='ignore'):
-        rv = uq.UniformRandomVariable(
-            'test_rv', theta=np.array((np.nan, 1.0))
-        )
+        rv = uq.UniformRandomVariable('test_rv', theta=np.array((np.nan, 1.0)))
         samples = np.array((0.10, 0.20, 0.30))
         rv.uni_sample = samples
         rv.inverse_transform_sampling()
         inverse_transform = ensure_value(rv.sample)
         assert np.all(np.isnan(inverse_transform))
 
-        rv = uq.UniformRandomVariable(
-            'test_rv', theta=np.array((0.00, np.nan))
-        )
+        rv = uq.UniformRandomVariable('test_rv', theta=np.array((0.00, np.nan)))
         rv.uni_sample = samples
         rv.inverse_transform_sampling()
         inverse_transform = ensure_value(rv.sample)

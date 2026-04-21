@@ -52,7 +52,6 @@ from scipy.stats import norm
 
 from pelicun import base, uq
 from pelicun.base import ensure_value
-from pelicun.pelicun_warnings import PelicunWarning
 from pelicun.model.damage_model import (
     DamageModel,
     DamageModel_Base,
