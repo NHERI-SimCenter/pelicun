@@ -890,18 +890,23 @@ def convert_dtypes(dataframe: pd.DataFrame) -> pd.DataFrame:
         pd.option_context('mode.copy_on_write', True),  # noqa: FBT003
     ):
         dataframe = dataframe.fillna(value=np.nan).infer_objects()
+
+    # We want numeric conversion to be best-effort: columns that parse
+    # as numbers are converted, columns that do not (e.g. unit strings)
+    # are left untouched. Historically this was expressed as
+    # `pd.to_numeric(x, errors='ignore')`, but that option is deprecated
+    # in pandas 2.2 and scheduled to raise in a future release. The
+    # replacement recommended by the pandas docs is to catch the
+    # parse failure ourselves and fall back to the original column.
+    # See: https://pandas.pydata.org/docs/reference/api/pandas.to_numeric.html
+    def _to_numeric_if_possible(column: pd.Series) -> pd.Series:
+        try:
+            return pd.to_numeric(column)
+        except (ValueError, TypeError):
+            return column
+
     # note: `axis=0` applies the function to the columns
-    # note: ignoring errors is a bad idea and should never be done. In
-    # this case, however, that's not what we do, despite the name of
-    # this parameter. We simply don't convert the dtype of columns
-    # that cannot be interpreted as numeric. That's what
-    # `errors='ignore'` does.
-    # See:
-    # https://pandas.pydata.org/docs/reference/api/pandas.to_numeric.html
-    return dataframe.apply(
-        lambda x: pd.to_numeric(x, errors='ignore'),  # type:ignore
-        axis=0,
-    )
+    return dataframe.apply(_to_numeric_if_possible, axis=0)
 
 
 def show_matrix(
