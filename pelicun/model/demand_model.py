@@ -407,16 +407,20 @@ class DemandModel(PelicunModel):
             rid[rid > 0] = np.exp(np.log(rid[rid > 0]) + eps)  # type: ignore
 
             # finally, make sure the RID values are never larger than
-            # the PIDs
+            # the PIDs.
+            #
+            # The new column index prepends an outer 'RID' level to
+            # every tuple in `pid.columns`. Building it explicitly with
+            # `MultiIndex.from_tuples` keeps the column order aligned
+            # with the positional layout of `pid.values`, which is what
+            # `np.minimum(pid.values, rid.values)` produces.
+            rid_columns = pd.MultiIndex.from_tuples(
+                [('RID', *col) for col in pid.columns],
+                names=[None, *pid.columns.names],
+            )
             rid = pd.DataFrame(
                 np.minimum(pid.values, rid.values),  # type: ignore
-                columns=pd.DataFrame(  # noqa: PD013
-                    1,
-                    index=['RID'],
-                    columns=pid.columns,
-                )
-                .stack(level=[0, 1])
-                .index,
+                columns=rid_columns,
                 index=pid.index,
             )
 
