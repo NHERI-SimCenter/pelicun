@@ -241,7 +241,7 @@ def _calculate_losses_hazus_eq(
 
     # create a lookup table to find which fragility IDs are at which location
     dmg_sample = assessment.damage.save_sample()
-    cmp_loc = dmg_sample.groupby(level=['cmp', 'loc'], axis=1).first()
+    cmp_loc = dmg_sample.T.groupby(level=['cmp', 'loc']).first().T
 
     cmp_lookup = pd.Series(
         cmp_loc.columns.get_level_values('cmp'),
@@ -313,21 +313,25 @@ def _calculate_losses_hazus_eq(
             level=['dv', 'loss', 'dmg', 'ds', 'loc', 'dir']
         ).first()
 
-        repair_groupby_uid = repair_sample.groupby(
-            level=['dv', 'loss', 'dmg', 'ds', 'loc', 'dir'], axis=1
+        repair_groupby_uid = repair_sample.T.groupby(
+            level=['dv', 'loss', 'dmg', 'ds', 'loc', 'dir']
         )
 
-        repair_sample = repair_groupby_uid.sum().mask(
-            repair_groupby_uid.count() == 0, np.nan
+        repair_sample = (
+            repair_groupby_uid.sum()
+            .mask(repair_groupby_uid.count() == 0, np.nan)
+            .T
         )
 
         # now aggregate across loss, dmg, damage state, and direction
         # all of those are only one value per location, so they do not provide additional information
-        repair_groupby = repair_sample.groupby(level=['dv', 'loc'], axis=1)
+        repair_groupby = repair_sample.T.groupby(level=['dv', 'loc'])
 
         repair_units = repair_units.groupby(level=['dv', 'loc']).first()
 
-        grp_repair = repair_groupby.sum().mask(repair_groupby.count() == 0, np.nan)
+        grp_repair = (
+            repair_groupby.sum().mask(repair_groupby.count() == 0, np.nan).T
+        )
 
         # - - - -
 
@@ -392,22 +396,26 @@ def _calculate_losses_general(
         level=['dv', 'loss', 'dmg', 'ds', 'loc', 'dir']
     ).first()
 
-    repair_groupby_uid = repair_sample.groupby(
-        level=['dv', 'loss', 'dmg', 'ds', 'loc', 'dir'], axis=1
+    repair_groupby_uid = repair_sample.T.groupby(
+        level=['dv', 'loss', 'dmg', 'ds', 'loc', 'dir']
     )
 
-    repair_sample = repair_groupby_uid.sum().mask(
-        repair_groupby_uid.count() == 0, np.nan
+    repair_sample = (
+        repair_groupby_uid.sum()
+        .mask(repair_groupby_uid.count() == 0, np.nan)
+        .T
     )
 
     # now aggregate across loss, dmg, damage state, and direction
     # all of those are only one value per location, so they do not provide
     # additional information
-    repair_groupby = repair_sample.groupby(level=['dv', 'loc'], axis=1)
+    repair_groupby = repair_sample.T.groupby(level=['dv', 'loc'])
 
     repair_units = repair_units.groupby(level=['dv', 'loc']).first()
 
-    grp_repair = repair_groupby.sum().mask(repair_groupby.count() == 0, np.nan)
+    grp_repair = (
+        repair_groupby.sum().mask(repair_groupby.count() == 0, np.nan).T
+    )
 
     # - - - -
 
@@ -641,24 +649,30 @@ def process_buildings_chunk(
 
     # aggregate across uid
     # this is trivial since we don't have multiple identical components at the same location
-    damage_units = damage_units.groupby(
-        level=['cmp', 'loc', 'dir', 'ds'], axis=1
-    ).first()
-
-    damage_groupby_uid = damage_sample.groupby(
-        level=['cmp', 'loc', 'dir', 'ds'], axis=1
+    damage_units = (
+        damage_units.T.groupby(level=['cmp', 'loc', 'dir', 'ds']).first().T
     )
-    damage_sample = damage_groupby_uid.sum().mask(
-        damage_groupby_uid.count() == 0, np.nan
+
+    damage_groupby_uid = damage_sample.T.groupby(
+        level=['cmp', 'loc', 'dir', 'ds']
+    )
+    damage_sample = (
+        damage_groupby_uid.sum()
+        .mask(damage_groupby_uid.count() == 0, np.nan)
+        .T
     )
 
     # aggregate across dir
     # also trivial, all results are in dir 1
 
-    damage_groupby = damage_sample.groupby(level=['cmp', 'loc', 'ds'], axis=1)
+    damage_groupby = damage_sample.T.groupby(level=['cmp', 'loc', 'ds'])
 
-    damage_units = damage_units.groupby(level=['cmp', 'loc', 'ds'], axis=1).first()
-    grp_damage = damage_groupby.sum().mask(damage_groupby.count() == 0, np.nan)
+    damage_units = (
+        damage_units.T.groupby(level=['cmp', 'loc', 'ds']).first().T
+    )
+    grp_damage = (
+        damage_groupby.sum().mask(damage_groupby.count() == 0, np.nan).T
+    )
 
     # replace non-zero values with 1
     # this is probably not making any meaningful changes since we have 1 ea quantity of each component
@@ -672,17 +686,21 @@ def process_buildings_chunk(
     grp_damage = grp_damage.mul(ds_list, axis=1)
 
     # aggregate across damage state indices
-    damage_groupby_2 = grp_damage.groupby(level=['cmp', 'loc'], axis=1)
+    damage_groupby_2 = grp_damage.T.groupby(level=['cmp', 'loc'])
 
     # choose the max value
     # i.e., the governing DS for each comp-loc pair
     # Note that in each realization, each component will have only one non-zero damage state result,
     # so this is not picking the max damage state, but rather picking the realized damage state
-    grp_damage = damage_groupby_2.max().mask(damage_groupby_2.count() == 0, np.nan)
+    grp_damage = (
+        damage_groupby_2.max()
+        .mask(damage_groupby_2.count() == 0, np.nan)
+        .T
+    )
 
     # aggregate units to the same format
     # assume identical units across locations for each comp
-    damage_units = damage_units.groupby(level=['cmp', 'loc'], axis=1).first()
+    damage_units = damage_units.T.groupby(level=['cmp', 'loc']).first().T
 
     grp_damage = grp_damage.astype(int).T.reorder_levels(['loc', 'cmp'])
 

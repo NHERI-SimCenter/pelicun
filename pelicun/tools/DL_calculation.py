@@ -1100,7 +1100,7 @@ def _result_summary(
 
     if damage_sample is not None:
         assert isinstance(damage_sample, pd.DataFrame)
-        damage_sample = damage_sample.groupby(level=['cmp', 'ds'], axis=1).sum()  # type: ignore
+        damage_sample = damage_sample.T.groupby(level=['cmp', 'ds']).sum().T
         assert isinstance(damage_sample, pd.DataFrame)
         damage_sample_s = convert_to_SimpleIndex(damage_sample, axis=1)
 
@@ -1236,9 +1236,13 @@ def _asset_save(
     cmp_units = cmp_units_series.to_frame().T
 
     if aggregate_colocated:
-        cmp_units = cmp_units.groupby(level=['cmp', 'loc', 'dir'], axis=1).first()  # type: ignore
-        cmp_groupby_uid = cmp_sample.groupby(level=['cmp', 'loc', 'dir'], axis=1)  # type: ignore
-        cmp_sample = cmp_groupby_uid.sum().mask(cmp_groupby_uid.count() == 0, np.nan)
+        cmp_units = cmp_units.T.groupby(level=['cmp', 'loc', 'dir']).first().T
+        cmp_groupby_uid = cmp_sample.T.groupby(level=['cmp', 'loc', 'dir'])
+        cmp_sample = (
+            cmp_groupby_uid.sum()
+            .mask(cmp_groupby_uid.count() == 0, np.nan)
+            .T
+        )
 
     out_reqs = _parse_requested_output_file_names(output_config)
 
@@ -1298,14 +1302,16 @@ def _damage_save(
     damage_units = damage_units_series.to_frame().T
 
     if aggregate_colocated:
-        damage_units = damage_units.groupby(  # type: ignore
-            level=['cmp', 'loc', 'dir', 'ds'], axis=1
-        ).first()
-        damage_groupby_uid = damage_sample.groupby(  # type: ignore
-            level=['cmp', 'loc', 'dir', 'ds'], axis=1
+        damage_units = (
+            damage_units.T.groupby(level=['cmp', 'loc', 'dir', 'ds']).first().T
         )
-        damage_sample = damage_groupby_uid.sum().mask(
-            damage_groupby_uid.count() == 0, np.nan
+        damage_groupby_uid = damage_sample.T.groupby(
+            level=['cmp', 'loc', 'dir', 'ds']
+        )
+        damage_sample = (
+            damage_groupby_uid.sum()
+            .mask(damage_groupby_uid.count() == 0, np.nan)
+            .T
         )
 
     out_reqs = _parse_requested_output_file_names(output_config)
@@ -1336,12 +1342,14 @@ def _damage_save(
         out_files.append('DMG_stats.csv')
 
     if out_reqs.intersection({'GroupedSample', 'GroupedStatistics'}):
-        damage_groupby = damage_sample.groupby(level=['cmp', 'loc', 'ds'], axis=1)  # type: ignore
-        damage_units = damage_units.groupby(
-            level=['cmp', 'loc', 'ds'], axis=1
-        ).first()  # type: ignore
+        damage_groupby = damage_sample.T.groupby(level=['cmp', 'loc', 'ds'])
+        damage_units = (
+            damage_units.T.groupby(level=['cmp', 'loc', 'ds']).first().T
+        )
 
-        grp_damage = damage_groupby.sum().mask(damage_groupby.count() == 0, np.nan)
+        grp_damage = (
+            damage_groupby.sum().mask(damage_groupby.count() == 0, np.nan).T
+        )
 
         # if requested, condense DS output
         if condense_ds:
@@ -1357,29 +1365,33 @@ def _damage_save(
             grp_damage = grp_damage.mul(ds_list, axis=1)
 
             # aggregate across damage state indices
-            damage_groupby_2 = grp_damage.groupby(level=['cmp', 'loc'], axis=1)
+            damage_groupby_2 = grp_damage.T.groupby(level=['cmp', 'loc'])
 
             # choose the max value
             # i.e., the governing DS for each comp-loc pair
-            grp_damage = damage_groupby_2.max().mask(
-                damage_groupby_2.count() == 0, np.nan
+            grp_damage = (
+                damage_groupby_2.max()
+                .mask(damage_groupby_2.count() == 0, np.nan)
+                .T
             )
 
             # aggregate units to the same format
             # assume identical units across locations for each comp
-            damage_units = damage_units.groupby(level=['cmp', 'loc'], axis=1).first()  # type: ignore
+            damage_units = damage_units.T.groupby(level=['cmp', 'loc']).first().T
 
         else:
             # otherwise, aggregate damage quantities for each comp
-            damage_groupby_2 = grp_damage.groupby(level='cmp', axis=1)
+            damage_groupby_2 = grp_damage.T.groupby(level='cmp')
 
             # preserve NaNs
-            grp_damage = damage_groupby_2.sum().mask(
-                damage_groupby_2.count() == 0, np.nan
+            grp_damage = (
+                damage_groupby_2.sum()
+                .mask(damage_groupby_2.count() == 0, np.nan)
+                .T
             )
 
             # and aggregate units to the same format
-            damage_units = damage_units.groupby(level='cmp', axis=1).first()  # type: ignore
+            damage_units = damage_units.T.groupby(level='cmp').first().T
 
         if 'GroupedSample' in out_reqs:
             grp_damage_s = pd.concat([grp_damage, damage_units])
@@ -1442,22 +1454,17 @@ def _loss_save(  # noqa: C901
 
     if aggregate_colocated:
         if 'ds' in repair_units.columns.names:
-            repair_units = repair_units.groupby(  # type: ignore
-                level=['dv', 'loss', 'dmg', 'ds', 'loc', 'dir'], axis=1
-            ).first()
-            repair_groupby_uid = repair_sample.groupby(  # type: ignore
-                level=['dv', 'loss', 'dmg', 'ds', 'loc', 'dir'], axis=1
-            )
+            uid_levels = ['dv', 'loss', 'dmg', 'ds', 'loc', 'dir']
         else:
-            repair_units = repair_units.groupby(  # type: ignore
-                level=['dv', 'loss', 'dmg', 'loc', 'dir'], axis=1
-            ).first()
-            repair_groupby_uid = repair_sample.groupby(  # type: ignore
-                level=['dv', 'loss', 'dmg', 'loc', 'dir'], axis=1
-            )
+            uid_levels = ['dv', 'loss', 'dmg', 'loc', 'dir']
 
-        repair_sample = repair_groupby_uid.sum().mask(
-            repair_groupby_uid.count() == 0, np.nan
+        repair_units = repair_units.T.groupby(level=uid_levels).first().T
+        repair_groupby_uid = repair_sample.T.groupby(level=uid_levels)
+
+        repair_sample = (
+            repair_groupby_uid.sum()
+            .mask(repair_groupby_uid.count() == 0, np.nan)
+            .T
         )
 
     out_reqs = _parse_requested_output_file_names(output_config)
@@ -1489,11 +1496,13 @@ def _loss_save(  # noqa: C901
         out_files.append('DV_repair_stats.csv')
 
     if out_reqs.intersection({'GroupedSample', 'GroupedStatistics'}):
-        repair_groupby = repair_sample.groupby(level=['dv', 'loss', 'dmg'], axis=1)  # type: ignore
-        repair_units = repair_units.groupby(  # type: ignore
-            level=['dv', 'loss', 'dmg'], axis=1
-        ).first()
-        grp_repair = repair_groupby.sum().mask(repair_groupby.count() == 0, np.nan)
+        repair_groupby = repair_sample.T.groupby(level=['dv', 'loss', 'dmg'])
+        repair_units = (
+            repair_units.T.groupby(level=['dv', 'loss', 'dmg']).first().T
+        )
+        grp_repair = (
+            repair_groupby.sum().mask(repair_groupby.count() == 0, np.nan).T
+        )
 
         if 'GroupedSample' in out_reqs:
             grp_repair_s = pd.concat([grp_repair, repair_units])

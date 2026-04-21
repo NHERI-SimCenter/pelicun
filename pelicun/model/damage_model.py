@@ -1696,9 +1696,13 @@ class DamageModel_DS(DamageModel_Base):
         # min_count=1 is specified so that the sum cross all NaNs will
         # result in NaN instead of zero.
         # https://stackoverflow.com/questions/33448003/sum-across-all-nans-in-pandas-returns-zero
-        return damage_quantities.groupby(  # type: ignore
-            level=['cmp', 'loc', 'dir', 'uid', 'ds'], axis=1
-        ).sum(min_count=1)
+        return (
+            damage_quantities.T.groupby(
+                level=['cmp', 'loc', 'dir', 'uid', 'ds']
+            )
+            .sum(min_count=1)
+            .T
+        )
 
     def perform_dmg_task(self, task: tuple) -> None:  # noqa: C901
         """
@@ -1951,12 +1955,7 @@ class DamageModel_DS(DamageModel_Base):
         # Get the header for the results that we can use to identify
         # cmp-loc-dir-uid sets
         dmg_header = (
-            dmg_sample.groupby(  # type: ignore
-                level=[0, 1, 2, 3],
-                axis=1,
-            )
-            .first()
-            .iloc[:2, :]
+            dmg_sample.T.groupby(level=[0, 1, 2, 3]).first().T.iloc[:2, :]
         )
         damaged_components = set(dmg_header.columns.get_level_values('cmp'))
 

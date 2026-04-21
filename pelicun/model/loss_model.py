@@ -920,9 +920,9 @@ class LossModel(PelicunModel):
         column_levels = ['dv', 'loss', 'dmg', 'loc', 'dir', 'uid']
         combined_sample = self.sample
         sample = (
-            combined_sample.groupby(level=column_levels, axis=1)  # type: ignore
-            .sum()
-            .sort_index(axis=1)
+            combined_sample.T.groupby(level=column_levels).sum().T.sort_index(
+                axis=1
+            )
         )
 
         #
@@ -1324,10 +1324,7 @@ class LossModel(PelicunModel):
         """
         df_agg = pd.DataFrame(index=sample.index, columns=columns)
         # group results by DV type and location
-        aggregated = sample.groupby(
-            level=['dv', 'loc'],
-            axis=1,  # type: ignore
-        ).sum()
+        aggregated = sample.T.groupby(level=['dv', 'loc']).sum().T
 
         for decision_variable in self.decision_variables:
             # Time
@@ -1950,8 +1947,8 @@ class RepairModel_DS(RepairModel_Base):
             eco_levels = [0, 1, 4]
             eco_columns = ['cmp', 'loc', 'ds']
 
-        eco_group = dmg_quantities.groupby(level=eco_levels, axis=1)  # type: ignore
-        eco_qnt = eco_group.sum().mask(eco_group.count() == 0, np.nan)
+        eco_group = dmg_quantities.T.groupby(level=eco_levels)
+        eco_qnt = eco_group.sum().mask(eco_group.count() == 0, np.nan).T
         assert eco_qnt.columns.names == eco_columns
 
         self.log.msg(
@@ -2661,9 +2658,11 @@ class RepairModel_LF(RepairModel_Base):
         )
 
         # sum up the block losses
-        sample = sample.groupby(  # type: ignore
-            by=['dv', 'loss', 'dmg', 'loc', 'dir', 'uid'], axis=1
-        ).sum()
+        sample = (
+            sample.T.groupby(level=['dv', 'loss', 'dmg', 'loc', 'dir', 'uid'])
+            .sum()
+            .T
+        )
 
         self.log.msg('Successfully obtained DV sample.', prepend_timestamp=False)
         self.sample = sample
