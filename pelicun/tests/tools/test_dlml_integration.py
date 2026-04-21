@@ -633,8 +633,9 @@ def test_cli_integration_invalid_action() -> None:
     Tests that the CLI returns the expected error code and message
     when an invalid action is provided.
     """
+
     result = subprocess.run(  # noqa: S603
-        ['pelicun', 'dlml', 'invalid'],  # noqa: S607
+        [sys.executable, '-m', 'pelicun', 'dlml', 'invalid'],
         capture_output=True,
         text=True,
         check=False,
@@ -652,7 +653,7 @@ def test_cli_integration_missing_arguments() -> None:
     when required arguments are missing.
     """
     result = subprocess.run(  # noqa: S603
-        ['pelicun', 'dlml'],  # noqa: S607
+        [sys.executable, '-m', 'pelicun', 'dlml'],
         capture_output=True,
         text=True,
         check=False,

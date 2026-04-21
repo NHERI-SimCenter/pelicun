@@ -31,9 +31,9 @@ classifiers = [
     "Topic :: Scientific/Engineering",
 ]
 dependencies = [
-    "numpy>=1.22.0, <3.0",
-    "scipy>=1.7.0, <1.16",
-    "pandas>=1.4.0, <3.0",
+    "numpy>=1.23, <3.0",
+    "scipy>=1.8.0, <1.16",
+    "pandas>=2.2.3, <3.0",
     "colorama>=0.4.0, <0.5.0",
     "numexpr>=2.8, <3.0",
     "jsonschema>=4.22.0, <5.0",
