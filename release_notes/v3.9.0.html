@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Version 3.7.0 (August 7, 2025) &mdash; pelicun  documentation</title>
+  <title>Version 3.9.0 (April 20, 2026) &mdash; pelicun  documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
@@ -24,8 +24,8 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Version 3.6.1 (May 16, 2025)" href="v3.6.1.html" />
-    <link rel="prev" title="Version 3.7.1 (August 12, 2025)" href="v3.7.1.html" /> 
+    <link rel="next" title="Version 3.8.1 (September 27, 2025)" href="v3.8.1.html" />
+    <link rel="prev" title="Unreleased" href="unreleased.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -144,7 +144,7 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="index.html"><span class="section-number">5. </span>Release Notes</a></li>
-      <li class="breadcrumb-item active">Version 3.7.0 (August 7, 2025)</li>
+      <li class="breadcrumb-item active">Version 3.9.0 (April 20, 2026)</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -153,38 +153,127 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="version-3-7-0-august-7-2025">
-<span id="changes-v3-7-0"></span><h1>Version 3.7.0 (August 7, 2025)<a class="headerlink" href="#version-3-7-0-august-7-2025" title="Link to this heading"></a></h1>
+  <section id="version-3-9-0-april-20-2026">
+<span id="changes-v3-9-0"></span><h1>Version 3.9.0 (April 20, 2026)<a class="headerlink" href="#version-3-9-0-april-20-2026" title="Link to this heading"></a></h1>
+<p>The headline change in 3.9.0 is <strong>multi-hazard regional simulation</strong>:
+the <code class="docutils literal notranslate"><span class="pre">regional_sim</span></code> tool now handles Hazus Hurricane Wind alongside
+earthquake, and has been restructured around a configuration-driven
+Intensity Measure model and a conditional loss-assessment framework
+that generalizes cleanly to additional hazards. Alongside this, a
+<strong>building inventory filter</strong> lets users run on any subset of an
+asset list, and the <strong>NNR</strong> resampler has been extended to operate on
+3D per-realization arrays with a configurable neighbor count.</p>
+<p>On the runtime side, pelicun is now fully <strong>numpy 2 compatible</strong>, and
+its dependency ranges have been revisited against what the code
+actually uses — raising the pandas, numpy, and scipy floors, widening
+the upper bounds, and clearing the ~720 pandas / numpy deprecation
+warnings previously emitted by the test suite.</p>
 <section id="added">
 <h2>Added<a class="headerlink" href="#added" title="Link to this heading"></a></h2>
-<p><strong>Regional Simulation Tool</strong>: A new regional simulation capability has been added to Pelicun as a temporary solution while the integrated feature is being developed. The tool currently supports Hazus EQ simulation using lifeline facility fragilities and includes:</p>
+<p><strong>Multi-Hazard Regional Simulation</strong>: The <code class="docutils literal notranslate"><span class="pre">regional_sim</span></code> tool now
+supports configurable hazards beyond earthquake.</p>
 <ul class="simple">
-<li><p><strong>Batch Processing</strong>: Memory-efficient sequential and parallel batch processing using joblib for handling large-scale regional simulations</p></li>
-<li><p><strong>Progress Reporting</strong>: Time and progress information output to track simulation status</p></li>
-<li><p><strong>Command-line Interface</strong>: A new CLI system with <code class="docutils literal notranslate"><span class="pre">pelicun</span></code> as an installable command and <code class="docutils literal notranslate"><span class="pre">regional_sim</span></code> as the first available subcommand</p></li>
+<li><p>Add support for the <strong>Hazus Hurricane Wind</strong> damage and loss
+methodology.</p></li>
+<li><p>Introduce a new end-to-end integration test for the hurricane wind
+scenario, with a dedicated, hazard-specific pytest fixture.</p></li>
 </ul>
-<p><strong>Installable CLI</strong>: Pelicun now provides a modern command-line interface through a <code class="docutils literal notranslate"><span class="pre">console_scripts</span></code> entry point. The new <code class="docutils literal notranslate"><span class="pre">pelicun/cli.py</span></code> module serves as a subcommand dispatcher, making the tool easier to install and use from the command line.</p>
-<p><strong>Case-insensitive Unit Handling</strong>: Implemented case-insensitive unit label handling in input data processing, improving robustness when processing data with varying unit label capitalization.</p>
+<p><strong>Building Inventory Filter</strong>: Run simulations on a specific subset of
+assets.</p>
+<ul class="simple">
+<li><p>Add a <code class="docutils literal notranslate"><span class="pre">filter</span></code> key to the <code class="docutils literal notranslate"><span class="pre">regional_sim</span></code> configuration that
+selects buildings by ID and ID ranges (e.g., <code class="docutils literal notranslate"><span class="pre">&quot;1,</span> <span class="pre">5-10&quot;</span></code>).</p></li>
+<li><p>Add a parametrized test suite covering success and error-handling
+scenarios for the filter.</p></li>
+</ul>
+<p><strong>Enhanced Regional Simulation Testing</strong>: Add the first comprehensive
+integration tests for the <code class="docutils literal notranslate"><span class="pre">regional_sim</span></code> tool, establishing a
+testing baseline for future changes.</p>
+<p><strong>NNR (Nearest Neighbor Resampling) Enhancements</strong>:</p>
+<ul class="simple">
+<li><p>The “expected value” mode now operates on each realization of a 3D
+input array independently.</p></li>
+<li><p>The 2D expected value path is now vectorized for improved
+performance.</p></li>
+<li><p>The number of nearest neighbors is now a configurable parameter.</p></li>
+</ul>
+<p><strong>numpy 2 Support</strong>: Pelicun now runs against numpy 2 (verified on
+numpy 2.0 through 2.4).</p>
+<p><strong>Module Entry Point</strong>: <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">-m</span> <span class="pre">pelicun</span></code> now dispatches to the
+CLI, complementing the existing <code class="docutils literal notranslate"><span class="pre">pelicun</span></code> console script.</p>
 </section>
 <section id="changed">
 <h2>Changed<a class="headerlink" href="#changed" title="Link to this heading"></a></h2>
-<p><strong>Modernized Packaging</strong>: The project has been modernized to align with current Python packaging standards (PEP 621):</p>
+<p><strong>Regional Simulation Workflow</strong>: Major refactoring of the
+<code class="docutils literal notranslate"><span class="pre">regional_sim</span></code> script for improved flexibility and robustness.</p>
 <ul class="simple">
-<li><p>All static package metadata (version, dependencies, etc.) has been migrated from <code class="docutils literal notranslate"><span class="pre">setup.py</span></code> to <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code> is now the single source of truth for package configuration</p></li>
-<li><p>Version number source has been moved to <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">setup.py</span></code> file is now minimal, reserved for future dynamic build logic</p></li>
+<li><p>Generalize the Intensity Measure (IM) handling to be dynamically
+driven by the configuration file, removing all hardcoded “PGA”
+logic.</p></li>
+<li><p>Rearchitect the loss assessment logic into a conditional framework,
+with a dedicated path for complex Hazus Earthquake models and an
+efficient 1-to-1 mapping path for other methods.</p></li>
+<li><p>Reorganize the output stage to save results sequentially, improving
+robustness against failures in later-stage calculations.</p></li>
+<li><p>Upsample demand realizations when the requested sample size is
+larger than the available data.</p></li>
 </ul>
+<p><strong>Runtime Dependency Ranges</strong>: Broadened upper bounds and raised lower
+bounds to reflect what the code actually supports.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">numpy</span></code>: <code class="docutils literal notranslate"><span class="pre">&lt;2.0</span></code> -&gt; <code class="docutils literal notranslate"><span class="pre">&gt;=1.23,</span> <span class="pre">&lt;3.0</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">scipy</span></code>: <code class="docutils literal notranslate"><span class="pre">&lt;=1.15.3</span></code> -&gt; <code class="docutils literal notranslate"><span class="pre">&gt;=1.8.0,</span> <span class="pre">&lt;1.16</span></code> (scipy 1.16 removed
+the private <code class="docutils literal notranslate"><span class="pre">stats._mvn</span></code> module imported by <code class="docutils literal notranslate"><span class="pre">uq.py</span></code>).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">pandas</span></code>: <code class="docutils literal notranslate"><span class="pre">&gt;=1.4.0</span></code> -&gt; <code class="docutils literal notranslate"><span class="pre">&gt;=2.2.3,</span> <span class="pre">&lt;3.0</span></code> (the code uses
+<code class="docutils literal notranslate"><span class="pre">future.no_silent_downcasting</span></code> and <code class="docutils literal notranslate"><span class="pre">GroupBy.first(skipna=False)</span></code>,
+which are only available from pandas 2.2.1+).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">tqdm</span></code>, <code class="docutils literal notranslate"><span class="pre">requests</span></code>, <code class="docutils literal notranslate"><span class="pre">joblib</span></code>, <code class="docutils literal notranslate"><span class="pre">scikit-learn</span></code>, <code class="docutils literal notranslate"><span class="pre">packaging</span></code>:
+switched from unpinned to explicit compatibility ranges.</p></li>
+</ul>
+<p><strong>Configuration (breaking)</strong>: <code class="docutils literal notranslate"><span class="pre">regional_sim</span></code> now requires a
+<code class="docutils literal notranslate"><span class="pre">neighbors</span></code> key under
+<code class="docutils literal notranslate"><span class="pre">Applications/RegionalMapping/Buildings/ApplicationData</span></code> in the run
+configuration.</p>
 </section>
 <section id="removed">
 <h2>Removed<a class="headerlink" href="#removed" title="Link to this heading"></a></h2>
-<p><strong>Deprecated Tools</strong>: Removed <code class="docutils literal notranslate"><span class="pre">HDF_to_CSV</span></code> from tools as it is no longer used.</p>
+<p>(none)</p>
 </section>
 <section id="fixed">
 <h2>Fixed<a class="headerlink" href="#fixed" title="Link to this heading"></a></h2>
-<p><strong>Pandas Deprecation Warning</strong>: Fixed a minor issue in <code class="docutils literal notranslate"><span class="pre">loss_model</span></code> to avoid pandas deprecation warnings, ensuring compatibility with newer pandas versions.</p>
-<p><strong>R2D Configuration Handling</strong>: Applied bugfixes to handle advanced configurations from R2D.</p>
-<p><strong>Documentation Build Issues</strong>: Resolved various Sphinx warnings and build errors to ensure clean documentation generation.</p>
+<p><strong>Pandas / numpy Deprecation Warnings</strong>: A full-suite test run previously
+emitted ~720 deprecation warnings. The following underlying call sites
+were corrected so that the suite now runs warning-free apart from
+pelicun’s own intentional <code class="docutils literal notranslate"><span class="pre">PelicunWarning</span></code> emissions:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">base.convert_dtypes</span></code>: replace deprecated
+<code class="docutils literal notranslate"><span class="pre">pd.to_numeric(...,</span> <span class="pre">errors='ignore')</span></code> with an explicit try/except
+fallback.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">DemandModel.estimate_RID</span></code>: replace a <code class="docutils literal notranslate"><span class="pre">DataFrame.stack</span></code> trick
+used only for MultiIndex construction with a direct
+<code class="docutils literal notranslate"><span class="pre">pd.MultiIndex.from_tuples</span></code> call.</p></li>
+<li><p>Unit-label assignments in <code class="docutils literal notranslate"><span class="pre">assessment.calculate_demand</span></code>,
+<code class="docutils literal notranslate"><span class="pre">assessment._add_units</span></code>, and <code class="docutils literal notranslate"><span class="pre">DemandModel.add_column</span></code>: build the
+mixed-dtype “Units” row with an explicit object dtype so string
+labels no longer trigger a float64 -&gt; object upcast warning.</p></li>
+<li><p>~27 <code class="docutils literal notranslate"><span class="pre">DataFrame.groupby(...,</span> <span class="pre">axis=1)</span></code> call sites in the damage /
+loss / regional-sim / DL_calculation paths: rewritten as
+<code class="docutils literal notranslate"><span class="pre">df.T.groupby(...)...T</span></code>.</p></li>
+</ul>
+<p><strong>Damage Model — Fragility Scaling with Unspecified Distribution</strong>:
+<code class="docutils literal notranslate"><span class="pre">ScalingSpecification</span></code> entries targeting components whose
+distribution family is missing (stored as NaN, e.g., Hazus
+<code class="docutils literal notranslate"><span class="pre">collapse-0-1</span></code>) are now scaled as deterministic capacities instead
+of being silently ignored with a warning. This aligns
+<code class="docutils literal notranslate"><span class="pre">damage_model.ds_model._create_dmg_rvs</span></code> with the existing behavior
+of <code class="docutils literal notranslate"><span class="pre">uq.rv_class_map</span></code>.</p>
+<p><strong>Code Quality and Documentation</strong>: Continued compliance with ruff,
+full type hints and docstring added to the <code class="docutils literal notranslate"><span class="pre">NNR</span></code> function.</p>
+<p><strong>CLI Subprocess Tests</strong>: The three <code class="docutils literal notranslate"><span class="pre">pelicun</span></code> CLI integration tests
+now invoke the CLI via <code class="docutils literal notranslate"><span class="pre">[sys.executable,</span> <span class="pre">'-m',</span> <span class="pre">'pelicun',</span> <span class="pre">...]</span></code> so
+they use the same interpreter / virtualenv as the test runner,
+instead of whichever <code class="docutils literal notranslate"><span class="pre">pelicun</span></code> script happens to come first on
+<code class="docutils literal notranslate"><span class="pre">PATH</span></code>.</p>
 </section>
 </section>
 

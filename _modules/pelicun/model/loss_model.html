@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>pelicun.model.loss_model &mdash; pelicun  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=f9bf6728" />
 
@@ -1098,9 +1098,7 @@
         <span class="n">column_levels</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;dv&#39;</span><span class="p">,</span> <span class="s1">&#39;loss&#39;</span><span class="p">,</span> <span class="s1">&#39;dmg&#39;</span><span class="p">,</span> <span class="s1">&#39;loc&#39;</span><span class="p">,</span> <span class="s1">&#39;dir&#39;</span><span class="p">,</span> <span class="s1">&#39;uid&#39;</span><span class="p">]</span>
         <span class="n">combined_sample</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sample</span>
         <span class="n">sample</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="n">combined_sample</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">column_levels</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
-            <span class="o">.</span><span class="n">sum</span><span class="p">()</span>
-            <span class="o">.</span><span class="n">sort_index</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">combined_sample</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">column_levels</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">sort_index</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
         <span class="p">)</span>
 
         <span class="c1">#</span>
@@ -1503,10 +1501,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">df_agg</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="n">sample</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">columns</span><span class="p">)</span>
         <span class="c1"># group results by DV type and location</span>
-        <span class="n">aggregated</span> <span class="o">=</span> <span class="n">sample</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span>
-            <span class="n">level</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;dv&#39;</span><span class="p">,</span> <span class="s1">&#39;loc&#39;</span><span class="p">],</span>
-            <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>  <span class="c1"># type: ignore</span>
-        <span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+        <span class="n">aggregated</span> <span class="o">=</span> <span class="n">sample</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;dv&#39;</span><span class="p">,</span> <span class="s1">&#39;loc&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">T</span>
 
         <span class="k">for</span> <span class="n">decision_variable</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">decision_variables</span><span class="p">:</span>
             <span class="c1"># Time</span>
@@ -2158,8 +2153,8 @@
             <span class="n">eco_levels</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">]</span>
             <span class="n">eco_columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;cmp&#39;</span><span class="p">,</span> <span class="s1">&#39;loc&#39;</span><span class="p">,</span> <span class="s1">&#39;ds&#39;</span><span class="p">]</span>
 
-        <span class="n">eco_group</span> <span class="o">=</span> <span class="n">dmg_quantities</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">eco_levels</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
-        <span class="n">eco_qnt</span> <span class="o">=</span> <span class="n">eco_group</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">mask</span><span class="p">(</span><span class="n">eco_group</span><span class="o">.</span><span class="n">count</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+        <span class="n">eco_group</span> <span class="o">=</span> <span class="n">dmg_quantities</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">eco_levels</span><span class="p">)</span>
+        <span class="n">eco_qnt</span> <span class="o">=</span> <span class="n">eco_group</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">mask</span><span class="p">(</span><span class="n">eco_group</span><span class="o">.</span><span class="n">count</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
         <span class="k">assert</span> <span class="n">eco_qnt</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">names</span> <span class="o">==</span> <span class="n">eco_columns</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">msg</span><span class="p">(</span>
@@ -2881,9 +2876,11 @@
         <span class="p">)</span>
 
         <span class="c1"># sum up the block losses</span>
-        <span class="n">sample</span> <span class="o">=</span> <span class="n">sample</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span>  <span class="c1"># type: ignore</span>
-            <span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;dv&#39;</span><span class="p">,</span> <span class="s1">&#39;loss&#39;</span><span class="p">,</span> <span class="s1">&#39;dmg&#39;</span><span class="p">,</span> <span class="s1">&#39;loc&#39;</span><span class="p">,</span> <span class="s1">&#39;dir&#39;</span><span class="p">,</span> <span class="s1">&#39;uid&#39;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span>
-        <span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+        <span class="n">sample</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">sample</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;dv&#39;</span><span class="p">,</span> <span class="s1">&#39;loss&#39;</span><span class="p">,</span> <span class="s1">&#39;dmg&#39;</span><span class="p">,</span> <span class="s1">&#39;loc&#39;</span><span class="p">,</span> <span class="s1">&#39;dir&#39;</span><span class="p">,</span> <span class="s1">&#39;uid&#39;</span><span class="p">])</span>
+            <span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+            <span class="o">.</span><span class="n">T</span>
+        <span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">msg</span><span class="p">(</span><span class="s1">&#39;Successfully obtained DV sample.&#39;</span><span class="p">,</span> <span class="n">prepend_timestamp</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sample</span> <span class="o">=</span> <span class="n">sample</span>
@@ -3238,7 +3235,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2025, Leland Stanford Junior University and The Regents of the University of California.</p>
+    <p>&#169; Copyright 2026, Leland Stanford Junior University and The Regents of the University of California.</p>
   </div>
 
    

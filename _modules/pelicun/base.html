@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>pelicun.base &mdash; pelicun  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
-      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css?v=f9bf6728" />
 
@@ -534,7 +534,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">warning_stack</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">emitted</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">reset_log_strings</span><span class="p">()</span>
-        <span class="n">control_warnings</span><span class="p">()</span>
+        <span class="c1"># control_warnings()</span>
 
         <span class="c1"># Register the logger to the LoggerRegistry in order to</span>
         <span class="c1"># capture raised exceptions.</span>
@@ -1102,18 +1102,23 @@
         <span class="n">pd</span><span class="o">.</span><span class="n">option_context</span><span class="p">(</span><span class="s1">&#39;mode.copy_on_write&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>  <span class="c1"># noqa: FBT003</span>
     <span class="p">):</span>
         <span class="n">dataframe</span> <span class="o">=</span> <span class="n">dataframe</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span><span class="o">.</span><span class="n">infer_objects</span><span class="p">()</span>
+
+    <span class="c1"># We want numeric conversion to be best-effort: columns that parse</span>
+    <span class="c1"># as numbers are converted, columns that do not (e.g. unit strings)</span>
+    <span class="c1"># are left untouched. Historically this was expressed as</span>
+    <span class="c1"># `pd.to_numeric(x, errors=&#39;ignore&#39;)`, but that option is deprecated</span>
+    <span class="c1"># in pandas 2.2 and scheduled to raise in a future release. The</span>
+    <span class="c1"># replacement recommended by the pandas docs is to catch the</span>
+    <span class="c1"># parse failure ourselves and fall back to the original column.</span>
+    <span class="c1"># See: https://pandas.pydata.org/docs/reference/api/pandas.to_numeric.html</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_to_numeric_if_possible</span><span class="p">(</span><span class="n">column</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span><span class="n">column</span><span class="p">)</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">TypeError</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">column</span>
+
     <span class="c1"># note: `axis=0` applies the function to the columns</span>
-    <span class="c1"># note: ignoring errors is a bad idea and should never be done. In</span>
-    <span class="c1"># this case, however, that&#39;s not what we do, despite the name of</span>
-    <span class="c1"># this parameter. We simply don&#39;t convert the dtype of columns</span>
-    <span class="c1"># that cannot be interpreted as numeric. That&#39;s what</span>
-    <span class="c1"># `errors=&#39;ignore&#39;` does.</span>
-    <span class="c1"># See:</span>
-    <span class="c1"># https://pandas.pydata.org/docs/reference/api/pandas.to_numeric.html</span>
-    <span class="k">return</span> <span class="n">dataframe</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
-        <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s1">&#39;ignore&#39;</span><span class="p">),</span>  <span class="c1"># type:ignore</span>
-        <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
-    <span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">dataframe</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">_to_numeric_if_possible</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span></div>
 
 
 
@@ -2174,7 +2179,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2025, Leland Stanford Junior University and The Regents of the University of California.</p>
+    <p>&#169; Copyright 2026, Leland Stanford Junior University and The Regents of the University of California.</p>
   </div>
 
    

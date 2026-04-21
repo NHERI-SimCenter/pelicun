@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>pelicun.tests.tools.test_dlml_integration &mdash; pelicun  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
-      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/sphinx-design.min.css?v=95c83b7e" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/css/custom.css?v=f9bf6728" />
 
@@ -827,8 +827,9 @@
 <span class="sd">    Tests that the CLI returns the expected error code and message</span>
 <span class="sd">    when an invalid action is provided.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">result</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>  <span class="c1"># noqa: S603</span>
-        <span class="p">[</span><span class="s1">&#39;pelicun&#39;</span><span class="p">,</span> <span class="s1">&#39;dlml&#39;</span><span class="p">,</span> <span class="s1">&#39;invalid&#39;</span><span class="p">],</span>  <span class="c1"># noqa: S607</span>
+        <span class="p">[</span><span class="n">sys</span><span class="o">.</span><span class="n">executable</span><span class="p">,</span> <span class="s1">&#39;-m&#39;</span><span class="p">,</span> <span class="s1">&#39;pelicun&#39;</span><span class="p">,</span> <span class="s1">&#39;dlml&#39;</span><span class="p">,</span> <span class="s1">&#39;invalid&#39;</span><span class="p">],</span>
         <span class="n">capture_output</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">text</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">check</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
@@ -849,7 +850,7 @@
 <span class="sd">    when required arguments are missing.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">result</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>  <span class="c1"># noqa: S603</span>
-        <span class="p">[</span><span class="s1">&#39;pelicun&#39;</span><span class="p">,</span> <span class="s1">&#39;dlml&#39;</span><span class="p">],</span>  <span class="c1"># noqa: S607</span>
+        <span class="p">[</span><span class="n">sys</span><span class="o">.</span><span class="n">executable</span><span class="p">,</span> <span class="s1">&#39;-m&#39;</span><span class="p">,</span> <span class="s1">&#39;pelicun&#39;</span><span class="p">,</span> <span class="s1">&#39;dlml&#39;</span><span class="p">],</span>
         <span class="n">capture_output</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">text</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">check</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
@@ -868,7 +869,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2025, Leland Stanford Junior University and The Regents of the University of California.</p>
+    <p>&#169; Copyright 2026, Leland Stanford Junior University and The Regents of the University of California.</p>
   </div>
 
    

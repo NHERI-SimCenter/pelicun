@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>pelicun.model.demand_model &mdash; pelicun  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=f9bf6728" />
 
@@ -570,16 +570,20 @@
             <span class="n">rid</span><span class="p">[</span><span class="n">rid</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">rid</span><span class="p">[</span><span class="n">rid</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">])</span> <span class="o">+</span> <span class="n">eps</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
 
             <span class="c1"># finally, make sure the RID values are never larger than</span>
-            <span class="c1"># the PIDs</span>
+            <span class="c1"># the PIDs.</span>
+            <span class="c1">#</span>
+            <span class="c1"># The new column index prepends an outer &#39;RID&#39; level to</span>
+            <span class="c1"># every tuple in `pid.columns`. Building it explicitly with</span>
+            <span class="c1"># `MultiIndex.from_tuples` keeps the column order aligned</span>
+            <span class="c1"># with the positional layout of `pid.values`, which is what</span>
+            <span class="c1"># `np.minimum(pid.values, rid.values)` produces.</span>
+            <span class="n">rid_columns</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">MultiIndex</span><span class="o">.</span><span class="n">from_tuples</span><span class="p">(</span>
+                <span class="p">[(</span><span class="s1">&#39;RID&#39;</span><span class="p">,</span> <span class="o">*</span><span class="n">col</span><span class="p">)</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">pid</span><span class="o">.</span><span class="n">columns</span><span class="p">],</span>
+                <span class="n">names</span><span class="o">=</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="n">pid</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">names</span><span class="p">],</span>
+            <span class="p">)</span>
             <span class="n">rid</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
                 <span class="n">np</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span><span class="n">pid</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">rid</span><span class="o">.</span><span class="n">values</span><span class="p">),</span>  <span class="c1"># type: ignore</span>
-                <span class="n">columns</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>  <span class="c1"># noqa: PD013</span>
-                    <span class="mi">1</span><span class="p">,</span>
-                    <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;RID&#39;</span><span class="p">],</span>
-                    <span class="n">columns</span><span class="o">=</span><span class="n">pid</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span>
-                <span class="p">)</span>
-                <span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
-                <span class="o">.</span><span class="n">index</span><span class="p">,</span>
+                <span class="n">columns</span><span class="o">=</span><span class="n">rid_columns</span><span class="p">,</span>
                 <span class="n">index</span><span class="o">=</span><span class="n">pid</span><span class="o">.</span><span class="n">index</span><span class="p">,</span>
             <span class="p">)</span>
 
@@ -686,7 +690,7 @@
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
         <span class="n">demand_sample</span><span class="p">[</span><span class="n">label</span><span class="p">,</span> <span class="n">location</span><span class="p">,</span> <span class="n">direction</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
         <span class="n">demand_units</span><span class="p">[</span><span class="n">label</span><span class="p">,</span> <span class="n">location</span><span class="p">,</span> <span class="n">direction</span><span class="p">]</span> <span class="o">=</span> <span class="n">unit</span>
-        <span class="n">demand_sample</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s1">&#39;Units&#39;</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">demand_units</span>
+        <span class="n">demand_sample</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">demand_sample</span><span class="p">,</span> <span class="n">demand_units</span><span class="o">.</span><span class="n">to_frame</span><span class="p">(</span><span class="s1">&#39;Units&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">T</span><span class="p">])</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">load_sample</span><span class="p">(</span><span class="n">demand_sample</span><span class="p">)</span></div>
 
 
@@ -1773,7 +1777,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2025, Leland Stanford Junior University and The Regents of the University of California.</p>
+    <p>&#169; Copyright 2026, Leland Stanford Junior University and The Regents of the University of California.</p>
   </div>
 
    

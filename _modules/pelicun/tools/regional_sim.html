@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>pelicun.tools.regional_sim &mdash; pelicun  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=f9bf6728" />
 
@@ -406,7 +406,7 @@
 
     <span class="c1"># create a lookup table to find which fragility IDs are at which location</span>
     <span class="n">dmg_sample</span> <span class="o">=</span> <span class="n">assessment</span><span class="o">.</span><span class="n">damage</span><span class="o">.</span><span class="n">save_sample</span><span class="p">()</span>
-    <span class="n">cmp_loc</span> <span class="o">=</span> <span class="n">dmg_sample</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;cmp&#39;</span><span class="p">,</span> <span class="s1">&#39;loc&#39;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+    <span class="n">cmp_loc</span> <span class="o">=</span> <span class="n">dmg_sample</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;cmp&#39;</span><span class="p">,</span> <span class="s1">&#39;loc&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">first</span><span class="p">()</span><span class="o">.</span><span class="n">T</span>
 
     <span class="n">cmp_lookup</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span>
         <span class="n">cmp_loc</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s1">&#39;cmp&#39;</span><span class="p">),</span>
@@ -478,21 +478,21 @@
             <span class="n">level</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;dv&#39;</span><span class="p">,</span> <span class="s1">&#39;loss&#39;</span><span class="p">,</span> <span class="s1">&#39;dmg&#39;</span><span class="p">,</span> <span class="s1">&#39;ds&#39;</span><span class="p">,</span> <span class="s1">&#39;loc&#39;</span><span class="p">,</span> <span class="s1">&#39;dir&#39;</span><span class="p">]</span>
         <span class="p">)</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
 
-        <span class="n">repair_groupby_uid</span> <span class="o">=</span> <span class="n">repair_sample</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span>
-            <span class="n">level</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;dv&#39;</span><span class="p">,</span> <span class="s1">&#39;loss&#39;</span><span class="p">,</span> <span class="s1">&#39;dmg&#39;</span><span class="p">,</span> <span class="s1">&#39;ds&#39;</span><span class="p">,</span> <span class="s1">&#39;loc&#39;</span><span class="p">,</span> <span class="s1">&#39;dir&#39;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span>
+        <span class="n">repair_groupby_uid</span> <span class="o">=</span> <span class="n">repair_sample</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span>
+            <span class="n">level</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;dv&#39;</span><span class="p">,</span> <span class="s1">&#39;loss&#39;</span><span class="p">,</span> <span class="s1">&#39;dmg&#39;</span><span class="p">,</span> <span class="s1">&#39;ds&#39;</span><span class="p">,</span> <span class="s1">&#39;loc&#39;</span><span class="p">,</span> <span class="s1">&#39;dir&#39;</span><span class="p">]</span>
         <span class="p">)</span>
 
-        <span class="n">repair_sample</span> <span class="o">=</span> <span class="n">repair_groupby_uid</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">mask</span><span class="p">(</span>
-            <span class="n">repair_groupby_uid</span><span class="o">.</span><span class="n">count</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        <span class="n">repair_sample</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">repair_groupby_uid</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">mask</span><span class="p">(</span><span class="n">repair_groupby_uid</span><span class="o">.</span><span class="n">count</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
         <span class="p">)</span>
 
         <span class="c1"># now aggregate across loss, dmg, damage state, and direction</span>
         <span class="c1"># all of those are only one value per location, so they do not provide additional information</span>
-        <span class="n">repair_groupby</span> <span class="o">=</span> <span class="n">repair_sample</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;dv&#39;</span><span class="p">,</span> <span class="s1">&#39;loc&#39;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">repair_groupby</span> <span class="o">=</span> <span class="n">repair_sample</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;dv&#39;</span><span class="p">,</span> <span class="s1">&#39;loc&#39;</span><span class="p">])</span>
 
         <span class="n">repair_units</span> <span class="o">=</span> <span class="n">repair_units</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;dv&#39;</span><span class="p">,</span> <span class="s1">&#39;loc&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
 
-        <span class="n">grp_repair</span> <span class="o">=</span> <span class="n">repair_groupby</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">mask</span><span class="p">(</span><span class="n">repair_groupby</span><span class="o">.</span><span class="n">count</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+        <span class="n">grp_repair</span> <span class="o">=</span> <span class="n">repair_groupby</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">mask</span><span class="p">(</span><span class="n">repair_groupby</span><span class="o">.</span><span class="n">count</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
 
         <span class="c1"># - - - -</span>
 
@@ -557,22 +557,22 @@
         <span class="n">level</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;dv&#39;</span><span class="p">,</span> <span class="s1">&#39;loss&#39;</span><span class="p">,</span> <span class="s1">&#39;dmg&#39;</span><span class="p">,</span> <span class="s1">&#39;ds&#39;</span><span class="p">,</span> <span class="s1">&#39;loc&#39;</span><span class="p">,</span> <span class="s1">&#39;dir&#39;</span><span class="p">]</span>
     <span class="p">)</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
 
-    <span class="n">repair_groupby_uid</span> <span class="o">=</span> <span class="n">repair_sample</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span>
-        <span class="n">level</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;dv&#39;</span><span class="p">,</span> <span class="s1">&#39;loss&#39;</span><span class="p">,</span> <span class="s1">&#39;dmg&#39;</span><span class="p">,</span> <span class="s1">&#39;ds&#39;</span><span class="p">,</span> <span class="s1">&#39;loc&#39;</span><span class="p">,</span> <span class="s1">&#39;dir&#39;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span>
+    <span class="n">repair_groupby_uid</span> <span class="o">=</span> <span class="n">repair_sample</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span>
+        <span class="n">level</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;dv&#39;</span><span class="p">,</span> <span class="s1">&#39;loss&#39;</span><span class="p">,</span> <span class="s1">&#39;dmg&#39;</span><span class="p">,</span> <span class="s1">&#39;ds&#39;</span><span class="p">,</span> <span class="s1">&#39;loc&#39;</span><span class="p">,</span> <span class="s1">&#39;dir&#39;</span><span class="p">]</span>
     <span class="p">)</span>
 
-    <span class="n">repair_sample</span> <span class="o">=</span> <span class="n">repair_groupby_uid</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">mask</span><span class="p">(</span>
-        <span class="n">repair_groupby_uid</span><span class="o">.</span><span class="n">count</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+    <span class="n">repair_sample</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">repair_groupby_uid</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">mask</span><span class="p">(</span><span class="n">repair_groupby_uid</span><span class="o">.</span><span class="n">count</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
     <span class="p">)</span>
 
     <span class="c1"># now aggregate across loss, dmg, damage state, and direction</span>
     <span class="c1"># all of those are only one value per location, so they do not provide</span>
     <span class="c1"># additional information</span>
-    <span class="n">repair_groupby</span> <span class="o">=</span> <span class="n">repair_sample</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;dv&#39;</span><span class="p">,</span> <span class="s1">&#39;loc&#39;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">repair_groupby</span> <span class="o">=</span> <span class="n">repair_sample</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;dv&#39;</span><span class="p">,</span> <span class="s1">&#39;loc&#39;</span><span class="p">])</span>
 
     <span class="n">repair_units</span> <span class="o">=</span> <span class="n">repair_units</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;dv&#39;</span><span class="p">,</span> <span class="s1">&#39;loc&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
 
-    <span class="n">grp_repair</span> <span class="o">=</span> <span class="n">repair_groupby</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">mask</span><span class="p">(</span><span class="n">repair_groupby</span><span class="o">.</span><span class="n">count</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+    <span class="n">grp_repair</span> <span class="o">=</span> <span class="n">repair_groupby</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">mask</span><span class="p">(</span><span class="n">repair_groupby</span><span class="o">.</span><span class="n">count</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
 
     <span class="c1"># - - - -</span>
 
@@ -808,24 +808,22 @@
 
     <span class="c1"># aggregate across uid</span>
     <span class="c1"># this is trivial since we don&#39;t have multiple identical components at the same location</span>
-    <span class="n">damage_units</span> <span class="o">=</span> <span class="n">damage_units</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span>
-        <span class="n">level</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;cmp&#39;</span><span class="p">,</span> <span class="s1">&#39;loc&#39;</span><span class="p">,</span> <span class="s1">&#39;dir&#39;</span><span class="p">,</span> <span class="s1">&#39;ds&#39;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span>
-    <span class="p">)</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
-
-    <span class="n">damage_groupby_uid</span> <span class="o">=</span> <span class="n">damage_sample</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span>
-        <span class="n">level</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;cmp&#39;</span><span class="p">,</span> <span class="s1">&#39;loc&#39;</span><span class="p">,</span> <span class="s1">&#39;dir&#39;</span><span class="p">,</span> <span class="s1">&#39;ds&#39;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span>
+    <span class="n">damage_units</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">damage_units</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;cmp&#39;</span><span class="p">,</span> <span class="s1">&#39;loc&#39;</span><span class="p">,</span> <span class="s1">&#39;dir&#39;</span><span class="p">,</span> <span class="s1">&#39;ds&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">first</span><span class="p">()</span><span class="o">.</span><span class="n">T</span>
     <span class="p">)</span>
-    <span class="n">damage_sample</span> <span class="o">=</span> <span class="n">damage_groupby_uid</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">mask</span><span class="p">(</span>
-        <span class="n">damage_groupby_uid</span><span class="o">.</span><span class="n">count</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+
+    <span class="n">damage_groupby_uid</span> <span class="o">=</span> <span class="n">damage_sample</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;cmp&#39;</span><span class="p">,</span> <span class="s1">&#39;loc&#39;</span><span class="p">,</span> <span class="s1">&#39;dir&#39;</span><span class="p">,</span> <span class="s1">&#39;ds&#39;</span><span class="p">])</span>
+    <span class="n">damage_sample</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">damage_groupby_uid</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">mask</span><span class="p">(</span><span class="n">damage_groupby_uid</span><span class="o">.</span><span class="n">count</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
     <span class="p">)</span>
 
     <span class="c1"># aggregate across dir</span>
     <span class="c1"># also trivial, all results are in dir 1</span>
 
-    <span class="n">damage_groupby</span> <span class="o">=</span> <span class="n">damage_sample</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;cmp&#39;</span><span class="p">,</span> <span class="s1">&#39;loc&#39;</span><span class="p">,</span> <span class="s1">&#39;ds&#39;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">damage_groupby</span> <span class="o">=</span> <span class="n">damage_sample</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;cmp&#39;</span><span class="p">,</span> <span class="s1">&#39;loc&#39;</span><span class="p">,</span> <span class="s1">&#39;ds&#39;</span><span class="p">])</span>
 
-    <span class="n">damage_units</span> <span class="o">=</span> <span class="n">damage_units</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;cmp&#39;</span><span class="p">,</span> <span class="s1">&#39;loc&#39;</span><span class="p">,</span> <span class="s1">&#39;ds&#39;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
-    <span class="n">grp_damage</span> <span class="o">=</span> <span class="n">damage_groupby</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">mask</span><span class="p">(</span><span class="n">damage_groupby</span><span class="o">.</span><span class="n">count</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+    <span class="n">damage_units</span> <span class="o">=</span> <span class="n">damage_units</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;cmp&#39;</span><span class="p">,</span> <span class="s1">&#39;loc&#39;</span><span class="p">,</span> <span class="s1">&#39;ds&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">first</span><span class="p">()</span><span class="o">.</span><span class="n">T</span>
+    <span class="n">grp_damage</span> <span class="o">=</span> <span class="n">damage_groupby</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">mask</span><span class="p">(</span><span class="n">damage_groupby</span><span class="o">.</span><span class="n">count</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
 
     <span class="c1"># replace non-zero values with 1</span>
     <span class="c1"># this is probably not making any meaningful changes since we have 1 ea quantity of each component</span>
@@ -839,17 +837,17 @@
     <span class="n">grp_damage</span> <span class="o">=</span> <span class="n">grp_damage</span><span class="o">.</span><span class="n">mul</span><span class="p">(</span><span class="n">ds_list</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 
     <span class="c1"># aggregate across damage state indices</span>
-    <span class="n">damage_groupby_2</span> <span class="o">=</span> <span class="n">grp_damage</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;cmp&#39;</span><span class="p">,</span> <span class="s1">&#39;loc&#39;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">damage_groupby_2</span> <span class="o">=</span> <span class="n">grp_damage</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;cmp&#39;</span><span class="p">,</span> <span class="s1">&#39;loc&#39;</span><span class="p">])</span>
 
     <span class="c1"># choose the max value</span>
     <span class="c1"># i.e., the governing DS for each comp-loc pair</span>
     <span class="c1"># Note that in each realization, each component will have only one non-zero damage state result,</span>
     <span class="c1"># so this is not picking the max damage state, but rather picking the realized damage state</span>
-    <span class="n">grp_damage</span> <span class="o">=</span> <span class="n">damage_groupby_2</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="o">.</span><span class="n">mask</span><span class="p">(</span><span class="n">damage_groupby_2</span><span class="o">.</span><span class="n">count</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+    <span class="n">grp_damage</span> <span class="o">=</span> <span class="n">damage_groupby_2</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="o">.</span><span class="n">mask</span><span class="p">(</span><span class="n">damage_groupby_2</span><span class="o">.</span><span class="n">count</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
 
     <span class="c1"># aggregate units to the same format</span>
     <span class="c1"># assume identical units across locations for each comp</span>
-    <span class="n">damage_units</span> <span class="o">=</span> <span class="n">damage_units</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;cmp&#39;</span><span class="p">,</span> <span class="s1">&#39;loc&#39;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+    <span class="n">damage_units</span> <span class="o">=</span> <span class="n">damage_units</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;cmp&#39;</span><span class="p">,</span> <span class="s1">&#39;loc&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">first</span><span class="p">()</span><span class="o">.</span><span class="n">T</span>
 
     <span class="n">grp_damage</span> <span class="o">=</span> <span class="n">grp_damage</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">reorder_levels</span><span class="p">([</span><span class="s1">&#39;loc&#39;</span><span class="p">,</span> <span class="s1">&#39;cmp&#39;</span><span class="p">])</span>
 
@@ -1216,7 +1214,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2025, Leland Stanford Junior University and The Regents of the University of California.</p>
+    <p>&#169; Copyright 2026, Leland Stanford Junior University and The Regents of the University of California.</p>
   </div>
 
    

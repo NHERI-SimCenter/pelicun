@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>pelicun.uq &mdash; pelicun  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
-      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css?v=f9bf6728" />
 
@@ -2959,10 +2959,14 @@
             <span class="n">var</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_variables</span><span class="p">[</span><span class="n">var_name</span><span class="p">]</span>
 
             <span class="k">if</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">lower</span><span class="p">)))</span> <span class="ow">and</span> <span class="p">(</span><span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">lower</span><span class="p">[</span><span class="n">var_i</span><span class="p">])):</span>
-                <span class="n">lower_std</span><span class="p">[</span><span class="n">var_i</span><span class="p">]</span> <span class="o">=</span> <span class="n">norm</span><span class="o">.</span><span class="n">ppf</span><span class="p">(</span><span class="n">var</span><span class="o">.</span><span class="n">cdf</span><span class="p">(</span><span class="n">lower</span><span class="p">[</span><span class="n">var_i</span><span class="p">]),</span> <span class="n">loc</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+                <span class="n">lower_std</span><span class="p">[</span><span class="n">var_i</span><span class="p">]</span> <span class="o">=</span> <span class="n">norm</span><span class="o">.</span><span class="n">ppf</span><span class="p">(</span>
+                    <span class="n">var</span><span class="o">.</span><span class="n">cdf</span><span class="p">(</span><span class="n">lower</span><span class="p">[</span><span class="n">var_i</span><span class="p">])</span><span class="o">.</span><span class="n">item</span><span class="p">(),</span> <span class="n">loc</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mi">1</span>
+                <span class="p">)</span>
 
             <span class="k">if</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">upper</span><span class="p">)))</span> <span class="ow">and</span> <span class="p">(</span><span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">upper</span><span class="p">[</span><span class="n">var_i</span><span class="p">])):</span>
-                <span class="n">upper_std</span><span class="p">[</span><span class="n">var_i</span><span class="p">]</span> <span class="o">=</span> <span class="n">norm</span><span class="o">.</span><span class="n">ppf</span><span class="p">(</span><span class="n">var</span><span class="o">.</span><span class="n">cdf</span><span class="p">(</span><span class="n">upper</span><span class="p">[</span><span class="n">var_i</span><span class="p">]),</span> <span class="n">loc</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+                <span class="n">upper_std</span><span class="p">[</span><span class="n">var_i</span><span class="p">]</span> <span class="o">=</span> <span class="n">norm</span><span class="o">.</span><span class="n">ppf</span><span class="p">(</span>
+                    <span class="n">var</span><span class="o">.</span><span class="n">cdf</span><span class="p">(</span><span class="n">upper</span><span class="p">[</span><span class="n">var_i</span><span class="p">])</span><span class="o">.</span><span class="n">item</span><span class="p">(),</span> <span class="n">loc</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mi">1</span>
+                <span class="p">)</span>
 
         <span class="c1"># then calculate the orthotope results in std normal space</span>
         <span class="n">lower_std</span> <span class="o">=</span> <span class="n">lower_std</span><span class="o">.</span><span class="n">T</span>
@@ -3228,7 +3232,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2025, Leland Stanford Junior University and The Regents of the University of California.</p>
+    <p>&#169; Copyright 2026, Leland Stanford Junior University and The Regents of the University of California.</p>
   </div>
 
    

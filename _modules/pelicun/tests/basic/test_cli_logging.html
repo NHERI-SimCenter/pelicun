@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>pelicun.tests.basic.test_cli_logging &mdash; pelicun  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
-      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/sphinx-design.min.css?v=95c83b7e" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/css/custom.css?v=f9bf6728" />
 
@@ -394,10 +394,11 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">test_cli_integration_with_logging</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Test CLI integration with logging setup.&quot;&quot;&quot;</span>
     <span class="kn">import</span><span class="w"> </span><span class="nn">subprocess</span>  <span class="c1"># noqa: PLC0415, S404</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>  <span class="c1"># noqa: PLC0415</span>
 
-    <span class="c1"># Test that CLI help includes the --log option</span>
+    <span class="c1"># Test that CLI help includes the --log option.</span>
     <span class="n">result</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>  <span class="c1"># noqa: S603</span>
-        <span class="p">[</span><span class="s1">&#39;pelicun&#39;</span><span class="p">,</span> <span class="s1">&#39;dlml&#39;</span><span class="p">,</span> <span class="s1">&#39;--help&#39;</span><span class="p">],</span>  <span class="c1"># noqa: S607</span>
+        <span class="p">[</span><span class="n">sys</span><span class="o">.</span><span class="n">executable</span><span class="p">,</span> <span class="s1">&#39;-m&#39;</span><span class="p">,</span> <span class="s1">&#39;pelicun&#39;</span><span class="p">,</span> <span class="s1">&#39;dlml&#39;</span><span class="p">,</span> <span class="s1">&#39;--help&#39;</span><span class="p">],</span>
         <span class="n">capture_output</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">text</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">cwd</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span><span class="p">,</span>  <span class="c1"># Use project root dynamically</span>
@@ -418,7 +419,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2025, Leland Stanford Junior University and The Regents of the University of California.</p>
+    <p>&#169; Copyright 2026, Leland Stanford Junior University and The Regents of the University of California.</p>
   </div>
 
    
