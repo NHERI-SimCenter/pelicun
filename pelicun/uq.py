@@ -2685,10 +2685,14 @@ class RandomVariableSet:
             var = self._variables[var_name]
 
             if (np.any(~np.isnan(lower))) and (~np.isnan(lower[var_i])):
-                lower_std[var_i] = norm.ppf(var.cdf(lower[var_i]), loc=0, scale=1)
+                lower_std[var_i] = norm.ppf(
+                    var.cdf(lower[var_i]).item(), loc=0, scale=1
+                )
 
             if (np.any(~np.isnan(upper))) and (~np.isnan(upper[var_i])):
-                upper_std[var_i] = norm.ppf(var.cdf(upper[var_i]), loc=0, scale=1)
+                upper_std[var_i] = norm.ppf(
+                    var.cdf(upper[var_i]).item(), loc=0, scale=1
+                )
 
         # then calculate the orthotope results in std normal space
         lower_std = lower_std.T

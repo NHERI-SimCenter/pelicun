@@ -46,6 +46,7 @@ import io
 import platform
 import re
 import subprocess  # noqa: S404
+import sys
 import tempfile
 from contextlib import redirect_stdout
 from pathlib import Path
@@ -248,7 +249,7 @@ raise ValueError('Test exception in subprocess')
 
     # Use subprocess to run the script
     process = subprocess.run(  # noqa: S603
-        ['python', str(test_script)],  # noqa: S607
+        [sys.executable, str(test_script)],
         capture_output=True,
         text=True,
         check=False,

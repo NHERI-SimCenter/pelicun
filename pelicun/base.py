@@ -367,7 +367,7 @@ class Logger:
         self.warning_stack: list[str] = []
         self.emitted: set[str] = set()
         self.reset_log_strings()
-        control_warnings()
+        # control_warnings()  # noqa: ERA001 — disabled so dependency deprecation warnings stay visible; re-enable (or extend) if a specific warning needs selective suppression again
 
         # Register the logger to the LoggerRegistry in order to
         # capture raised exceptions.
