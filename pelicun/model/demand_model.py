@@ -42,24 +42,23 @@
 
 from __future__ import annotations
 
-import warnings
 import re
+import warnings
 from collections import defaultdict
 from pathlib import Path
 from typing import TYPE_CHECKING, overload
 
-from scipy.stats import norm
-
 import numexpr as ne
 import numpy as np
 import pandas as pd
+from scipy.stats import norm
 
 from pelicun import base, file_io, uq
 from pelicun.model.pelicun_model import PelicunModel
+from pelicun.pelicun_warnings import PelicunWarning
 from pelicun.tools.residual_drift_trilinear_weibull import (
     ResidualDriftTrilinearWeibullModel,
 )
-from pelicun.pelicun_warnings import PelicunWarning
 
 if TYPE_CHECKING:
     from pelicun.assessment import AssessmentBase
@@ -352,7 +351,26 @@ class DemandModel(PelicunModel):
         self,
         training_data: str | Path | pd.DataFrame,
     ) -> pd.DataFrame:
-        """Load structural analysis data used to fit the RID model."""
+        """
+        Return structural analysis data used to fit the RID model.
+
+        Parameters
+        ----------
+        training_data: str, Path, or DataFrame
+            Structural analysis data, or a path to structural analysis
+            data, with columns used to fit the residual drift model.
+
+        Returns
+        -------
+        DataFrame
+            Structural analysis data used to fit the residual drift model.
+
+        Raises
+        ------
+        ValueError
+            If DataFrame input does not include `PID` and `RID` columns.
+
+        """
         if isinstance(training_data, pd.DataFrame):
             required_cols = {'PID', 'RID'}
             if not required_cols.issubset(training_data.columns):
@@ -383,7 +401,24 @@ class DemandModel(PelicunModel):
         force: bool = False,
     ) -> ResidualDriftTrilinearWeibullModel:
         """
-        Fit and store a trilinear Weibull residual drift model.
+        Return a trilinear Weibull residual drift model, fitting it if needed.
+
+        Parameters
+        ----------
+        training_data: str, Path, or DataFrame
+            Structural analysis data, or a path to structural analysis
+            data, used to fit the residual drift model.
+        config: dict
+            Residual drift model configuration.
+        force: bool, optional
+            If True, fit a new model even if a matching fitted model is
+            already stored.
+
+        Returns
+        -------
+        ResidualDriftTrilinearWeibullModel
+            Fitted residual drift model.
+
         """
         if (
             self.residual_drift_model is not None
@@ -413,6 +448,33 @@ class DemandModel(PelicunModel):
     ) -> pd.DataFrame:
         """
         Estimate RID using the trilinear Weibull model.
+
+        Parameters
+        ----------
+        pid: DataFrame
+            Peak inter-story drift realizations used as input to the
+            residual drift model.
+        model: ResidualDriftTrilinearWeibullModel, optional
+            Fitted residual drift model to use directly.
+        training_data: str, Path, or DataFrame, optional
+            Structural analysis data, or a path to structural analysis
+            data, used to fit a residual drift model when needed.
+        model_config: dict, optional
+            Residual drift model configuration used when fitting a model.
+        force_fit: bool, optional
+            If True, fit a new model instead of reusing a stored model.
+
+        Returns
+        -------
+        DataFrame
+            Residual inter-story drift realizations.
+
+        Raises
+        ------
+        ValueError
+            If no fitted model is available and either the training data
+            or model configuration is missing.
+
         """
         if model is not None:
             rid_model = model
@@ -452,13 +514,24 @@ class DemandModel(PelicunModel):
             rid_dir = rid_model.sample(pid_dir, rng=self._asmnt.options.rng)
             rid_by_dir.append(rid_dir)
 
-        rid = pd.concat(rid_by_dir, axis=1)
-        rid = rid.sort_index(axis=1)
-        return rid
+        return pd.concat(rid_by_dir, axis=1).sort_index(axis=1)
 
     def infer_residual_drift(self, configuration: dict) -> None:
         """
         Infer residual drift and append it to the demand sample.
+
+        Parameters
+        ----------
+        configuration: dict
+            Residual drift inference configuration. The `method` key
+            selects the inference method.
+
+        Raises
+        ------
+        ValueError
+            If the residual drift inference method is invalid, or if no
+            demand sample is available.
+
         """
         method = configuration['method']
 
@@ -552,7 +625,7 @@ class DemandModel(PelicunModel):
         rid[rid > 0] = np.exp(np.log(rid[rid > 0]) + eps)  # type: ignore
 
         # finally, make sure the RID values are never larger than the PIDs
-        rid = pd.DataFrame(
+        return pd.DataFrame(
             np.minimum(pid.values, rid.values),  # type: ignore
             columns=pd.DataFrame(  # noqa: PD013
                 1,
@@ -563,8 +636,6 @@ class DemandModel(PelicunModel):
             .index,
             index=pid.index,
         )
-
-        return rid
 
     def estimate_RID(  # noqa: N802
         self,
@@ -623,7 +694,21 @@ class DemandModel(PelicunModel):
         self, params: dict, method: str = 'FEMA P58'
     ) -> None:
         """
-        Estimate residual inter-story drift (RID) and modify the sample.
+        Estimate residual inter-story drift and modify the sample.
+
+        Parameters
+        ----------
+        params: dict
+            Parameters required by the selected residual drift inference
+            method.
+        method: str, optional
+            Residual drift inference method.
+
+        Raises
+        ------
+        ValueError
+            If no demand sample is available.
+
         """
         if self.sample is None:
             msg = 'Demand model does not have a sample yet.'

@@ -250,7 +250,7 @@ def convert_df_to_dict(data: pd.DataFrame | pd.Series, axis: int = 1) -> dict:
     return out_dict
 
 
-def run_pelicun(  # noqa: C901
+def run_pelicun(
     config_path: str,
     demand_file: str,
     output_path: str | None,
@@ -428,24 +428,45 @@ def run_pelicun(  # noqa: C901
 
     summary, summary_stats = _result_summary(assessment, agg_repair)
 
-    # Save the results into files
+    _save_requested_outputs(
+        config,
+        assessment,
+        output_path_p,
+        out_files,
+        agg_repair,
+        summary,
+        summary_stats,
+    )
+
+
+def _save_requested_outputs(
+    config: dict,
+    assessment: DLCalculationAssessment,
+    output_path: Path,
+    out_files: list[str],
+    agg_repair: pd.DataFrame | None,
+    summary: pd.DataFrame,
+    summary_stats: pd.DataFrame,
+) -> None:
+    """Save requested CSV/JSON outputs from a completed assessment."""
+    aggregate_colocated = get(
+        config,
+        'DL/Outputs/Settings/AggregateColocatedComponentResults',
+        default=False,
+    )
 
     if is_specified(config, 'DL/Outputs/Demand'):
         output_config = get(config, 'DL/Outputs/Demand')
-        _demand_save(output_config, assessment, output_path_p, out_files)
+        _demand_save(output_config, assessment, output_path, out_files)
 
     if is_specified(config, 'DL/Outputs/Asset'):
         output_config = get(config, 'DL/Outputs/Asset')
         _asset_save(
             output_config,
             assessment,
-            output_path_p,
+            output_path,
             out_files,
-            aggregate_colocated=get(
-                config,
-                'DL/Outputs/Settings/AggregateColocatedComponentResults',
-                default=False,
-            ),
+            aggregate_colocated=aggregate_colocated,
         )
 
     if is_specified(config, 'DL/Outputs/Damage'):
@@ -453,13 +474,9 @@ def run_pelicun(  # noqa: C901
         _damage_save(
             output_config,
             assessment,
-            output_path_p,
+            output_path,
             out_files,
-            aggregate_colocated=get(
-                config,
-                'DL/Outputs/Settings/AggregateColocatedComponentResults',
-                default=False,
-            ),
+            aggregate_colocated=aggregate_colocated,
             condense_ds=get(
                 config,
                 'DL/Outputs/Settings/CondenseDS',
@@ -473,18 +490,15 @@ def run_pelicun(  # noqa: C901
         _loss_save(
             output_config,
             assessment,
-            output_path_p,
+            output_path,
             out_files,
             agg_repair,
-            aggregate_colocated=get(
-                config,
-                'DL/Outputs/Settings/AggregateColocatedComponentResults',
-                default=False,
-            ),
+            aggregate_colocated=aggregate_colocated,
         )
-    _summary_save(summary, summary_stats, output_path_p, out_files)
-    _create_json_files_if_requested(config, out_files, output_path_p)
-    _remove_csv_files_if_not_requested(config, out_files, output_path_p)
+
+    _summary_save(summary, summary_stats, output_path, out_files)
+    _create_json_files_if_requested(config, out_files, output_path)
+    _remove_csv_files_if_not_requested(config, out_files, output_path)
 
 
 def _parse_decision_variables(config: dict) -> tuple[str, ...]:
@@ -912,29 +926,7 @@ def _parse_config_file(  # noqa: C901, PLR0912
             int(get(config, 'DL/Asset/NumberOfStories')),
         )
 
-    # Ensure `DL/Demands/InferResidualDrift` contains a `method`
-    if is_specified(config, 'DL/Demands/InferResidualDrift') and is_unspecified(
-        config, 'DL/Demands/InferResidualDrift/method'
-    ):
-        msg = 'No method is specified in residual drift inference configuration.'
-        raise PelicunInvalidConfigError(msg)
-
-    if get(config, 'DL/Demands/InferResidualDrift/method', default=None) == (
-        'trilinear_weibull'
-    ):
-        if is_unspecified(config, 'DL/Demands/InferResidualDrift/model_parameters'):
-            msg = (
-                '`DL/Demands/InferResidualDrift/model_parameters` must be '
-                'specified when using `trilinear_weibull`.'
-            )
-            raise PelicunInvalidConfigError(msg)
-
-        if is_unspecified(config, 'DL/Demands/InferResidualDrift/training_data'):
-            msg = (
-                '`DL/Demands/InferResidualDrift/training_data` must be '
-                'specified when using `trilinear_weibull` from the command line.'
-            )
-            raise PelicunInvalidConfigError(msg)
+    _validate_residual_drift_config(config)
 
     # Ensure `DL/Damage/CollapseFragility` contains all required keys.
     if is_specified(config, 'DL/Damage/CollapseFragility'):
@@ -1022,6 +1014,46 @@ def _parse_config_file(  # noqa: C901, PLR0912
             raise PelicunInvalidConfigError(msg)
 
     return config
+
+
+def _validate_residual_drift_config(config: dict) -> None:
+    """
+    Validate residual drift inference settings.
+
+    Parameters
+    ----------
+    config : dict
+        Parsed pelicun configuration.
+
+    Raises
+    ------
+    PelicunInvalidConfigError
+        If the residual drift inference configuration is incomplete.
+    """
+    if is_specified(config, 'DL/Demands/InferResidualDrift') and is_unspecified(
+        config, 'DL/Demands/InferResidualDrift/method'
+    ):
+        msg = 'No method is specified in residual drift inference configuration.'
+        raise PelicunInvalidConfigError(msg)
+
+    if get(config, 'DL/Demands/InferResidualDrift/method', default=None) != (
+        'trilinear_weibull'
+    ):
+        return
+
+    if is_unspecified(config, 'DL/Demands/InferResidualDrift/model_parameters'):
+        msg = (
+            '`DL/Demands/InferResidualDrift/model_parameters` must be '
+            'specified when using `trilinear_weibull`.'
+        )
+        raise PelicunInvalidConfigError(msg)
+
+    if is_unspecified(config, 'DL/Demands/InferResidualDrift/training_data'):
+        msg = (
+            '`DL/Demands/InferResidualDrift/training_data` must be '
+            'specified when using `trilinear_weibull` from the command line.'
+        )
+        raise PelicunInvalidConfigError(msg)
 
 
 def _create_json_files_if_requested(

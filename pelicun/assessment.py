@@ -597,7 +597,7 @@ class DLCalculationAssessment(AssessmentBase):
 
     __slots__: list[str] = []
 
-    def calculate_demand(  # noqa: C901
+    def calculate_demand(
         self,
         demand_path: Path,
         collapse_limits: dict[str, float] | None,

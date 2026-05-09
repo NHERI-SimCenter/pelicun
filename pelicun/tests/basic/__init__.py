@@ -58,7 +58,9 @@ class PelicunInvalidConfigError(Exception):
         Explanation of the error.
     """
 
-    def __init__(self, message='Invalid options in configuration file.'):
+    def __init__(
+        self, message: str = 'Invalid options in configuration file.'
+    ) -> None:
         self.message = message
         super().__init__(self.message)
 
@@ -73,6 +75,6 @@ class PelicunInputDomainError(Exception):
         Explanation of the error.
     """
 
-    def __init__(self, message='Invalid input domain.'):
+    def __init__(self, message: str = 'Invalid input domain.') -> None:
         self.message = message
         super().__init__(self.message)

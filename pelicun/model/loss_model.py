@@ -59,12 +59,7 @@ from pelicun.model.demand_model import (
     _verify_edps_available,
 )
 from pelicun.model.pelicun_model import PelicunModel
-from pelicun.model.demand_model import _get_required_demand_type
-from pelicun.model.demand_model import _assemble_required_demand_data
-from pelicun.model.demand_model import _verify_edps_available
-from pelicun import base
-from pelicun import uq
-from pelicun import file_io
+from pelicun.pelicun_warnings import InconsistentUnitsError
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -444,7 +439,11 @@ class LossModel(PelicunModel):
         unit_counts = units_isolated_grp.nunique()
         more_than_one = unit_counts[unit_counts > 1]
         if not more_than_one.empty:
-            raise InconsistentUnitsError
+            msg = (
+                'Inconsistent loss model decision-variable units were found: '
+                f'{more_than_one.to_dict()}.'
+            )
+            raise InconsistentUnitsError(msg)
 
         # determine if the loss model parameters are for damage
         # states or loss functions
@@ -2768,12 +2767,12 @@ class RepairModel_LF(RepairModel_Base):
             try:
                 median_loss = base.stringterpolation(loss_function_str)(edp_values)
             except ValueError as exc:
-                raise ValueError(
-                    f'Loss function interpolation for consequence '
+                msg = (
+                    'Loss function interpolation for consequence '
                     f'`{consequence}-{decision_variable}` has failed. '
-                    f'Ensure a sufficient interpolation domain  '
-                    f'for the X values (those after the `|` symbol)  '
-                    f'and verify the X-value and Y-value lengths match.'
+                    'Ensure a sufficient interpolation domain '
+                    'for the X values (those after the `|` symbol) '
+                    'and verify the X-value and Y-value lengths match.'
                 )
                 raise ValueError(msg) from exc
             for block in range(blocks):
