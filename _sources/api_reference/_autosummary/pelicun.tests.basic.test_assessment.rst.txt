@@ -16,9 +16,16 @@ pelicun.tests.basic.test\_assessment
    
       create_assessment_obj
       test_Assessment_init
+      test__add_units_unit_types
+      test__add_units_unknown_demand_type
+      test__add_units_unsupported_unit_type
       test_assessment_calc_unit_scale_factor
       test_assessment_get_default_metadata
       test_assessment_scale_factor
+      test_calculate_damage_collapse_fragility_custom_demand_type
+      test_calculate_demand_custom_demand_type_units
+      test_calculate_demand_unknown_demand_type_warns
+      test_load_consequence_info_legacy_name
    
    
 

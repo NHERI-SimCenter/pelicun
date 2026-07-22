@@ -15,8 +15,8 @@
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../../_static/design-tabs.js?v=f930bc37"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
       <script src="../../_static/hide_empty_pre.js?v=a807066b"></script>
@@ -196,15 +196,18 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dlml</span><span class="w"> </span><span class="kn">import</span> <span class="n">__version__</span> <span class="k">as</span> <span class="n">dlml_version</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">pelicun</span><span class="w"> </span><span class="kn">import</span> <span class="n">base</span><span class="p">,</span> <span class="n">file_io</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">uq</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">pelicun.__init__</span><span class="w"> </span><span class="kn">import</span> <span class="n">__version__</span> <span class="k">as</span> <span class="n">pelicun_version</span>  <span class="c1"># type: ignore</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">pelicun.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">EDP_to_demand_type</span><span class="p">,</span> <span class="n">get</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pelicun.__init__</span><span class="w"> </span><span class="kn">import</span> <span class="n">__version__</span> <span class="k">as</span> <span class="n">pelicun_version</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pelicun.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">get</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pelicun.pelicun_warnings</span><span class="w"> </span><span class="kn">import</span> <span class="n">PelicunWarning</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pelicun.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">Logger</span>
@@ -273,7 +276,7 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">:</span> <span class="n">Logger</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">log</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">msg</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s1">&#39;pelicun </span><span class="si">{</span><span class="n">pelicun_version</span><span class="si">}</span><span class="s1"> | </span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s1">&#39;pelicun </span><span class="si">{</span><span class="n">pelicun_version</span><span class="si">}</span><span class="s1"> | </span><span class="se">\n</span><span class="s1">DLML </span><span class="si">{</span><span class="n">dlml_version</span><span class="si">}</span><span class="s1"> | </span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">,</span>
             <span class="n">prepend_timestamp</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
             <span class="n">prepend_blank_space</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="p">)</span>
@@ -366,7 +369,6 @@
             <span class="n">data_path</span> <span class="o">=</span> <span class="n">file_io</span><span class="o">.</span><span class="n">substitute_default_path</span><span class="p">(</span>
                 <span class="p">[</span><span class="sa">f</span><span class="s1">&#39;PelicunDefault/</span><span class="si">{</span><span class="n">method_name</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">model_type</span><span class="si">}</span><span class="s1">.csv&#39;</span><span class="p">],</span> <span class="n">log</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">log</span>
             <span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data_path</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
 
         <span class="n">data</span> <span class="o">=</span> <span class="n">file_io</span><span class="o">.</span><span class="n">load_data</span><span class="p">(</span>
             <span class="n">data_path</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">orientation</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">reindex</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">log</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">log</span>
@@ -414,7 +416,6 @@
             <span class="n">data_path</span> <span class="o">=</span> <span class="n">file_io</span><span class="o">.</span><span class="n">substitute_default_path</span><span class="p">(</span>
                 <span class="p">[</span><span class="sa">f</span><span class="s1">&#39;PelicunDefault/</span><span class="si">{</span><span class="n">method_name</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">model_type</span><span class="si">}</span><span class="s1">.json&#39;</span><span class="p">],</span> <span class="n">log</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">log</span>
             <span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data_path</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
 
         <span class="k">with</span> <span class="n">Path</span><span class="p">(</span><span class="n">data_path</span><span class="p">)</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
@@ -847,13 +848,13 @@
                 <span class="n">nlevels_with_event_id</span> <span class="o">=</span> <span class="mi">4</span>
                 <span class="k">if</span> <span class="n">raw_demands</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">nlevels</span> <span class="o">==</span> <span class="n">nlevels_with_event_id</span><span class="p">:</span>
                     <span class="n">dem_to_drop</span> <span class="o">+=</span> <span class="n">raw_demands</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
-                        <span class="p">:,</span>  <span class="c1"># type: ignore</span>
+                        <span class="p">:,</span>
                         <span class="n">idx</span><span class="p">[:,</span> <span class="n">dem_type</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:],</span>
                     <span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">&gt;</span> <span class="nb">float</span><span class="p">(</span><span class="n">limit</span><span class="p">)</span>
 
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">dem_to_drop</span> <span class="o">+=</span> <span class="n">raw_demands</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
-                        <span class="p">:,</span>  <span class="c1"># type: ignore</span>
+                        <span class="p">:,</span>
                         <span class="n">idx</span><span class="p">[</span><span class="n">dem_type</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:],</span>
                     <span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">&gt;</span> <span class="nb">float</span><span class="p">(</span><span class="n">limit</span><span class="p">)</span>
 
@@ -875,7 +876,9 @@
             <span class="k">if</span> <span class="n">length_unit</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">msg</span> <span class="o">=</span> <span class="s1">&#39;A length unit is required to infer demand units.&#39;</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
-            <span class="n">demands</span> <span class="o">=</span> <span class="n">_add_units</span><span class="p">(</span><span class="n">raw_demands</span><span class="p">,</span> <span class="n">length_unit</span><span class="p">)</span>
+            <span class="n">demands</span> <span class="o">=</span> <span class="n">_add_units</span><span class="p">(</span>
+                <span class="n">raw_demands</span><span class="p">,</span> <span class="n">length_unit</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">demand_unit_types</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">log</span>
+            <span class="p">)</span>
 
         <span class="k">else</span><span class="p">:</span>
             <span class="n">demands</span> <span class="o">=</span> <span class="n">raw_demands</span>
@@ -909,7 +912,11 @@
         <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">demand_sample</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span>
         <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">demand_units</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">)</span>
 
-        <span class="n">demand_sample</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">demand_sample</span><span class="p">,</span> <span class="n">demand_units</span><span class="o">.</span><span class="n">to_frame</span><span class="p">()</span><span class="o">.</span><span class="n">T</span><span class="p">])</span>
+        <span class="c1"># Append the units row to the sample. Use an object-dtype frame</span>
+        <span class="c1"># so the unit-label strings can coexist with the numeric values</span>
+        <span class="c1"># in the same columns.</span>
+        <span class="n">demand_sample</span> <span class="o">=</span> <span class="n">demand_sample</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">object</span><span class="p">)</span>
+        <span class="n">demand_sample</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s1">&#39;Units&#39;</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">demand_units</span>
 
         <span class="c1"># get residual drift estimates, if needed</span>
         <span class="k">if</span> <span class="n">residual_drift_inference</span><span class="p">:</span>
@@ -1037,14 +1044,14 @@
                         <span class="n">cmp_marginals</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s1">&#39;excessive.coll.DEM&#39;</span><span class="p">,</span> <span class="s1">&#39;Units&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;ea&#39;</span>
 
                         <span class="n">locs</span> <span class="o">=</span> <span class="n">demand_sample</span><span class="p">[</span>
-                            <span class="n">collapse_fragility_demand_type</span>  <span class="c1"># type: ignore</span>
+                            <span class="n">collapse_fragility_demand_type</span>
                         <span class="p">]</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
                         <span class="n">cmp_marginals</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s1">&#39;excessive.coll.DEM&#39;</span><span class="p">,</span> <span class="s1">&#39;Location&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
                             <span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">locs</span><span class="p">)</span>
                         <span class="p">)</span>
 
                         <span class="n">dirs</span> <span class="o">=</span> <span class="n">demand_sample</span><span class="p">[</span>
-                            <span class="n">collapse_fragility_demand_type</span>  <span class="c1"># type: ignore</span>
+                            <span class="n">collapse_fragility_demand_type</span>
                         <span class="p">]</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
                         <span class="n">cmp_marginals</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s1">&#39;excessive.coll.DEM&#39;</span><span class="p">,</span> <span class="s1">&#39;Direction&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
                             <span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dirs</span><span class="p">)</span>
@@ -1175,10 +1182,13 @@
                         <span class="p">[</span><span class="sa">f</span><span class="s1">&#39;PelicunDefault/</span><span class="si">{</span><span class="n">method_name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">],</span> <span class="n">log</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">log</span>
                     <span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
                 <span class="k">else</span><span class="p">:</span>
-                    <span class="n">component_db_path</span> <span class="o">=</span> <span class="n">file_io</span><span class="o">.</span><span class="n">substitute_default_path</span><span class="p">(</span>
-                        <span class="p">[</span><span class="sa">f</span><span class="s1">&#39;PelicunDefault/</span><span class="si">{</span><span class="n">method_name</span><span class="si">}</span><span class="s1">/fragility.csv&#39;</span><span class="p">],</span> <span class="n">log</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">log</span>
-                    <span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-                <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">component_db_path</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
+                    <span class="c1"># Not every method provides fragility models, so</span>
+                    <span class="c1"># resolve the method&#39;s dataset folder and check for</span>
+                    <span class="c1"># the file there.</span>
+                    <span class="n">component_db_path</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span>
+                        <span class="n">file_io</span><span class="o">.</span><span class="n">resolve_default_dataset_path</span><span class="p">(</span><span class="n">method_name</span><span class="p">)</span>
+                        <span class="o">/</span> <span class="s1">&#39;fragility.csv&#39;</span>
+                    <span class="p">)</span>
 
                 <span class="k">if</span> <span class="n">Path</span><span class="p">(</span><span class="n">component_db_path</span><span class="p">)</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
                     <span class="n">component_db</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">component_db_path</span><span class="p">)</span>
@@ -1231,7 +1241,8 @@
                 <span class="n">coll_dem_spec</span> <span class="o">=</span> <span class="kc">None</span>
 
             <span class="n">coll_dem_name</span> <span class="o">=</span> <span class="kc">None</span>
-            <span class="k">for</span> <span class="n">demand_name</span><span class="p">,</span> <span class="n">demand_short</span> <span class="ow">in</span> <span class="n">EDP_to_demand_type</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">edp_to_demand_type</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">edp_to_demand_type</span>
+            <span class="k">for</span> <span class="n">demand_name</span><span class="p">,</span> <span class="n">demand_short</span> <span class="ow">in</span> <span class="n">edp_to_demand_type</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                 <span class="k">if</span> <span class="n">demand_short</span> <span class="o">==</span> <span class="n">coll_dem</span><span class="p">:</span>
                     <span class="n">coll_dem_name</span> <span class="o">=</span> <span class="n">demand_name</span>
                     <span class="k">break</span>
@@ -1266,6 +1277,8 @@
                     <span class="p">]</span>
                 <span class="p">),</span>
                 <span class="n">length_unit</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">demand_unit_types</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">,</span>
             <span class="p">)</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
 
             <span class="n">adf</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">coll_cmp_name</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;Demand&#39;</span><span class="p">,</span> <span class="s1">&#39;Unit&#39;</span><span class="p">)]</span> <span class="o">=</span> <span class="n">coll_dem_unit</span>
@@ -1630,7 +1643,6 @@
                 <span class="p">[</span><span class="s1">&#39;PelicunDefault/Hazus Hurricane Wind/combine_wind_flood.csv&#39;</span><span class="p">],</span>
                 <span class="n">log</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">,</span>
             <span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
             <span class="n">combination_array</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
                 <span class="n">file_path</span><span class="p">,</span>
                 <span class="n">index_col</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -1706,15 +1718,35 @@
 
                 <span class="c1"># &lt;backwards compatibility&gt;</span>
                 <span class="k">if</span> <span class="n">method_name</span><span class="o">.</span><span class="n">endswith</span><span class="p">((</span><span class="s1">&#39;csv&#39;</span><span class="p">,</span> <span class="s1">&#39;CSV&#39;</span><span class="p">)):</span>
+                    <span class="c1"># Legacy inputs provide a filename instead of a</span>
+                    <span class="c1"># method name. `substitute_default_path` recognizes</span>
+                    <span class="c1"># such filenames, emits a deprecation warning, and</span>
+                    <span class="c1"># maps them to the corresponding method and model</span>
+                    <span class="c1"># type.</span>
                     <span class="n">consequence_db_path</span> <span class="o">=</span> <span class="n">file_io</span><span class="o">.</span><span class="n">substitute_default_path</span><span class="p">(</span>
                         <span class="p">[</span><span class="sa">f</span><span class="s1">&#39;PelicunDefault/</span><span class="si">{</span><span class="n">method_name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">],</span> <span class="n">log</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">log</span>
                     <span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">consequence_db_path</span> <span class="o">=</span> <span class="n">file_io</span><span class="o">.</span><span class="n">substitute_default_path</span><span class="p">(</span>
-                        <span class="p">[</span><span class="sa">f</span><span class="s1">&#39;PelicunDefault/</span><span class="si">{</span><span class="n">method_name</span><span class="si">}</span><span class="s1">/consequence_repair.csv&#39;</span><span class="p">],</span>
+
+                    <span class="n">consequence_db</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">consequence_db_path</span><span class="p">)</span>
+
+                    <span class="n">legacy_conseq_df</span> <span class="o">=</span> <span class="n">file_io</span><span class="o">.</span><span class="n">load_data</span><span class="p">(</span>
+                        <span class="n">consequence_db_path</span><span class="p">,</span>
+                        <span class="n">unit_conversion_factors</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                        <span class="n">orientation</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                        <span class="n">reindex</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                         <span class="n">log</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">,</span>
-                    <span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-                <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">consequence_db_path</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
+                    <span class="p">)</span>
+                    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">legacy_conseq_df</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span>
+
+                    <span class="n">conseq_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">conseq_df</span><span class="p">,</span> <span class="n">legacy_conseq_df</span><span class="p">])</span>
+
+                    <span class="k">continue</span>
+
+                <span class="c1"># Not every method provides consequence models, so</span>
+                <span class="c1"># resolve the method&#39;s dataset folder and check for</span>
+                <span class="c1"># the file there.</span>
+                <span class="n">dataset_path</span> <span class="o">=</span> <span class="n">file_io</span><span class="o">.</span><span class="n">resolve_default_dataset_path</span><span class="p">(</span><span class="n">method_name</span><span class="p">)</span>
+                <span class="n">consequence_db_path</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">dataset_path</span> <span class="o">/</span> <span class="s1">&#39;consequence_repair.csv&#39;</span><span class="p">)</span>
 
                 <span class="k">if</span> <span class="n">Path</span><span class="p">(</span><span class="n">consequence_db_path</span><span class="p">)</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
                     <span class="n">consequence_db</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">consequence_db_path</span><span class="p">)</span>
@@ -1729,10 +1761,7 @@
 
                 <span class="k">else</span><span class="p">:</span>
                     <span class="c1"># try loading loss functions instead</span>
-                    <span class="n">loss_db_path</span> <span class="o">=</span> <span class="n">file_io</span><span class="o">.</span><span class="n">substitute_default_path</span><span class="p">(</span>
-                        <span class="p">[</span><span class="sa">f</span><span class="s1">&#39;PelicunDefault/</span><span class="si">{</span><span class="n">method_name</span><span class="si">}</span><span class="s1">/loss_repair.csv&#39;</span><span class="p">],</span>
-                        <span class="n">log</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">,</span>
-                    <span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="n">loss_db_path</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">dataset_path</span> <span class="o">/</span> <span class="s1">&#39;loss_repair.csv&#39;</span><span class="p">)</span>
 
                     <span class="k">if</span> <span class="n">Path</span><span class="p">(</span><span class="n">loss_db_path</span><span class="p">)</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
                         <span class="n">consequence_db</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">loss_db_path</span><span class="p">)</span>
@@ -1779,7 +1808,12 @@
 
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_add_units</span><span class="p">(</span><span class="n">raw_demands</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">length_unit</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_add_units</span><span class="p">(</span>
+    <span class="n">raw_demands</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">length_unit</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">demand_unit_types</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span>
+    <span class="n">log</span><span class="p">:</span> <span class="n">Logger</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Add units to demand columns in a DataFrame.</span>
 
@@ -1789,11 +1823,28 @@
 <span class="sd">        The raw demand data to which units will be added.</span>
 <span class="sd">    length_unit: str</span>
 <span class="sd">        The unit of length to be used (e.g., &#39;in&#39; for inches).</span>
+<span class="sd">    demand_unit_types: dict</span>
+<span class="sd">        Maps demand-type acronyms (e.g., &#39;PFA&#39;) to the unit type the</span>
+<span class="sd">        demand is measured in (e.g., &#39;acceleration&#39;). Typically, the</span>
+<span class="sd">        `options.demand_unit_types` mapping, which also includes</span>
+<span class="sd">        demand types registered through the &quot;CustomDemandTypes&quot;</span>
+<span class="sd">        option. Demand types missing from the mapping are assumed to</span>
+<span class="sd">        be in base units and trigger a warning.</span>
+<span class="sd">    log: Logger, optional</span>
+<span class="sd">        Logger to route warnings through. If None, warnings are</span>
+<span class="sd">        emitted directly through the `warnings` module.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    pd.DataFrame</span>
 <span class="sd">        The DataFrame with units added to the appropriate demand columns.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If a demand type is mapped to a unit type that the model</span>
+<span class="sd">        library recognizes but pelicun&#39;s automatic unit assignment</span>
+<span class="sd">        does not implement yet (e.g., &#39;force&#39;).</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">demands</span> <span class="o">=</span> <span class="n">raw_demands</span><span class="o">.</span><span class="n">T</span>
@@ -1826,33 +1877,64 @@
     <span class="c1"># of the frame holds float demand values.</span>
     <span class="n">demands</span> <span class="o">=</span> <span class="n">demands</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">object</span><span class="p">)</span>
 
-    <span class="c1"># acceleration</span>
-    <span class="n">acc_edps</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;PFA&#39;</span><span class="p">,</span> <span class="s1">&#39;PGA&#39;</span><span class="p">,</span> <span class="s1">&#39;SA&#39;</span><span class="p">]</span>
-    <span class="n">edp_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">demand_cols</span><span class="p">,</span> <span class="n">acc_edps</span><span class="p">)</span>
+    <span class="c1"># The unit that represents each unit type, given the length unit</span>
+    <span class="c1"># of the assessment. Rotations are always measured in radians and</span>
+    <span class="c1"># &#39;unitless&#39; marks dimensionless demands; neither undergoes unit</span>
+    <span class="c1"># conversion.</span>
+    <span class="n">unit_by_unit_type</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;acceleration&#39;</span><span class="p">:</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">length_unit</span><span class="si">}</span><span class="s1">ps2&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;speed&#39;</span><span class="p">:</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">length_unit</span><span class="si">}</span><span class="s1">ps&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;displacement&#39;</span><span class="p">:</span> <span class="n">length_unit</span><span class="p">,</span>
+        <span class="s1">&#39;unitless&#39;</span><span class="p">:</span> <span class="s1">&#39;unitless&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;rotation&#39;</span><span class="p">:</span> <span class="s1">&#39;rad&#39;</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="c1"># Keep the mapping in lockstep with the unit types pelicun</span>
+    <span class="c1"># supports: extend both when adding support for a new unit type.</span>
+    <span class="k">assert</span> <span class="nb">set</span><span class="p">(</span><span class="n">unit_by_unit_type</span><span class="p">)</span> <span class="o">==</span> <span class="n">base</span><span class="o">.</span><span class="n">SUPPORTED_UNIT_TYPES</span>
 
-    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">edp_mask</span><span class="p">):</span>
-        <span class="n">demands</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">edp_mask</span><span class="p">]</span> <span class="o">=</span> <span class="n">length_unit</span> <span class="o">+</span> <span class="s1">&#39;ps2&#39;</span>  <span class="c1"># type: ignore</span>
+    <span class="n">demand_cols_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">demand_cols</span><span class="p">)</span>
+    <span class="n">unknown_demand_types</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">unsupported_unit_types</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">demand_type</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">demand_cols</span><span class="p">)):</span>
+        <span class="n">unit_type</span> <span class="o">=</span> <span class="n">demand_unit_types</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">demand_type</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">unit_type</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">unknown_demand_types</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">demand_type</span><span class="p">)</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="n">unit_type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">unit_by_unit_type</span><span class="p">:</span>
+            <span class="c1"># The model library&#39;s unit-type vocabulary is broader than</span>
+            <span class="c1"># what pelicun&#39;s automatic unit assignment implements</span>
+            <span class="c1"># (e.g., &#39;force&#39;): user-provided unit types are validated</span>
+            <span class="c1"># earlier, when the &quot;CustomDemandTypes&quot; option is</span>
+            <span class="c1"># processed.</span>
+            <span class="n">unsupported_unit_types</span><span class="p">[</span><span class="n">demand_type</span><span class="p">]</span> <span class="o">=</span> <span class="n">unit_type</span>
+            <span class="k">continue</span>
+        <span class="n">edp_mask</span> <span class="o">=</span> <span class="n">demand_cols_array</span> <span class="o">==</span> <span class="n">demand_type</span>
+        <span class="n">demands</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">edp_mask</span><span class="p">]</span> <span class="o">=</span> <span class="n">unit_by_unit_type</span><span class="p">[</span><span class="n">unit_type</span><span class="p">]</span>
 
-    <span class="c1"># speed</span>
-    <span class="n">speed_edps</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;PFV&#39;</span><span class="p">,</span> <span class="s1">&#39;PWS&#39;</span><span class="p">,</span> <span class="s1">&#39;PGV&#39;</span><span class="p">,</span> <span class="s1">&#39;SV&#39;</span><span class="p">]</span>
-    <span class="n">edp_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">demand_cols</span><span class="p">,</span> <span class="n">speed_edps</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">unsupported_unit_types</span><span class="p">:</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s1">&#39;The following demand types are measured in a unit type &#39;</span>
+            <span class="sa">f</span><span class="s1">&#39;that is recognized by the model library but not yet &#39;</span>
+            <span class="sa">f</span><span class="s1">&#39;implemented in the automatic unit assignment of pelicun: &#39;</span>
+            <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">unsupported_unit_types</span><span class="si">}</span><span class="s1">. Provide the demand data with &#39;</span>
+            <span class="sa">f</span><span class="s1">&#39;an explicit Units row, in which case pelicun uses the &#39;</span>
+            <span class="sa">f</span><span class="s1">&#39;provided units and skips automatic unit assignment &#39;</span>
+            <span class="sa">f</span><span class="s1">&#39;entirely, or use a version of pelicun that supports &#39;</span>
+            <span class="sa">f</span><span class="s1">&#39;these unit types.&#39;</span>
+        <span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">edp_mask</span><span class="p">):</span>
-        <span class="n">demands</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">edp_mask</span><span class="p">]</span> <span class="o">=</span> <span class="n">length_unit</span> <span class="o">+</span> <span class="s1">&#39;ps&#39;</span>  <span class="c1"># type: ignore</span>
-
-    <span class="c1"># displacement</span>
-    <span class="n">disp_edps</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;PFD&#39;</span><span class="p">,</span> <span class="s1">&#39;PIH&#39;</span><span class="p">,</span> <span class="s1">&#39;SD&#39;</span><span class="p">,</span> <span class="s1">&#39;PGD&#39;</span><span class="p">]</span>
-    <span class="n">edp_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">demand_cols</span><span class="p">,</span> <span class="n">disp_edps</span><span class="p">)</span>
-
-    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">edp_mask</span><span class="p">):</span>
-        <span class="n">demands</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">edp_mask</span><span class="p">]</span> <span class="o">=</span> <span class="n">length_unit</span>  <span class="c1"># type: ignore</span>
-
-    <span class="c1"># drift ratio</span>
-    <span class="n">rot_edps</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;PID&#39;</span><span class="p">,</span> <span class="s1">&#39;PRD&#39;</span><span class="p">,</span> <span class="s1">&#39;DWD&#39;</span><span class="p">,</span> <span class="s1">&#39;RDR&#39;</span><span class="p">,</span> <span class="s1">&#39;PMD&#39;</span><span class="p">,</span> <span class="s1">&#39;RID&#39;</span><span class="p">]</span>
-    <span class="n">edp_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">demand_cols</span><span class="p">,</span> <span class="n">rot_edps</span><span class="p">)</span>
-
-    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">edp_mask</span><span class="p">):</span>
-        <span class="n">demands</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">edp_mask</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;unitless&#39;</span>  <span class="c1"># type: ignore</span>
+    <span class="k">if</span> <span class="n">unknown_demand_types</span><span class="p">:</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s1">&#39;Unable to determine the units of the following demand &#39;</span>
+            <span class="sa">f</span><span class="s1">&#39;types: </span><span class="si">{</span><span class="n">unknown_demand_types</span><span class="si">}</span><span class="s1">. Their values are assumed &#39;</span>
+            <span class="sa">f</span><span class="s1">&#39;to be in base units. Register custom demand types via the &#39;</span>
+            <span class="sa">f</span><span class="s1">&#39;&quot;CustomDemandTypes&quot; option to assign units to them.&#39;</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">log</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">PelicunWarning</span><span class="p">,</span> <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
 
     <span class="c1"># convert back to simple header and return the DF</span>
     <span class="k">return</span> <span class="n">base</span><span class="o">.</span><span class="n">convert_to_SimpleIndex</span><span class="p">(</span><span class="n">demands</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>

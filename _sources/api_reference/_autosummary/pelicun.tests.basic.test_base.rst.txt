@@ -31,6 +31,9 @@ pelicun.tests.basic.test\_base
       test_merge_default_config
       test_multiply_factor_multiple_levels
       test_nondir_multi
+      test_options_custom_demand_types
+      test_options_custom_demand_types_acronym_conflict
+      test_options_custom_demand_types_unsupported_unit_type
       test_options_init
       test_parse_units
       test_print_system_info

@@ -15,8 +15,8 @@
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../../_static/design-tabs.js?v=f930bc37"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
       <script src="../../_static/hide_empty_pre.js?v=a807066b"></script>
@@ -203,13 +203,22 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timezone</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">ClassVar</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">TypeVar</span><span class="p">,</span> <span class="n">overload</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">TYPE_CHECKING</span><span class="p">,</span>
+    <span class="n">Any</span><span class="p">,</span>
+    <span class="n">ClassVar</span><span class="p">,</span>
+    <span class="n">Optional</span><span class="p">,</span>
+    <span class="n">TypeVar</span><span class="p">,</span>
+    <span class="n">cast</span><span class="p">,</span>
+    <span class="n">overload</span><span class="p">,</span>
+<span class="p">)</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">colorama</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">colorama</span><span class="w"> </span><span class="kn">import</span> <span class="n">Fore</span><span class="p">,</span> <span class="n">Style</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.interpolate</span><span class="w"> </span><span class="kn">import</span> <span class="n">interp1d</span>  <span class="c1"># type: ignore</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dlml</span><span class="w"> </span><span class="kn">import</span> <span class="n">vocabulary</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.interpolate</span><span class="w"> </span><span class="kn">import</span> <span class="n">interp1d</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">pelicun.pelicun_warnings</span><span class="w"> </span><span class="kn">import</span> <span class="n">PelicunWarning</span>
 
@@ -225,7 +234,7 @@
 <span class="n">pp</span> <span class="o">=</span> <span class="n">pprint</span><span class="o">.</span><span class="n">PrettyPrinter</span><span class="p">(</span><span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">80</span> <span class="o">-</span> <span class="mi">24</span><span class="p">)</span>
 
 <span class="n">pd</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">display</span><span class="o">.</span><span class="n">max_rows</span> <span class="o">=</span> <span class="mi">20</span>
-<span class="n">pd</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">display</span><span class="o">.</span><span class="n">max_columns</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># type: ignore</span>
+<span class="n">pd</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">display</span><span class="o">.</span><span class="n">max_columns</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="n">pd</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">display</span><span class="o">.</span><span class="n">expand_frame_repr</span> <span class="o">=</span> <span class="kc">True</span>
 <span class="n">pd</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">display</span><span class="o">.</span><span class="n">width</span> <span class="o">=</span> <span class="mi">300</span>
 
@@ -297,6 +306,24 @@
 <span class="sd">        configuration dictionary, otherwise left as provided in the</span>
 <span class="sd">        default configuration file (see settings/default_config.json</span>
 <span class="sd">        in the pelicun source code).</span>
+<span class="sd">    edp_to_demand_type: dict</span>
+<span class="sd">        Maps the verbose demand names used in model parameters</span>
+<span class="sd">        (e.g., &#39;Story Drift Ratio&#39;) to short demand-type acronyms</span>
+<span class="sd">        (e.g., &#39;PID&#39;). The mapping is derived from the defaults in</span>
+<span class="sd">        `base.EDP_TYPES` extended with the entries of the</span>
+<span class="sd">        &quot;CustomDemandTypes&quot; dictionary in the user&#39;s configuration</span>
+<span class="sd">        dictionary, which register custom demand names with their</span>
+<span class="sd">        acronym and unit type and may also override the defaults. The</span>
+<span class="sd">        merged mapping only applies to assessments using this</span>
+<span class="sd">        Options object.</span>
+<span class="sd">    demand_unit_types: dict</span>
+<span class="sd">        Maps demand-type acronyms (e.g., &#39;PFA&#39;) to the unit type the</span>
+<span class="sd">        demand is measured in (e.g., &#39;acceleration&#39;). Like</span>
+<span class="sd">        `edp_to_demand_type`, the mapping is derived from the</span>
+<span class="sd">        defaults in `base.EDP_TYPES` extended with the entries of the</span>
+<span class="sd">        &quot;CustomDemandTypes&quot; dictionary in the user&#39;s configuration</span>
+<span class="sd">        dictionary, and only applies to assessments using this</span>
+<span class="sd">        Options object.</span>
 <span class="sd">    log: Logger</span>
 <span class="sd">        Logger object. Configuration parameters coming from the user&#39;s</span>
 <span class="sd">        configuration dictionary or the default configuration file</span>
@@ -310,12 +337,11 @@
         <span class="s1">&#39;_seed&#39;</span><span class="p">,</span>
         <span class="s1">&#39;defaults&#39;</span><span class="p">,</span>
         <span class="s1">&#39;demand_offset&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;demand_unit_types&#39;</span><span class="p">,</span>
         <span class="s1">&#39;eco_scale&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;eco_scale&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;error_setup&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;edp_to_demand_type&#39;</span><span class="p">,</span>
         <span class="s1">&#39;error_setup&#39;</span><span class="p">,</span>
         <span class="s1">&#39;list_all_ds&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;log&#39;</span><span class="p">,</span>
         <span class="s1">&#39;log&#39;</span><span class="p">,</span>
         <span class="s1">&#39;nondir_multi_dict&#39;</span><span class="p">,</span>
         <span class="s1">&#39;rho_cost_time&#39;</span><span class="p">,</span>
@@ -342,7 +368,19 @@
 <span class="sd">            for an Assessment (e.g. defining an Options object for UQ</span>
 <span class="sd">            use), this value should be None.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        TypeError</span>
+<span class="sd">            If an entry of the &quot;CustomDemandTypes&quot; configuration</span>
+<span class="sd">            dictionary has a demand name that is not a string, does</span>
+<span class="sd">            not map to a dictionary, or has a non-string acronym or</span>
+<span class="sd">            unit type.</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If an entry of the &quot;CustomDemandTypes&quot; configuration</span>
+<span class="sd">            dictionary is invalid, or if two demand names map the</span>
+<span class="sd">            same acronym to conflicting unit types.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>  <span class="c1"># noqa: DOC502</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_asmnt</span> <span class="o">=</span> <span class="n">assessment</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">defaults</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
@@ -371,6 +409,36 @@
             <span class="n">log_show_ms</span><span class="o">=</span><span class="n">merged_config_options</span><span class="p">[</span><span class="s1">&#39;LogShowMS&#39;</span><span class="p">],</span>
             <span class="n">print_log</span><span class="o">=</span><span class="n">merged_config_options</span><span class="p">[</span><span class="s1">&#39;PrintLog&#39;</span><span class="p">],</span>
         <span class="p">)</span>
+
+        <span class="c1"># Build the assessment-scoped demand-type vocabulary: the</span>
+        <span class="c1"># defaults in `EDP_TYPES` extended with the entries of the</span>
+        <span class="c1"># &quot;CustomDemandTypes&quot; option. Custom entries may override the</span>
+        <span class="c1"># defaults. Both mappings below are views derived from the</span>
+        <span class="c1"># merged vocabulary.</span>
+        <span class="n">custom_demand_types</span> <span class="o">=</span> <span class="n">merged_config_options</span><span class="p">[</span><span class="s1">&#39;CustomDemandTypes&#39;</span><span class="p">]</span>
+        <span class="n">demand_types</span> <span class="o">=</span> <span class="n">_merge_custom_demand_types</span><span class="p">(</span><span class="n">custom_demand_types</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">edp_to_demand_type</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">name</span><span class="p">:</span> <span class="n">info</span><span class="p">[</span><span class="s1">&#39;Acronym&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">info</span> <span class="ow">in</span> <span class="n">demand_types</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+        <span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">demand_unit_types</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">first_registrant_by_acronym</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">demand_name</span><span class="p">,</span> <span class="n">demand_info</span> <span class="ow">in</span> <span class="n">demand_types</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">acronym</span> <span class="o">=</span> <span class="n">demand_info</span><span class="p">[</span><span class="s1">&#39;Acronym&#39;</span><span class="p">]</span>
+            <span class="n">unit_type</span> <span class="o">=</span> <span class="n">demand_info</span><span class="p">[</span><span class="s1">&#39;UnitType&#39;</span><span class="p">]</span>
+            <span class="n">existing_unit_type</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">demand_unit_types</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">acronym</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">existing_unit_type</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">existing_unit_type</span> <span class="o">!=</span> <span class="n">unit_type</span><span class="p">:</span>
+                <span class="n">first_registrant</span> <span class="o">=</span> <span class="n">first_registrant_by_acronym</span><span class="p">[</span><span class="n">acronym</span><span class="p">]</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="sa">f</span><span class="s1">&#39;Conflicting unit types for demand type acronym &#39;</span>
+                    <span class="sa">f</span><span class="s1">&#39;`</span><span class="si">{</span><span class="n">acronym</span><span class="si">}</span><span class="s1">`: `</span><span class="si">{</span><span class="n">demand_name</span><span class="si">}</span><span class="s1">` registers it with unit &#39;</span>
+                    <span class="sa">f</span><span class="s1">&#39;type `</span><span class="si">{</span><span class="n">unit_type</span><span class="si">}</span><span class="s1">`, but `</span><span class="si">{</span><span class="n">first_registrant</span><span class="si">}</span><span class="s1">` already &#39;</span>
+                    <span class="sa">f</span><span class="s1">&#39;registers it with unit type `</span><span class="si">{</span><span class="n">existing_unit_type</span><span class="si">}</span><span class="s1">`. &#39;</span>
+                    <span class="sa">f</span><span class="s1">&#39;Demand names that share an acronym must use the same &#39;</span>
+                    <span class="sa">f</span><span class="s1">&#39;unit type.&#39;</span>
+                <span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">demand_unit_types</span><span class="p">[</span><span class="n">acronym</span><span class="p">]</span> <span class="o">=</span> <span class="n">unit_type</span>
+            <span class="n">first_registrant_by_acronym</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">acronym</span><span class="p">,</span> <span class="n">demand_name</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">seed</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
@@ -729,8 +797,9 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Turn warnings on/off.</span>
 
-<span class="sd">        See also: `pelicun/pytest.ini`. Devs: make sure to update that</span>
-<span class="sd">        file when addressing &amp; eliminating warnings.</span>
+<span class="sd">        See also: `[tool.pytest.ini_options]` in `pyproject.toml`.</span>
+<span class="sd">        Devs: make sure to update that section when addressing &amp;</span>
+<span class="sd">        eliminating warnings.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">sys</span><span class="o">.</span><span class="n">warnoptions</span><span class="p">:</span>
@@ -960,7 +1029,10 @@
             <span class="c1"># only perform this if there are multiple levels</span>
             <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">nlevels</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
                 <span class="n">simple_name</span> <span class="o">=</span> <span class="s1">&#39;-&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-                    <span class="p">[</span><span class="n">n</span> <span class="k">if</span> <span class="n">n</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">names</span><span class="p">]</span>
+                    <span class="p">[</span>
+                        <span class="n">cast</span><span class="p">(</span><span class="s1">&#39;str&#39;</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span> <span class="k">if</span> <span class="n">n</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
+                        <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">names</span>
+                    <span class="p">]</span>
                 <span class="p">)</span>
                 <span class="n">simple_index</span> <span class="o">=</span> <span class="p">[</span>
                     <span class="s1">&#39;-&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">id_i</span><span class="p">)</span> <span class="k">for</span> <span class="n">id_i</span> <span class="ow">in</span> <span class="n">idx</span><span class="p">])</span> <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">index</span>
@@ -970,10 +1042,16 @@
                 <span class="n">data_mod</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">simple_name</span>
 
         <span class="k">elif</span> <span class="n">axis</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="c1"># only a DataFrame has columns to simplify</span>
+            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span>
+            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data_mod</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span>
             <span class="c1"># only perform this if there are multiple levels</span>
             <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">nlevels</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
                 <span class="n">simple_name</span> <span class="o">=</span> <span class="s1">&#39;-&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-                    <span class="p">[</span><span class="n">n</span> <span class="k">if</span> <span class="n">n</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">names</span><span class="p">]</span>
+                    <span class="p">[</span>
+                        <span class="n">cast</span><span class="p">(</span><span class="s1">&#39;str&#39;</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span> <span class="k">if</span> <span class="n">n</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
+                        <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">names</span>
+                    <span class="p">]</span>
                 <span class="p">)</span>
                 <span class="n">simple_index</span> <span class="o">=</span> <span class="p">[</span>
                     <span class="s1">&#39;-&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">id_i</span><span class="p">)</span> <span class="k">for</span> <span class="n">id_i</span> <span class="ow">in</span> <span class="n">idx</span><span class="p">])</span> <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">columns</span>
@@ -1066,10 +1144,17 @@
         <span class="n">data_mod</span> <span class="o">=</span> <span class="n">data</span> <span class="k">if</span> <span class="n">inplace</span> <span class="k">else</span> <span class="n">data</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
 
         <span class="k">if</span> <span class="n">axis</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">data_mod</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">MultiIndex</span><span class="o">.</span><span class="n">from_arrays</span><span class="p">(</span><span class="n">index_labels_np</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
+            <span class="c1"># a 2D ndarray is a valid `from_arrays` input at runtime</span>
+            <span class="n">data_mod</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">MultiIndex</span><span class="o">.</span><span class="n">from_arrays</span><span class="p">(</span>
+                <span class="n">index_labels_np</span><span class="o">.</span><span class="n">T</span>  <span class="c1"># type: ignore[arg-type]</span>
+            <span class="p">)</span>
 
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">data_mod</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">MultiIndex</span><span class="o">.</span><span class="n">from_arrays</span><span class="p">(</span><span class="n">index_labels_np</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
+            <span class="c1"># only a DataFrame has columns to convert</span>
+            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data_mod</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span>
+            <span class="n">data_mod</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">MultiIndex</span><span class="o">.</span><span class="n">from_arrays</span><span class="p">(</span>
+                <span class="n">index_labels_np</span><span class="o">.</span><span class="n">T</span>  <span class="c1"># type: ignore[arg-type]</span>
+            <span class="p">)</span>
 
         <span class="k">return</span> <span class="n">data_mod</span>
 
@@ -1213,10 +1298,11 @@
         <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;No rows found matching the conditions: `</span><span class="si">{</span><span class="n">conditions</span><span class="si">}</span><span class="s1">`&#39;</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
 
+    <span class="c1"># a boolean mask array is a valid `iloc` indexer at runtime</span>
     <span class="k">if</span> <span class="n">axis</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="n">df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">mask</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()]</span> <span class="o">*=</span> <span class="n">factor</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">mask</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()]</span> <span class="o">*=</span> <span class="n">factor</span>  <span class="c1"># type: ignore[index]</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="n">mask</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()]</span> <span class="o">*=</span> <span class="n">factor</span></div>
+        <span class="n">df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="n">mask</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()]</span> <span class="o">*=</span> <span class="n">factor</span>  <span class="c1"># type: ignore[index]</span></div>
 
 
 
@@ -1547,47 +1633,216 @@
 
 <span class="c1"># Input specs</span>
 
-<span class="n">EDP_to_demand_type</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="c1"># Drifts</span>
-    <span class="s1">&#39;Story Drift Ratio&#39;</span><span class="p">:</span> <span class="s1">&#39;PID&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;Peak Interstory Drift Ratio&#39;</span><span class="p">:</span> <span class="s1">&#39;PID&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;Roof Drift Ratio&#39;</span><span class="p">:</span> <span class="s1">&#39;PRD&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;Peak Roof Drift Ratio&#39;</span><span class="p">:</span> <span class="s1">&#39;PRD&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;Damageable Wall Drift&#39;</span><span class="p">:</span> <span class="s1">&#39;DWD&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;Racking Drift Ratio&#39;</span><span class="p">:</span> <span class="s1">&#39;RDR&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;Mega Drift Ratio&#39;</span><span class="p">:</span> <span class="s1">&#39;PMD&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;Residual Drift Ratio&#39;</span><span class="p">:</span> <span class="s1">&#39;RID&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;Residual Interstory Drift Ratio&#39;</span><span class="p">:</span> <span class="s1">&#39;RID&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;Peak Effective Drift Ratio&#39;</span><span class="p">:</span> <span class="s1">&#39;EDR&#39;</span><span class="p">,</span>
-    <span class="c1"># Floor response</span>
-    <span class="s1">&#39;Peak Floor Acceleration&#39;</span><span class="p">:</span> <span class="s1">&#39;PFA&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;Peak Floor Velocity&#39;</span><span class="p">:</span> <span class="s1">&#39;PFV&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;Peak Floor Displacement&#39;</span><span class="p">:</span> <span class="s1">&#39;PFD&#39;</span><span class="p">,</span>
-    <span class="c1"># Component response</span>
-    <span class="s1">&#39;Peak Link Rotation Angle&#39;</span><span class="p">:</span> <span class="s1">&#39;LR&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;Peak Link Beam Chord Rotation&#39;</span><span class="p">:</span> <span class="s1">&#39;LBR&#39;</span><span class="p">,</span>
-    <span class="c1"># Wind Intensity</span>
-    <span class="s1">&#39;Peak Gust Wind Speed&#39;</span><span class="p">:</span> <span class="s1">&#39;PWS&#39;</span><span class="p">,</span>
-    <span class="c1"># Wind Demands</span>
-    <span class="s1">&#39;Peak Wind Force&#39;</span><span class="p">:</span> <span class="s1">&#39;PWF&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;Peak Internal Force&#39;</span><span class="p">:</span> <span class="s1">&#39;PIF&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;Peak Line Force&#39;</span><span class="p">:</span> <span class="s1">&#39;PLF&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;Peak Wind Pressure&#39;</span><span class="p">:</span> <span class="s1">&#39;PWP&#39;</span><span class="p">,</span>
-    <span class="c1"># Inundation Intensity</span>
-    <span class="s1">&#39;Peak Inundation Height&#39;</span><span class="p">:</span> <span class="s1">&#39;PIH&#39;</span><span class="p">,</span>
-    <span class="c1"># Shaking Intensity</span>
-    <span class="s1">&#39;Peak Ground Acceleration&#39;</span><span class="p">:</span> <span class="s1">&#39;PGA&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;Peak Ground Velocity&#39;</span><span class="p">:</span> <span class="s1">&#39;PGV&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;Spectral Acceleration&#39;</span><span class="p">:</span> <span class="s1">&#39;SA&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;Spectral Velocity&#39;</span><span class="p">:</span> <span class="s1">&#39;SV&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;Spectral Displacement&#39;</span><span class="p">:</span> <span class="s1">&#39;SD&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;Peak Spectral Acceleration&#39;</span><span class="p">:</span> <span class="s1">&#39;SA&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;Peak Spectral Velocity&#39;</span><span class="p">:</span> <span class="s1">&#39;SV&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;Peak Spectral Displacement&#39;</span><span class="p">:</span> <span class="s1">&#39;SD&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;Permanent Ground Deformation&#39;</span><span class="p">:</span> <span class="s1">&#39;PGD&#39;</span><span class="p">,</span>
-    <span class="c1"># Placeholder for advanced calculations</span>
-    <span class="s1">&#39;One&#39;</span><span class="p">:</span> <span class="s1">&#39;ONE&#39;</span><span class="p">,</span>
+<span class="c1"># The demand-type vocabulary is owned by the Damage and Loss Model</span>
+<span class="c1"># Library (the `dlml` package), which is the single source of truth for</span>
+<span class="c1"># the controlled vocabularies used in the default model data. Pelicun</span>
+<span class="c1"># keeps its own copy of the vocabulary, including the inner</span>
+<span class="c1"># per-demand-type dictionaries. This dictionary provides the defaults</span>
+<span class="c1"># for every new Options object; use the `CustomDemandTypes` option to</span>
+<span class="c1"># extend the vocabulary for a specific assessment.</span>
+<span class="n">EDP_TYPES</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">dict</span><span class="p">(</span><span class="n">info</span><span class="p">)</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">info</span> <span class="ow">in</span> <span class="n">vocabulary</span><span class="o">.</span><span class="n">EDP_TYPES</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
 <span class="p">}</span>
+
+<span class="c1"># Convenience view of `EDP_TYPES` that maps each verbose demand name to</span>
+<span class="c1"># its short demand-type acronym.</span>
+<span class="n">EDP_to_demand_type</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">name</span><span class="p">:</span> <span class="n">info</span><span class="p">[</span><span class="s1">&#39;Acronym&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">info</span> <span class="ow">in</span> <span class="n">EDP_TYPES</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+<span class="p">}</span>
+
+
+<span class="c1">#: The unit types pelicun&#39;s automatic unit assignment implements. The</span>
+<span class="c1">#: model library&#39;s unit-type vocabulary (`dlml.vocabulary.UNIT_TYPES`)</span>
+<span class="c1">#: may be broader (e.g., it also defines &#39;force&#39;, &#39;force_per_length&#39;,</span>
+<span class="c1">#: and &#39;pressure&#39;): entries of that vocabulary missing from this set</span>
+<span class="c1">#: are recognized but not yet supported. This set is the single</span>
+<span class="c1">#: source of the supported unit types; extend it together with the</span>
+<span class="c1">#: unit mapping in `assessment._add_units` when adding support for a</span>
+<span class="c1">#: new unit type.</span>
+<span class="n">SUPPORTED_UNIT_TYPES</span><span class="p">:</span> <span class="nb">frozenset</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(</span>
+    <span class="p">{</span><span class="s1">&#39;acceleration&#39;</span><span class="p">,</span> <span class="s1">&#39;speed&#39;</span><span class="p">,</span> <span class="s1">&#39;displacement&#39;</span><span class="p">,</span> <span class="s1">&#39;unitless&#39;</span><span class="p">,</span> <span class="s1">&#39;rotation&#39;</span><span class="p">}</span>
+<span class="p">)</span>
+
+
+<span class="c1">#: The keys a &quot;CustomDemandTypes&quot; entry must define.</span>
+<span class="n">_CUSTOM_DEMAND_TYPE_KEYS</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;Acronym&#39;</span><span class="p">,</span> <span class="s1">&#39;UnitType&#39;</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_validate_custom_demand_type</span><span class="p">(</span>
+    <span class="n">demand_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">demand_info</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Validate an entry of the &quot;CustomDemandTypes&quot; option.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    demand_name: str</span>
+<span class="sd">        Verbose demand name the entry registers.</span>
+<span class="sd">    demand_info: dict</span>
+<span class="sd">        The entry itself: a dictionary with an &#39;Acronym&#39; and a</span>
+<span class="sd">        &#39;UnitType&#39; key.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    TypeError</span>
+<span class="sd">        If the demand name is not a string, the entry does not map to</span>
+<span class="sd">        a dictionary, or the acronym or unit type is not a string.</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If the demand name, acronym, or unit type is empty, if the</span>
+<span class="sd">        entry is missing a required key or contains an unknown key, if</span>
+<span class="sd">        the unit type is not one of the valid unit types, or if the</span>
+<span class="sd">        unit type is valid but not yet supported by this version of</span>
+<span class="sd">        pelicun.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">demand_name</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s1">&#39;Invalid entry in &quot;CustomDemandTypes&quot;: &#39;</span>
+            <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">demand_name</span><span class="si">!r}</span><span class="s1">. Demand names must be strings.&#39;</span>
+        <span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">demand_name</span><span class="p">:</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s1">&#39;Invalid entry in &quot;CustomDemandTypes&quot;: &#39;</span>
+            <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">demand_name</span><span class="si">!r}</span><span class="s1">. Demand names must not be empty.&#39;</span>
+        <span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">demand_info</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s1">&#39;Invalid entry in &quot;CustomDemandTypes&quot;: &#39;</span>
+            <span class="sa">f</span><span class="s1">&#39;`</span><span class="si">{</span><span class="n">demand_name</span><span class="si">}</span><span class="s1">`: </span><span class="si">{</span><span class="n">demand_info</span><span class="si">!r}</span><span class="s1">. Each entry must map to a &#39;</span>
+            <span class="sa">f</span><span class="s1">&#39;dictionary with an &quot;Acronym&quot; and a &quot;UnitType&quot; key, e.g., &#39;</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="se">{{</span><span class="s2">&#39;Acronym&#39;: &#39;STR&#39;, &#39;UnitType&#39;: &#39;unitless&#39;</span><span class="se">}}</span><span class="s2">.&quot;</span>
+        <span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+    <span class="n">missing_keys</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">key</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">_CUSTOM_DEMAND_TYPE_KEYS</span> <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">demand_info</span>
+    <span class="p">]</span>
+    <span class="k">if</span> <span class="n">missing_keys</span><span class="p">:</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s1">&#39;Invalid entry in &quot;CustomDemandTypes&quot;: &#39;</span>
+            <span class="sa">f</span><span class="s1">&#39;`</span><span class="si">{</span><span class="n">demand_name</span><span class="si">}</span><span class="s1">`: </span><span class="si">{</span><span class="n">demand_info</span><span class="si">!r}</span><span class="s1">. The entry is missing the &#39;</span>
+            <span class="sa">f</span><span class="s1">&#39;following required key(s): </span><span class="si">{</span><span class="n">missing_keys</span><span class="si">}</span><span class="s1">.&#39;</span>
+        <span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+    <span class="n">unknown_keys</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">key</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">demand_info</span> <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_CUSTOM_DEMAND_TYPE_KEYS</span>
+    <span class="p">]</span>
+    <span class="k">if</span> <span class="n">unknown_keys</span><span class="p">:</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s1">&#39;Invalid entry in &quot;CustomDemandTypes&quot;: &#39;</span>
+            <span class="sa">f</span><span class="s1">&#39;`</span><span class="si">{</span><span class="n">demand_name</span><span class="si">}</span><span class="s1">`: </span><span class="si">{</span><span class="n">demand_info</span><span class="si">!r}</span><span class="s1">. The entry contains the &#39;</span>
+            <span class="sa">f</span><span class="s1">&#39;following unknown key(s): </span><span class="si">{</span><span class="n">unknown_keys</span><span class="si">}</span><span class="s1">. &#39;</span>
+            <span class="sa">f</span><span class="s1">&#39;Only </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">_CUSTOM_DEMAND_TYPE_KEYS</span><span class="p">)</span><span class="si">}</span><span class="s1"> are allowed.&#39;</span>
+        <span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">_CUSTOM_DEMAND_TYPE_KEYS</span><span class="p">:</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="n">demand_info</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="sa">f</span><span class="s1">&#39;Invalid entry in &quot;CustomDemandTypes&quot;: &#39;</span>
+                <span class="sa">f</span><span class="s1">&#39;`</span><span class="si">{</span><span class="n">demand_name</span><span class="si">}</span><span class="s1">`: </span><span class="si">{</span><span class="n">demand_info</span><span class="si">!r}</span><span class="s1">. &#39;</span>
+                <span class="sa">f</span><span class="s1">&#39;&quot;Acronym&quot; and &quot;UnitType&quot; values must be strings.&#39;</span>
+            <span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">value</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="sa">f</span><span class="s1">&#39;Invalid entry in &quot;CustomDemandTypes&quot;: &#39;</span>
+                <span class="sa">f</span><span class="s1">&#39;`</span><span class="si">{</span><span class="n">demand_name</span><span class="si">}</span><span class="s1">`: </span><span class="si">{</span><span class="n">demand_info</span><span class="si">!r}</span><span class="s1">. &#39;</span>
+                <span class="sa">f</span><span class="s1">&#39;&quot;Acronym&quot; and &quot;UnitType&quot; values must not be empty.&#39;</span>
+            <span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+    <span class="n">_validate_custom_demand_unit_type</span><span class="p">(</span><span class="n">demand_name</span><span class="p">,</span> <span class="n">demand_info</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_validate_custom_demand_unit_type</span><span class="p">(</span>
+    <span class="n">demand_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">demand_info</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Validate the unit type of a &quot;CustomDemandTypes&quot; entry.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    demand_name: str</span>
+<span class="sd">        Verbose demand name the entry registers.</span>
+<span class="sd">    demand_info: dict</span>
+<span class="sd">        The entry itself: a dictionary with an &#39;Acronym&#39; and a</span>
+<span class="sd">        &#39;UnitType&#39; key.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If the unit type is not one of the valid unit types, or if it</span>
+<span class="sd">        is valid but not yet supported by this version of pelicun.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">unit_type</span> <span class="o">=</span> <span class="n">demand_info</span><span class="p">[</span><span class="s1">&#39;UnitType&#39;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">unit_type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">vocabulary</span><span class="o">.</span><span class="n">UNIT_TYPES</span><span class="p">:</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s1">&#39;Invalid entry in &quot;CustomDemandTypes&quot;: &#39;</span>
+            <span class="sa">f</span><span class="s1">&#39;`</span><span class="si">{</span><span class="n">demand_name</span><span class="si">}</span><span class="s1">`: </span><span class="si">{</span><span class="n">demand_info</span><span class="si">!r}</span><span class="s1">. &#39;</span>
+            <span class="sa">f</span><span class="s1">&#39;`</span><span class="si">{</span><span class="n">unit_type</span><span class="si">}</span><span class="s1">` is not a valid unit type. &#39;</span>
+            <span class="sa">f</span><span class="s1">&#39;Valid unit types: </span><span class="si">{</span><span class="nb">sorted</span><span class="p">(</span><span class="n">vocabulary</span><span class="o">.</span><span class="n">UNIT_TYPES</span><span class="p">)</span><span class="si">}</span><span class="s1">.&#39;</span>
+        <span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">unit_type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">SUPPORTED_UNIT_TYPES</span><span class="p">:</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s1">&#39;Invalid entry in &quot;CustomDemandTypes&quot;: &#39;</span>
+            <span class="sa">f</span><span class="s1">&#39;`</span><span class="si">{</span><span class="n">demand_name</span><span class="si">}</span><span class="s1">`: </span><span class="si">{</span><span class="n">demand_info</span><span class="si">!r}</span><span class="s1">. &#39;</span>
+            <span class="sa">f</span><span class="s1">&#39;The unit type `</span><span class="si">{</span><span class="n">unit_type</span><span class="si">}</span><span class="s1">` is recognized by the model &#39;</span>
+            <span class="sa">f</span><span class="s1">&#39;library but not yet supported by this version of pelicun. &#39;</span>
+            <span class="sa">f</span><span class="s1">&#39;Upgrade pelicun to a version that supports it. &#39;</span>
+            <span class="sa">f</span><span class="s1">&#39;Supported unit types: </span><span class="si">{</span><span class="nb">sorted</span><span class="p">(</span><span class="n">SUPPORTED_UNIT_TYPES</span><span class="p">)</span><span class="si">}</span><span class="s1">.&#39;</span>
+        <span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_merge_custom_demand_types</span><span class="p">(</span>
+    <span class="n">custom_demand_types</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]],</span> <span class="n">log</span><span class="p">:</span> <span class="n">Logger</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Merge custom demand types into the default vocabulary.</span>
+
+<span class="sd">    Validates the entries of the &quot;CustomDemandTypes&quot; configuration</span>
+<span class="sd">    option and merges them into the default demand-type vocabulary</span>
+<span class="sd">    (`EDP_TYPES`). Custom entries may override the defaults; overrides</span>
+<span class="sd">    are logged.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    custom_demand_types: dict</span>
+<span class="sd">        The value of the &quot;CustomDemandTypes&quot; configuration option:</span>
+<span class="sd">        each key is a verbose demand name and each value is a</span>
+<span class="sd">        dictionary with an &#39;Acronym&#39; and a &#39;UnitType&#39; key.</span>
+<span class="sd">    log: Logger</span>
+<span class="sd">        Logger used to report overrides of default demand types.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dict</span>
+<span class="sd">        The merged demand-type vocabulary, mapping each verbose demand</span>
+<span class="sd">        name to a dictionary with its &#39;Acronym&#39; and &#39;UnitType&#39;.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">demand_name</span><span class="p">,</span> <span class="n">demand_info</span> <span class="ow">in</span> <span class="n">custom_demand_types</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">_validate_custom_demand_type</span><span class="p">(</span><span class="n">demand_name</span><span class="p">,</span> <span class="n">demand_info</span><span class="p">)</span>
+        <span class="n">default_info</span> <span class="o">=</span> <span class="n">EDP_TYPES</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">demand_name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">default_info</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">default_info</span> <span class="o">!=</span> <span class="p">{</span>
+            <span class="n">key</span><span class="p">:</span> <span class="n">demand_info</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">_CUSTOM_DEMAND_TYPE_KEYS</span>
+        <span class="p">}:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">msg</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">&#39;&quot;CustomDemandTypes&quot; overrides the default demand &#39;</span>
+                <span class="sa">f</span><span class="s1">&#39;type of `</span><span class="si">{</span><span class="n">demand_name</span><span class="si">}</span><span class="s1">`: &#39;</span>
+                <span class="sa">f</span><span class="s1">&#39;`</span><span class="si">{</span><span class="n">default_info</span><span class="p">[</span><span class="s2">&quot;Acronym&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1"> (</span><span class="si">{</span><span class="n">default_info</span><span class="p">[</span><span class="s2">&quot;UnitType&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">)` -&gt; &#39;</span>
+                <span class="sa">f</span><span class="s1">&#39;`</span><span class="si">{</span><span class="n">demand_info</span><span class="p">[</span><span class="s2">&quot;Acronym&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1"> (</span><span class="si">{</span><span class="n">demand_info</span><span class="p">[</span><span class="s2">&quot;UnitType&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">)`.&#39;</span>
+            <span class="p">)</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="o">**</span><span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="nb">dict</span><span class="p">(</span><span class="n">info</span><span class="p">)</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">info</span> <span class="ow">in</span> <span class="n">EDP_TYPES</span><span class="o">.</span><span class="n">items</span><span class="p">()},</span>
+        <span class="o">**</span><span class="p">{</span>
+            <span class="n">name</span><span class="p">:</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">info</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">_CUSTOM_DEMAND_TYPE_KEYS</span><span class="p">}</span>
+            <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">info</span> <span class="ow">in</span> <span class="n">custom_demand_types</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+        <span class="p">},</span>
+    <span class="p">}</span>
 
 
 <div class="viewcode-block" id="dict_raise_on_duplicates">

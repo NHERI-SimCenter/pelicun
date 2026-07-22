@@ -6,6 +6,12 @@ pelicun.base
 
    
    
+   .. rubric:: Module Attributes
+
+   .. autosummary::
+   
+      SUPPORTED_UNIT_TYPES
+   
    
 
    
@@ -14,6 +20,9 @@ pelicun.base
 
    .. autosummary::
    
+      _merge_custom_demand_types
+      _validate_custom_demand_type
+      _validate_custom_demand_unit_type
       _warning
       check_if_str_is_na
       control_warnings

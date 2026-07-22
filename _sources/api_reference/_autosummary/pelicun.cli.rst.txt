@@ -15,7 +15,6 @@ pelicun.cli
    .. autosummary::
    
       main
-      setup_dlml_logging
    
    
 

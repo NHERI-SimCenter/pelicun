@@ -34,7 +34,7 @@ pelicun.tests.basic
    test_asset_model
    test_auto
    test_base
-   test_cli_logging
+   test_cli
    test_damage_model
    test_demand_model
    test_file_io

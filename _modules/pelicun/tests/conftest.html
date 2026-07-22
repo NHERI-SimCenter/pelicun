@@ -15,8 +15,8 @@
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
       <script src="../../../_static/hide_empty_pre.js?v=a807066b"></script>
@@ -192,49 +192,13 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">shutil</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Generator</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">unittest.mock</span><span class="w"> </span><span class="kn">import</span> <span class="n">patch</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pytest</span>
 
-<span class="c1"># This is an explicit list of tests that handle their own network mocking</span>
-<span class="c1"># and should be excluded from the global fixture.</span>
-<span class="n">EXCLUDED_TESTS</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s1">&#39;test_check_dlml_data_with_missing_data&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;test_check_dlml_data_with_existing_data_update_available&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;test_check_dlml_data_download_failure&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;test_check_dlml_data_permission_error&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;test_check_dlml_data_version_check_failure&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;test_logging_configuration&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;test_warning_system_integration&#39;</span><span class="p">,</span>
-<span class="p">}</span>
-
-
-<div class="viewcode-block" id="mock_dlml_data_check">
-<a class="viewcode-back" href="../../../api_reference/_autosummary/pelicun.tests.conftest.html#pelicun.tests.conftest.mock_dlml_data_check">[docs]</a>
-<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span><span class="p">(</span><span class="n">autouse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="k">def</span><span class="w"> </span><span class="nf">mock_dlml_data_check</span><span class="p">(</span>
-    <span class="n">request</span><span class="p">:</span> <span class="n">pytest</span><span class="o">.</span><span class="n">FixtureRequest</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Generator</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Mocks the DLML data check for the entire test session, UNLESS</span>
-<span class="sd">    the test is in the specific exclusion list.</span>
-
-<span class="sd">    This provides a high-performance, fail-safe &quot;no network&quot; policy</span>
-<span class="sd">    while allowing specific integration tests to run their own logic.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c1"># If the current test&#39;s name is in our exclusion list, do not</span>
-    <span class="c1"># apply the global mock.</span>
-    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="n">EXCLUDED_TESTS</span><span class="p">:</span>
-        <span class="k">yield</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="c1"># For all other tests, apply the global mock.</span>
-        <span class="n">target_function_path</span> <span class="o">=</span> <span class="s1">&#39;pelicun.tools.dlml.check_dlml_data&#39;</span>
-        <span class="k">with</span> <span class="n">patch</span><span class="p">(</span><span class="n">target_function_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">mocked_check_func</span><span class="p">:</span>
-            <span class="n">mocked_check_func</span><span class="o">.</span><span class="n">return_value</span> <span class="o">=</span> <span class="kc">None</span>
-            <span class="k">yield</span></div>
-
+<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Generator</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_setup_common_test_data</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>

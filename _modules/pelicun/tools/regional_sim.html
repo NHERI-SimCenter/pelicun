@@ -15,8 +15,8 @@
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
       <script src="../../../_static/hide_empty_pre.js?v=a807066b"></script>
@@ -198,6 +198,7 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">cast</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">joblib</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
@@ -209,6 +210,9 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">pelicun.auto</span><span class="w"> </span><span class="kn">import</span> <span class="n">auto_populate</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pelicun.file_io</span><span class="w"> </span><span class="kn">import</span> <span class="n">substitute_default_path</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pelicun.tools.NNR</span><span class="w"> </span><span class="kn">import</span> <span class="n">NNR</span>
+
+<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Generator</span>
 
 
 <div class="viewcode-block" id="parse_id_filter">
@@ -238,7 +242,7 @@
     <span class="k">if</span> <span class="ow">not</span> <span class="n">filter_str</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">filter_str</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
         <span class="k">return</span> <span class="p">[]</span>
 
-    <span class="n">ids</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+    <span class="n">ids</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
     <span class="n">parts</span> <span class="o">=</span> <span class="p">[</span><span class="n">part</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">filter_str</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)]</span>
 
     <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">parts</span><span class="p">:</span>
@@ -333,7 +337,7 @@
 <div class="viewcode-block" id="tqdm_joblib">
 <a class="viewcode-back" href="../../../api_reference/_autosummary/pelicun.tools.regional_sim.html#pelicun.tools.regional_sim.tqdm_joblib">[docs]</a>
 <span class="nd">@contextlib</span><span class="o">.</span><span class="n">contextmanager</span>
-<span class="k">def</span><span class="w"> </span><span class="nf">tqdm_joblib</span><span class="p">(</span><span class="n">tqdm_object</span><span class="p">:</span> <span class="n">tqdm</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">contextlib</span><span class="o">.</span><span class="n">Generator</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">tqdm_joblib</span><span class="p">(</span><span class="n">tqdm_object</span><span class="p">:</span> <span class="n">tqdm</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Generator</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Context manager to patch joblib to report progress into a tqdm progress bar.</span>
 
@@ -370,7 +374,7 @@
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_calculate_losses_hazus_eq</span><span class="p">(</span>
     <span class="n">assessment</span><span class="p">:</span> <span class="n">Assessment</span><span class="p">,</span> <span class="n">dl_method</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">bldg_df_chunk</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculate losses using the Hazus Earthquake methodology.</span>
 
@@ -406,6 +410,7 @@
 
     <span class="c1"># create a lookup table to find which fragility IDs are at which location</span>
     <span class="n">dmg_sample</span> <span class="o">=</span> <span class="n">assessment</span><span class="o">.</span><span class="n">damage</span><span class="o">.</span><span class="n">save_sample</span><span class="p">()</span>
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dmg_sample</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span>
     <span class="n">cmp_loc</span> <span class="o">=</span> <span class="n">dmg_sample</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;cmp&#39;</span><span class="p">,</span> <span class="s1">&#39;loc&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">first</span><span class="p">()</span><span class="o">.</span><span class="n">T</span>
 
     <span class="n">cmp_lookup</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span>
@@ -421,16 +426,17 @@
     <span class="c1"># the for loop</span>
 
     <span class="c1"># we&#39;ll collect the results in this dict</span>
-    <span class="n">loss_results</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;Cost&#39;</span><span class="p">:</span> <span class="p">[],</span> <span class="s1">&#39;Time&#39;</span><span class="p">:</span> <span class="p">[]}</span>
+    <span class="n">loss_results</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;Cost&#39;</span><span class="p">:</span> <span class="p">[],</span> <span class="s1">&#39;Time&#39;</span><span class="p">:</span> <span class="p">[]}</span>
 
     <span class="c1"># start by extracting the full damage sample and preserving it</span>
     <span class="n">full_dmg_sample</span> <span class="o">=</span> <span class="n">assessment</span><span class="o">.</span><span class="n">damage</span><span class="o">.</span><span class="n">save_sample</span><span class="p">()</span>
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">full_dmg_sample</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span>
 
     <span class="k">for</span> <span class="n">occ_type</span><span class="p">,</span> <span class="n">raw_building_ids</span> <span class="ow">in</span> <span class="n">loss_groups</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:]</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
         <span class="c1"># convert the building id list to a numpy array of ints</span>
-        <span class="n">building_ids</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">raw_building_ids</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span>
-            <span class="nb">int</span>
-        <span class="p">)</span>
+        <span class="n">building_ids</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="nb">list</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+            <span class="n">raw_building_ids</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
 
         <span class="c1"># and make sure those IDs are in the component lookup table</span>
         <span class="n">building_ids</span> <span class="o">=</span> <span class="p">[</span>
@@ -470,7 +476,9 @@
 
         <span class="n">assessment</span><span class="o">.</span><span class="n">loss</span><span class="o">.</span><span class="n">calculate</span><span class="p">()</span>
 
-        <span class="n">repair_sample</span><span class="p">,</span> <span class="n">repair_units</span> <span class="o">=</span> <span class="n">assessment</span><span class="o">.</span><span class="n">loss</span><span class="o">.</span><span class="n">save_sample</span><span class="p">(</span><span class="n">save_units</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">save_output</span> <span class="o">=</span> <span class="n">assessment</span><span class="o">.</span><span class="n">loss</span><span class="o">.</span><span class="n">save_sample</span><span class="p">(</span><span class="n">save_units</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">save_output</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)</span>
+        <span class="n">repair_sample</span><span class="p">,</span> <span class="n">repair_units</span> <span class="o">=</span> <span class="n">save_output</span>
 
         <span class="c1"># aggregate across uid</span>
         <span class="c1"># this is trivial since we don&#39;t have multiple identical components at the same location</span>
@@ -498,7 +506,9 @@
 
         <span class="c1"># append the results to the main dict</span>
         <span class="k">for</span> <span class="n">DV_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;Cost&#39;</span><span class="p">,</span> <span class="s1">&#39;Time&#39;</span><span class="p">]:</span>  <span class="c1"># noqa: N806</span>
-            <span class="n">grp_repair_dv</span> <span class="o">=</span> <span class="n">grp_repair</span><span class="p">[</span><span class="n">DV_type</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="c1"># selecting a level of the MultiIndex columns yields</span>
+            <span class="c1"># a DataFrame, not a Series</span>
+            <span class="n">grp_repair_dv</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="s1">&#39;pd.DataFrame&#39;</span><span class="p">,</span> <span class="n">grp_repair</span><span class="p">[</span><span class="n">DV_type</span><span class="p">])</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
             <span class="n">grp_repair_dv</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">grp_repair_dv</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
 
             <span class="c1"># we did not preserve the units for now; we can add them here if needed</span>
@@ -515,7 +525,7 @@
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_calculate_losses_general</span><span class="p">(</span>
     <span class="n">assessment</span><span class="p">:</span> <span class="n">Assessment</span><span class="p">,</span> <span class="n">dl_method</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">decision_variables</span><span class="p">:</span> <span class="nb">list</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculate losses using a 1-to-1 mapping approach.</span>
 
@@ -548,7 +558,9 @@
 
     <span class="n">assessment</span><span class="o">.</span><span class="n">loss</span><span class="o">.</span><span class="n">calculate</span><span class="p">()</span>
 
-    <span class="n">repair_sample</span><span class="p">,</span> <span class="n">repair_units</span> <span class="o">=</span> <span class="n">assessment</span><span class="o">.</span><span class="n">loss</span><span class="o">.</span><span class="n">save_sample</span><span class="p">(</span><span class="n">save_units</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">save_output</span> <span class="o">=</span> <span class="n">assessment</span><span class="o">.</span><span class="n">loss</span><span class="o">.</span><span class="n">save_sample</span><span class="p">(</span><span class="n">save_units</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">save_output</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)</span>
+    <span class="n">repair_sample</span><span class="p">,</span> <span class="n">repair_units</span> <span class="o">=</span> <span class="n">save_output</span>
 
     <span class="c1"># aggregate across uid</span>
     <span class="c1"># this is trivial since we don&#39;t have multiple identical components at</span>
@@ -577,12 +589,14 @@
     <span class="c1"># - - - -</span>
 
     <span class="c1"># prepare the output</span>
-    <span class="n">repair_costs</span> <span class="o">=</span> <span class="n">grp_repair</span><span class="p">[</span><span class="s1">&#39;Cost&#39;</span><span class="p">]</span>
+    <span class="c1"># selecting a level of the MultiIndex columns yields a DataFrame,</span>
+    <span class="c1"># not a Series</span>
+    <span class="n">repair_costs</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="s1">&#39;pd.DataFrame&#39;</span><span class="p">,</span> <span class="n">grp_repair</span><span class="p">[</span><span class="s1">&#39;Cost&#39;</span><span class="p">])</span>
     <span class="n">repair_costs</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">repair_costs</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
     <span class="n">repair_costs</span> <span class="o">=</span> <span class="n">repair_costs</span><span class="o">.</span><span class="n">T</span>
 
     <span class="k">if</span> <span class="s1">&#39;Time&#39;</span> <span class="ow">in</span> <span class="n">decision_variables</span><span class="p">:</span>
-        <span class="n">repair_times</span> <span class="o">=</span> <span class="n">grp_repair</span><span class="p">[</span><span class="s1">&#39;Time&#39;</span><span class="p">]</span>
+        <span class="n">repair_times</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="s1">&#39;pd.DataFrame&#39;</span><span class="p">,</span> <span class="n">grp_repair</span><span class="p">[</span><span class="s1">&#39;Time&#39;</span><span class="p">])</span>
         <span class="n">repair_times</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">repair_times</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
         <span class="n">repair_times</span> <span class="o">=</span> <span class="n">repair_times</span><span class="o">.</span><span class="n">T</span>
     <span class="k">else</span><span class="p">:</span>
@@ -602,7 +616,7 @@
     <span class="n">sample_size_damage</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">dl_method</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">im_types</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]:</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Process a chunk of buildings through the complete regional simulation pipeline.</span>
 
@@ -731,7 +745,7 @@
             <span class="n">auto_script_path</span><span class="p">,</span>
         <span class="p">)</span>
 
-        <span class="n">CMP</span><span class="p">[</span><span class="s1">&#39;Location&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">bldg_id</span>
+        <span class="n">CMP</span><span class="p">[</span><span class="s1">&#39;Location&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="s1">&#39;int | str&#39;</span><span class="p">,</span> <span class="n">bldg_id</span><span class="p">)</span>
 
         <span class="n">CMP_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">CMP</span><span class="p">)</span>
 
@@ -802,9 +816,11 @@
     <span class="n">assessment</span><span class="o">.</span><span class="n">damage</span><span class="o">.</span><span class="n">calculate</span><span class="p">()</span>
 
     <span class="c1"># retrieve damage information</span>
-    <span class="n">damage_sample</span><span class="p">,</span> <span class="n">damage_units</span> <span class="o">=</span> <span class="n">assessment</span><span class="o">.</span><span class="n">damage</span><span class="o">.</span><span class="n">save_sample</span><span class="p">(</span><span class="n">save_units</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">save_output</span> <span class="o">=</span> <span class="n">assessment</span><span class="o">.</span><span class="n">damage</span><span class="o">.</span><span class="n">save_sample</span><span class="p">(</span><span class="n">save_units</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">save_output</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)</span>
+    <span class="n">damage_sample</span><span class="p">,</span> <span class="n">damage_units_series</span> <span class="o">=</span> <span class="n">save_output</span>
 
-    <span class="n">damage_units</span> <span class="o">=</span> <span class="n">damage_units</span><span class="o">.</span><span class="n">to_frame</span><span class="p">()</span><span class="o">.</span><span class="n">T</span>
+    <span class="n">damage_units</span> <span class="o">=</span> <span class="n">damage_units_series</span><span class="o">.</span><span class="n">to_frame</span><span class="p">()</span><span class="o">.</span><span class="n">T</span>
 
     <span class="c1"># aggregate across uid</span>
     <span class="c1"># this is trivial since we don&#39;t have multiple identical components at the same location</span>
@@ -860,6 +876,7 @@
 
     <span class="c1"># 6 Calculate Losses</span>
     <span class="c1"># Conditional loss assessment based on the DL method</span>
+    <span class="n">repair_times</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="kc">None</span>
     <span class="k">if</span> <span class="n">dl_method</span> <span class="o">==</span> <span class="s1">&#39;Hazus Earthquake - Buildings&#39;</span><span class="p">:</span>
         <span class="c1"># Use the original earthquake-specific loss calculation</span>
         <span class="n">repair_costs</span><span class="p">,</span> <span class="n">repair_times</span> <span class="o">=</span> <span class="n">_calculate_losses_hazus_eq</span><span class="p">(</span>
@@ -951,7 +968,9 @@
 
 <div class="viewcode-block" id="regional_sim">
 <a class="viewcode-back" href="../../../api_reference/_autosummary/pelicun.tools.regional_sim.html#pelicun.tools.regional_sim.regional_sim">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">regional_sim</span><span class="p">(</span><span class="n">config_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">num_cores</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># noqa: C901</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">regional_sim</span><span class="p">(</span>  <span class="c1"># noqa: C901</span>
+    <span class="n">config_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span> <span class="n">num_cores</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Perform a regional-scale disaster impact simulation.</span>
 
@@ -970,7 +989,7 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    config_file : str</span>
+<span class="sd">    config_file : str | Path</span>
 <span class="sd">        Path to JSON configuration file containing simulation parameters,</span>
 <span class="sd">        file paths, and analysis settings (inputRWHALE.json from SimCenter&#39;s R2D Tool)</span>
 <span class="sd">    num_cores : int, optional</span>
@@ -1121,7 +1140,9 @@
         <span class="k">if</span> <span class="n">num_cores</span><span class="p">:</span>
             <span class="n">n_jobs</span> <span class="o">=</span> <span class="n">num_cores</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">n_jobs</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">()</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="c1"># `os.cpu_count()` may return None on platforms where the</span>
+            <span class="c1"># count is undeterminable; fall back to a single worker then.</span>
+            <span class="n">n_jobs</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">()</span> <span class="ow">or</span> <span class="mi">2</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
 
         <span class="c1"># Process chunks in parallel with a proper progress bar</span>
         <span class="k">with</span> <span class="p">(</span>

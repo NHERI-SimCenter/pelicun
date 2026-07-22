@@ -29,7 +29,5 @@ pelicun.tests.tools
    :template: custom-module-template.rst
    :recursive:
 
-   test_dlml
-   test_dlml_integration
    test_regional_sim
 

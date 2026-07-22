@@ -15,8 +15,8 @@
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../../_static/design-tabs.js?v=f930bc37"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
       <script src="../../_static/hide_empty_pre.js?v=a807066b"></script>
@@ -195,12 +195,12 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">copy</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">importlib</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">importlib.util</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">pelicun</span><span class="w"> </span><span class="kn">import</span> <span class="n">base</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pelicun</span><span class="w"> </span><span class="kn">import</span> <span class="n">file_io</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
     <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
@@ -210,7 +210,7 @@
 <a class="viewcode-back" href="../../api_reference/_autosummary/pelicun.auto.html#pelicun.auto.auto_populate">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">auto_populate</span><span class="p">(</span>
     <span class="n">config</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
-    <span class="n">auto_script_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
+    <span class="n">auto_script_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span>
     <span class="n">unique_id</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
     <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>  <span class="c1"># noqa: ANN003, ARG001</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]:</span>
@@ -231,11 +231,17 @@
 <span class="sd">        that holds another dictionary with attributes of the asset of</span>
 <span class="sd">        interest. This dictionary is modified in-place with</span>
 <span class="sd">        auto-populated values.</span>
-<span class="sd">    auto_script_path: str</span>
+<span class="sd">    auto_script_path: str | Path</span>
 <span class="sd">        The path pointing to a Python script with the auto-population</span>
 <span class="sd">        rules. Built-in scripts can be referenced using the</span>
-<span class="sd">        &#39;PelicunDefault/XY&#39; format where &#39;XY&#39; is the name of the</span>
-<span class="sd">        script.</span>
+<span class="sd">        &#39;PelicunDefault/method_name/pelicun_config.py&#39; format where</span>
+<span class="sd">        &#39;method_name&#39; identifies the methodology through one of the</span>
+<span class="sd">        method aliases in the</span>
+<span class="sd">        `{base.pelicun_path}/resources/dlml_resource_paths.json` file</span>
+<span class="sd">        or directly through a DLML dataset ID (e.g.,</span>
+<span class="sd">        &#39;seismic/building/portfolio/Hazus v6.1&#39;). Such references are</span>
+<span class="sd">        resolved to the corresponding script in the installed Damage</span>
+<span class="sd">        and Loss Model Library (the `dlml` package).</span>
 <span class="sd">    unique_id: int</span>
 <span class="sd">        This id is required when multiple auto population scripts are</span>
 <span class="sd">        run in sequence. It helps keep the imported module names unique.</span>
@@ -267,27 +273,37 @@
         <span class="n">msg</span> <span class="o">=</span> <span class="s1">&#39;No Asset Information provided for the auto-population routine.&#39;</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
 
-    <span class="c1"># replace default keyword with actual path in auto_script location</span>
-    <span class="n">path_parts</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">auto_script_path</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parts</span>
-    <span class="n">new_parts</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">base</span><span class="o">.</span><span class="n">pelicun_path</span><span class="p">)</span> <span class="o">/</span> <span class="s1">&#39;resources/auto&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">absolute</span><span class="p">()</span><span class="o">.</span><span class="n">as_posix</span><span class="p">()</span>
-        <span class="k">if</span> <span class="n">part</span> <span class="o">==</span> <span class="s1">&#39;PelicunDefault&#39;</span>
-        <span class="k">else</span> <span class="n">part</span>
-        <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">path_parts</span>
-    <span class="p">]</span>
-    <span class="k">if</span> <span class="s1">&#39;PelicunDefault&#39;</span> <span class="ow">in</span> <span class="n">path_parts</span><span class="p">:</span>
-        <span class="n">auto_script_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="o">*</span><span class="n">new_parts</span><span class="p">)</span>
+    <span class="c1"># Resolve a &#39;PelicunDefault/&#39; placeholder in the script path</span>
+    <span class="c1"># through the installed Damage and Loss Model Library. Paths</span>
+    <span class="c1"># without the placeholder pass through unchanged.</span>
+    <span class="n">auto_script_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span>
+        <span class="n">file_io</span><span class="o">.</span><span class="n">substitute_default_path</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">auto_script_path</span><span class="p">)])[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="p">)</span>
 
     <span class="c1"># load the auto population module</span>
-    <span class="n">asp</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">auto_script_path</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
-    <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">asp</span><span class="o">.</span><span class="n">parent</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span><span class="p">)</span>
-    <span class="n">spec</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">spec_from_file_location</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;auto_script_</span><span class="si">{</span><span class="n">unique_id</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">asp</span><span class="p">)</span>
-    <span class="n">module</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">module_from_spec</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span>
-    <span class="n">spec</span><span class="o">.</span><span class="n">loader</span><span class="o">.</span><span class="n">exec_module</span><span class="p">(</span><span class="n">module</span><span class="p">)</span>
+    <span class="n">asp</span> <span class="o">=</span> <span class="n">auto_script_path</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
+    <span class="n">module_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;auto_script_</span><span class="si">{</span><span class="n">unique_id</span><span class="si">}</span><span class="s1">&#39;</span>
+    <span class="n">module</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">module_name</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">module</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="s1">&#39;__file__&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">str</span><span class="p">(</span><span class="n">asp</span><span class="p">):</span>
+        <span class="c1"># Let the script import helper modules from its own folder.</span>
+        <span class="n">script_dir</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">asp</span><span class="o">.</span><span class="n">parent</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">script_dir</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="p">:</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">script_dir</span><span class="p">)</span>
+        <span class="n">spec</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">spec_from_file_location</span><span class="p">(</span><span class="n">module_name</span><span class="p">,</span> <span class="n">asp</span><span class="p">)</span>
+        <span class="c1"># a Python source path always yields a spec with a loader</span>
+        <span class="k">assert</span> <span class="n">spec</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="k">assert</span> <span class="n">spec</span><span class="o">.</span><span class="n">loader</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="n">module</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">module_from_spec</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span>
+        <span class="c1"># Register the module so that a subsequent request for the same</span>
+        <span class="c1"># script with the same unique id reuses it instead of executing</span>
+        <span class="c1"># the script again.</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="n">module_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">module</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">spec</span><span class="o">.</span><span class="n">loader</span><span class="o">.</span><span class="n">exec_module</span><span class="p">(</span><span class="n">module</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">BaseException</span><span class="p">:</span>
+            <span class="k">del</span> <span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="n">module_name</span><span class="p">]</span>
+            <span class="k">raise</span>
     <span class="n">auto_populate_ext</span> <span class="o">=</span> <span class="n">module</span><span class="o">.</span><span class="n">auto_populate</span>
-
-    <span class="c1"># auto_script = importlib.__import__(asp.name[:-3], globals(), locals(), [], 0)</span>
-    <span class="c1"># auto_populate_ext = auto_script.auto_populate</span>
 
     <span class="c1"># generate the DL input data</span>
     <span class="n">aim_ap</span><span class="p">,</span> <span class="n">dl_ap</span><span class="p">,</span> <span class="n">comp</span> <span class="o">=</span> <span class="n">auto_populate_ext</span><span class="p">(</span><span class="n">aim</span><span class="o">=</span><span class="n">config_autopopulated</span><span class="p">)</span>

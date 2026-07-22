@@ -15,28 +15,37 @@ We are making an effort to use unambiguous variable and class/method/function na
 Especially for newer code, we are mindful of the complexity of methods/functions and break them down when they start to become too large, by extracting appropriate groups of lines and turning them into appropriately named hidden methods/functions.
 
 All code checking tools should be available when :ref:`installing pelicun under a developer setup <development_environment>`.
-The most straight-forward way to run those tools is via the command-line.
+The most straight-forward way to run those tools is via the command-line, through ``uv run``.
 All of the following commands are assumed to be executed from the package root directory (the one containing ``pyproject.toml``).
+
+The entire suite of checks used to gate contributions can be run in one shot with the check script, which mirrors what CI runs:
+
+.. code:: bash
+
+   ./scripts/check.sh
+
+The script is non-mutating: it only reports problems and never rewrites files.
+The individual tools are described below.
 
 Linting and formatting with Ruff
 --------------------------------
 
 .. code:: bash
 
-   ruff check   # Lint all files in the current directory.
-   ruff format  # Format all files in the current directory.
+   uv run ruff check   # Lint all files in the current directory.
+   uv run ruff format  # Format all files in the current directory.
 
 Ruff can automatically fix certain warnings when it is safe to do so. See also `Fixes <https://docs.astral.sh/ruff/linter/#fixes>`_.
 
 .. code::
 
-  ruff check --fix
+  uv run ruff check --fix
 
 Warnings can also be automatically suppressed by adding #noqa directives. See `here <https://docs.astral.sh/ruff/linter/#inserting-necessary-suppression-comments>`_.
 
 .. code:: bash
 
-   ruff check --add-noqa
+   uv run ruff check --add-noqa
 
 Editor integration
 ..................
@@ -53,7 +62,7 @@ Use the following command to type-check the code:
 
 .. code:: bash
 
-   mypy pelicun --no-namespace-packages
+   uv run mypy pelicun
 
 Type checking warnings can be silenced by adding ``#type: ignore`` at the lines that trigger them.
 Please avoid silencing warnings in newly added code.
@@ -65,7 +74,7 @@ Codespell is a Python package used to check for common spelling mistakes in text
 
 .. code:: bash
 
-   codespell .
+   uv run codespell .
 
 False positives can be placed in a dedicated file (we currently call it ``ignore_words.txt``) to be ignored.
 Please avoid using variable names that trigger codespell.
@@ -80,7 +89,7 @@ The tests can be executed with the following command.
 
 .. code:: bash
 
-   python -m pytest pelicun/tests --cov=pelicun --cov-report html
+   uv run python -m pytest pelicun/tests --cov=pelicun --cov-report html
 
 When the test runs finish, visit ``htmlcov/index.html`` for a comprehensive view of code coverage.
 
@@ -120,6 +129,7 @@ We use the following extensions:
 Building the documentation
 --------------------------
 
+Building the documentation requires the ``doc`` extra (``uv sync --extra doc``).
 To build the documentation, navigate to `doc` and run the following command:
 
 .. tab-set::
@@ -128,13 +138,13 @@ To build the documentation, navigate to `doc` and run the following command:
 
       .. code:: bash
 
-         make html
+         uv run make html
 
    .. tab-item:: Windows
 
       .. code:: bash
 
-         .\make.bat html
+         uv run .\make.bat html
 
 To see more options:
 
@@ -144,13 +154,13 @@ To see more options:
 
       .. code:: bash
 
-         make
+         uv run make
 
    .. tab-item:: Windows
 
       .. code:: bash
 
-         .\make.bat
+         uv run .\make.bat
 
 
 Extending the documentation

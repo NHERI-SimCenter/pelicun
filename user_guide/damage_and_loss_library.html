@@ -16,8 +16,8 @@
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../_static/design-tabs.js?v=f930bc37"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
       <script src="../_static/hide_empty_pre.js?v=a807066b"></script>
@@ -154,20 +154,20 @@
              
   <section id="damage-and-loss-library">
 <span id="id1"></span><h1><span class="section-number">4. </span>Damage and loss library<a class="headerlink" href="#damage-and-loss-library" title="Link to this heading"></a></h1>
-<div class="admonition-coming-soon admonition">
-<p class="admonition-title">Coming soon.</p>
-<p>This section is under construction.</p>
-<p>We need to finalize the following:</p>
-<ul class="simple">
-<li><p>The terms we use.</p></li>
-<li><p>Instructions on how to access the files via <code class="docutils literal notranslate"><span class="pre">PelicunDefault</span></code> (pending transition to using the submodule’s files).</p></li>
-<li><p>Agree on whether to include details on the contents in this documentation or in the DLML repo itself.</p></li>
-</ul>
-</div>
 <p>The NHERI-SimCenter is maintaining a comprehensive Damage and Loss Model Library (DLML) in the form of a GitHub repository.
 The DLML consists of published and commonly used fragility curves, as well as loss and consequence functions.
-More details can be found in the repository.
-All contents of the DLML are included in pelicun.</p>
+More details can be found in the repository.</p>
+<p>The library is distributed as the <code class="docutils literal notranslate"><span class="pre">simcenter-dlml</span></code> Python package, which is installed automatically together with pelicun.
+The model data lives inside the installed package, so it is available immediately after installation — no separate download step is needed and no network access is required at runtime.
+Reference the bundled models in your inputs with the <code class="docutils literal notranslate"><span class="pre">PelicunDefault/&lt;method&gt;/&lt;file&gt;</span></code> syntax, where <code class="docutils literal notranslate"><span class="pre">&lt;method&gt;</span></code> is either a pelicun method alias, for example <code class="docutils literal notranslate"><span class="pre">PelicunDefault/FEMA</span> <span class="pre">P-58/fragility.csv</span></code>, or a full DLML dataset ID, for example <code class="docutils literal notranslate"><span class="pre">PelicunDefault/seismic/building/component/FEMA</span> <span class="pre">P-58</span> <span class="pre">2nd</span> <span class="pre">Edition/fragility.csv</span></code>.</p>
+<p>To update the model library independently of pelicun, upgrade the package:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="o">--</span><span class="n">upgrade</span> <span class="n">simcenter</span><span class="o">-</span><span class="n">dlml</span>
+</pre></div>
+</div>
+<p>To work with a custom copy of the library, install your checkout in place of the released package:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">e</span> <span class="o">&lt;</span><span class="n">path</span><span class="o">-</span><span class="n">to</span><span class="o">-</span><span class="n">your</span><span class="o">-</span><span class="n">DLML</span><span class="o">-</span><span class="n">checkout</span><span class="o">&gt;</span>
+</pre></div>
+</div>
 <p><a class="sd-sphinx-override sd-btn sd-text-wrap sd-btn-primary sd-shadow-sm reference external" href="https://github.com/NHERI-SimCenter/DamageAndLossModelLibrary"><span>Visit the NHERI-SimCenter damage and loss library</span></a></p>
 </section>
 

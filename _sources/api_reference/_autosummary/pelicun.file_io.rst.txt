@@ -14,8 +14,12 @@ pelicun.file\_io
 
    .. autosummary::
    
+      _load_dlml_resource_paths
+      _resolve_default_dataset_id
+      _unknown_method_msg
       load_data
       load_from_file
+      resolve_default_dataset_path
       save_to_csv
       substitute_default_path
    

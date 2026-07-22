@@ -15,8 +15,8 @@
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
       <script src="../../../_static/hide_empty_pre.js?v=a807066b"></script>
@@ -199,7 +199,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">defaultdict</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">itertools</span><span class="w"> </span><span class="kn">import</span> <span class="n">product</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">overload</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">cast</span><span class="p">,</span> <span class="n">overload</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
@@ -215,7 +215,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">pelicun.pelicun_warnings</span><span class="w"> </span><span class="kn">import</span> <span class="n">InconsistentUnitsError</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
-    <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Hashable</span>
 
     <span class="kn">from</span><span class="w"> </span><span class="nn">pelicun.assessment</span><span class="w"> </span><span class="kn">import</span> <span class="n">AssessmentBase</span>
 
@@ -327,7 +327,7 @@
         <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">ds_model</span><span class="o">.</span><span class="n">loss_params</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lf_model</span><span class="o">.</span><span class="n">loss_params</span><span class="p">))</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">decision_variables</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">decision_variables</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Retrieve the decision variables.</span>
 
@@ -342,7 +342,9 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds_model</span><span class="o">.</span><span class="n">decision_variables</span>
 
     <span class="nd">@decision_variables</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">decision_variables</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">decision_variables</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">decision_variables</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">decision_variables</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Set the decision variables.</span>
 
@@ -412,7 +414,7 @@
             <span class="p">)</span>
             <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">loss_map</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span>
             <span class="c1"># &lt;backwards compatibility&gt;</span>
-            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">([</span><span class="s1">&#39;DMG&#39;</span> <span class="ow">in</span> <span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">loss_map</span><span class="o">.</span><span class="n">index</span><span class="p">]):</span>  <span class="c1"># type: ignore</span>
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">([</span><span class="s1">&#39;DMG&#39;</span> <span class="ow">in</span> <span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">loss_map</span><span class="o">.</span><span class="n">index</span><span class="p">]):</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
                     <span class="s1">&#39;The `DMG-` flag in the loss_map index is deprecated &#39;</span>
                     <span class="s1">&#39;and no longer necessary. &#39;</span>
@@ -508,8 +510,14 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">div</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">msg</span><span class="p">(</span><span class="s1">&#39;Loading loss parameters...&#39;</span><span class="p">)</span>
 
-        <span class="c1"># replace `PelicunDefault/` flag with default data path</span>
-        <span class="n">data_paths</span> <span class="o">=</span> <span class="n">file_io</span><span class="o">.</span><span class="n">substitute_default_path</span><span class="p">(</span><span class="n">data_paths</span><span class="p">,</span> <span class="n">log</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">)</span>
+        <span class="c1"># Replace `PelicunDefault/` flags with default data paths.</span>
+        <span class="c1"># In-memory model data (DataFrames) passes through unchanged.</span>
+        <span class="n">data_paths</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">file_io</span><span class="o">.</span><span class="n">substitute_default_path</span><span class="p">([</span><span class="n">data_path</span><span class="p">],</span> <span class="n">log</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data_path</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
+            <span class="k">else</span> <span class="n">data_path</span>
+            <span class="k">for</span> <span class="n">data_path</span> <span class="ow">in</span> <span class="n">data_paths</span>
+        <span class="p">]</span>
 
         <span class="c1">#</span>
         <span class="c1"># load loss parameter data into the models</span>
@@ -710,7 +718,7 @@
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Specify expected dtypes from the start.</span>
-        <span class="n">dtypes</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">dtypes</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">Hashable</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s1">&#39;Decision Variable&#39;</span><span class="p">:</span> <span class="s1">&#39;str&#39;</span><span class="p">,</span>
             <span class="s1">&#39;Component&#39;</span><span class="p">:</span> <span class="s1">&#39;str&#39;</span><span class="p">,</span>
             <span class="s1">&#39;Location&#39;</span><span class="p">:</span> <span class="s1">&#39;str&#39;</span><span class="p">,</span>
@@ -1097,6 +1105,8 @@
         <span class="c1"># levels to preserve (this aggregates `ds` for the ds_model)</span>
         <span class="n">column_levels</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;dv&#39;</span><span class="p">,</span> <span class="s1">&#39;loss&#39;</span><span class="p">,</span> <span class="s1">&#39;dmg&#39;</span><span class="p">,</span> <span class="s1">&#39;loc&#39;</span><span class="p">,</span> <span class="s1">&#39;dir&#39;</span><span class="p">,</span> <span class="s1">&#39;uid&#39;</span><span class="p">]</span>
         <span class="n">combined_sample</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sample</span>
+        <span class="c1"># at least one sub-model has a sample at this point</span>
+        <span class="k">assert</span> <span class="n">combined_sample</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
         <span class="n">sample</span> <span class="o">=</span> <span class="p">(</span>
             <span class="n">combined_sample</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">column_levels</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">sort_index</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
         <span class="p">)</span>
@@ -1279,7 +1289,9 @@
             <span class="n">dcsample</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span>  <span class="c1"># noqa: PERF403</span>
 
         <span class="c1"># turn into a dataframe</span>
-        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">dcsample</span><span class="p">)</span><span class="o">.</span><span class="n">rename_axis</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">sample</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">names</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">dcsample</span><span class="p">)</span><span class="o">.</span><span class="n">rename_axis</span><span class="p">(</span>
+            <span class="n">columns</span><span class="o">=</span><span class="n">cast</span><span class="p">(</span><span class="s1">&#39;list[str]&#39;</span><span class="p">,</span> <span class="n">sample</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">names</span><span class="p">)</span>
+        <span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_loss_combination_add_combinable</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">dsample</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">loss_combination_converted</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">dcsample</span><span class="p">:</span> <span class="nb">dict</span>
@@ -1509,9 +1521,15 @@
                 <span class="n">decision_variable</span> <span class="o">==</span> <span class="s1">&#39;Time&#39;</span>
                 <span class="ow">and</span> <span class="s1">&#39;Time&#39;</span> <span class="ow">in</span> <span class="n">aggregated</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s1">&#39;dv&#39;</span><span class="p">)</span>
             <span class="p">):</span>
-                <span class="n">df_agg</span><span class="p">[</span><span class="s1">&#39;repair_time-sequential&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">aggregated</span><span class="p">[</span><span class="s1">&#39;Time&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+                <span class="c1"># selecting a level of the MultiIndex columns yields</span>
+                <span class="c1"># a DataFrame, not a Series</span>
+                <span class="n">df_agg</span><span class="p">[</span><span class="s1">&#39;repair_time-sequential&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span>
+                    <span class="s1">&#39;pd.DataFrame&#39;</span><span class="p">,</span> <span class="n">aggregated</span><span class="p">[</span><span class="s1">&#39;Time&#39;</span><span class="p">]</span>
+                <span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 
-                <span class="n">df_agg</span><span class="p">[</span><span class="s1">&#39;repair_time-parallel&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">aggregated</span><span class="p">[</span><span class="s1">&#39;Time&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+                <span class="n">df_agg</span><span class="p">[</span><span class="s1">&#39;repair_time-parallel&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span>
+                    <span class="s1">&#39;pd.DataFrame&#39;</span><span class="p">,</span> <span class="n">aggregated</span><span class="p">[</span><span class="s1">&#39;Time&#39;</span><span class="p">]</span>
+                <span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
             <span class="k">elif</span> <span class="p">(</span>
                 <span class="n">decision_variable</span> <span class="o">==</span> <span class="s1">&#39;Time&#39;</span>
                 <span class="ow">and</span> <span class="s1">&#39;Time&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">aggregated</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s1">&#39;dv&#39;</span><span class="p">)</span>
@@ -1521,9 +1539,9 @@
                 <span class="p">)</span>
             <span class="c1"># All other</span>
             <span class="k">elif</span> <span class="n">decision_variable</span> <span class="ow">in</span> <span class="n">aggregated</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s1">&#39;dv&#39;</span><span class="p">):</span>
-                <span class="n">df_agg</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;repair_</span><span class="si">{</span><span class="n">decision_variable</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">aggregated</span><span class="p">[</span>
-                    <span class="n">decision_variable</span>
-                <span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+                <span class="n">df_agg</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;repair_</span><span class="si">{</span><span class="n">decision_variable</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span>
+                    <span class="s1">&#39;pd.DataFrame&#39;</span><span class="p">,</span> <span class="n">aggregated</span><span class="p">[</span><span class="n">decision_variable</span><span class="p">]</span>
+                <span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">df_agg</span> <span class="o">=</span> <span class="n">df_agg</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;repair_</span><span class="si">{</span><span class="n">decision_variable</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 
@@ -1712,13 +1730,13 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds_model</span><span class="o">.</span><span class="n">loss_map</span>
 
     <span class="nd">@_loss_map</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">_loss_map</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loss_map</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_loss_map</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loss_map</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Set the loss map.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        loss_map: pd.DataFrame</span>
+<span class="sd">        loss_map: pd.DataFrame | None</span>
 <span class="sd">            The loss map.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -1813,7 +1831,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">loss_params</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sample</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">consequence</span> <span class="o">=</span> <span class="s1">&#39;Repair&#39;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">decision_variables</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">decision_variables</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">loss_map</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">missing</span><span class="p">:</span> <span class="nb">set</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
 
@@ -2080,7 +2098,7 @@
             <span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s1">&#39;dv&#39;</span><span class="p">)</span>
             <span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;dv&#39;</span><span class="p">)[</span><span class="s1">&#39;Units&#39;</span><span class="p">]</span>
         <span class="p">)</span>
-        <span class="n">dv_units</span> <span class="o">=</span> <span class="n">units_isolated</span><span class="o">.</span><span class="n">first</span><span class="p">()</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
+        <span class="n">dv_units</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="s1">&#39;dict[str, str]&#39;</span><span class="p">,</span> <span class="n">units_isolated</span><span class="o">.</span><span class="n">first</span><span class="p">()</span><span class="o">.</span><span class="n">to_dict</span><span class="p">())</span>
 
         <span class="c1"># check if `uid` level was provided</span>
         <span class="n">num_levels</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">sample</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">names</span><span class="p">)</span>
@@ -2217,6 +2235,7 @@
         <span class="p">)</span>
         <span class="n">dmg_quantities</span> <span class="o">=</span> <span class="n">dmg_quantities</span><span class="o">.</span><span class="n">sort_index</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 
+        <span class="n">std_dvs</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Index</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">std_sample</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">std_dvs</span> <span class="o">=</span> <span class="n">std_sample</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
@@ -2250,9 +2269,9 @@
                     <span class="n">loc_list</span> <span class="o">=</span> <span class="p">[]</span>
 
                     <span class="k">for</span> <span class="n">loc_id</span><span class="p">,</span> <span class="n">loc</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span>
-                        <span class="n">dmg_quantities</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
-                            <span class="p">:,</span> <span class="p">(</span><span class="n">component</span><span class="p">,</span> <span class="n">ds</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
-                        <span class="p">]</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+                        <span class="n">dmg_quantities</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="p">(</span><span class="n">component</span><span class="p">,</span> <span class="n">ds</span><span class="p">)]</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span>
+                            <span class="n">level</span><span class="o">=</span><span class="mi">0</span>
+                        <span class="p">)</span>
                     <span class="p">):</span>
                         <span class="k">if</span> <span class="p">(</span>
                             <span class="bp">self</span><span class="o">.</span><span class="n">_asmnt</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">eco_scale</span><span class="p">[</span><span class="s1">&#39;AcrossFloors&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">True</span>
@@ -2263,9 +2282,7 @@
                             <span class="n">median_i</span> <span class="o">=</span> <span class="n">medians</span><span class="p">[</span><span class="n">decision_variable</span><span class="p">]</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
                                 <span class="p">:,</span> <span class="p">(</span><span class="n">component</span><span class="p">,</span> <span class="n">ds</span><span class="p">)</span>
                             <span class="p">]</span>
-                            <span class="n">dmg_i</span> <span class="o">=</span> <span class="n">dmg_quantities</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
-                                <span class="p">:,</span> <span class="p">(</span><span class="n">component</span><span class="p">,</span> <span class="n">ds</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
-                            <span class="p">]</span>
+                            <span class="n">dmg_i</span> <span class="o">=</span> <span class="n">dmg_quantities</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="p">(</span><span class="n">component</span><span class="p">,</span> <span class="n">ds</span><span class="p">)]</span>
 
                             <span class="k">if</span> <span class="n">component</span> <span class="ow">in</span> <span class="n">prob_cmp_list</span><span class="p">:</span>
                                 <span class="k">assert</span> <span class="n">std_sample</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
@@ -2275,7 +2292,7 @@
                                         <span class="n">decision_variable</span><span class="p">,</span>
                                         <span class="n">component</span><span class="p">,</span>
                                         <span class="n">ds</span><span class="p">,</span>
-                                    <span class="p">),</span>  <span class="c1"># type: ignore</span>
+                                    <span class="p">),</span>
                                 <span class="p">]</span>
                             <span class="k">else</span><span class="p">:</span>
                                 <span class="n">std_i</span> <span class="o">=</span> <span class="kc">None</span>
@@ -2284,9 +2301,7 @@
                             <span class="n">median_i</span> <span class="o">=</span> <span class="n">medians</span><span class="p">[</span><span class="n">decision_variable</span><span class="p">]</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
                                 <span class="p">:,</span> <span class="p">(</span><span class="n">component</span><span class="p">,</span> <span class="n">ds</span><span class="p">,</span> <span class="n">loc</span><span class="p">)</span>
                             <span class="p">]</span>
-                            <span class="n">dmg_i</span> <span class="o">=</span> <span class="n">dmg_quantities</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
-                                <span class="p">:,</span> <span class="p">(</span><span class="n">component</span><span class="p">,</span> <span class="n">ds</span><span class="p">,</span> <span class="n">loc</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
-                            <span class="p">]</span>
+                            <span class="n">dmg_i</span> <span class="o">=</span> <span class="n">dmg_quantities</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="p">(</span><span class="n">component</span><span class="p">,</span> <span class="n">ds</span><span class="p">,</span> <span class="n">loc</span><span class="p">)]</span>
 
                             <span class="k">if</span> <span class="n">component</span> <span class="ow">in</span> <span class="n">prob_cmp_list</span><span class="p">:</span>
                                 <span class="k">assert</span> <span class="n">std_sample</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
@@ -2297,7 +2312,7 @@
                                         <span class="n">component</span><span class="p">,</span>
                                         <span class="n">ds</span><span class="p">,</span>
                                         <span class="n">loc</span><span class="p">,</span>
-                                    <span class="p">),</span>  <span class="c1"># type: ignore</span>
+                                    <span class="p">),</span>
                                 <span class="p">]</span>
                             <span class="k">else</span><span class="p">:</span>
                                 <span class="n">std_i</span> <span class="o">=</span> <span class="kc">None</span>
@@ -2381,7 +2396,7 @@
                 <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span>
                     <span class="n">pd</span><span class="o">.</span><span class="n">isna</span><span class="p">(</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">loss_params</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
-                            <span class="p">:,</span>  <span class="c1"># type: ignore</span>
+                            <span class="p">:,</span>
                             <span class="n">idx</span><span class="p">[</span><span class="n">damage_state</span><span class="p">,</span> <span class="p">:],</span>
                         <span class="p">]</span><span class="o">.</span><span class="n">values</span>
                     <span class="p">)</span>
@@ -2666,7 +2681,7 @@
                             <span class="k">continue</span>
 
                         <span class="n">eco_qnt_i</span> <span class="o">=</span> <span class="n">eco_qnt</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
-                            <span class="p">:,</span>  <span class="c1"># type: ignore</span>
+                            <span class="p">:,</span>
                             <span class="p">(</span><span class="n">loss_cmp_id</span><span class="p">,</span> <span class="n">ds_id</span><span class="p">),</span>
                         <span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
 
@@ -2682,7 +2697,7 @@
                         <span class="n">eco_qnt_i</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;del&#39;</span>
 
                     <span class="c1"># generate the median values for each realization</span>
-                    <span class="n">eco_qnt_i</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">f_median</span><span class="p">(</span><span class="n">eco_qnt_i</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
+                    <span class="n">eco_qnt_i</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">f_median</span><span class="p">(</span><span class="n">eco_qnt_i</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
 
                     <span class="n">sub_medians</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">eco_qnt_i</span><span class="p">)</span>
                     <span class="n">ds_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ds_id</span><span class="p">)</span>
@@ -2698,6 +2713,7 @@
 
                 <span class="c1"># remove the extra column header level</span>
                 <span class="k">if</span> <span class="s1">&#39;del&#39;</span> <span class="ow">in</span> <span class="n">result</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">names</span><span class="p">:</span>
+                    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">MultiIndex</span><span class="p">)</span>
                     <span class="n">result</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">droplevel</span><span class="p">(</span><span class="s1">&#39;del&#39;</span><span class="p">)</span>
 
                 <span class="c1"># name the remaining column header levels</span>
@@ -2799,7 +2815,10 @@
 
         <span class="n">required_edps</span> <span class="o">=</span> <span class="n">base</span><span class="o">.</span><span class="n">invert_mapping</span><span class="p">(</span>
             <span class="n">_get_required_demand_type</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">loss_params</span><span class="p">,</span> <span class="n">performance_group</span><span class="p">,</span> <span class="n">demand_offset</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">loss_params</span><span class="p">,</span>
+                <span class="n">performance_group</span><span class="p">,</span>
+                <span class="n">demand_offset</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_asmnt</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">edp_to_demand_type</span><span class="p">,</span>
             <span class="p">)</span>
         <span class="p">)</span>
 

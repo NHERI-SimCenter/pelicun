@@ -15,8 +15,8 @@
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
       <script src="../../../_static/hide_empty_pre.js?v=a807066b"></script>
@@ -298,7 +298,7 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">load_model_parameters</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">data_paths</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span> <span class="o">|</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">],</span>
-        <span class="n">cmp_set</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+        <span class="n">cmp_set</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">warn_missing</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -335,8 +335,14 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">div</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">msg</span><span class="p">(</span><span class="s1">&#39;Loading damage model...&#39;</span><span class="p">,</span> <span class="n">prepend_timestamp</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
-        <span class="c1"># replace default flag with default data path</span>
-        <span class="n">data_paths</span> <span class="o">=</span> <span class="n">file_io</span><span class="o">.</span><span class="n">substitute_default_path</span><span class="p">(</span><span class="n">data_paths</span><span class="p">,</span> <span class="n">log</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">)</span>
+        <span class="c1"># Replace default flags with default data paths. In-memory</span>
+        <span class="c1"># model data (DataFrames) passes through unchanged.</span>
+        <span class="n">data_paths</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">file_io</span><span class="o">.</span><span class="n">substitute_default_path</span><span class="p">([</span><span class="n">data_path</span><span class="p">],</span> <span class="n">log</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data_path</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
+            <span class="k">else</span> <span class="n">data_path</span>
+            <span class="k">for</span> <span class="n">data_path</span> <span class="ow">in</span> <span class="n">data_paths</span>
+        <span class="p">]</span>
 
         <span class="c1">#</span>
         <span class="c1"># load damage parameter data into the models</span>
@@ -582,7 +588,7 @@
 
 <div class="viewcode-block" id="DamageModel.load_sample">
 <a class="viewcode-back" href="../../../api_reference/_autosummary/pelicun.model.damage_model.html#pelicun.model.damage_model.DamageModel.load_sample">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">load_sample</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">load_sample</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Load damage state sample data.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">div</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">msg</span><span class="p">(</span><span class="s1">&#39;Loading damage sample...&#39;</span><span class="p">)</span>
@@ -600,7 +606,7 @@
 
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_ensure_damage_parameter_availability</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">cmp_set</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="o">*</span><span class="p">,</span> <span class="n">warn_missing</span><span class="p">:</span> <span class="nb">bool</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">cmp_set</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="o">*</span><span class="p">,</span> <span class="n">warn_missing</span><span class="p">:</span> <span class="nb">bool</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Make sure that all components have damage parameters.</span>
@@ -743,7 +749,7 @@
 
 <div class="viewcode-block" id="DamageModel_Base.drop_unused_damage_parameters">
 <a class="viewcode-back" href="../../../api_reference/_autosummary/pelicun.model.damage_model.html#pelicun.model.damage_model.DamageModel_Base.drop_unused_damage_parameters">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">drop_unused_damage_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cmp_set</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">drop_unused_damage_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cmp_set</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Remove info for non existent components.</span>
 
@@ -1013,7 +1019,10 @@
             <span class="n">demand_offset</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_asmnt</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">demand_offset</span>
             <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">damage_params</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
             <span class="n">required_edps</span> <span class="o">=</span> <span class="n">_get_required_demand_type</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">damage_params</span><span class="p">,</span> <span class="n">performance_group</span><span class="p">,</span> <span class="n">demand_offset</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">damage_params</span><span class="p">,</span>
+                <span class="n">performance_group</span><span class="p">,</span>
+                <span class="n">demand_offset</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_asmnt</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">edp_to_demand_type</span><span class="p">,</span>
             <span class="p">)</span>
 
             <span class="n">available_edps</span> <span class="o">=</span> <span class="p">(</span>
@@ -1281,7 +1290,7 @@
             <span class="c1"># Create a list of columns for the demand data</span>
             <span class="c1"># corresponding to each PG in the PG_list</span>
             <span class="n">pg_cols</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
-                <span class="p">[</span><span class="n">dmg_eval</span><span class="o">.</span><span class="n">loc</span><span class="p">[:</span><span class="mi">1</span><span class="p">,</span> <span class="n">PG_i</span><span class="p">]</span> <span class="k">for</span> <span class="n">PG_i</span> <span class="ow">in</span> <span class="n">pg_list</span><span class="p">],</span>  <span class="c1"># type: ignore</span>
+                <span class="p">[</span><span class="n">dmg_eval</span><span class="o">.</span><span class="n">loc</span><span class="p">[:</span><span class="mi">1</span><span class="p">,</span> <span class="n">PG_i</span><span class="p">]</span> <span class="k">for</span> <span class="n">PG_i</span> <span class="ow">in</span> <span class="n">pg_list</span><span class="p">],</span>
                 <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
                 <span class="n">keys</span><span class="o">=</span><span class="n">pg_list</span><span class="p">,</span>
             <span class="p">)</span><span class="o">.</span><span class="n">columns</span>
@@ -1309,6 +1318,7 @@
 
         <span class="c1"># initialize the DataFrames that store the damage states and</span>
         <span class="c1"># quantities</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">capacity_sample</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">MultiIndex</span><span class="p">)</span>
         <span class="n">ds_sample</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
             <span class="mi">0</span><span class="p">,</span>  <span class="c1"># fill value</span>
             <span class="n">columns</span><span class="o">=</span><span class="n">capacity_sample</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">droplevel</span><span class="p">(</span><span class="s1">&#39;ls&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">unique</span><span class="p">(),</span>
@@ -1323,7 +1333,7 @@
         <span class="k">for</span> <span class="n">ls_id</span> <span class="ow">in</span> <span class="n">ls_list</span><span class="p">:</span>
             <span class="c1"># get all cmp - loc - dir - block where this limit state occurs</span>
             <span class="n">dmg_e_ls</span> <span class="o">=</span> <span class="n">dmg_eval</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
-                <span class="p">:,</span>  <span class="c1"># type: ignore</span>
+                <span class="p">:,</span>
                 <span class="n">idx</span><span class="p">[:,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="n">ls_id</span><span class="p">],</span>
             <span class="p">]</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 
@@ -1331,11 +1341,12 @@
             <span class="c1"># block</span>
             <span class="c1"># Note that limit states with a set of mutually exclusive damage</span>
             <span class="c1"># states options have their damage state picked here.</span>
-            <span class="n">lsds</span> <span class="o">=</span> <span class="n">lsds_sample</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="n">dmg_e_ls</span><span class="o">.</span><span class="n">columns</span><span class="p">]</span>  <span class="c1"># type: ignore</span>
+            <span class="n">lsds</span> <span class="o">=</span> <span class="n">lsds_sample</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="n">dmg_e_ls</span><span class="o">.</span><span class="n">columns</span><span class="p">]</span>
 
             <span class="c1"># Drop the limit state level from the columns to make the damage</span>
             <span class="c1"># exceedance DataFrame compatible with the other DataFrames in the</span>
             <span class="c1"># following steps</span>
+            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dmg_e_ls</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">MultiIndex</span><span class="p">)</span>
             <span class="n">dmg_e_ls</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">dmg_e_ls</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">droplevel</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
 
             <span class="c1"># Same thing for the lsds DataFrame</span>
@@ -1349,7 +1360,7 @@
             <span class="c1"># those cells in the result matrix will get overwritten by higher</span>
             <span class="c1"># damage states.</span>
             <span class="n">ds_sample</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="n">dmg_e_ls</span><span class="o">.</span><span class="n">columns</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds_sample</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
-                <span class="p">:,</span> <span class="n">dmg_e_ls</span><span class="o">.</span><span class="n">columns</span>  <span class="c1"># type: ignore</span>
+                <span class="p">:,</span> <span class="n">dmg_e_ls</span><span class="o">.</span><span class="n">columns</span>
             <span class="p">]</span><span class="o">.</span><span class="n">mask</span><span class="p">(</span><span class="n">dmg_e_ls</span><span class="p">,</span> <span class="n">lsds</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">ds_sample</span>
@@ -1615,7 +1626,7 @@
         <span class="k">for</span> <span class="n">pg</span> <span class="ow">in</span> <span class="n">pgb</span><span class="o">.</span><span class="n">index</span><span class="p">:</span>  <span class="c1"># noqa: PLR1702</span>
             <span class="c1"># determine demand capacity adjustment operation, if required</span>
             <span class="n">cmp_loc_dir</span> <span class="o">=</span> <span class="s1">&#39;-&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">pg</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">3</span><span class="p">])</span>
-            <span class="n">capacity_adjustment_operation</span> <span class="o">=</span> <span class="n">scaling_specification</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>  <span class="c1"># type: ignore</span>
+            <span class="n">capacity_adjustment_operation</span> <span class="o">=</span> <span class="n">scaling_specification</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
                 <span class="n">cmp_loc_dir</span><span class="p">,</span>
             <span class="p">)</span>
 
@@ -1736,7 +1747,7 @@
 
                         <span class="c1"># parse theta values for multilinear_CDF</span>
                         <span class="k">if</span> <span class="n">family</span> <span class="o">==</span> <span class="s1">&#39;multilinear_CDF&#39;</span><span class="p">:</span>
-                            <span class="n">theta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">column_stack</span><span class="p">(</span>  <span class="c1"># type: ignore</span>
+                            <span class="n">theta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">column_stack</span><span class="p">(</span>
                                 <span class="p">(</span>
                                     <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
                                         <span class="n">theta</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;|&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">),</span>
@@ -1756,7 +1767,7 @@
                             <span class="n">anchor</span><span class="o">=</span><span class="n">anchor</span><span class="p">,</span>
                         <span class="p">)</span>
 
-                        <span class="n">capacity_rv_reg</span><span class="o">.</span><span class="n">add_RV</span><span class="p">(</span><span class="n">rv</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
+                        <span class="n">capacity_rv_reg</span><span class="o">.</span><span class="n">add_RV</span><span class="p">(</span><span class="n">rv</span><span class="p">)</span>
 
                         <span class="c1"># add the RV to the set of correlated variables</span>
                         <span class="n">frg_rv_set_tags</span><span class="p">[</span><span class="n">block_i</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">frg_rv_tag</span><span class="p">)</span>

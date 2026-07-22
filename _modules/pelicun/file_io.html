@@ -15,8 +15,8 @@
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../../_static/design-tabs.js?v=f930bc37"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
       <script src="../../_static/hide_empty_pre.js?v=a807066b"></script>
@@ -199,6 +199,7 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 
+<span class="kn">import</span><span class="w"> </span><span class="nn">dlml</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 
@@ -239,8 +240,8 @@
     <span class="s1">&#39;damage_DB_Hazus_EQ_bldg&#39;</span><span class="p">:</span> <span class="s1">&#39;Hazus Earthquake - Buildings&#39;</span><span class="p">,</span>
     <span class="s1">&#39;damage_DB_Hazus_EQ_story&#39;</span><span class="p">:</span> <span class="s1">&#39;Hazus Earthquake - Stories&#39;</span><span class="p">,</span>
     <span class="s1">&#39;damage_DB_Hazus_EQ_trnsp&#39;</span><span class="p">:</span> <span class="s1">&#39;Hazus Earthquake - Transportation&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;damage_DB_Hazus_EQ_water&#39;</span><span class="p">:</span> <span class="s1">&#39;Hazus Earthquake - Water&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;damage_DB_Hazus_EQ_power&#39;</span><span class="p">:</span> <span class="s1">&#39;Hazus Earthquake - Power&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;damage_DB_Hazus_EQ_water&#39;</span><span class="p">:</span> <span class="s1">&#39;Hazus Earthquake - Potable Water&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;damage_DB_Hazus_EQ_power&#39;</span><span class="p">:</span> <span class="s1">&#39;Hazus Earthquake - Electric Power&#39;</span><span class="p">,</span>
     <span class="s1">&#39;damage_DB_SimCenter_Hazus_HU_bldg&#39;</span><span class="p">:</span> <span class="s1">&#39;Hazus Hurricane Wind&#39;</span><span class="p">,</span>
     <span class="s1">&#39;loss_repair_DB_FEMA_P58_2nd&#39;</span><span class="p">:</span> <span class="s1">&#39;FEMA P-58&#39;</span><span class="p">,</span>
     <span class="s1">&#39;loss_repair_DB_Hazus_EQ_bldg&#39;</span><span class="p">:</span> <span class="s1">&#39;Hazus Earthquake - Buildings&#39;</span><span class="p">,</span>
@@ -418,52 +419,197 @@
 
 
 
+<span class="k">def</span><span class="w"> </span><span class="nf">_load_dlml_resource_paths</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Load the map of method aliases to DLML dataset IDs.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dict</span>
+<span class="sd">        The contents of the</span>
+<span class="sd">        `{base.pelicun_path}/resources/dlml_resource_paths.json` file.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">resource_file_path</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">Path</span><span class="p">(</span><span class="n">base</span><span class="o">.</span><span class="n">pelicun_path</span><span class="p">)</span> <span class="o">/</span> <span class="s1">&#39;resources&#39;</span> <span class="o">/</span> <span class="s1">&#39;dlml_resource_paths.json&#39;</span>
+    <span class="p">)</span>
+    <span class="k">with</span> <span class="n">resource_file_path</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_resolve_default_dataset_id</span><span class="p">(</span><span class="n">method_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Map a default method name to a DLML dataset ID.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    method_name: str</span>
+<span class="sd">        A method alias listed in the</span>
+<span class="sd">        `{base.pelicun_path}/resources/dlml_resource_paths.json` file,</span>
+<span class="sd">        or a DLML dataset ID (e.g.,</span>
+<span class="sd">        &#39;seismic/building/component/FEMA P-58 2nd Edition&#39;).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    str or None</span>
+<span class="sd">        The DLML dataset ID that the method name maps to, or None if</span>
+<span class="sd">        the method name is neither a method alias nor a valid DLML</span>
+<span class="sd">        dataset ID. Callers are expected to raise a KeyError with the</span>
+<span class="sd">        `_unknown_method_msg` message in the latter case.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">resource_paths</span> <span class="o">=</span> <span class="n">_load_dlml_resource_paths</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">method_name</span> <span class="ow">in</span> <span class="n">resource_paths</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">resource_paths</span><span class="p">[</span><span class="n">method_name</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">method_name</span> <span class="ow">in</span> <span class="n">dlml</span><span class="o">.</span><span class="n">list_datasets</span><span class="p">():</span>
+        <span class="k">return</span> <span class="n">method_name</span>
+
+    <span class="k">return</span> <span class="kc">None</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_unknown_method_msg</span><span class="p">(</span><span class="n">method_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Describe an unrecognized default method name.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    method_name: str</span>
+<span class="sd">        A method name that `_resolve_default_dataset_id` did not</span>
+<span class="sd">        recognize.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    str</span>
+<span class="sd">        An error message listing the valid method aliases.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">resource_paths</span> <span class="o">=</span> <span class="n">_load_dlml_resource_paths</span><span class="p">()</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="sa">f</span><span class="s1">&#39;Method `</span><span class="si">{</span><span class="n">method_name</span><span class="si">}</span><span class="s1">` is not a valid method alias &#39;</span>
+        <span class="sa">f</span><span class="s1">&#39;or DLML dataset ID. Valid method aliases: &#39;</span>
+        <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">resource_paths</span><span class="p">))</span><span class="si">}</span><span class="s1">. &#39;</span>
+        <span class="sa">f</span><span class="s1">&#39;Full DLML dataset IDs, such as &#39;</span>
+        <span class="sa">f</span><span class="s1">&#39;`seismic/building/component/FEMA P-58 2nd Edition`, &#39;</span>
+        <span class="sa">f</span><span class="s1">&#39;are also accepted.&#39;</span>
+    <span class="p">)</span>
+
+
+<div class="viewcode-block" id="resolve_default_dataset_path">
+<a class="viewcode-back" href="../../api_reference/_autosummary/pelicun.file_io.html#pelicun.file_io.resolve_default_dataset_path">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">resolve_default_dataset_path</span><span class="p">(</span><span class="n">method_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Resolve a default method name to its dataset folder.</span>
+
+<span class="sd">    The returned folder holds the model data files of the method&#39;s</span>
+<span class="sd">    dataset in the installed Damage and Loss Model Library (the `dlml`</span>
+<span class="sd">    package). Use this function to check whether a method provides an</span>
+<span class="sd">    optional file (e.g., &#39;pelicun_config.py&#39;) before reading it. To</span>
+<span class="sd">    resolve files that are expected to exist, use</span>
+<span class="sd">    `substitute_default_path`, which raises a descriptive error when a</span>
+<span class="sd">    requested file is unavailable.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    method_name: str</span>
+<span class="sd">        A method alias listed in the</span>
+<span class="sd">        `{base.pelicun_path}/resources/dlml_resource_paths.json` file,</span>
+<span class="sd">        or a DLML dataset ID (e.g.,</span>
+<span class="sd">        &#39;seismic/building/component/FEMA P-58 2nd Edition&#39;).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Path</span>
+<span class="sd">        The path to the dataset&#39;s folder in the installed DLML package.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    KeyError</span>
+<span class="sd">        If the method name is neither a method alias in</span>
+<span class="sd">        `dlml_resource_paths.json` nor a valid DLML dataset ID.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">dataset_id</span> <span class="o">=</span> <span class="n">_resolve_default_dataset_id</span><span class="p">(</span><span class="n">method_name</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">dataset_id</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="n">_unknown_method_msg</span><span class="p">(</span><span class="n">method_name</span><span class="p">))</span>
+
+    <span class="c1"># The public DLML API resolves files rather than folders. By</span>
+    <span class="c1"># construction, every dataset provides the parameters CSV of at least one</span>
+    <span class="c1"># collection, so resolve one of those files and locate the folder through</span>
+    <span class="c1"># its parent.</span>
+    <span class="n">collection</span> <span class="o">=</span> <span class="n">dlml</span><span class="o">.</span><span class="n">available_collections</span><span class="p">(</span><span class="n">dataset_id</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">dlml</span><span class="o">.</span><span class="n">get_file</span><span class="p">(</span><span class="n">dataset_id</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">collection</span><span class="si">}</span><span class="s1">.csv&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span></div>
+
+
+
 <div class="viewcode-block" id="substitute_default_path">
 <a class="viewcode-back" href="../../api_reference/_autosummary/pelicun.file_io.html#pelicun.file_io.substitute_default_path">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">substitute_default_path</span><span class="p">(</span>
-    <span class="n">data_paths</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span> <span class="o">|</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">],</span> <span class="n">log</span><span class="p">:</span> <span class="n">base</span><span class="o">.</span><span class="n">Logger</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span> <span class="o">|</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">substitute_default_path</span><span class="p">(</span>  <span class="c1"># noqa: C901</span>
+    <span class="n">data_paths</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">log</span><span class="p">:</span> <span class="n">base</span><span class="o">.</span><span class="n">Logger</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Substitute the default directory path.</span>
 
 <span class="sd">    This function iterates over a list of data paths and replaces</span>
 <span class="sd">    those with the &#39;PelicunDefault/&#39; substring with the full paths to</span>
-<span class="sd">    model files in the built-in Damage and Loss Model Library.</span>
-<span class="sd">    Default paths are expected to follow the</span>
+<span class="sd">    model files in the installed Damage and Loss Model Library (the</span>
+<span class="sd">    `dlml` package). Default paths are expected to follow the</span>
 <span class="sd">    `PelicunDefault/method_name/model_type.extension` structure. The</span>
-<span class="sd">    `method_name` identifies the methodology from those available in the</span>
-<span class="sd">    `{base.pelicun_path}/resources/dlml_resource_paths.json` file. The</span>
+<span class="sd">    `method_name` identifies the methodology through one of the aliases</span>
+<span class="sd">    in the `{base.pelicun_path}/resources/dlml_resource_paths.json`</span>
+<span class="sd">    file, or directly through a DLML dataset ID (e.g.,</span>
+<span class="sd">    `seismic/building/component/FEMA P-58 2nd Edition`). The</span>
 <span class="sd">    `model_type` identifies the type of model requested. Currently, the</span>
 <span class="sd">    following types are supported: &#39;fragility&#39;, &#39;consequence_repair&#39;,</span>
 <span class="sd">    &#39;loss_repair&#39;. The `extension` is intended to identify &#39;CSV&#39; files with</span>
 <span class="sd">    model parameters and &#39;JSON&#39; files with metadata.</span>
 <span class="sd">    The `model_type` and `extension` strings are not limited to the</span>
-<span class="sd">    supported values. If you know a particular file exists in the method&#39;s</span>
-<span class="sd">    folder, you can use the corresponding `model_type.extension` to access</span>
-<span class="sd">    that file.</span>
+<span class="sd">    supported values: any `model_type.extension` that identifies a file</span>
+<span class="sd">    in the method&#39;s folder resolves to that file. Every returned path</span>
+<span class="sd">    points to an existing file; requesting a file that the method does</span>
+<span class="sd">    not provide raises an error. To check whether a method provides an</span>
+<span class="sd">    optional file, resolve the method&#39;s dataset folder with</span>
+<span class="sd">    `resolve_default_dataset_path` and look for the file there.</span>
+<span class="sd">    Legacy placeholder filenames right after &#39;PelicunDefault/&#39; (e.g.,</span>
+<span class="sd">    `PelicunDefault/damage_DB_FEMA_P58_2nd.csv`) are still recognized,</span>
+<span class="sd">    trigger a deprecation warning, and are mapped to the corresponding</span>
+<span class="sd">    method and model type.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    data_paths: list of str or pd.DataFrame</span>
+<span class="sd">    data_paths: list of str</span>
 <span class="sd">        A list containing the paths to data files. These paths may</span>
 <span class="sd">        include a placeholder directory &#39;PelicunDefault/&#39; that needs</span>
-<span class="sd">        to be substituted with the actual path specified in the</span>
-<span class="sd">        resource mapping.</span>
+<span class="sd">        to be substituted with the actual path to the data file in the</span>
+<span class="sd">        installed Damage and Loss Model Library.</span>
 <span class="sd">    log: Logger</span>
 <span class="sd">        Logger object to be used. If no object is specified, no logging</span>
 <span class="sd">        is performed.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    list of str or pd.DataFrame</span>
+<span class="sd">    list of str</span>
+<span class="sd">        The updated paths, with every &#39;PelicunDefault/&#39; entry replaced</span>
+<span class="sd">        by the full path to the corresponding file in the installed</span>
+<span class="sd">        DLML package.</span>
 
 <span class="sd">    Raises</span>
 <span class="sd">    ------</span>
+<span class="sd">    TypeError</span>
+<span class="sd">        If an element of `data_paths` is not a string.</span>
 <span class="sd">    KeyError</span>
-<span class="sd">      If the method_name after &#39;PelicunDefault/&#39; does not exist in the</span>
-<span class="sd">      `resource_paths` keys.</span>
-<span class="sd">      If the method_name after &#39;PelicunDefault/&#39; does not exist in the</span>
-<span class="sd">      legacy list of filenames preserved for backwards compatibility.</span>
+<span class="sd">        If the method name after &#39;PelicunDefault/&#39; is neither a method</span>
+<span class="sd">        alias in `dlml_resource_paths.json` nor a valid DLML dataset</span>
+<span class="sd">        ID.</span>
+<span class="sd">    KeyError</span>
+<span class="sd">        If a bare filename right after &#39;PelicunDefault/&#39; is not one of</span>
+<span class="sd">        the legacy placeholder filenames preserved for backwards</span>
+<span class="sd">        compatibility.</span>
+<span class="sd">    KeyError</span>
+<span class="sd">        If a default data path does not include a filename.</span>
+<span class="sd">    dlml.DatasetFileNotFoundError</span>
+<span class="sd">        If the requested file is not provided by the method&#39;s dataset.</span>
 
 <span class="sd">    Notes</span>
 <span class="sd">    -----</span>
@@ -472,85 +618,112 @@
 <span class="sd">      are located.</span>
 <span class="sd">    - If a path in the input list does not contain &#39;PelicunDefault/&#39;,</span>
 <span class="sd">      the path is added to the output list unchanged.</span>
+<span class="sd">    - Backslashes in &#39;PelicunDefault&#39; paths are treated as path</span>
+<span class="sd">      separators, so Windows-style and mixed-separator inputs (e.g.,</span>
+<span class="sd">      &#39;PelicunDefault/FEMA P-58\fragility.csv&#39;) are accepted on every</span>
+<span class="sd">      platform.</span>
 
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
 <span class="sd">    &gt;&gt;&gt; data_paths = [&#39;PelicunDefault/Hazus Hurricane/fragility.csv&#39;, &#39;data/file2.txt&#39;]</span>
 <span class="sd">    &gt;&gt;&gt; substitute_default_path(data_paths)</span>
-<span class="sd">    [&#39;{base.pelicun_path}/resources/DamageAndLossModelLibrary/&#39;</span>
-<span class="sd">      &#39;hurricane/building/portfolio/Hazus v5.1 coupled/fragility.csv&#39;,</span>
+<span class="sd">    [&#39;&lt;site-packages&gt;/dlml/data/hurricane/building/portfolio/&#39;</span>
+<span class="sd">      &#39;Hazus v5.1 coupled/fragility.csv&#39;,</span>
 <span class="sd">      &#39;data/file2.txt&#39;]</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c1"># Load the resource paths from the JSON file</span>
-    <span class="n">resource_file_path</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">Path</span><span class="p">(</span><span class="n">base</span><span class="o">.</span><span class="n">pelicun_path</span><span class="p">)</span> <span class="o">/</span> <span class="s1">&#39;resources&#39;</span> <span class="o">/</span> <span class="s1">&#39;dlml_resource_paths.json&#39;</span>
-    <span class="p">)</span>
-    <span class="k">with</span> <span class="n">resource_file_path</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
-        <span class="n">resource_paths</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+    <span class="n">updated_paths</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">data_path</span> <span class="ow">in</span> <span class="n">data_paths</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data_path</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="sa">f</span><span class="s1">&#39;Data paths need to be strings, but the provided list &#39;</span>
+                <span class="sa">f</span><span class="s1">&#39;contains an element of type &#39;</span>
+                <span class="sa">f</span><span class="s1">&#39;`</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">data_path</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1">`. In-memory model data &#39;</span>
+                <span class="sa">f</span><span class="s1">&#39;needs to be handled by the caller.&#39;</span>
+            <span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
 
-    <span class="n">updated_paths</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span> <span class="o">|</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">data_path_str</span> <span class="ow">in</span> <span class="n">data_paths</span><span class="p">:</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data_path_str</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="s1">&#39;PelicunDefault/&#39;</span> <span class="ow">in</span> <span class="n">data_path_str</span><span class="p">:</span>
-            <span class="n">data_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">data_path_str</span><span class="p">)</span>
-            <span class="c1"># Extract the filename from the end after &#39;PelicunDefault/&#39;</span>
-            <span class="n">file_name</span> <span class="o">=</span> <span class="n">data_path</span><span class="o">.</span><span class="n">parts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="c1"># Tolerate backslashes and mixed separators in default paths</span>
+        <span class="n">normalized_path</span> <span class="o">=</span> <span class="n">data_path</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">&#39;</span><span class="p">,</span> <span class="s1">&#39;/&#39;</span><span class="p">)</span>
 
-            <span class="c1"># Check if there is a method name identified</span>
-            <span class="n">method_name</span> <span class="o">=</span> <span class="n">data_path</span><span class="o">.</span><span class="n">parts</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span>
+        <span class="k">if</span> <span class="s1">&#39;PelicunDefault/&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">normalized_path</span><span class="p">:</span>
+            <span class="n">updated_paths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data_path</span><span class="p">)</span>
+            <span class="k">continue</span>
 
-            <span class="c1"># &lt;backwards compatibility&gt;</span>
-            <span class="k">if</span> <span class="n">method_name</span> <span class="o">==</span> <span class="s1">&#39;PelicunDefault&#39;</span><span class="p">:</span>
-                <span class="c1"># No method name, check for legacy input</span>
-                <span class="k">if</span> <span class="n">file_name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span>
-                    <span class="p">(</span><span class="s1">&#39;fragility_DB&#39;</span><span class="p">,</span> <span class="s1">&#39;damage_DB&#39;</span><span class="p">,</span> <span class="s1">&#39;bldg_repair_DB&#39;</span><span class="p">,</span> <span class="s1">&#39;loss_repair_DB&#39;</span><span class="p">)</span>
-                <span class="p">):</span>
-                    <span class="k">if</span> <span class="n">log</span><span class="p">:</span>
-                        <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                            <span class="s1">&#39;Default libraries are no longer referenced using &#39;</span>
-                            <span class="s1">&#39;the following placeholder filenames after &quot;PelicunDB/&quot;: &#39;</span>
-                            <span class="s1">&#39;`fragility_DB...`, `damage_DB...`, `bldg_repair_DB...`, &#39;</span>
-                            <span class="s1">&#39;`loss_repair_DB...`. Such inputs will lead to errors in &#39;</span>
-                            <span class="s1">&#39;future versions of pelicun. Please replace such &#39;</span>
-                            <span class="s1">&#39;references with a combination of a specific method and &#39;</span>
-                            <span class="s1">&#39;data type. For example, use &#39;</span>
-                            <span class="s1">&#39;`PelicunDefault/FEMA P-58/fragility` to get FEMA P-58 &#39;</span>
-                            <span class="s1">&#39;damage models, and &#39;</span>
-                            <span class="s1">&#39;`PelicunDefault/Hazus Hurricane/consequence_repair` to &#39;</span>
-                            <span class="s1">&#39;get Hazus hurricane consequence models. See the online &#39;</span>
-                            <span class="s1">&#39;documentation for more details.&#39;</span>
-                        <span class="p">)</span>
+        <span class="c1"># Take the part after the &#39;PelicunDefault/&#39; placeholder and</span>
+        <span class="c1"># split it into a method name and a filename.</span>
+        <span class="n">remainder</span> <span class="o">=</span> <span class="n">normalized_path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;PelicunDefault/&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">method_name</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">file_name</span> <span class="o">=</span> <span class="n">remainder</span><span class="o">.</span><span class="n">rpartition</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)</span>
 
-                    <span class="n">method_name</span> <span class="o">=</span> <span class="n">legacy_names</span><span class="p">[</span><span class="n">file_name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]]</span>
-                    <span class="k">if</span> <span class="n">file_name</span><span class="o">.</span><span class="n">startswith</span><span class="p">((</span><span class="s1">&#39;fragility&#39;</span><span class="p">,</span> <span class="s1">&#39;damage&#39;</span><span class="p">)):</span>
-                        <span class="n">data_type</span> <span class="o">=</span> <span class="s1">&#39;fragility&#39;</span>
-                    <span class="k">else</span><span class="p">:</span>
-                        <span class="n">data_type</span> <span class="o">=</span> <span class="s1">&#39;consequence_repair&#39;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">file_name</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;Default data path `</span><span class="si">{</span><span class="n">data_path</span><span class="si">}</span><span class="s1">` does not include a filename.&#39;</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
 
-                    <span class="n">extension</span> <span class="o">=</span> <span class="n">file_name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-                    <span class="n">file_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">data_type</span><span class="si">}</span><span class="s1">.</span><span class="si">{</span><span class="n">extension</span><span class="si">}</span><span class="s1">&#39;</span>
+        <span class="c1"># &lt;backwards compatibility&gt;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">method_name</span><span class="p">:</span>
+            <span class="c1"># No method name, check for legacy input</span>
+            <span class="k">if</span> <span class="n">file_name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span>
+                <span class="p">(</span><span class="s1">&#39;fragility_DB&#39;</span><span class="p">,</span> <span class="s1">&#39;damage_DB&#39;</span><span class="p">,</span> <span class="s1">&#39;bldg_repair_DB&#39;</span><span class="p">,</span> <span class="s1">&#39;loss_repair_DB&#39;</span><span class="p">)</span>
+            <span class="p">):</span>
+                <span class="k">if</span> <span class="n">log</span><span class="p">:</span>
+                    <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                        <span class="s1">&#39;Default libraries are no longer referenced using &#39;</span>
+                        <span class="s1">&#39;the following placeholder filenames after &quot;PelicunDB/&quot;: &#39;</span>
+                        <span class="s1">&#39;`fragility_DB...`, `damage_DB...`, `bldg_repair_DB...`, &#39;</span>
+                        <span class="s1">&#39;`loss_repair_DB...`. Such inputs will lead to errors in &#39;</span>
+                        <span class="s1">&#39;future versions of pelicun. Please replace such &#39;</span>
+                        <span class="s1">&#39;references with a combination of a specific method and &#39;</span>
+                        <span class="s1">&#39;data type. For example, use &#39;</span>
+                        <span class="s1">&#39;`PelicunDefault/FEMA P-58/fragility` to get FEMA P-58 &#39;</span>
+                        <span class="s1">&#39;damage models, and &#39;</span>
+                        <span class="s1">&#39;`PelicunDefault/Hazus Hurricane/consequence_repair` to &#39;</span>
+                        <span class="s1">&#39;get Hazus hurricane consequence models. See the online &#39;</span>
+                        <span class="s1">&#39;documentation for more details.&#39;</span>
+                    <span class="p">)</span>
 
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;Default data path `</span><span class="si">{</span><span class="n">data_path_str</span><span class="si">}</span><span class="s1">` not recognized.&#39;</span>
+                <span class="n">legacy_name</span> <span class="o">=</span> <span class="n">file_name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">legacy_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">legacy_names</span><span class="p">:</span>
+                    <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+                        <span class="sa">f</span><span class="s1">&#39;Default data path `</span><span class="si">{</span><span class="n">data_path</span><span class="si">}</span><span class="s1">` uses the legacy &#39;</span>
+                        <span class="sa">f</span><span class="s1">&#39;placeholder-filename format, but `</span><span class="si">{</span><span class="n">legacy_name</span><span class="si">}</span><span class="s1">` &#39;</span>
+                        <span class="sa">f</span><span class="s1">&#39;is not one of the legacy filenames preserved &#39;</span>
+                        <span class="sa">f</span><span class="s1">&#39;for backwards compatibility: &#39;</span>
+                        <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">legacy_names</span><span class="p">))</span><span class="si">}</span><span class="s1">. &#39;</span>
+                        <span class="sa">f</span><span class="s1">&#39;Please refer to default model data with a &#39;</span>
+                        <span class="sa">f</span><span class="s1">&#39;combination of a specific method and data type &#39;</span>
+                        <span class="sa">f</span><span class="s1">&#39;instead, such as &#39;</span>
+                        <span class="sa">f</span><span class="s1">&#39;`PelicunDefault/FEMA P-58/fragility.csv`.&#39;</span>
+                    <span class="p">)</span>
                     <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
 
-            <span class="c1"># Check if the method name exists in the resource paths dictionary</span>
-            <span class="k">if</span> <span class="n">method_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">resource_paths</span><span class="p">:</span>
-                <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;Method `</span><span class="si">{</span><span class="n">method_name</span><span class="si">}</span><span class="s1">` not found in resource paths.&#39;</span>
-                <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
-            <span class="n">method_folder</span> <span class="o">=</span> <span class="n">resource_paths</span><span class="p">[</span><span class="n">method_name</span><span class="p">]</span>
+                <span class="n">method_name</span> <span class="o">=</span> <span class="n">legacy_names</span><span class="p">[</span><span class="n">legacy_name</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">file_name</span><span class="o">.</span><span class="n">startswith</span><span class="p">((</span><span class="s1">&#39;fragility&#39;</span><span class="p">,</span> <span class="s1">&#39;damage&#39;</span><span class="p">)):</span>
+                    <span class="n">data_type</span> <span class="o">=</span> <span class="s1">&#39;fragility&#39;</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">data_type</span> <span class="o">=</span> <span class="s1">&#39;consequence_repair&#39;</span>
 
-            <span class="c1"># Substitute the default path with a full path to the file</span>
-            <span class="n">updated_path</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span>
-                <span class="n">Path</span><span class="p">(</span><span class="n">base</span><span class="o">.</span><span class="n">pelicun_path</span><span class="p">)</span>
-                <span class="o">/</span> <span class="s1">&#39;resources&#39;</span>
-                <span class="o">/</span> <span class="s1">&#39;DamageAndLossModelLibrary&#39;</span>
-                <span class="o">/</span> <span class="n">method_folder</span>
-                <span class="o">/</span> <span class="n">file_name</span>
-            <span class="p">)</span>
-            <span class="n">updated_paths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">updated_path</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">updated_paths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data_path_str</span><span class="p">)</span>
+                <span class="n">extension</span> <span class="o">=</span> <span class="n">file_name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                <span class="n">file_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">data_type</span><span class="si">}</span><span class="s1">.</span><span class="si">{</span><span class="n">extension</span><span class="si">}</span><span class="s1">&#39;</span>
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;Default data path `</span><span class="si">{</span><span class="n">data_path</span><span class="si">}</span><span class="s1">` not recognized.&#39;</span>
+                <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+        <span class="c1"># Map the method name to a DLML dataset, either through a</span>
+        <span class="c1"># method alias or directly through a dataset ID.</span>
+        <span class="n">dataset_id</span> <span class="o">=</span> <span class="n">_resolve_default_dataset_id</span><span class="p">(</span><span class="n">method_name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">dataset_id</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="n">_unknown_method_msg</span><span class="p">(</span><span class="n">method_name</span><span class="p">))</span>
+
+        <span class="c1"># Substitute the default path with the full path to the</span>
+        <span class="c1"># requested file in the installed DLML package.</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">updated_paths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">dlml</span><span class="o">.</span><span class="n">get_file</span><span class="p">(</span><span class="n">dataset_id</span><span class="p">,</span> <span class="n">file_name</span><span class="p">)))</span>
+        <span class="k">except</span> <span class="n">dlml</span><span class="o">.</span><span class="n">DatasetFileNotFoundError</span><span class="p">:</span>  <span class="c1"># noqa: TRY203</span>
+            <span class="c1"># Re-raised explicitly: DLML&#39;s descriptive error about the</span>
+            <span class="c1"># missing file is part of this function&#39;s documented</span>
+            <span class="c1"># contract.</span>
+            <span class="k">raise</span>
 
     <span class="k">return</span> <span class="n">updated_paths</span></div>
 
@@ -646,11 +819,9 @@
 
         <span class="k">if</span> <span class="n">unit_conversion_factors</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">numeric_elements</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">select_dtypes</span><span class="p">(</span><span class="n">include</span><span class="o">=</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">number</span><span class="p">])</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
+                <span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">select_dtypes</span><span class="p">(</span><span class="n">include</span><span class="o">=</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">number</span><span class="p">])</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">orientation</span> <span class="o">==</span> <span class="mi">0</span>
-                <span class="k">else</span> <span class="p">(</span>
-                    <span class="n">data</span><span class="o">.</span><span class="n">select_dtypes</span><span class="p">(</span><span class="n">include</span><span class="o">=</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">number</span><span class="p">])</span><span class="o">.</span><span class="n">columns</span>  <span class="c1"># type: ignore</span>
-                <span class="p">)</span>
+                <span class="k">else</span> <span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">select_dtypes</span><span class="p">(</span><span class="n">include</span><span class="o">=</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">number</span><span class="p">])</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
             <span class="p">)</span>
 
             <span class="k">if</span> <span class="n">log</span><span class="p">:</span>
@@ -666,18 +837,18 @@
 
             <span class="k">if</span> <span class="n">orientation</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
                 <span class="n">data</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="n">numeric_elements</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
-                    <span class="p">:,</span> <span class="n">numeric_elements</span>  <span class="c1"># type: ignore</span>
+                    <span class="p">:,</span> <span class="n">numeric_elements</span>
                 <span class="p">]</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span>
                     <span class="n">conversion_factors</span><span class="p">,</span>
                     <span class="n">axis</span><span class="o">=</span><span class="n">axis</span><span class="p">[</span><span class="n">orientation</span><span class="p">],</span>  <span class="c1"># type: ignore</span>
-                <span class="p">)</span>  <span class="c1"># type: ignore</span>
+                <span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">data</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">numeric_elements</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
                     <span class="n">numeric_elements</span><span class="p">,</span> <span class="p">:</span>
                 <span class="p">]</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span>
                     <span class="n">conversion_factors</span><span class="p">,</span>
                     <span class="n">axis</span><span class="o">=</span><span class="n">axis</span><span class="p">[</span><span class="n">orientation</span><span class="p">],</span>  <span class="c1"># type: ignore</span>
-                <span class="p">)</span>  <span class="c1"># type: ignore</span>
+                <span class="p">)</span>
 
         <span class="k">if</span> <span class="n">log</span><span class="p">:</span>
             <span class="n">log</span><span class="o">.</span><span class="n">msg</span><span class="p">(</span><span class="s1">&#39;Unit conversion successful.&#39;</span><span class="p">,</span> <span class="n">prepend_timestamp</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
@@ -701,7 +872,7 @@
     <span class="k">if</span> <span class="n">return_units</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">units</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="c1"># convert index in units Series to MultiIndex if needed</span>
-            <span class="n">units</span> <span class="o">=</span> <span class="n">base</span><span class="o">.</span><span class="n">convert_to_MultiIndex</span><span class="p">(</span><span class="n">units</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span>  <span class="c1"># type: ignore</span>
+            <span class="n">units</span> <span class="o">=</span> <span class="n">base</span><span class="o">.</span><span class="n">convert_to_MultiIndex</span><span class="p">(</span><span class="n">units</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span>
             <span class="n">units</span> <span class="o">=</span> <span class="n">units</span><span class="o">.</span><span class="n">sort_index</span><span class="p">()</span>
         <span class="n">output</span> <span class="o">=</span> <span class="n">data</span><span class="p">,</span> <span class="n">units</span>
     <span class="k">else</span><span class="p">:</span>

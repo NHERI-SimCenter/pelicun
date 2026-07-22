@@ -16,8 +16,8 @@
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../_static/design-tabs.js?v=f930bc37"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
       <script src="../_static/hide_empty_pre.js?v=a807066b"></script>
@@ -162,20 +162,26 @@ Our objective is to always use the latest mature coding practice recommendations
 We are making an effort to use unambiguous variable and class/method/function names.
 Especially for newer code, we are mindful of the complexity of methods/functions and break them down when they start to become too large, by extracting appropriate groups of lines and turning them into appropriately named hidden methods/functions.</p>
 <p>All code checking tools should be available when <a class="reference internal" href="development_environment.html#development-environment"><span class="std std-ref">installing pelicun under a developer setup</span></a>.
-The most straight-forward way to run those tools is via the command-line.
+The most straight-forward way to run those tools is via the command-line, through <code class="docutils literal notranslate"><span class="pre">uv</span> <span class="pre">run</span></code>.
 All of the following commands are assumed to be executed from the package root directory (the one containing <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code>).</p>
+<p>The entire suite of checks used to gate contributions can be run in one shot with the check script, which mirrors what CI runs:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./scripts/check.sh
+</pre></div>
+</div>
+<p>The script is non-mutating: it only reports problems and never rewrites files.
+The individual tools are described below.</p>
 <section id="linting-and-formatting-with-ruff">
 <h3>Linting and formatting with Ruff<a class="headerlink" href="#linting-and-formatting-with-ruff" title="Link to this heading"></a></h3>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>ruff<span class="w"> </span>check<span class="w">   </span><span class="c1"># Lint all files in the current directory.</span>
-ruff<span class="w"> </span>format<span class="w">  </span><span class="c1"># Format all files in the current directory.</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>uv<span class="w"> </span>run<span class="w"> </span>ruff<span class="w"> </span>check<span class="w">   </span><span class="c1"># Lint all files in the current directory.</span>
+uv<span class="w"> </span>run<span class="w"> </span>ruff<span class="w"> </span>format<span class="w">  </span><span class="c1"># Format all files in the current directory.</span>
 </pre></div>
 </div>
 <p>Ruff can automatically fix certain warnings when it is safe to do so. See also <a class="reference external" href="https://docs.astral.sh/ruff/linter/#fixes">Fixes</a>.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ruff</span> <span class="n">check</span> <span class="o">--</span><span class="n">fix</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">uv</span> <span class="n">run</span> <span class="n">ruff</span> <span class="n">check</span> <span class="o">--</span><span class="n">fix</span>
 </pre></div>
 </div>
 <p>Warnings can also be automatically suppressed by adding #noqa directives. See <a class="reference external" href="https://docs.astral.sh/ruff/linter/#inserting-necessary-suppression-comments">here</a>.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>ruff<span class="w"> </span>check<span class="w"> </span>--add-noqa
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>uv<span class="w"> </span>run<span class="w"> </span>ruff<span class="w"> </span>check<span class="w"> </span>--add-noqa
 </pre></div>
 </div>
 <section id="editor-integration">
@@ -189,7 +195,7 @@ Under <a class="reference external" href="https://docs.astral.sh/ruff/editors/">
 <p>Pelicun code is type hinted.
 We use <code class="docutils literal notranslate"><span class="pre">mypy</span></code> for type checking.
 Use the following command to type-check the code:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>mypy<span class="w"> </span>pelicun<span class="w"> </span>--no-namespace-packages
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>uv<span class="w"> </span>run<span class="w"> </span>mypy<span class="w"> </span>pelicun
 </pre></div>
 </div>
 <p>Type checking warnings can be silenced by adding <code class="docutils literal notranslate"><span class="pre">#type:</span> <span class="pre">ignore</span></code> at the lines that trigger them.
@@ -198,7 +204,7 @@ Please avoid silencing warnings in newly added code.</p>
 <section id="spell-checking-with-codespell">
 <h3>Spell checking with Codespell<a class="headerlink" href="#spell-checking-with-codespell" title="Link to this heading"></a></h3>
 <p>Codespell is a Python package used to check for common spelling mistakes in text files, particularly source code. It is available on PyPI, configured via pyproject.toml, and is executed as follows:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>codespell<span class="w"> </span>.
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>uv<span class="w"> </span>run<span class="w"> </span>codespell<span class="w"> </span>.
 </pre></div>
 </div>
 <p>False positives can be placed in a dedicated file (we currently call it <code class="docutils literal notranslate"><span class="pre">ignore_words.txt</span></code>) to be ignored.
@@ -211,7 +217,7 @@ E.g., <code class="docutils literal notranslate"><span class="pre">response_spec
 <h2><span class="section-number">3.2. </span>Unit tests<a class="headerlink" href="#unit-tests" title="Link to this heading"></a></h2>
 <p>We use <a class="reference external" href="https://docs.pytest.org/en/stable/">pytest</a> to write unit tests for pelicun.
 The tests can be executed with the following command.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>pytest<span class="w"> </span>pelicun/tests<span class="w"> </span>--cov<span class="o">=</span>pelicun<span class="w"> </span>--cov-report<span class="w"> </span>html
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>pytest<span class="w"> </span>pelicun/tests<span class="w"> </span>--cov<span class="o">=</span>pelicun<span class="w"> </span>--cov-report<span class="w"> </span>html
 </pre></div>
 </div>
 <p>When the test runs finish, visit <code class="docutils literal notranslate"><span class="pre">htmlcov/index.html</span></code> for a comprehensive view of code coverage.</p>
@@ -238,19 +244,20 @@ In the source code they are stored as python files with special syntax defining 
 </ul>
 <section id="building-the-documentation">
 <h3>Building the documentation<a class="headerlink" href="#building-the-documentation" title="Link to this heading"></a></h3>
-<p>To build the documentation, navigate to <cite>doc</cite> and run the following command:</p>
+<p>Building the documentation requires the <code class="docutils literal notranslate"><span class="pre">doc</span></code> extra (<code class="docutils literal notranslate"><span class="pre">uv</span> <span class="pre">sync</span> <span class="pre">--extra</span> <span class="pre">doc</span></code>).
+To build the documentation, navigate to <cite>doc</cite> and run the following command:</p>
 <div class="sd-tab-set docutils">
 <input checked="checked" id="sd-tab-item-0" name="sd-tab-set-0" type="radio">
 <label class="sd-tab-label" for="sd-tab-item-0">
 Linux &amp; Mac</label><div class="sd-tab-content docutils">
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make<span class="w"> </span>html
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>uv<span class="w"> </span>run<span class="w"> </span>make<span class="w"> </span>html
 </pre></div>
 </div>
 </div>
 <input id="sd-tab-item-1" name="sd-tab-set-0" type="radio">
 <label class="sd-tab-label" for="sd-tab-item-1">
 Windows</label><div class="sd-tab-content docutils">
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>.<span class="se">\m</span>ake.bat<span class="w"> </span>html
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>uv<span class="w"> </span>run<span class="w"> </span>.<span class="se">\m</span>ake.bat<span class="w"> </span>html
 </pre></div>
 </div>
 </div>
@@ -260,14 +267,14 @@ Windows</label><div class="sd-tab-content docutils">
 <input checked="checked" id="sd-tab-item-2" name="sd-tab-set-1" type="radio">
 <label class="sd-tab-label" for="sd-tab-item-2">
 Linux &amp; Mac</label><div class="sd-tab-content docutils">
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>uv<span class="w"> </span>run<span class="w"> </span>make
 </pre></div>
 </div>
 </div>
 <input id="sd-tab-item-3" name="sd-tab-set-1" type="radio">
 <label class="sd-tab-label" for="sd-tab-item-3">
 Windows</label><div class="sd-tab-content docutils">
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>.<span class="se">\m</span>ake.bat
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>uv<span class="w"> </span>run<span class="w"> </span>.<span class="se">\m</span>ake.bat
 </pre></div>
 </div>
 </div>

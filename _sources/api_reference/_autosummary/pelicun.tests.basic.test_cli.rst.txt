@@ -1,0 +1,32 @@
+pelicun.tests.basic.test\_cli
+=============================
+
+.. automodule:: pelicun.tests.basic.test_cli
+   :members:
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      test_dlml_stub_accepts_legacy_arguments
+      test_dlml_stub_exit_code
+      test_dlml_stub_prints_notice
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

@@ -75,6 +75,36 @@ Sample expansion
 Demand cloning
 ^^^^^^^^^^^^^^
 
+.. _fo_custom_demand_types:
+
+Custom demand types
+^^^^^^^^^^^^^^^^^^^
+
+Pelicun identifies demand types using the controlled vocabulary of the Damage and Loss Model Library (e.g., ``Peak Interstory Drift Ratio`` with the acronym ``PID``) and uses the unit type registered for each entry to assign demand units automatically.
+When an assessment uses a demand type that is not part of that vocabulary, register it with the ``CustomDemandTypes`` entry in the ``Options`` section of the configuration:
+
+.. code-block:: json
+
+   {
+     "Options": {
+       "CustomDemandTypes": {
+         "Story Torsion Ratio": {
+           "Acronym": "STR",
+           "UnitType": "unitless"
+         }
+       }
+     }
+   }
+
+When using the Python API, pass the contents of ``Options`` directly to ``Assessment``, e.g., ``Assessment({"CustomDemandTypes": {...}})``.
+
+Each entry maps a verbose demand name to the acronym used in demand files and model parameters, and to the unit type the demand is measured in.
+When a demand file arrives without a ``Units`` row, pelicun assigns the unit matching the registered unit type; automatic unit assignment is implemented for the ``acceleration``, ``speed``, ``displacement``, ``unitless``, and ``rotation`` (measured in radians, no conversion) unit types.
+The model-library vocabulary also defines ``force``, ``force_per_length``, and ``pressure``; pelicun recognizes these but does not implement automatic unit assignment for them yet, and raises a clear error if a demand provided without units needs one of them.
+Providing an explicit ``Units`` row in the demand file bypasses automatic unit assignment entirely, so demands with such unit types can still be used that way.
+Demand types that are neither part of the default vocabulary nor registered are assumed to be in base units and trigger a warning.
+Custom entries only apply to the assessment configured with them, and they may reuse a default demand name to override its default acronym or unit type.
+
 Damage estimation
 .................
 
@@ -130,6 +160,12 @@ Some of those inputs are paths to required input files, including a JSON file th
 Input file auto-population
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 It is possible for the JSON input file to be auto-populated (extended to include more entries) using either default or user-defined auto-population scripts.
+Auto-population scripts are referenced either with a filesystem path or with the ``PelicunDefault/<method>/pelicun_config.py`` syntax, which resolves to the corresponding script in the installed Damage and Loss Model Library.
+
+A loaded script is cached and reused when the same script is requested again under the same identifier, as in the per-building loop of a regional simulation.
+Module-level state in the script therefore persists across those calls: one-time setup work and cross-asset memoization are supported patterns, but scripts must not assume a fresh re-initialization on every call.
+In parallel regional runs, each worker process holds its own copy of the module state.
+Per-worker memoization works as expected, but accumulating global results across all buildings in module-level variables does not; derive such aggregates by post-processing the outputs instead.
 
 ..
    TODO: Why is this useful? Why would a user want to do this?

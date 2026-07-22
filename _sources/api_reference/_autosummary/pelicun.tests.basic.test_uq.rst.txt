@@ -58,6 +58,7 @@ pelicun.tests.basic.test\_uq
       test_fit_distribution_to_sample_univariate
       test_mvn_orthotope_density
       test_rv_class_map
+      test_rv_class_map_supports_dlml_vocabulary
       test_scale_distribution
    
    

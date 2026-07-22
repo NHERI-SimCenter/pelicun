@@ -15,10 +15,10 @@ pelicun.tests.basic.test\_auto
    .. autosummary::
    
       setup_auto_script_path
-      setup_expected_base_path
+      setup_hazus_eq_script_path
       setup_valid_config
       test_missing_general_information
-      test_pelicun_default_path_replacement
+      test_pelicun_default_script_path_resolution
    
    
 

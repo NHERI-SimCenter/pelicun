@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pelicun.tests.basic.test_cli_logging &mdash; pelicun  documentation</title>
+  <title>pelicun.tests.basic.test_cli &mdash; pelicun  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
@@ -16,8 +16,8 @@
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../../_static/design-tabs.js?v=f930bc37"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
       <script src="../../_static/hide_empty_pre.js?v=a807066b"></script>
@@ -147,7 +147,7 @@
           <li class="breadcrumb-item"><a href="pelicun.html"><span class="section-number">8.1. </span>pelicun</a></li>
           <li class="breadcrumb-item"><a href="pelicun.tests.html">pelicun.tests</a></li>
           <li class="breadcrumb-item"><a href="pelicun.tests.basic.html">pelicun.tests.basic</a></li>
-      <li class="breadcrumb-item active">pelicun.tests.basic.test_cli_logging</li>
+      <li class="breadcrumb-item active">pelicun.tests.basic.test_cli</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -156,66 +156,39 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="module-pelicun.tests.basic.test_cli_logging">
-<span id="pelicun-tests-basic-test-cli-logging"></span><h1>pelicun.tests.basic.test_cli_logging<a class="headerlink" href="#module-pelicun.tests.basic.test_cli_logging" title="Link to this heading"></a></h1>
-<p>These are unit tests for the CLI logging functionality of pelicun.</p>
+  <section id="module-pelicun.tests.basic.test_cli">
+<span id="pelicun-tests-basic-test-cli"></span><h1>pelicun.tests.basic.test_cli<a class="headerlink" href="#module-pelicun.tests.basic.test_cli" title="Link to this heading"></a></h1>
+<p>These are unit tests for the command-line interface of pelicun.</p>
 <p class="rubric">Functions</p>
 <table class="autosummary longtable docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pelicun.tests.basic.test_cli_logging.test_cli_integration_with_logging" title="pelicun.tests.basic.test_cli_logging.test_cli_integration_with_logging"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_cli_integration_with_logging</span></code></a>()</p></td>
-<td><p>Test CLI integration with logging setup.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pelicun.tests.basic.test_cli.test_dlml_stub_accepts_legacy_arguments" title="pelicun.tests.basic.test_cli.test_dlml_stub_accepts_legacy_arguments"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_dlml_stub_accepts_legacy_arguments</span></code></a>(...)</p></td>
+<td><p>Retired <cite>pelicun dlml update ...</cite> invocations still succeed.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pelicun.tests.basic.test_cli_logging.test_setup_dlml_logging_file_creation" title="pelicun.tests.basic.test_cli_logging.test_setup_dlml_logging_file_creation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_setup_dlml_logging_file_creation</span></code></a>()</p></td>
-<td><p>Test that file logging actually creates and writes to the log file.</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pelicun.tests.basic.test_cli.test_dlml_stub_exit_code" title="pelicun.tests.basic.test_cli.test_dlml_stub_exit_code"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_dlml_stub_exit_code</span></code></a>()</p></td>
+<td><p><cite>pelicun dlml update</cite> exits with code 0 in a real subprocess.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pelicun.tests.basic.test_cli_logging.test_setup_dlml_logging_no_duplicate_handlers" title="pelicun.tests.basic.test_cli_logging.test_setup_dlml_logging_no_duplicate_handlers"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_setup_dlml_logging_no_duplicate_handlers</span></code></a>()</p></td>
-<td><p>Test that setup_dlml_logging doesn't add duplicate handlers.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pelicun.tests.basic.test_cli_logging.test_setup_dlml_logging_stdout_only" title="pelicun.tests.basic.test_cli_logging.test_setup_dlml_logging_stdout_only"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_setup_dlml_logging_stdout_only</span></code></a>()</p></td>
-<td><p>Test setup_dlml_logging with stdout logging only.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pelicun.tests.basic.test_cli_logging.test_setup_dlml_logging_with_file" title="pelicun.tests.basic.test_cli_logging.test_setup_dlml_logging_with_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_setup_dlml_logging_with_file</span></code></a>()</p></td>
-<td><p>Test setup_dlml_logging with file logging.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pelicun.tests.basic.test_cli_logging.test_setup_dlml_logging_with_timestamp_file" title="pelicun.tests.basic.test_cli_logging.test_setup_dlml_logging_with_timestamp_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_setup_dlml_logging_with_timestamp_file</span></code></a>()</p></td>
-<td><p>Test setup_dlml_logging with automatic timestamp file creation.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pelicun.tests.basic.test_cli.test_dlml_stub_prints_notice" title="pelicun.tests.basic.test_cli.test_dlml_stub_prints_notice"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_dlml_stub_prints_notice</span></code></a>(monkeypatch, capsys)</p></td>
+<td><p>A bare <cite>pelicun dlml</cite> prints the informational notice.</p></td>
 </tr>
 </tbody>
 </table>
 <dl class="py function">
-<dt class="sig sig-object py" id="pelicun.tests.basic.test_cli_logging.test_cli_integration_with_logging">
-<span class="sig-prename descclassname"><span class="pre">pelicun.tests.basic.test_cli_logging.</span></span><span class="sig-name descname"><span class="pre">test_cli_integration_with_logging</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../_modules/pelicun/tests/basic/test_cli_logging.html#test_cli_integration_with_logging"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.tests.basic.test_cli_logging.test_cli_integration_with_logging" title="Link to this definition"></a></dt>
-<dd><p>Test CLI integration with logging setup.</p>
+<dt class="sig sig-object py" id="pelicun.tests.basic.test_cli.test_dlml_stub_accepts_legacy_arguments">
+<span class="sig-prename descclassname"><span class="pre">pelicun.tests.basic.test_cli.</span></span><span class="sig-name descname"><span class="pre">test_dlml_stub_accepts_legacy_arguments</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">monkeypatch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pytest.MonkeyPatch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capsys</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pytest.CaptureFixture</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../_modules/pelicun/tests/basic/test_cli.html#test_dlml_stub_accepts_legacy_arguments"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.tests.basic.test_cli.test_dlml_stub_accepts_legacy_arguments" title="Link to this definition"></a></dt>
+<dd><p>Retired <cite>pelicun dlml update …</cite> invocations still succeed.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="pelicun.tests.basic.test_cli_logging.test_setup_dlml_logging_file_creation">
-<span class="sig-prename descclassname"><span class="pre">pelicun.tests.basic.test_cli_logging.</span></span><span class="sig-name descname"><span class="pre">test_setup_dlml_logging_file_creation</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../_modules/pelicun/tests/basic/test_cli_logging.html#test_setup_dlml_logging_file_creation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.tests.basic.test_cli_logging.test_setup_dlml_logging_file_creation" title="Link to this definition"></a></dt>
-<dd><p>Test that file logging actually creates and writes to the log file.</p>
+<dt class="sig sig-object py" id="pelicun.tests.basic.test_cli.test_dlml_stub_exit_code">
+<span class="sig-prename descclassname"><span class="pre">pelicun.tests.basic.test_cli.</span></span><span class="sig-name descname"><span class="pre">test_dlml_stub_exit_code</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../_modules/pelicun/tests/basic/test_cli.html#test_dlml_stub_exit_code"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.tests.basic.test_cli.test_dlml_stub_exit_code" title="Link to this definition"></a></dt>
+<dd><p><cite>pelicun dlml update</cite> exits with code 0 in a real subprocess.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="pelicun.tests.basic.test_cli_logging.test_setup_dlml_logging_no_duplicate_handlers">
-<span class="sig-prename descclassname"><span class="pre">pelicun.tests.basic.test_cli_logging.</span></span><span class="sig-name descname"><span class="pre">test_setup_dlml_logging_no_duplicate_handlers</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../_modules/pelicun/tests/basic/test_cli_logging.html#test_setup_dlml_logging_no_duplicate_handlers"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.tests.basic.test_cli_logging.test_setup_dlml_logging_no_duplicate_handlers" title="Link to this definition"></a></dt>
-<dd><p>Test that setup_dlml_logging doesn’t add duplicate handlers.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="pelicun.tests.basic.test_cli_logging.test_setup_dlml_logging_stdout_only">
-<span class="sig-prename descclassname"><span class="pre">pelicun.tests.basic.test_cli_logging.</span></span><span class="sig-name descname"><span class="pre">test_setup_dlml_logging_stdout_only</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../_modules/pelicun/tests/basic/test_cli_logging.html#test_setup_dlml_logging_stdout_only"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.tests.basic.test_cli_logging.test_setup_dlml_logging_stdout_only" title="Link to this definition"></a></dt>
-<dd><p>Test setup_dlml_logging with stdout logging only.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="pelicun.tests.basic.test_cli_logging.test_setup_dlml_logging_with_file">
-<span class="sig-prename descclassname"><span class="pre">pelicun.tests.basic.test_cli_logging.</span></span><span class="sig-name descname"><span class="pre">test_setup_dlml_logging_with_file</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../_modules/pelicun/tests/basic/test_cli_logging.html#test_setup_dlml_logging_with_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.tests.basic.test_cli_logging.test_setup_dlml_logging_with_file" title="Link to this definition"></a></dt>
-<dd><p>Test setup_dlml_logging with file logging.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="pelicun.tests.basic.test_cli_logging.test_setup_dlml_logging_with_timestamp_file">
-<span class="sig-prename descclassname"><span class="pre">pelicun.tests.basic.test_cli_logging.</span></span><span class="sig-name descname"><span class="pre">test_setup_dlml_logging_with_timestamp_file</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../_modules/pelicun/tests/basic/test_cli_logging.html#test_setup_dlml_logging_with_timestamp_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.tests.basic.test_cli_logging.test_setup_dlml_logging_with_timestamp_file" title="Link to this definition"></a></dt>
-<dd><p>Test setup_dlml_logging with automatic timestamp file creation.</p>
+<dt class="sig sig-object py" id="pelicun.tests.basic.test_cli.test_dlml_stub_prints_notice">
+<span class="sig-prename descclassname"><span class="pre">pelicun.tests.basic.test_cli.</span></span><span class="sig-name descname"><span class="pre">test_dlml_stub_prints_notice</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">monkeypatch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pytest.MonkeyPatch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capsys</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pytest.CaptureFixture</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../_modules/pelicun/tests/basic/test_cli.html#test_dlml_stub_prints_notice"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.tests.basic.test_cli.test_dlml_stub_prints_notice" title="Link to this definition"></a></dt>
+<dd><p>A bare <cite>pelicun dlml</cite> prints the informational notice.</p>
 </dd></dl>
 
 </section>

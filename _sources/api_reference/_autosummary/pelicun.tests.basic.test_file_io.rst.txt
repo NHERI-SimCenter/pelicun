@@ -14,9 +14,12 @@ pelicun.tests.basic.test\_file\_io
 
    .. autosummary::
    
+      test_dlml_resource_paths_are_valid_dataset_ids
       test_load_data
+      test_resolve_default_dataset_path
       test_save_to_csv
       test_substitute_default_path
+      test_substitute_default_path_legacy_names
    
    
 
