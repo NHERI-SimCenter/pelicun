@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **Doc Extra Requires Python 3.10**: The `doc` extra now installs only on Python 3.10 and newer. The documentation toolchain has dropped Python 3.9, so security fixes in those packages no longer reach Python 3.9-compatible versions and the lock file had to pin outdated versions for Python 3.9 that kept triggering security advisories. Pelicun itself and the `test` and `lint` extras continue to support Python 3.9; CI builds the documentation on Python 3.12.
+
 ## [3.10.0] - 2026-08-05
 
 The headline change in 3.10.0 is the **packaged model library**: the default damage and loss models now come from [simcenter-dlml](https://pypi.org/project/simcenter-dlml/), a regular pip-installed dependency, and the runtime download machinery is gone. Importing pelicun downloads nothing and writes nothing into the installation directory, so pelicun works on HPC compute nodes and other machines without internet access. The new **CustomDemandTypes** option registers custom demand types for an assessment; it replaces editing `EDP_to_demand_type` in `pelicun/base.py`, which has no effect now that the vocabulary comes from the model library.

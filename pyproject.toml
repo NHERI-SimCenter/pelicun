@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pelicun"
-version = "3.10.0"
+version = "3.11.0.dev0"
 description = "Probabilistic Estimation of Losses, Injuries, and Community resilience Under Natural hazard events"
 readme = "README.md"
 requires-python = ">=3.9"
@@ -61,19 +61,21 @@ lint = [
     "types-colorama",
 ]
 doc = [
+    # The docs toolchain has dropped Python 3.9, so this extra installs only
+    # on Python 3.10+; CI builds the docs on 3.12.
     # Autosummary imports pelicun.tests while generating stubs, and the
     # tests package imports glob2.
-    "glob2",
-    "jupyter",
-    "jupytext",
-    "nbsphinx",
-    "numpydoc",
+    "glob2; python_version >= '3.10'",
+    "jupyter; python_version >= '3.10'",
+    "jupytext; python_version >= '3.10'",
+    "nbsphinx; python_version >= '3.10'",
+    "numpydoc; python_version >= '3.10'",
     # The example notebooks executed during the docs build import pytest.
-    "pytest",
-    "sphinx",
-    "sphinx-rtd-theme",
-    "sphinx_design",
-    "sphinxcontrib-bibtex",
+    "pytest; python_version >= '3.10'",
+    "sphinx; python_version >= '3.10'",
+    "sphinx-rtd-theme; python_version >= '3.10'",
+    "sphinx_design; python_version >= '3.10'",
+    "sphinxcontrib-bibtex; python_version >= '3.10'",
 ]
 development = [
     "pelicun[test,lint,doc]",
