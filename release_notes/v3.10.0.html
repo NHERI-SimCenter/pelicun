@@ -1,0 +1,374 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Version 3.10.0 (August 5, 2026) &mdash; pelicun  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=f9bf6728" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../_static/design-tabs.js?v=f930bc37"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="../_static/hide_empty_pre.js?v=a807066b"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Version 3.9.0 (April 20, 2026)" href="v3.9.0.html" />
+    <link rel="prev" title="Unreleased" href="unreleased.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #F2F2F2" >
+
+          
+          
+          <a href="../index.html">
+            
+              <img src="../_static/pelicun-Logo-grey.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">About</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../about/license.html">1. Copyright and license</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../about/cite.html">2. Citing pelicun</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../about/cite.html#logo">3. Logo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../about/acknowledgments.html">4. Acknowledgments</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../about/acknowledgments.html#national-science-foundation">4.1. National Science Foundation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../about/acknowledgments.html#contributors">4.2. Contributors</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">5. Release Notes</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="index.html#version-3-0">5.1. Version 3.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#version-2-0">5.2. Version 2.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#version-1-0">5.3. Version 1.0</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/install.html">1. Getting started</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/install.html#staying-up-to-date">1.1. Staying up to date</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/pelicun_framework.html">2. The Pelicun Framework</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/pelicun_framework.html#abbreviations">2.1. Abbreviations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/pelicun_framework.html#introduction-to-pelicun">2.2. Introduction to Pelicun</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/pelicun_framework.html#overview">2.3. Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/pelicun_framework.html#performance-assessment-workflow">2.4. Performance Assessment Workflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/pelicun_framework.html#response-model">2.5. Response Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/pelicun_framework.html#performance-model">2.6. Performance Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/pelicun_framework.html#damage-model">2.7. Damage Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/pelicun_framework.html#loss-model">2.8. Loss Model</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/feature_overview.html">3. Overview of pelicun features</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/feature_overview.html#saving-loading-samples">3.1. Saving/loading samples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/feature_overview.html#logging-support">3.2. Logging support</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/feature_overview.html#uncertainty-quantification">3.3. Uncertainty quantification</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/feature_overview.html#assessment-types">3.4. Assessment types</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/feature_overview.html#demand-simulation">3.5. Demand simulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/feature_overview.html#damage-estimation">3.6. Damage estimation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/feature_overview.html#loss-estimation">3.7. Loss estimation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/feature_overview.html#command-line-support">3.8. Command-line support</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/feature_overview.html#standalone-tools">3.9. Standalone tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/feature_overview.html#feature-overview-and-examples">3.10. Feature overview and examples</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/damage_and_loss_library.html">4. Damage and loss library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/bug_reports_and_feature_requests.html">5. Bug reports and feature requests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/resources_for_new_python_users.html">6. Resources for new python users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples/index.html">7. Examples</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../examples/notebooks/example_1.html">7.1. Example 1: Simple loss function.</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/notebooks/example_2.html">7.2. Example 2: Damage state validation.</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/notebooks/example_3.html">7.3. Example 3: Combining fragility-based damage consequences and loss functions.</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../api_reference/index.html">8. API Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../api_reference/_autosummary/pelicun.html">8.1. pelicun</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../developer_guide/getting_started.html">1. Getting started</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../developer_guide/getting_started.html#code-of-conduct">1.1. Code of conduct</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../developer_guide/getting_started.html#how-to-contribute">1.2. How to contribute</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../developer_guide/development_environment.html">2. Setting up a development environment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developer_guide/code_quality.html">3. Coding practice</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../developer_guide/code_quality.html#code-quality-assurance">3.1. Code quality assurance</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../developer_guide/code_quality.html#unit-tests">3.2. Unit tests</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../developer_guide/code_quality.html#documentation">3.3. Documentation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../developer_guide/internals.html">4. Package architecture</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../developer_guide/internals.html#overview-of-files">4.1. Overview of files</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #F2F2F2" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">pelicun</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html"><span class="section-number">5. </span>Release Notes</a></li>
+      <li class="breadcrumb-item active">Version 3.10.0 (August 5, 2026)</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="version-3-10-0-august-5-2026">
+<span id="changes-v3-10-0"></span><h1>Version 3.10.0 (August 5, 2026)<a class="headerlink" href="#version-3-10-0-august-5-2026" title="Link to this heading"></a></h1>
+<p>The headline change in 3.10.0 is the <strong>packaged model library</strong>: the
+default damage and loss models now come from
+<a class="reference external" href="https://pypi.org/project/simcenter-dlml/">simcenter-dlml</a>, a
+regular pip-installed dependency, and the runtime download machinery
+is gone. Importing pelicun downloads nothing and writes nothing into
+the installation directory, so pelicun works on HPC compute nodes and
+other machines without internet access. The new <strong>CustomDemandTypes</strong>
+option registers custom demand types for an assessment; it replaces
+editing <code class="docutils literal notranslate"><span class="pre">EDP_to_demand_type</span></code> in <code class="docutils literal notranslate"><span class="pre">pelicun/base.py</span></code>, which has no
+effect now that the vocabulary comes from the model library.</p>
+<p>On the development side, the environment and CI are now managed with
+uv against a committed lock file, mypy type checking is enforced, the
+test suite blocks network access by default, and Python 3.13 is
+supported.</p>
+<section id="upgrading-from-3-9">
+<h2>Upgrading from 3.9<a class="headerlink" href="#upgrading-from-3-9" title="Link to this heading"></a></h2>
+<p>The model library installs together with pelicun, so most users do
+not need to change anything. What changed in the workflow:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">pelicun</span> <span class="pre">dlml</span> <span class="pre">update</span></code> no longer downloads anything. The
+subcommand remains as an informational stub that exits successfully
+and is planned for removal in pelicun 3.12. Update the model
+library by upgrading its package instead:
+<code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">--upgrade</span> <span class="pre">simcenter-dlml</span></code>.</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">DLML_DATA_DIR</span></code> environment variable is no longer read. To
+work with a custom model-library checkout, install it in place of
+the released package: <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-e</span> <span class="pre">&lt;path-to-checkout&gt;</span></code>.</p></li>
+<li><p>Editing <code class="docutils literal notranslate"><span class="pre">EDP_to_demand_type</span></code> in <code class="docutils literal notranslate"><span class="pre">pelicun/base.py</span></code> no longer has
+any effect, because the demand-type vocabulary comes from the model
+library. Use the <code class="docutils literal notranslate"><span class="pre">CustomDemandTypes</span></code> option to register custom
+demand types for an assessment.</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">pelicun.tools.dlml</span></code> module was removed; importing it raises
+an ImportError.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">PelicunDefault/</span></code> path resolution is strict. Unknown method names
+or missing files raise an error at resolution time instead of
+returning paths that fail later.</p></li>
+<li><p>Auto-population scripts are cached and reused within a process, so
+module-level state persists across the assets of a regional
+simulation. Scripts must not assume a fresh re-execution for every
+asset.</p></li>
+</ul>
+</section>
+<section id="added">
+<h2>Added<a class="headerlink" href="#added" title="Link to this heading"></a></h2>
+<p><strong>Python 3.13 Support</strong>: Python 3.13 was added to the CI test matrix
+and to the package classifiers, and the package now declares
+<code class="docutils literal notranslate"><span class="pre">requires-python</span> <span class="pre">&gt;=</span> <span class="pre">3.9</span></code> explicitly.</p>
+<p><strong>Custom Demand Types</strong>: The new <code class="docutils literal notranslate"><span class="pre">CustomDemandTypes</span></code> option
+registers custom entries in the demand-type vocabulary of an
+assessment, e.g.,
+<code class="docutils literal notranslate"><span class="pre">{&quot;Options&quot;:</span> <span class="pre">{&quot;CustomDemandTypes&quot;:</span> <span class="pre">{&quot;Story</span> <span class="pre">Torsion</span> <span class="pre">Ratio&quot;:</span>
+<span class="pre">{&quot;Acronym&quot;:</span> <span class="pre">&quot;STR&quot;,</span> <span class="pre">&quot;UnitType&quot;:</span> <span class="pre">&quot;unitless&quot;}}}}</span></code>.
+Entries map verbose demand names to a short acronym and the unit type
+the demand is measured in, drawn from the model library’s unit-type
+vocabulary, extending the default vocabulary and, if a default name
+is reused, overriding it. Unit handling works for custom demands:
+when a demand file arrives without units, the assessment assigns the
+unit matching the registered unit type (e.g., an <code class="docutils literal notranslate"><span class="pre">acceleration</span></code>
+demand in an assessment using inches is interpreted in <code class="docutils literal notranslate"><span class="pre">inchps2</span></code>)
+and applies the corresponding unit conversion. Pelicun currently
+implements this automatic unit assignment for the <code class="docutils literal notranslate"><span class="pre">acceleration</span></code>,
+<code class="docutils literal notranslate"><span class="pre">speed</span></code>, <code class="docutils literal notranslate"><span class="pre">displacement</span></code>, <code class="docutils literal notranslate"><span class="pre">unitless</span></code>, and <code class="docutils literal notranslate"><span class="pre">rotation</span></code> unit
+types; <code class="docutils literal notranslate"><span class="pre">force</span></code>, <code class="docutils literal notranslate"><span class="pre">force_per_length</span></code>, and <code class="docutils literal notranslate"><span class="pre">pressure</span></code> are
+recognized but not yet implemented, and pelicun raises a clear error
+if a demand provided without explicit units needs one of them.
+Demand types that are neither default nor registered are still
+assumed to be in base units, and pelicun now warns about them
+instead of skipping them silently. The custom entries only apply to
+assessments configured with them. This replaces the former practice
+of editing <code class="docutils literal notranslate"><span class="pre">EDP_to_demand_type</span></code> in <code class="docutils literal notranslate"><span class="pre">pelicun/base.py</span></code>, which
+stopped working when the vocabulary moved to the model library.</p>
+<p><strong>Static Type Checking with Mypy</strong>: <code class="docutils literal notranslate"><span class="pre">mypy</span> <span class="pre">pelicun</span></code> is now enforced
+as part of the static checks, both locally in <code class="docutils literal notranslate"><span class="pre">scripts/check.sh</span></code>
+and in CI, after clearing all pre-existing type errors. The fixes are
+type-level only (annotations, casts, narrowing assertions, and a
+handful of scoped ignores where the type stubs reject valid pandas
+usage) and do not change runtime behavior. Unused type-ignore
+comments were removed and are now flagged (<code class="docutils literal notranslate"><span class="pre">warn_unused_ignores</span></code>)
+so the remaining ignores stay honest.</p>
+</section>
+<section id="changed">
+<h2>Changed<a class="headerlink" href="#changed" title="Link to this heading"></a></h2>
+<p><strong>Model Library Distributed as a Python Package</strong>: The default damage
+and loss model data is now resolved from the
+<a class="reference external" href="https://pypi.org/project/simcenter-dlml/">simcenter-dlml</a> package,
+a regular pip-installed dependency of pelicun.</p>
+<ul class="simple">
+<li><p>The model data ships inside the installed package, so
+<code class="docutils literal notranslate"><span class="pre">import</span> <span class="pre">pelicun</span></code> no longer downloads anything: imports work
+offline (e.g., on HPC compute nodes without internet access) and
+nothing is written into the installation directory at runtime.</p></li>
+<li><p>The model library is updated by upgrading the package
+(<code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">--upgrade</span> <span class="pre">simcenter-dlml</span></code>) instead of running a
+download command. A custom DLML checkout can be used by installing
+it in place of the released package
+(<code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-e</span> <span class="pre">&lt;path-to-checkout&gt;</span></code>), replacing the former
+<code class="docutils literal notranslate"><span class="pre">DLML_DATA_DIR</span></code> environment variable.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">PelicunDefault/</span></code> paths now also accept DLML dataset IDs directly
+(e.g., <code class="docutils literal notranslate"><span class="pre">PelicunDefault/seismic/building/component/FEMA</span> <span class="pre">P-58</span> <span class="pre">2nd</span>
+<span class="pre">Edition/fragility.csv</span></code>), in addition to the established method
+aliases (e.g., <code class="docutils literal notranslate"><span class="pre">PelicunDefault/FEMA</span> <span class="pre">P-58/fragility.csv</span></code>).</p></li>
+<li><p>Path resolution is now strict: every resolved path points to an
+existing file, and unknown method names or files raise clear errors
+instead of returning paths that fail later.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">PelicunDefault/</span></code> paths are separator-tolerant: backslashes and
+mixed separators (e.g., <code class="docutils literal notranslate"><span class="pre">PelicunDefault/FEMA</span> <span class="pre">P-58\fragility.csv</span></code>,
+common in configs written on Windows) are accepted on all
+platforms.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">auto_populate</span></code> now also accepts <code class="docutils literal notranslate"><span class="pre">PelicunDefault/</span></code> auto script
+paths directly (e.g., <code class="docutils literal notranslate"><span class="pre">PelicunDefault/Hazus</span> <span class="pre">Earthquake</span> <span class="pre">-</span>
+<span class="pre">Buildings/pelicun_config.py</span></code>), resolving them to the corresponding
+script in the installed package.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">auto_populate</span></code> now caches a loaded auto script and reuses it
+when the same script is requested again under the same identifier
+(e.g., in the per-building loop of a regional simulation), instead
+of re-executing it on every call. Module-level state in an auto
+script now persists across those calls — enabling one-time setup
+work and cross-asset caching — but scripts must not assume a fresh
+re-initialization on every call.</p></li>
+<li><p>The demand-type vocabulary is now imported from the
+<code class="docutils literal notranslate"><span class="pre">simcenter-dlml</span></code> package, making the model library the single
+source of truth for the controlled vocabularies used in the model
+data. Each entry carries the demand’s acronym and unit type
+(<code class="docutils literal notranslate"><span class="pre">dlml.EDP_TYPES</span></code>). Pelicun keeps its own copy of the vocabulary
+in <code class="docutils literal notranslate"><span class="pre">base.EDP_TYPES</span></code> (with the derived <code class="docutils literal notranslate"><span class="pre">base.EDP_to_demand_type</span></code>
+view), so runtime modifications of those dictionaries remain
+pelicun-scoped; use the new <code class="docutils literal notranslate"><span class="pre">CustomDemandTypes</span></code> option to extend
+the vocabulary of an assessment.</p></li>
+</ul>
+<p><strong>Model-Library Version in Assessment Logs</strong>: Assessment logs now
+record the version of the installed model-library package (<code class="docutils literal notranslate"><span class="pre">DLML</span></code>)
+next to the pelicun version, so every log documents which
+model-library version produced the results.</p>
+<p><strong>Network Access Blocked in Tests</strong>: The test suite now blocks
+network access by default through pytest-socket
+(<code class="docutils literal notranslate"><span class="pre">--disable-socket</span> <span class="pre">--allow-unix-socket</span></code>), guaranteeing that no test
+silently depends on an internet connection.</p>
+<p><strong>uv-Based Development Environment</strong>: The development environment and
+CI are now managed with <a class="reference external" href="https://docs.astral.sh/uv/">uv</a>.</p>
+<ul class="simple">
+<li><p>A committed <code class="docutils literal notranslate"><span class="pre">uv.lock</span></code> file pins the full development stack, so
+every contributor and every CI job resolves the exact same
+versions. Runtime dependency ranges for end users are unchanged.</p></li>
+<li><p>All CI jobs install their environments with <code class="docutils literal notranslate"><span class="pre">uv</span> <span class="pre">sync</span> <span class="pre">--locked</span></code>,
+and the uv version itself is pinned in the workflows. This also
+replaces the archived <code class="docutils literal notranslate"><span class="pre">chartboost/ruff-action</span></code>; the ruff version
+now comes from the lock file.</p></li>
+</ul>
+<p><strong>Split Development Extras</strong>: The single <code class="docutils literal notranslate"><span class="pre">development</span></code> extra was
+reorganized into focused <code class="docutils literal notranslate"><span class="pre">test</span></code>, <code class="docutils literal notranslate"><span class="pre">lint</span></code>, and <code class="docutils literal notranslate"><span class="pre">doc</span></code> extras that
+match how the tools are actually used; <code class="docutils literal notranslate"><span class="pre">development</span></code> remains
+available as the union of the three.</p>
+<p><strong>Non-Mutating Check Script</strong>: <code class="docutils literal notranslate"><span class="pre">run_checks.sh</span></code> was replaced by
+<code class="docutils literal notranslate"><span class="pre">scripts/check.sh</span></code>, which only reports problems. CI’s static-check
+job runs the same tools on the same environment.</p>
+</section>
+<section id="removed">
+<h2>Removed<a class="headerlink" href="#removed" title="Link to this heading"></a></h2>
+<p><strong>Runtime Model-Data Download Machinery</strong>: With the model library
+installed as a package, the download machinery became dead code and
+was removed. This includes the <code class="docutils literal notranslate"><span class="pre">pelicun.tools.dlml</span></code> module and the
+first-import download hook in <code class="docutils literal notranslate"><span class="pre">pelicun/__init__.py</span></code>.
+<code class="docutils literal notranslate"><span class="pre">pelicun</span> <span class="pre">dlml</span> <span class="pre">update</span></code> no longer performs downloads: the subcommand
+is now an informational stub that explains the new distribution model
+and exits with code 0, so existing automation keeps working. The stub
+is planned for removal in pelicun 3.12.</p>
+<p><strong>Legacy Linter Dependencies</strong>: flake8 (and its plugins), pylint (and
+its plugin), and pydocstyle were removed from the development
+dependencies; their roles have long been covered by ruff. The unused
+jsonpath2, sphinx-autoapi, and rendre packages were removed as well.</p>
+</section>
+<section id="fixed">
+<h2>Fixed<a class="headerlink" href="#fixed" title="Link to this heading"></a></h2>
+<p><strong>Worker-Count Fallback in Regional Simulation</strong>: <code class="docutils literal notranslate"><span class="pre">regional_sim</span></code> no
+longer fails with a TypeError when <code class="docutils literal notranslate"><span class="pre">os.cpu_count()</span></code> returns None
+(platforms where the core count is undeterminable); it falls back to
+a single worker instead.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Leland Stanford Junior University and The Regents of the University of California.</p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+    <!-- Theme Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-158130480-7"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'UA-158130480-7', {
+          'anonymize_ip': false,
+      });
+    </script> 
+
+</body>
+</html>

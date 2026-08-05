@@ -24,7 +24,7 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Version 3.9.0 (April 20, 2026)" href="v3.9.0.html" />
+    <link rel="next" title="Version 3.10.0 (August 5, 2026)" href="v3.10.0.html" />
     <link rel="prev" title="5. Release Notes" href="index.html" /> 
 </head>
 
@@ -157,139 +157,15 @@
 <span id="changes-unreleased"></span><h1>Unreleased<a class="headerlink" href="#unreleased" title="Link to this heading"></a></h1>
 <section id="added">
 <h2>Added<a class="headerlink" href="#added" title="Link to this heading"></a></h2>
-<p><strong>Python 3.13 Support</strong>: Python 3.13 was added to the CI test matrix
-and to the package classifiers, and the package now declares
-<code class="docutils literal notranslate"><span class="pre">requires-python</span> <span class="pre">&gt;=</span> <span class="pre">3.9</span></code> explicitly.</p>
-<p><strong>Custom Demand Types</strong>: The new <code class="docutils literal notranslate"><span class="pre">CustomDemandTypes</span></code> option
-registers custom entries in the demand-type vocabulary of an
-assessment, e.g.,
-<code class="docutils literal notranslate"><span class="pre">{&quot;Options&quot;:</span> <span class="pre">{&quot;CustomDemandTypes&quot;:</span> <span class="pre">{&quot;Story</span> <span class="pre">Torsion</span> <span class="pre">Ratio&quot;:</span>
-<span class="pre">{&quot;Acronym&quot;:</span> <span class="pre">&quot;STR&quot;,</span> <span class="pre">&quot;UnitType&quot;:</span> <span class="pre">&quot;unitless&quot;}}}}</span></code>.
-Entries map verbose demand names to a short acronym and the unit type
-the demand is measured in, drawn from the model library’s unit-type
-vocabulary, extending the default vocabulary and, if a default name
-is reused, overriding it. Unit handling works for custom demands:
-when a demand file arrives without units, the assessment assigns the
-unit matching the registered unit type (e.g., an <code class="docutils literal notranslate"><span class="pre">acceleration</span></code>
-demand in an assessment using inches is interpreted in <code class="docutils literal notranslate"><span class="pre">inchps2</span></code>)
-and applies the corresponding unit conversion. Pelicun currently
-implements this automatic unit assignment for the <code class="docutils literal notranslate"><span class="pre">acceleration</span></code>,
-<code class="docutils literal notranslate"><span class="pre">speed</span></code>, <code class="docutils literal notranslate"><span class="pre">displacement</span></code>, <code class="docutils literal notranslate"><span class="pre">unitless</span></code>, and <code class="docutils literal notranslate"><span class="pre">rotation</span></code> unit
-types; <code class="docutils literal notranslate"><span class="pre">force</span></code>, <code class="docutils literal notranslate"><span class="pre">force_per_length</span></code>, and <code class="docutils literal notranslate"><span class="pre">pressure</span></code> are
-recognized but not yet implemented, and pelicun raises a clear error
-if a demand provided without explicit units needs one of them.
-Demand types that are neither default nor registered are still
-assumed to be in base units, and pelicun now warns about them
-instead of skipping them silently. The custom entries only apply to
-assessments configured with them. This replaces the former practice
-of editing <code class="docutils literal notranslate"><span class="pre">EDP_to_demand_type</span></code> in <code class="docutils literal notranslate"><span class="pre">pelicun/base.py</span></code>, which
-stopped working when the vocabulary moved to the model library.</p>
-<p><strong>Static Type Checking with Mypy</strong>: <code class="docutils literal notranslate"><span class="pre">mypy</span> <span class="pre">pelicun</span></code> is now enforced
-as part of the static checks, both locally in <code class="docutils literal notranslate"><span class="pre">scripts/check.sh</span></code>
-and in CI, after clearing all pre-existing type errors. The fixes are
-type-level only (annotations, casts, narrowing assertions, and a
-handful of scoped ignores where the type stubs reject valid pandas
-usage) and do not change runtime behavior. Unused type-ignore
-comments were removed and are now flagged (<code class="docutils literal notranslate"><span class="pre">warn_unused_ignores</span></code>)
-so the remaining ignores stay honest.</p>
 </section>
 <section id="changed">
 <h2>Changed<a class="headerlink" href="#changed" title="Link to this heading"></a></h2>
-<p><strong>Model Library Distributed as a Python Package</strong>: The default damage
-and loss model data is now resolved from the
-<a class="reference external" href="https://pypi.org/project/simcenter-dlml/">simcenter-dlml</a> package,
-a regular pip-installed dependency of pelicun.</p>
-<ul class="simple">
-<li><p>The model data ships inside the installed package, so
-<code class="docutils literal notranslate"><span class="pre">import</span> <span class="pre">pelicun</span></code> no longer downloads anything: imports work
-offline (e.g., on HPC compute nodes without internet access) and
-nothing is written into the installation directory at runtime.</p></li>
-<li><p>The model library is updated by upgrading the package
-(<code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">--upgrade</span> <span class="pre">simcenter-dlml</span></code>) instead of running a
-download command. A custom DLML checkout can be used by installing
-it in place of the released package
-(<code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-e</span> <span class="pre">&lt;path-to-checkout&gt;</span></code>), replacing the former
-<code class="docutils literal notranslate"><span class="pre">DLML_DATA_DIR</span></code> environment variable.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">PelicunDefault/</span></code> paths now also accept DLML dataset IDs directly
-(e.g., <code class="docutils literal notranslate"><span class="pre">PelicunDefault/seismic/building/component/FEMA</span> <span class="pre">P-58</span> <span class="pre">2nd</span>
-<span class="pre">Edition/fragility.csv</span></code>), in addition to the established method
-aliases (e.g., <code class="docutils literal notranslate"><span class="pre">PelicunDefault/FEMA</span> <span class="pre">P-58/fragility.csv</span></code>).</p></li>
-<li><p>Path resolution is now strict: every resolved path points to an
-existing file, and unknown method names or files raise clear errors
-instead of returning paths that fail later.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">PelicunDefault/</span></code> paths are separator-tolerant: backslashes and
-mixed separators (e.g., <code class="docutils literal notranslate"><span class="pre">PelicunDefault/FEMA</span> <span class="pre">P-58\fragility.csv</span></code>,
-common in configs written on Windows) are accepted on all
-platforms.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">auto_populate</span></code> now also accepts <code class="docutils literal notranslate"><span class="pre">PelicunDefault/</span></code> auto script
-paths directly (e.g., <code class="docutils literal notranslate"><span class="pre">PelicunDefault/Hazus</span> <span class="pre">Earthquake</span> <span class="pre">-</span>
-<span class="pre">Buildings/pelicun_config.py</span></code>), resolving them to the corresponding
-script in the installed package.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">auto_populate</span></code> now caches a loaded auto script and reuses it
-when the same script is requested again under the same identifier
-(e.g., in the per-building loop of a regional simulation), instead
-of re-executing it on every call. Module-level state in an auto
-script now persists across those calls — enabling one-time setup
-work and cross-asset caching — but scripts must not assume a fresh
-re-initialization on every call.</p></li>
-<li><p>The demand-type vocabulary is now imported from the
-<code class="docutils literal notranslate"><span class="pre">simcenter-dlml</span></code> package, making the model library the single
-source of truth for the controlled vocabularies used in the model
-data. Each entry carries the demand’s acronym and unit type
-(<code class="docutils literal notranslate"><span class="pre">dlml.EDP_TYPES</span></code>). Pelicun keeps its own copy of the vocabulary
-in <code class="docutils literal notranslate"><span class="pre">base.EDP_TYPES</span></code> (with the derived <code class="docutils literal notranslate"><span class="pre">base.EDP_to_demand_type</span></code>
-view), so runtime modifications of those dictionaries remain
-pelicun-scoped; use the new <code class="docutils literal notranslate"><span class="pre">CustomDemandTypes</span></code> option to extend
-the vocabulary of an assessment.</p></li>
-</ul>
-<p><strong>Model-Library Version in Assessment Logs</strong>: Assessment logs now
-record the version of the installed model-library package (<code class="docutils literal notranslate"><span class="pre">DLML</span></code>)
-next to the pelicun version, so every log documents which
-model-library version produced the results.</p>
-<p><strong>Network Access Blocked in Tests</strong>: The test suite now blocks
-network access by default through pytest-socket
-(<code class="docutils literal notranslate"><span class="pre">--disable-socket</span> <span class="pre">--allow-unix-socket</span></code>), guaranteeing that no test
-silently depends on an internet connection.</p>
-<p><strong>uv-Based Development Environment</strong>: The development environment and
-CI are now managed with <a class="reference external" href="https://docs.astral.sh/uv/">uv</a>.</p>
-<ul class="simple">
-<li><p>A committed <code class="docutils literal notranslate"><span class="pre">uv.lock</span></code> file pins the full development stack, so
-every contributor and every CI job resolves the exact same
-versions. Runtime dependency ranges for end users are unchanged.</p></li>
-<li><p>All CI jobs install their environments with <code class="docutils literal notranslate"><span class="pre">uv</span> <span class="pre">sync</span> <span class="pre">--locked</span></code>,
-and the uv version itself is pinned in the workflows. This also
-replaces the archived <code class="docutils literal notranslate"><span class="pre">chartboost/ruff-action</span></code>; the ruff version
-now comes from the lock file.</p></li>
-</ul>
-<p><strong>Split Development Extras</strong>: The single <code class="docutils literal notranslate"><span class="pre">development</span></code> extra was
-reorganized into focused <code class="docutils literal notranslate"><span class="pre">test</span></code>, <code class="docutils literal notranslate"><span class="pre">lint</span></code>, and <code class="docutils literal notranslate"><span class="pre">doc</span></code> extras that
-match how the tools are actually used; <code class="docutils literal notranslate"><span class="pre">development</span></code> remains
-available as the union of the three.</p>
-<p><strong>Non-Mutating Check Script</strong>: <code class="docutils literal notranslate"><span class="pre">run_checks.sh</span></code> was replaced by
-<code class="docutils literal notranslate"><span class="pre">scripts/check.sh</span></code>, which only reports problems. CI’s static-check
-job runs the same tools on the same environment.</p>
 </section>
 <section id="removed">
 <h2>Removed<a class="headerlink" href="#removed" title="Link to this heading"></a></h2>
-<p><strong>Runtime Model-Data Download Machinery</strong>: With the model library
-installed as a package, the download machinery became dead code and
-was removed. This includes the <code class="docutils literal notranslate"><span class="pre">pelicun.tools.dlml</span></code> module and the
-first-import download hook in <code class="docutils literal notranslate"><span class="pre">pelicun/__init__.py</span></code>.
-<code class="docutils literal notranslate"><span class="pre">pelicun</span> <span class="pre">dlml</span> <span class="pre">update</span></code> no longer performs downloads: the subcommand
-is now an informational stub that explains the new distribution model
-and exits with code 0, so existing automation keeps working. The stub
-is planned for removal in pelicun 3.12.</p>
-<p><strong>Legacy Linter Dependencies</strong>: flake8 (and its plugins), pylint (and
-its plugin), and pydocstyle were removed from the development
-dependencies; their roles have long been covered by ruff. The unused
-jsonpath2, sphinx-autoapi, and rendre packages were removed as well.</p>
 </section>
 <section id="fixed">
 <h2>Fixed<a class="headerlink" href="#fixed" title="Link to this heading"></a></h2>
-<p><strong>Worker-Count Fallback in Regional Simulation</strong>: <code class="docutils literal notranslate"><span class="pre">regional_sim</span></code> no
-longer fails with a TypeError when <code class="docutils literal notranslate"><span class="pre">os.cpu_count()</span></code> returns None
-(platforms where the core count is undeterminable); it falls back to
-a single worker instead.</p>
 </section>
 </section>
 

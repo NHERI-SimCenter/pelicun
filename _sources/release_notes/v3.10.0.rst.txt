@@ -1,0 +1,195 @@
+.. _changes_v3.10.0:
+
+===============================
+Version 3.10.0 (August 5, 2026)
+===============================
+
+The headline change in 3.10.0 is the **packaged model library**: the
+default damage and loss models now come from
+`simcenter-dlml <https://pypi.org/project/simcenter-dlml/>`_, a
+regular pip-installed dependency, and the runtime download machinery
+is gone. Importing pelicun downloads nothing and writes nothing into
+the installation directory, so pelicun works on HPC compute nodes and
+other machines without internet access. The new **CustomDemandTypes**
+option registers custom demand types for an assessment; it replaces
+editing ``EDP_to_demand_type`` in ``pelicun/base.py``, which has no
+effect now that the vocabulary comes from the model library.
+
+On the development side, the environment and CI are now managed with
+uv against a committed lock file, mypy type checking is enforced, the
+test suite blocks network access by default, and Python 3.13 is
+supported.
+
+Upgrading from 3.9
+------------------
+
+The model library installs together with pelicun, so most users do
+not need to change anything. What changed in the workflow:
+
+- ``pelicun dlml update`` no longer downloads anything. The
+  subcommand remains as an informational stub that exits successfully
+  and is planned for removal in pelicun 3.12. Update the model
+  library by upgrading its package instead:
+  ``pip install --upgrade simcenter-dlml``.
+- The ``DLML_DATA_DIR`` environment variable is no longer read. To
+  work with a custom model-library checkout, install it in place of
+  the released package: ``pip install -e <path-to-checkout>``.
+- Editing ``EDP_to_demand_type`` in ``pelicun/base.py`` no longer has
+  any effect, because the demand-type vocabulary comes from the model
+  library. Use the ``CustomDemandTypes`` option to register custom
+  demand types for an assessment.
+- The ``pelicun.tools.dlml`` module was removed; importing it raises
+  an ImportError.
+- ``PelicunDefault/`` path resolution is strict. Unknown method names
+  or missing files raise an error at resolution time instead of
+  returning paths that fail later.
+- Auto-population scripts are cached and reused within a process, so
+  module-level state persists across the assets of a regional
+  simulation. Scripts must not assume a fresh re-execution for every
+  asset.
+
+Added
+-----
+
+**Python 3.13 Support**: Python 3.13 was added to the CI test matrix
+and to the package classifiers, and the package now declares
+``requires-python >= 3.9`` explicitly.
+
+**Custom Demand Types**: The new ``CustomDemandTypes`` option
+registers custom entries in the demand-type vocabulary of an
+assessment, e.g.,
+``{"Options": {"CustomDemandTypes": {"Story Torsion Ratio":
+{"Acronym": "STR", "UnitType": "unitless"}}}}``.
+Entries map verbose demand names to a short acronym and the unit type
+the demand is measured in, drawn from the model library's unit-type
+vocabulary, extending the default vocabulary and, if a default name
+is reused, overriding it. Unit handling works for custom demands:
+when a demand file arrives without units, the assessment assigns the
+unit matching the registered unit type (e.g., an ``acceleration``
+demand in an assessment using inches is interpreted in ``inchps2``)
+and applies the corresponding unit conversion. Pelicun currently
+implements this automatic unit assignment for the ``acceleration``,
+``speed``, ``displacement``, ``unitless``, and ``rotation`` unit
+types; ``force``, ``force_per_length``, and ``pressure`` are
+recognized but not yet implemented, and pelicun raises a clear error
+if a demand provided without explicit units needs one of them.
+Demand types that are neither default nor registered are still
+assumed to be in base units, and pelicun now warns about them
+instead of skipping them silently. The custom entries only apply to
+assessments configured with them. This replaces the former practice
+of editing ``EDP_to_demand_type`` in ``pelicun/base.py``, which
+stopped working when the vocabulary moved to the model library.
+
+**Static Type Checking with Mypy**: ``mypy pelicun`` is now enforced
+as part of the static checks, both locally in ``scripts/check.sh``
+and in CI, after clearing all pre-existing type errors. The fixes are
+type-level only (annotations, casts, narrowing assertions, and a
+handful of scoped ignores where the type stubs reject valid pandas
+usage) and do not change runtime behavior. Unused type-ignore
+comments were removed and are now flagged (``warn_unused_ignores``)
+so the remaining ignores stay honest.
+
+Changed
+-------
+
+**Model Library Distributed as a Python Package**: The default damage
+and loss model data is now resolved from the
+`simcenter-dlml <https://pypi.org/project/simcenter-dlml/>`_ package,
+a regular pip-installed dependency of pelicun.
+
+- The model data ships inside the installed package, so
+  ``import pelicun`` no longer downloads anything: imports work
+  offline (e.g., on HPC compute nodes without internet access) and
+  nothing is written into the installation directory at runtime.
+- The model library is updated by upgrading the package
+  (``pip install --upgrade simcenter-dlml``) instead of running a
+  download command. A custom DLML checkout can be used by installing
+  it in place of the released package
+  (``pip install -e <path-to-checkout>``), replacing the former
+  ``DLML_DATA_DIR`` environment variable.
+- ``PelicunDefault/`` paths now also accept DLML dataset IDs directly
+  (e.g., ``PelicunDefault/seismic/building/component/FEMA P-58 2nd
+  Edition/fragility.csv``), in addition to the established method
+  aliases (e.g., ``PelicunDefault/FEMA P-58/fragility.csv``).
+- Path resolution is now strict: every resolved path points to an
+  existing file, and unknown method names or files raise clear errors
+  instead of returning paths that fail later.
+- ``PelicunDefault/`` paths are separator-tolerant: backslashes and
+  mixed separators (e.g., ``PelicunDefault/FEMA P-58\fragility.csv``,
+  common in configs written on Windows) are accepted on all
+  platforms.
+- ``auto_populate`` now also accepts ``PelicunDefault/`` auto script
+  paths directly (e.g., ``PelicunDefault/Hazus Earthquake -
+  Buildings/pelicun_config.py``), resolving them to the corresponding
+  script in the installed package.
+- ``auto_populate`` now caches a loaded auto script and reuses it
+  when the same script is requested again under the same identifier
+  (e.g., in the per-building loop of a regional simulation), instead
+  of re-executing it on every call. Module-level state in an auto
+  script now persists across those calls — enabling one-time setup
+  work and cross-asset caching — but scripts must not assume a fresh
+  re-initialization on every call.
+- The demand-type vocabulary is now imported from the
+  ``simcenter-dlml`` package, making the model library the single
+  source of truth for the controlled vocabularies used in the model
+  data. Each entry carries the demand's acronym and unit type
+  (``dlml.EDP_TYPES``). Pelicun keeps its own copy of the vocabulary
+  in ``base.EDP_TYPES`` (with the derived ``base.EDP_to_demand_type``
+  view), so runtime modifications of those dictionaries remain
+  pelicun-scoped; use the new ``CustomDemandTypes`` option to extend
+  the vocabulary of an assessment.
+
+**Model-Library Version in Assessment Logs**: Assessment logs now
+record the version of the installed model-library package (``DLML``)
+next to the pelicun version, so every log documents which
+model-library version produced the results.
+
+**Network Access Blocked in Tests**: The test suite now blocks
+network access by default through pytest-socket
+(``--disable-socket --allow-unix-socket``), guaranteeing that no test
+silently depends on an internet connection.
+
+**uv-Based Development Environment**: The development environment and
+CI are now managed with `uv <https://docs.astral.sh/uv/>`_.
+
+- A committed ``uv.lock`` file pins the full development stack, so
+  every contributor and every CI job resolves the exact same
+  versions. Runtime dependency ranges for end users are unchanged.
+- All CI jobs install their environments with ``uv sync --locked``,
+  and the uv version itself is pinned in the workflows. This also
+  replaces the archived ``chartboost/ruff-action``; the ruff version
+  now comes from the lock file.
+
+**Split Development Extras**: The single ``development`` extra was
+reorganized into focused ``test``, ``lint``, and ``doc`` extras that
+match how the tools are actually used; ``development`` remains
+available as the union of the three.
+
+**Non-Mutating Check Script**: ``run_checks.sh`` was replaced by
+``scripts/check.sh``, which only reports problems. CI's static-check
+job runs the same tools on the same environment.
+
+Removed
+-------
+
+**Runtime Model-Data Download Machinery**: With the model library
+installed as a package, the download machinery became dead code and
+was removed. This includes the ``pelicun.tools.dlml`` module and the
+first-import download hook in ``pelicun/__init__.py``.
+``pelicun dlml update`` no longer performs downloads: the subcommand
+is now an informational stub that explains the new distribution model
+and exits with code 0, so existing automation keeps working. The stub
+is planned for removal in pelicun 3.12.
+
+**Legacy Linter Dependencies**: flake8 (and its plugins), pylint (and
+its plugin), and pydocstyle were removed from the development
+dependencies; their roles have long been covered by ruff. The unused
+jsonpath2, sphinx-autoapi, and rendre packages were removed as well.
+
+Fixed
+-----
+
+**Worker-Count Fallback in Regional Simulation**: ``regional_sim`` no
+longer fails with a TypeError when ``os.cpu_count()`` returns None
+(platforms where the core count is undeterminable); it falls back to
+a single worker instead.
