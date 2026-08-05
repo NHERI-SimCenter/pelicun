@@ -160,6 +160,14 @@
 </section>
 <section id="changed">
 <h2>Changed<a class="headerlink" href="#changed" title="Link to this heading"></a></h2>
+<p><strong>Doc Extra Requires Python 3.10</strong>: The <code class="docutils literal notranslate"><span class="pre">doc</span></code> extra now installs
+only on Python 3.10 and newer. The documentation toolchain has
+dropped Python 3.9, so security fixes in those packages no longer
+reach Python 3.9-compatible versions and the lock file had to pin
+outdated versions for Python 3.9 that kept triggering security
+advisories. Pelicun itself and the <code class="docutils literal notranslate"><span class="pre">test</span></code> and <code class="docutils literal notranslate"><span class="pre">lint</span></code> extras
+continue to support Python 3.9; CI builds the documentation on
+Python 3.12.</p>
 </section>
 <section id="removed">
 <h2>Removed<a class="headerlink" href="#removed" title="Link to this heading"></a></h2>
